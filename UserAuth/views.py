@@ -6,7 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse, QueryDict
 from django.http.multipartparser import MultiPartParser
 
-@require_basicauth("Create ServiceUser")
+#@require_basicauth("Create ServiceUser")
 def create( request ):
 	"""
 	This handles /users:
@@ -18,6 +18,7 @@ def create( request ):
 		500: internal server error (i.e. uncought exception)
 	else: return 405 (method not allowed)
 	"""
+	import sys
 	if request.method != 'POST':
 		return HttpResponse( status=405 )
 	
@@ -38,15 +39,15 @@ def create( request ):
 		return HttpResponse( status=409 )
 	except ServiceUser.DoesNotExist:
 		pass
-	except:
-		return HttpResponse( status=500 )
+	except Exception, e:
+		return HttpResponse( str(e), status=500 )
 
 	user = ServiceUser( username=username )
 	user.set_password( password )
 	user.save()
 	return HttpResponse( status=201 )
 
-@require_basicauth("Handle ServiceUser")
+#@require_basicauth("Handle ServiceUser")
 def user_handler( request, username ):
 	print request.META.get('HTTP_CONTENT_TYPE', request.META.get('CONTENT_TYPE', ''))
 	if request.method == 'DELETE':
