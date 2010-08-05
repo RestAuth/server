@@ -49,7 +49,6 @@ def create( request ):
 
 #@require_basicauth("Handle ServiceUser")
 def user_handler( request, username ):
-	print request.META.get('HTTP_CONTENT_TYPE', request.META.get('CONTENT_TYPE', ''))
 	if request.method == 'DELETE':
 		# delete a user
 		try:
@@ -86,7 +85,6 @@ def user_handler( request, username ):
 		# update the users credentials
 
 		put_data = QueryDict( request.raw_post_data, encoding=request._encoding)
-		print( len(put_data) )
 		if len( put_data ) == 0:
 			return HttpResponse( status=400 ) # Bad Request
 
