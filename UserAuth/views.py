@@ -6,7 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse, QueryDict
 from django.http.multipartparser import MultiPartParser
 
-#@require_basicauth("Create ServiceUser")
+@require_basicauth("Create ServiceUser")
 def create( request ):
 	"""
 	This handles /users:
@@ -47,7 +47,7 @@ def create( request ):
 	user.save()
 	return HttpResponse( status=201 )
 
-#@require_basicauth("Handle ServiceUser")
+@require_basicauth("Handle ServiceUser")
 def user_handler( request, username ):
 	if request.method == 'DELETE':
 		# delete a user
