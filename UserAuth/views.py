@@ -121,7 +121,16 @@ def user_handler( request, username ):
 		user.save()
 
 		return HttpResponse( status=200 ) # Ok
+	elif request.method == 'GET':
+		try:
+			ServiceUser.objects.get( username=username )
+			return HttpResponse( status=200 ) # OK
+		except ServiceUser.DoesNotExist:
+			return HttpResponse( status=404 ) # Not Found
+		except:
+			return HttpResponse( status=500 ) # Internal Server Error
 	else:
+		# mmmh, exotic HTTP method!
 		return HttpResponse( status=405 ) # Method Not Allowed
 
 	# Unreachable
