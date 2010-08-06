@@ -96,6 +96,11 @@ INSTALLED_APPS = (
     'RestAuth.UserAuth',
 )
 
+try:
+	from localsettings import *
+except ImportError:
+	pass
+
 #AUTHENTICATION_BACKENDS = ( 'RestAuth.BasicAuth.backend', )
 
 # Set a different hash algorithm for hashing passwords. Currently this supports
@@ -111,3 +116,7 @@ INSTALLED_APPS = (
 #
 #MIN_USERNAME_LENGTH = 3
 #MIN_PASSWORD_LENGTH = 6
+
+# We want to handle basic authentication either via django itself *or* via
+# the webserver
+#RESTAUTH_AUTH_PROVIDER = 'internal'
