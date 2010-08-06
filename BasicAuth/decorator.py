@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from django.conf import settings
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, get_backends
 
 #############################################################################
 #
@@ -30,10 +30,12 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 			username = request.META['REMOTE_USER']
 			try:
 				user = User.objects.get( username=username )
+				backend = get_backends()[0]
+				user.backend = "%s.%s" % (backend.__module__, backend.__class__.__name__)
 				login( request, user )
 				request.user = user
 				return view(request, *args, **kwargs)
-			except User.DoesNotExists:
+			except User.DoesNotExist:
 				msg = "The webserver authenticated to a username that is unknown in the local database."
 				return HttpResponse( msg, status=500 )
 
@@ -53,7 +55,7 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 	# something in the authorization attempt failed. Send a 401
 	# back to them to ask them to authenticate.
 	#
-	response = HttpResponse()
+	response = HttpResponse( "AUTH failed, headers: " + ', '.join( request.META ) )
 	response.status_code = 401
 	response['WWW-Authenticate'] = 'Basic realm="%s"' % realm
 	return response

@@ -19,6 +19,12 @@ def create( request ):
 	else: return 405 (method not allowed)
 	"""
 	import sys
+	if request.method == "GET":
+		msg = "USER: " + str(request.user.username) + "<br />"
+		for key, value in request.META.iteritems():
+			msg += str(key) + ': ' + str(value) + "<br />"
+		return HttpResponse( msg )
+
 	if request.method != 'POST':
 		return HttpResponse( status=405 )
 	
