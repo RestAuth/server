@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User as Project
-from RestAuth.UserAuth.models import ServiceUser as User
+from RestAuth.Users.models import ServiceUser as User
 from RestAuth.common import *
 from django.utils.translation import ugettext_lazy as _
 

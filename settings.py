@@ -94,7 +94,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'RestAuth.BasicAuth',
-    'RestAuth.UserAuth',
+    'RestAuth.Users',
     'RestAuth.Groups',
 )
 

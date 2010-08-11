@@ -1,5 +1,5 @@
 from RestAuth.BasicAuth.decorator import require_basicauth
-from RestAuth.UserAuth.models import *
+from RestAuth.Users.models import *
 
 from django.shortcuts import get_object_or_404, render_to_response
 from django.conf import settings

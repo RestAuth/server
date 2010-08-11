@@ -1,5 +1,5 @@
 from RestAuth.BasicAuth.decorator import require_basicauth
-from RestAuth.UserAuth.models import *
+from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
 from RestAuth.common import *
 from django.http import HttpResponse, QueryDict
