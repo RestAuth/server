@@ -40,7 +40,7 @@ def get_response_type( request ):
 	if request_type not in accept:
 		raise ContentTypeNotAcceptable();
 
-class ContentTypeNotAcceptableMiddleware:
+class RestAuthMiddleware:
 	def process_exception( self, request, exception ):
 		if len( exception.args ) > 0:
 			response = HttpResponse( exception.args[0] )

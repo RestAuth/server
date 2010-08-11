@@ -75,6 +75,7 @@ MIDDLEWARE_CLASSES = (
 #    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'RestAuth.common.RestAuthMiddleware',
 )
 
 ROOT_URLCONF = 'RestAuth.urls'
@@ -94,6 +95,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'RestAuth.BasicAuth',
     'RestAuth.UserAuth',
+    'RestAuth.Groups',
 )
 
 try:
