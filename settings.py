@@ -98,13 +98,11 @@ INSTALLED_APPS = (
     'RestAuth.Groups',
 )
 
-try:
-	from localsettings import *
-except ImportError:
-	pass
-
-#AUTHENTICATION_BACKENDS = ( 'RestAuth.BasicAuth.backend', )
-
+# You need to explicitly allow connections from remote hosts. Simply list the
+# valid IP adresses as strings:
+#
+# RESTAUTH_ALLOWED_HOSTS = [ '127.0.0.1' ]
+#
 # Set a different hash algorithm for hashing passwords. Currently this supports
 # md5, sha1 and crypt. The default is sha1.
 #
@@ -120,5 +118,10 @@ except ImportError:
 #MIN_PASSWORD_LENGTH = 6
 
 # We want to handle basic authentication either via django itself *or* via
-# the webserver
+# the webserver, valid settings are 'internal' or 'apache'
 #RESTAUTH_AUTH_PROVIDER = 'internal'
+
+try:
+	from localsettings import *
+except ImportError:
+	pass

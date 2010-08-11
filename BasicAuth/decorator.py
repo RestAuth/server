@@ -15,15 +15,23 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 	are already logged in or if they have provided proper http-authorization
 	and returning the view if all goes well, otherwise responding with a 401.
 	"""
-	if request.user.is_authenticated():
-		# already authenticated
-		return view(request, *args, **kwargs)
-
 	if not hasattr( settings, 'RESTAUTH_AUTH_PROVIDER' ):
 		# we definetly depend on this setting
 		return HttpResponse( "You must set RESTAUTH_AUTH_PROVIDER in localsettings.py!", status=500 )
 
-	if settings.RESTAUTH_AUTH_PROVIDER == 'webserver':
+	# Check if the remote address is allowed to make any requests at all
+	if hasattr( settings, 'RESTAUTH_ALLOWED_HOSTS' ):
+		allowed_hosts = settings.RESTAUTH_ALLOWED_HOSTS
+	else:
+		allowed_hosts = ['127.0.0.1']a
+	if request.META['REMOTE_ADDR'] not in allowed_hosts:
+		return HttpResponse( status=403 )
+	
+	# Check if we are already authenticated:
+	if request.user.is_authenticated():
+		return view(request, *args, **kwargs)
+
+	if settings.RESTAUTH_AUTH_PROVIDER == 'apache':
 		# The credentials of the service were verified by the webserver,
 		# we only need to log the user in:
 		if 'REMOTE_USER' in request.META:
@@ -43,10 +51,11 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 		# RestAuth should also handle service authentication:
 		if 'HTTP_AUTHORIZATION' in request.META:
 			method, data = request.META['HTTP_AUTHORIZATION'].split()
-			if method == "basic":
+			if method.lower() == "basic":
 				uname, passwd = base64.b64decode(data).split(':')
 				user = authenticate(username=uname, password=passwd)
 				if user is not None:
+					print( 'd' )
 					login(request, user)
 					request.user = user
 					return view(request, *args, **kwargs)
