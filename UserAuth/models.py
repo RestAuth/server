@@ -3,9 +3,22 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User, get_hexdigest
 from django.utils.translation import ugettext_lazy as _
+from RestAuth.common import ResourceNotFound
 
 class InvalidPostData( BaseException ):
 	pass
+
+def user_exists( name ):
+	if ServiceUser.objects.filter( username=name ).exists():
+		return True
+	else:
+		return False
+
+def user_get( name ):
+	try:
+		return ServiceUser.objects.get( username=name )
+	except ServiceUser.DoesNotExist:
+		raise ResourceNotFound( 'user not found' )
 
 def check_valid_username( username ):
 	if hasattr( settings, 'MIN_USERNAME_LENGTH' ):
@@ -57,3 +70,19 @@ class ServiceUser( models.Model ):
 
 	def check_password( self, raw_password ):
 		return self.hash == get_hexdigest( self.algorithm, self.salt, raw_password )
+
+	def get_groups( self, project, recursive=True ):
+		groups = list( self.group_set.filter( project=project ) )
+		if recursive:
+			from RestAuth.Groups.models import Group # avoid circular imports
+			all_groups = Group.objects.filter( project=project )
+			for group in all_groups:
+				print( 'recursive for ' + group.name )
+				if group in groups:
+					print( 'skip' )
+					continue
+
+				if group.is_indirect_member( self ):
+					groups += group
+
+		return groups
