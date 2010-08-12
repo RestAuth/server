@@ -12,6 +12,21 @@ class ContentTypeNotAcceptable( Exception ):
 class MarshallError( Exception ):
 	pass
 
+def marshal( request, obj ):
+	try:   
+		response_type = get_response_type( request )
+		if response_type == 'text/plain':
+			return ', '.join( obj )
+		elif response_type == 'application/json':
+			import json
+			return json.dumps( obj )
+		else:  
+			raise ContentTypeNotAcceptable()
+	except ContentTypeNotAcceptable as e:
+		raise e
+	except Exception as e:
+		raise MarshalError( e )
+
 def get_response_type( request ):
 	try:
 		if request.META['HTTP_ACCEPT'] == '*/*':

@@ -1,5 +1,6 @@
 from RestAuth.BasicAuth.decorator import require_basicauth
 from RestAuth.Users.models import *
+from RestAuth.common import *
 
 from django.shortcuts import get_object_or_404, render_to_response
 from django.conf import settings
@@ -9,7 +10,7 @@ from django.http.multipartparser import MultiPartParser
 @require_basicauth("Create ServiceUser")
 def create( request ):
 	"""
-	This handles /users:
+	This handles /users/:
 	POST: create a new ServiceUser, returns HTTP status code:
 		201: created
 		400: bad request (i.e. POST-data is invalid/missing)
@@ -18,12 +19,11 @@ def create( request ):
 		500: internal server error (i.e. uncought exception)
 	else: return 405 (method not allowed)
 	"""
-	import sys
 	if request.method == "GET":
-		msg = "USER: " + str(request.user.username) + "<br />"
-		for key, value in request.META.iteritems():
-			msg += str(key) + ': ' + str(value) + "<br />"
-		return HttpResponse( msg )
+		users = ServiceUser.objects.all()
+		names = [ user.username for user in users ]
+		response = marshal( request, names )
+		return HttpResponse( response )
 
 	if request.method != 'POST':
 		return HttpResponse( status=405 )

@@ -4,22 +4,6 @@ from RestAuth.Groups.models import *
 from RestAuth.common import *
 from django.http import HttpResponse, QueryDict
 
-def marshal( request, obj ):
-	try:
-		response_type = get_response_type( request )
-		if response_type == 'text/plain':
-			return ', '.join( obj )
-		elif response_type == 'application/json':
-			import json
-			return json.dumps( obj )
-		else:
-			raise ContentTypeNotAcceptable()
-	except ContentTypeNotAcceptable as e:
-		raise e
-	except Exception as e:
-		raise MarshalError( e )
-
-
 @require_basicauth( "group management" )
 def index( request ):
 	project = request.user
