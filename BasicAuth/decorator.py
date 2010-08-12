@@ -23,7 +23,7 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 	if hasattr( settings, 'RESTAUTH_ALLOWED_HOSTS' ):
 		allowed_hosts = settings.RESTAUTH_ALLOWED_HOSTS
 	else:
-		allowed_hosts = ['127.0.0.1']a
+		allowed_hosts = ['127.0.0.1']
 	if request.META['REMOTE_ADDR'] not in allowed_hosts:
 		return HttpResponse( status=403 )
 	
