@@ -10,7 +10,7 @@ def general( name ):
 	starting or ending with '.'. It also filters control characters etc.,
 	including those from unicode.
 	"""
-	if '/' in name or ':' in name:
+	if '/' in name or ':' in name or '\\' in name:
 		return False
 
 	if name.startswith( '.' ) or name.endswith( '.' ):
@@ -111,10 +111,8 @@ def mediawiki( name ):
 
 	return True
 
-def linux_account( name ):
+def linux( name ):
 	if name.startswith( '-' ):
-		return False
-	if ':' in name:
 		return False
 	if len( name ) > 32:
 		return False
@@ -131,7 +129,7 @@ def linux_account( name ):
 
 	return True
 
-def windows_account( name ):
+def windows( name ):
 	# Reserved names in Windows, see
 	# 	http://support.microsoft.com/kb/909264
 	reserved = [ 'ANONYMOUS', 'AUTHENTICATED USER', 'BATCH', 'BUILTIN',
