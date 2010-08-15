@@ -98,6 +98,13 @@ INSTALLED_APPS = (
     'RestAuth.Groups',
 )
 
+#########################
+### RestAuth settings ###
+#########################
+# You can use these settings to customize the behaviour of RestAuth. Do *not*
+# set these settings here, but simply create a file called localsettings.py
+# and set the settings there.
+
 # You need to explicitly allow connections from remote hosts. Simply list the
 # valid IP adresses as strings:
 #
@@ -116,10 +123,18 @@ INSTALLED_APPS = (
 #
 #MIN_USERNAME_LENGTH = 3
 #MIN_PASSWORD_LENGTH = 6
-
+#
 # We want to handle basic authentication either via django itself *or* via
 # the webserver, valid settings are 'internal' or 'apache'
 #RESTAUTH_AUTH_PROVIDER = 'internal'
+#
+# Usernames are validated against the restrictions of various systems that might
+# use RestAuth. If you never plan on using some of these systems, they pose
+# unnecessary restrictions on what a valid username is. You can skip some
+# validators, please see
+#	http://fs.fsinf.at/wiki/RestAuth/Usernames
+# for more information.
+#SKIP_VALIDATORS = [ 'windows' ]
 
 try:
 	from localsettings import *
