@@ -3,10 +3,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User, get_hexdigest
 from django.utils.translation import ugettext_lazy as _
-from RestAuth.common import ResourceNotFound
-
-class InvalidPostData( BaseException ):
-	pass
+from RestAuth.common import ResourceNotFound, get_setting, UsernameInvalid
+from RestAuth.Users import validators
 
 def user_exists( name ):
 	if ServiceUser.objects.filter( username=name ).exists():
@@ -21,21 +19,28 @@ def user_get( name ):
 		raise ResourceNotFound( 'user not found' )
 
 def check_valid_username( username ):
-	if hasattr( settings, 'MIN_USERNAME_LENGTH' ):
-		min_length = settings.MIN_USERNAME_LENGTH
-	else:
-		min_length = 3
-
-	if not username.isalnum():
-		raise InvalidPostData( "Username must be alphanumeric" )
+	min_length = get_setting( 'MIN_USERNAME_LENGTH', 3 )
+	max_length = get_setting( 'MAX_USERNAME_LENGTH', 255 )
 	if len( username ) < min_length:
-		raise InvalidPostData( "Username too short" )
+		raise UsernameInvalid( "Username too short" )
+	if len( username ) > max_length:
+		raise UsernameInvalid( "Username too long" )
+
+	skip_validators = get_setting( 'SKIP_VALIDATORS', [] )
+	for val in [ f for f in dir( validators ) ]:
+		if val in skip_validators:
+			continue
+
+		func = getattr( validators, val )
+		if not callable( func ):
+			continue
+
+		if not func( username ):
+			raise UsernameInvalid( 'Username is not valid on %s'%(val) )
+
 
 def check_valid_password( password ):
-	if hasattr( settings, 'MIN_PASSWORD_LENGTH' ):
-		min_length = settings.MIN_PASSWORD_LENGTH
-	else:
-		min_length = 6
+	min_length = get_setting( 'MIN_PASSWORD_LENGTH', 6 )
 	
 	if len( password ) < min_length:
 		raise InvalidPostData( "Password too short" )
