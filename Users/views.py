@@ -34,11 +34,9 @@ def create( request ):
 	except KeyError:
 		return HttpResponse( status=400 )
 
-	try:
-		check_valid_username( username )
-		check_valid_password( password )
-	except InvalidPostData as e:
-		return HttpResponse( e.args[0] + "\n", status=400 )
+	# If UsernameInvalid: 400 Bad Request
+	check_valid_username( username )
+	check_valid_password( password )
 	
 	try:
 		user = ServiceUser.objects.get( username=username )
@@ -55,6 +53,8 @@ def create( request ):
 
 @require_basicauth("Handle ServiceUser")
 def user_handler( request, username ):
+	check_valid_username( username )
+
 	if request.method == 'DELETE':
 		# delete a user
 		try:
