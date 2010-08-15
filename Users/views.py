@@ -20,39 +20,36 @@ def create( request ):
 	else: return 405 (method not allowed)
 	"""
 	if request.method == "GET":
+		# get list of users
 		users = ServiceUser.objects.all()
 		names = [ user.username for user in users ]
 		response = marshal( request, names )
 		return HttpResponse( response )
+	elif request.method == 'POST':
+		# add a user
+		try:
+			username = request.POST['username']
+			password = request.POST['password']
+		except KeyError:
+			return HttpResponse( 'Could not retrieve username/password from POST data', status=400 )
 
-	if request.method != 'POST':
+		# If UsernameInvalid: 400 Bad Request
+		check_valid_username( username )
+		check_valid_password( password )
+	
+		if ServiceUser.objects.filter( username=username ).exists():
+			return HttpResponse( status=409 )
+
+		user = ServiceUser( username=username )
+		user.set_password( password )
+		user.save()
+		return HttpResponse( status=201 )
+	else:
 		return HttpResponse( status=405 )
-	
-	try:
-		username = request.POST['username']
-		password = request.POST['password']
-	except KeyError:
-		return HttpResponse( status=400 )
-
-	# If UsernameInvalid: 400 Bad Request
-	check_valid_username( username )
-	check_valid_password( password )
-	
-	try:
-		user = ServiceUser.objects.get( username=username )
-		return HttpResponse( status=409 )
-	except ServiceUser.DoesNotExist:
-		pass
-	except Exception, e:
-		return HttpResponse( str(e), status=500 )
-
-	user = ServiceUser( username=username )
-	user.set_password( password )
-	user.save()
-	return HttpResponse( status=201 )
 
 @require_basicauth("Handle ServiceUser")
 def user_handler( request, username ):
+	# If UsernameInvalid: 400 Bad Request
 	check_valid_username( username )
 
 	if request.method == 'DELETE':
@@ -99,12 +96,10 @@ def user_handler( request, username ):
 		except ServiceUser.DoesNotExist:
 			return HttpResponse( status=404 ) # Not Found
 
-		if hasattr( settings, 'ALLOW_USERNAME_CHANGE' ) and settings.ALLOW_USERNAME_CHANGE:
+		if get_setting( 'ALLOW_USERNAME_CHANGE', False ):
 			if put_data.has_key( 'username' ):
-				try:
-					check_valid_username( put_data['username'] )
-				except InvalidPostData as e:
-					return HttpResponse( e.args[0] + "\n", status=400 ) # Bad Request
+				# If UsernameInvalid: 400 Bad Request
+				check_valid_username( put_data['username'] )
 				user.username = put_data['username']
 		else:
 			if put_data.has_key( 'username' ):
@@ -119,9 +114,9 @@ def user_handler( request, username ):
 			user.set_password( put_data['password'] )
 
 		user.save()
-
 		return HttpResponse( status=200 ) # Ok
 	elif request.method == 'GET':
+		# Check if a user exists
 		try:
 			ServiceUser.objects.get( username=username )
 			return HttpResponse( status=200 ) # OK
