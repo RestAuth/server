@@ -1,4 +1,11 @@
 from django.http import HttpResponse
+from django.conf import settings
+
+class PostDataInvalid( Exception ):
+	pass
+
+class UsernameInvalid( Exception ):
+	pass
 
 class ResourceNotFound( Exception ):
 	pass
@@ -11,6 +18,12 @@ class ContentTypeNotAcceptable( Exception ):
 
 class MarshallError( Exception ):
 	pass
+
+def get_setting( setting, default=None ):
+	if hasattr( settings, setting ):
+		return getattr( settings, setting )
+	else:
+		return default
 
 def marshal( request, obj ):
 	try:   
@@ -62,7 +75,9 @@ class RestAuthMiddleware:
 		else:
 			response = HttpResponse()
 
-		if isinstance( exception, ContentTypeNotAcceptable ):
+		if isinstance( exception, UsernameInvalid ):
+			response.status_code = 400
+		elif isinstance( exception, ContentTypeNotAcceptable ):
 			response.status_code = 406
 		elif isinstance( exception, ResourceNotFound ):
 			response.status_code = 404
