@@ -1,0 +1,152 @@
+import re, stringprep
+
+def general( name ):
+	"""
+	General check that removes some really bad names. It is highly
+	recommended that you do *not* skip this check with the SKIP_VALIDATORS
+	setting.
+
+	This filters names containing a slash ("/") or colon (":") and those
+	starting or ending with '.'. It also filters control characters etc.,
+	including those from unicode.
+	"""
+	if '/' in name or ':' in name:
+		return False
+
+	if name.startswith( '.' ) or name.endswith( '.' ):
+		return False
+
+	# filter various dangerous characters
+	for char in name:
+		enc_char = char.decode( 'utf-8' )
+		if stringprep.in_table_c21_c22( enc_char ):
+			# control characters
+			return False
+		if stringprep.in_table_c3( enc_char ):
+			return False
+		if stringprep.in_table_c4( enc_char ):
+			return False
+		if stringprep.in_table_c5( enc_char ):
+			return False
+		if stringprep.in_table_c6( enc_char ):
+			return False
+		if stringprep.in_table_c7( enc_char ):
+			return False
+		if stringprep.in_table_c8( enc_char ):
+			return False
+		if stringprep.in_table_c9( enc_char ):
+			return False
+
+	return True
+
+def xmpp( name ):
+	"""
+	Check if the given name is a valid XMPP name. This filters unwanted
+	ASCII characters ("&'\/<>@) as well as any space (including unicode ones).
+	"""
+
+	# :/\ are also illegal, but already filtered by the general check
+	illegal_ascii = ['"', '&', '\'', '/', '<', '>', '@' ]
+	for char in illegal_ascii:
+		if char in name:
+			return False
+
+	# filter unallowed utf-8 characters:
+	for char in name:
+		enc_char = char.decode( 'utf-8' )
+		if stringprep.in_table_c11_c12( enc_char ):
+			# various whitespace characters
+			return False
+
+	return True
+
+def email( name ):
+	"""
+	Check if the given name is a valid email adress. Note that email
+	adresses MUST be ASCII characters, so if this validator is used, you can
+	only use ASCII names.
+
+	Invalid characters in this filter are: (),;<>@[] and any space
+	"""
+	try:
+		name.encode( 'ascii' )
+	except UnicodeEncodeError:
+		return False
+
+	# :\ are also illegal, but already filtered by the general check
+	regex = '[\\s(),;<>@\\[\\]]'
+	if re.search( regex, name ):
+		return False
+
+	return True
+
+def mediawiki( name ):
+	"""
+	Filter invalid MediaWiki usernames. This filters names with a
+	byte length of more than 255 characters, some reserved names and
+	the invalid characters: #<>|[]{}.
+	"""
+	if len( name.encode('utf-8') ) > 255:
+		# Page titles only up to 255 bytes:
+		return False
+
+	# already filtered by general check:
+	#if name == '.' or name == '..':
+	#	return False
+	#if name.startswith( "./" ) or name.startswith( "../" ):
+	#	return False
+	#if name.endswith( "/." ) or name.startswith( "/.." ):
+	#	return False
+
+	# see http://www.mediawiki.org/wiki/Manual:$wgReservedUsernames
+	reserved_names = [ 'MediaWiki default', 'Conversion script', 
+		'Maintenance script', 'msg:double-redirect-fixer',
+		'Template namespace initialisation script' ]
+	if name in reserved_names:
+		return False
+	
+	regex = '[#<>\\]\\|\\[{}]'
+	if re.search( regex, name ):
+		return False
+
+	return True
+
+def linux_account( name ):
+	if name.startswith( '-' ):
+		return False
+	if ':' in name:
+		return False
+	if len( name ) > 32:
+		return False
+
+	if re.search( '\s', name ):
+		return False
+
+	from RestAuth.common import get_setting
+	filter_not_recommended = get_setting( 'FILTER_LINUX_USERNAME_NOT_RECOMMENDED', True )
+	
+	# filter names that are not recommended:
+	if filter_not_recommended and not re.match( '[a-z_][a-z0-9_-]*[$]?', name ):
+		return False
+
+	return True
+
+def windows_account( name ):
+	# Reserved names in Windows, see
+	# 	http://support.microsoft.com/kb/909264
+	reserved = [ 'ANONYMOUS', 'AUTHENTICATED USER', 'BATCH', 'BUILTIN',
+		'CREATOR GROUP', 'CREATOR GROUP SERVER', 'CREATOR OWNER', 
+		'CREATOR OWNER SERVER', 'DIALUP', 'DIGEST AUTH', 'INTERACTIVE', 
+		'INTERNET', 'LOCAL', 'LOCAL SYSTEM', 'NETWORK', 
+		'NETWORK SERVICE', 'NT AUTHORITY', 'NT DOMAIN', 'NTLM AUTH',
+		'NULL', 'PROXY', 'REMOTE INTERACTIVE', 'RESTRICTED', 
+		'SCHANNEL AUTH', 'SELF', 'SERVER', 'SERVICE', 'SYSTEM', 
+		'TERMINAL SERVER', 'THIS ORGANIZATION', 'USERS', 'WORLD' ]
+	if name in reserved:
+		return False
+	# :/\ are also illegal, but already filtered by the general check
+	illegal = ['"', '[', ']', ';', '|', '=', '+', '*', '?',	'<', '>' ]
+	for char in illegal:
+		if char in name:
+			return False
+	return True
