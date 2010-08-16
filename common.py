@@ -1,26 +1,31 @@
 from django.http import HttpResponse
 from django.conf import settings
 
-class PostDataInvalid( Exception ):
-	pass
+class RestAuthException( Exception ):
+	code = 500
+	body = 'If you get this text, file a bugreport!'
 
-class UsernameInvalid( Exception ):
-	pass
+	def __init__( self, body=None ):
+		if body:
+			self.body = body
 
-class PasswordInvalid( Exception ):
-	pass
+class UsernameInvalid( RestAuthException ):
+	code = 400
 
-class ResourceNotFound( Exception ):
-	pass
+class PasswordInvalid( RestAuthException ):
+	code = 400
 
-class ResourceExists( Exception ):
-	pass
+class ResourceNotFound( RestAuthException ):
+	code = 404
 
-class ContentTypeNotAcceptable( Exception ):
-	pass
+class ResourceExists( RestAuthException ):
+	code = 409
 
-class MarshallError( Exception ):
-	pass
+class ContentTypeNotAcceptable( RestAuthException ):
+	code = 406
+
+class MarshallError( RestAuthException ):
+	code = 500
 
 def get_setting( setting, default=None ):
 	if hasattr( settings, setting ):
@@ -73,23 +78,7 @@ def get_response_type( request ):
 
 class RestAuthMiddleware:
 	def process_exception( self, request, exception ):
-		if len( exception.args ) > 0:
-			response = HttpResponse( exception.args[0] )
-		else:
-			response = HttpResponse()
-
-		if isinstance( exception, UsernameInvalid ):
-			response.status_code = 400
-		elif isinstance( exception, PasswordInvalid ):
-			response.status_code = 400
-		elif isinstance( exception, ContentTypeNotAcceptable ):
-			response.status_code = 406
-		elif isinstance( exception, ResourceNotFound ):
-			response.status_code = 404
-		elif isinstance( exception, ResourceExists ):
-			response.status_code = 409
-		elif isinstance( exception, MarshallError ):
-			response.status_code = 500
-
-		if response.status_code != 200:
-			return response
+		if isinstance( exception, RestAuthException ):
+			body = exception.body
+			status = exception.code
+			return HttpResponse( body, status=status )
