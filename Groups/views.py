@@ -108,7 +108,7 @@ def member_handler( request, groupname, username ):
 		if group.is_member( user, recursive ):
 			return HttpResponse( status=200 )
 		else:
-			return HttpResponse( status=404 ) # Not Found
+			return HttpResponse( 'not in group', status=404 ) # Not Found
 	elif request.method == 'DELETE':
 		group.users.remove( user )
 		return HttpResponse( status=200 )
