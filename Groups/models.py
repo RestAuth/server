@@ -8,14 +8,14 @@ def group_get( project, name ):
 	try:
 		return Group.objects.get( project=project, name=name )
 	except Group.DoesNotExist:
-		raise ResourceNotFound()
+		raise ResourceNotFound( 'Group "%s" not found'%(name) )
 
 def group_exists( project, name ):
 	return Group.objects.filter( project=project, name=name ).exists()
 
 def group_create( project, name ):
 	if group_exists( project, name ):
-		raise ResourceExists( 'group not found' )
+		raise ResourceExists( 'Group "%s" already exists'%(name) )
 	else:
 		group = Group( project=project, name=name )
 		group.save()
@@ -36,7 +36,7 @@ class Group( models.Model ):
 		return users
 
 	def is_member( self, user, recursive=True, lvl=0 ):
-		if user in self.users:
+		if self.users.filter( username=user.username ).exists():
 			return True
 
 		if recursive and lvl < 10:
