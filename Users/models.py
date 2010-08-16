@@ -3,7 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User, get_hexdigest
 from django.utils.translation import ugettext_lazy as _
-from RestAuth.common import ResourceNotFound, get_setting, UsernameInvalid
+from RestAuth.common import ResourceNotFound, get_setting, UsernameInvalid, PasswordInvalid
 from RestAuth.Users import validators
 
 def user_exists( name ):
@@ -43,7 +43,7 @@ def check_valid_password( password ):
 	min_length = get_setting( 'MIN_PASSWORD_LENGTH', 6 )
 	
 	if len( password ) < min_length:
-		raise InvalidPostData( "Password too short" )
+		raise PasswordInvalid( "Password too short" )
 
 	return True
 

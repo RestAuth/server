@@ -7,6 +7,9 @@ class PostDataInvalid( Exception ):
 class UsernameInvalid( Exception ):
 	pass
 
+class PasswordInvalid( Exception ):
+	pass
+
 class ResourceNotFound( Exception ):
 	pass
 
@@ -76,6 +79,8 @@ class RestAuthMiddleware:
 			response = HttpResponse()
 
 		if isinstance( exception, UsernameInvalid ):
+			response.status_code = 400
+		elif isinstance( exception, PasswordInvalid ):
 			response.status_code = 400
 		elif isinstance( exception, ContentTypeNotAcceptable ):
 			response.status_code = 406
