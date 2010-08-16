@@ -1,0 +1,26 @@
+#########################
+### RestAuth settings ###
+#########################
+# Set a different hash algorithm for hashing passwords. Currently this supports
+# md5, sha1 and crypt. The default is sha1.
+#HASH_ALGORITHM = 'sha1'
+#
+# Set to True if RestAuth should allow the username of a ServieUser to be changed:
+#ALLOW_USERNAME_CHANGE = False
+#
+# You can override the minimum username and password length:
+#MIN_USERNAME_LENGTH = 3
+#MIN_PASSWORD_LENGTH = 6
+#
+# We want to handle basic authentication either via django itself *or* via
+# the webserver, valid settings are 'internal' or 'apache'.
+#AUTH_PROVIDER = 'internal'
+#
+# Usernames are validated against the restrictions of various systems that might
+# use RestAuth. If you never plan on using some of these systems, they pose
+# unnecessary restrictions on what a valid username is. You can skip some
+# validators. Please see
+#       http://fs.fsinf.at/wiki/RestAuth/Usernames
+# for more information.
+#SKIP_VALIDATORS = [ 'windows', linux, email ]
+

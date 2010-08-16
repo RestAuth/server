@@ -98,44 +98,7 @@ INSTALLED_APPS = (
     'RestAuth.Groups',
 )
 
-#########################
-### RestAuth settings ###
-#########################
-# You can use these settings to customize the behaviour of RestAuth. Do *not*
-# set these settings here, but simply create a file called localsettings.py
-# and set the settings there.
-
-# You need to explicitly allow connections from remote hosts. Simply list the
-# valid IP adresses as strings:
-#
-# RESTAUTH_ALLOWED_HOSTS = [ '127.0.0.1' ]
-#
-# Set a different hash algorithm for hashing passwords. Currently this supports
-# md5, sha1 and crypt. The default is sha1.
-#
-#DEFAULT_PASSWORD_HASH_ALGORITHM = 'sha1'
-#
-# Set to True if RestAuth should allow the username of a ServieUser to be changed:
-#
-#ALLOW_USERNAME_CHANGE = False
-#
-# You can override the minimum username and password length:
-#
-#MIN_USERNAME_LENGTH = 3
-#MIN_PASSWORD_LENGTH = 6
-#
-# We want to handle basic authentication either via django itself *or* via
-# the webserver, valid settings are 'internal' or 'apache'
-#RESTAUTH_AUTH_PROVIDER = 'internal'
-#
-# Usernames are validated against the restrictions of various systems that might
-# use RestAuth. If you never plan on using some of these systems, they pose
-# unnecessary restrictions on what a valid username is. You can skip some
-# validators, please see
-#	http://fs.fsinf.at/wiki/RestAuth/Usernames
-# for more information.
-#SKIP_VALIDATORS = [ 'windows' ]
-
+# Note that you need some settings in localsettings.py!
 try:
 	from localsettings import *
 except ImportError:
