@@ -3,7 +3,6 @@ from RestAuth.Users.models import *
 from RestAuth.common import *
 
 from django.shortcuts import get_object_or_404, render_to_response
-from django.conf import settings
 from django.http import HttpResponse, QueryDict
 from django.http.multipartparser import MultiPartParser
 

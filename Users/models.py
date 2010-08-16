@@ -1,6 +1,5 @@
 import datetime
 from django.db import models
-from django.conf import settings
 from django.contrib.auth.models import User, get_hexdigest
 from django.utils.translation import ugettext_lazy as _
 from RestAuth.common import ResourceNotFound, get_setting, UsernameInvalid, PasswordInvalid
@@ -59,10 +58,7 @@ class ServiceUser( models.Model ):
 	date_joined = models.DateTimeField(_('date joined'), default=datetime.datetime.now)
 
 	def set_password( self, raw_password ):
-		if hasattr( settings, 'DEFAULT_PASSWORD_HASH_ALGORITHM' ):
-			self.algorithm = settings.DEFAULT_PASSWORD_HASH_ALGORITHM
-		else:
-			self.algorithm = 'sha1'
+		self.algorithm = get_setting( 'HASH_ALGORITHM' )
 
 		import random
 		self.salt = get_hexdigest(self.algorithm, str(random.random()), str(random.random()))[:5]
