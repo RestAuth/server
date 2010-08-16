@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, get_backends
 
 from RestAuth.BasicAuth.models import ServiceAddress
+from RestAuth.common import get_setting
 
 def verify_hostname( username, address ):
 	try:
@@ -36,10 +37,6 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 	are already logged in or if they have provided proper http-authorization
 	and returning the view if all goes well, otherwise responding with a 401.
 	"""
-	if not hasattr( settings, 'RESTAUTH_AUTH_PROVIDER' ):
-		# we definetly depend on this setting
-		return HttpResponse( "You must set RESTAUTH_AUTH_PROVIDER in localsettings.py!", status=500 )
-
 	# Check if it is even possible to authenticate from this host:
 	remote_addr = request.META['REMOTE_ADDR']
 	if not ServiceAddress.objects.filter( address=remote_addr ).exists():
@@ -52,7 +49,10 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 		print( 'already authenticated' )
 		return view(request, *args, **kwargs)
 
-	if settings.RESTAUTH_AUTH_PROVIDER == 'apache':
+	# get auth_provider
+	auth_provider = get_setting( AUTH_PROVIDER, 'internal' )
+
+	if auth_provider == 'apache':
 		# The credentials of the service were verified by the webserver,
 		# we only need to log the user in:
 		if 'REMOTE_USER' in request.META:
@@ -71,7 +71,7 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 				msg = "The webserver authenticated to a username that is unknown in the local database."
 				return HttpResponse( msg, status=500 )
 
-	elif settings.RESTAUTH_AUTH_PROVIDER == 'internal':
+	elif auth_provider == 'internal':
 		# RestAuth should also handle service authentication:
 		if 'HTTP_AUTHORIZATION' in request.META:
 			method, data = request.META['HTTP_AUTHORIZATION'].split()
@@ -86,7 +86,7 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 					request.user = user
 					return view(request, *args, **kwargs)
 	else:
-		return HttpResponse( 'Unknown RESTAUTH_AUTH_PROVIDER', status=500 )
+		return HttpResponse( 'Unknown AUTH_PROVIDER', status=500 )
 
 	# If we reach this, no authentication credentials were provided or
 	# authentication failed
