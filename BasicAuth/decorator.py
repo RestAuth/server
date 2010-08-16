@@ -6,6 +6,27 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, get_backends
 
+from RestAuth.BasicAuth.models import ServiceAddress
+
+def verify_hostname( username, address ):
+	try:
+		hostname = ServiceAddress.objects.get( address=address )
+		if hostname.services.filter( username=username ).exists():
+			return True
+		else:
+			return False
+	except ServiceAddress.DoesNotExist:
+		return False
+
+def auth_request( realm ):
+	# Either they did not provide an authorization header or
+	# something in the authorization attempt failed. Send a 401
+	# back to them to ask them to authenticate.
+	#
+	response = HttpResponse( status=401 )
+	response['WWW-Authenticate'] = 'Basic realm="%s"' % realm
+	return response
+
 #############################################################################
 #
 def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
@@ -19,16 +40,16 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 		# we definetly depend on this setting
 		return HttpResponse( "You must set RESTAUTH_AUTH_PROVIDER in localsettings.py!", status=500 )
 
-	# Check if the remote address is allowed to make any requests at all
-	if hasattr( settings, 'RESTAUTH_ALLOWED_HOSTS' ):
-		allowed_hosts = settings.RESTAUTH_ALLOWED_HOSTS
-	else:
-		allowed_hosts = ['127.0.0.1']
-	if request.META['REMOTE_ADDR'] not in allowed_hosts:
+	# Check if it is even possible to authenticate from this host:
+	remote_addr = request.META['REMOTE_ADDR']
+	if not ServiceAddress.objects.filter( address=remote_addr ).exists():
+		# This means that its impossible for the HTTP client to
+		# authenticate, no matter what credentials are provided
 		return HttpResponse( status=403 )
-	
+
 	# Check if we are already authenticated:
 	if request.user.is_authenticated():
+		print( 'already authenticated' )
 		return view(request, *args, **kwargs)
 
 	if settings.RESTAUTH_AUTH_PROVIDER == 'apache':
@@ -36,6 +57,9 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 		# we only need to log the user in:
 		if 'REMOTE_USER' in request.META:
 			username = request.META['REMOTE_USER']
+			if not verify_hostname( username, remote_addr ):
+				return auth_request( realm )
+
 			try:
 				user = User.objects.get( username=username )
 				backend = get_backends()[0]
@@ -47,26 +71,27 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 				msg = "The webserver authenticated to a username that is unknown in the local database."
 				return HttpResponse( msg, status=500 )
 
-	if settings.RESTAUTH_AUTH_PROVIDER == 'internal':
+	elif settings.RESTAUTH_AUTH_PROVIDER == 'internal':
 		# RestAuth should also handle service authentication:
 		if 'HTTP_AUTHORIZATION' in request.META:
 			method, data = request.META['HTTP_AUTHORIZATION'].split()
 			if method.lower() == "basic":
-				uname, passwd = base64.b64decode(data).split(':')
-				user = authenticate(username=uname, password=passwd)
+				username, passwd = base64.b64decode(data).split(':')
+				if not verify_hostname( username, remote_addr ):
+					return auth_request( realm )
+
+				user = authenticate( username=username, password=passwd )
 				if user is not None:
 					login(request, user)
 					request.user = user
 					return view(request, *args, **kwargs)
+	else:
+		return HttpResponse( 'Unknown RESTAUTH_AUTH_PROVIDER', status=500 )
 
-	# Either they did not provide an authorization header or
-	# something in the authorization attempt failed. Send a 401
-	# back to them to ask them to authenticate.
-	#
-	response = HttpResponse( "AUTH failed, headers: " + ', '.join( request.META ) )
-	response.status_code = 401
-	response['WWW-Authenticate'] = 'Basic realm="%s"' % realm
-	return response
+	# If we reach this, no authentication credentials were provided or
+	# authentication failed
+	return auth_request( realm )
+
 	
 #############################################################################
 #
