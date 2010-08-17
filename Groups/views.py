@@ -32,12 +32,12 @@ def index( request ):
 	elif request.method == 'POST':
 		# add a new group
 		if 'group' in request.POST:
-			name = request.POST['group']
+			groupname = request.POST['group']
 		else:
 			return HttpResponse( status=400 ) # Bad request
 
 		# If ResourceExists: 409 Conflict
-		group_create( project, name )
+		group_create( project, groupname )
 		return HttpResponse( status=201 ) # Created
 	else:
 		return HttpResponse( status=405 ) # method not allowed

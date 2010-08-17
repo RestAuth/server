@@ -27,7 +27,7 @@ def create( request ):
 	elif request.method == 'POST':
 		# add a user
 		try:
-			username = request.POST['username']
+			username = request.POST['user']
 			password = request.POST['password']
 		except KeyError:
 			return HttpResponse( 'Could not retrieve username/password from POST data', status=400 )
@@ -36,7 +36,7 @@ def create( request ):
 		check_valid_username( username )
 		check_valid_password( password )
 	
-		if ServiceUser.objects.filter( username=username ).exists():
+		if user_exists( username ):
 			return HttpResponse( status=409 )
 
 		user = ServiceUser( username=username )
@@ -50,17 +50,14 @@ def create( request ):
 def user_handler( request, username ):
 	# If UsernameInvalid: 400 Bad Request
 	check_valid_username( username )
+	
+	# If ResourceNotFound: 404 Not Found
+	user = user_get( username )
 
 	if request.method == 'DELETE':
 		# delete a user
-		try:
-			user = ServiceUser.objects.get( username=username )
-			user.delete()
-			return HttpResponse( status=200 ) # OK
-		except ServiceUser.DoesNotExist:
-			return HttpResponse( status=404 ) # Not Found
-		except:
-			return HttpResponse( status=500 ) # Internal Server Error
+		user.delete()
+		return HttpResponse( status=200 ) # OK
 	elif request.method == 'POST':
 		# check users credentials
 
@@ -69,19 +66,12 @@ def user_handler( request, username ):
 		except KeyError:
 			return HttpResponse( status=400 ) # Bad Request
 
-		try:
-			user = ServiceUser.objects.get( username=username )
-			if user.check_password( password ):
-				user.save() # update "modified" timestamp
-				return HttpResponse( status=200 ) # Ok
-			else:
-				# password does not match
-				return HttpResponse( status=404 ) # Not found
-		except ServiceUser.DoesNotExist:
-			# user does not exist
+		if user.check_password( password ):
+			user.save() # update "modified" timestamp
+			return HttpResponse( status=200 ) # Ok
+		else:
+			# password does not match
 			return HttpResponse( status=404 ) # Not found
-		except:
-			return HttpResponse( status=500 ) # Internal Server Error
 
 	elif request.method == 'PUT':
 		# update the users credentials
@@ -89,11 +79,6 @@ def user_handler( request, username ):
 		put_data = QueryDict( request.raw_post_data, encoding=request._encoding)
 		if len( put_data ) == 0:
 			return HttpResponse( status=400 ) # Bad Request
-
-		try:
-			user = ServiceUser.objects.get( username=username )
-		except ServiceUser.DoesNotExist:
-			return HttpResponse( status=404 ) # Not Found
 
 		if get_setting( 'ALLOW_USERNAME_CHANGE', False ):
 			if put_data.has_key( 'username' ):
@@ -115,14 +100,9 @@ def user_handler( request, username ):
 		user.save()
 		return HttpResponse( status=200 ) # Ok
 	elif request.method == 'GET':
-		# Check if a user exists
-		try:
-			ServiceUser.objects.get( username=username )
-			return HttpResponse( status=200 ) # OK
-		except ServiceUser.DoesNotExist:
-			return HttpResponse( status=404 ) # Not Found
-		except:
-			return HttpResponse( status=500 ) # Internal Server Error
+		# Check if a user exists 
+		# (If user doesn't exist, we already returned 404)
+		return HttpResponse( status=200 ) # OK
 	else:
 		# mmmh, exotic HTTP method!
 		return HttpResponse( status=405 ) # Method Not Allowed
