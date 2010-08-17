@@ -58,7 +58,7 @@ class ServiceUser( models.Model ):
 	date_joined = models.DateTimeField(_('date joined'), default=datetime.datetime.now)
 
 	def set_password( self, raw_password ):
-		self.algorithm = get_setting( 'HASH_ALGORITHM' )
+		self.algorithm = get_setting( 'HASH_ALGORITHM', 'sha1' )
 
 		import random
 		self.salt = get_hexdigest(self.algorithm, str(random.random()), str(random.random()))[:5]
