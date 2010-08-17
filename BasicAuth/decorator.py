@@ -19,12 +19,12 @@ def verify_hostname( username, address ):
 	except ServiceAddress.DoesNotExist:
 		return False
 
-def auth_request( realm ):
+def auth_request( realm, body='please authenticate' ):
 	# Either they did not provide an authorization header or
 	# something in the authorization attempt failed. Send a 401
 	# back to them to ask them to authenticate.
 	#
-	response = HttpResponse( 'please authenticate', status=401 )
+	response = HttpResponse( body, status=401 )
 	response['WWW-Authenticate'] = 'Basic realm="%s"' % realm
 	return response
 
@@ -58,7 +58,8 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 		if 'REMOTE_USER' in request.META:
 			username = request.META['REMOTE_USER']
 			if not verify_hostname( username, remote_addr ):
-				return auth_request( realm )
+				msg = '%s is not allowed to authenticate from %s'%(username, remote_addr)
+				return auth_request( realm, msg )
 
 			try:
 				user = User.objects.get( username=username )
@@ -78,7 +79,8 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 			if method.lower() == "basic":
 				username, passwd = base64.b64decode(data).split(':')
 				if not verify_hostname( username, remote_addr ):
-					return auth_request( realm )
+					msg = '%s is not allowed to authenticate from %s'%(username, remote_addr)
+					return auth_request( realm, msg )
 
 				user = authenticate( username=username, password=passwd )
 				if user is not None:
