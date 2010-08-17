@@ -50,7 +50,7 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 		return view(request, *args, **kwargs)
 
 	# get auth_provider
-	auth_provider = get_setting( AUTH_PROVIDER, 'internal' )
+	auth_provider = get_setting( 'AUTH_PROVIDER', 'internal' )
 
 	if auth_provider == 'apache':
 		# The credentials of the service were verified by the webserver,
