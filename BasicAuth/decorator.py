@@ -24,7 +24,7 @@ def auth_request( realm ):
 	# something in the authorization attempt failed. Send a 401
 	# back to them to ask them to authenticate.
 	#
-	response = HttpResponse( status=401 )
+	response = HttpResponse( 'please authenticate', status=401 )
 	response['WWW-Authenticate'] = 'Basic realm="%s"' % realm
 	return response
 
@@ -42,7 +42,7 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 	if not ServiceAddress.objects.filter( address=remote_addr ).exists():
 		# This means that its impossible for the HTTP client to
 		# authenticate, no matter what credentials are provided
-		return HttpResponse( status=403 )
+		return HttpResponse( 'no service is allowed to authenticate from %s'%(remote_addr), status=403 )
 
 	# Check if we are already authenticated:
 	if request.user.is_authenticated():
