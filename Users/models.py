@@ -84,6 +84,6 @@ class ServiceUser( models.Model ):
 					continue
 
 				if group.is_indirect_member( self ):
-					groups += group
+					groups.append( group )
 
 		return groups
