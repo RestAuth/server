@@ -25,14 +25,17 @@ class Group( models.Model ):
 	project = models.ForeignKey( Project, help_text=_("Required. Associated project") )
 	name = models.CharField(_('name'), max_length=30, help_text=_("Required. Name of the group."))
 	users = models.ManyToManyField( User )
-	groups = models.ManyToManyField( 'self' )
+	groups = models.ManyToManyField( 'self', symmetrical=False, related_name='parent_groups' )
 
 	def get_members( self, recursive=True, lvl=0 ):
-		users = self.users.all()
+		users = set( self.users.all() )
 		if recursive and lvl < 10:
-			for gr in self.groups.all():
-				users += gr.get_members( recursive, lvl+1 )
+			print( 'recursive...' )
+			for gr in self.parent_groups.all():
+				print( gr.name )
+				users = users.union( gr.get_members( recursive, lvl+1 ) )
 
+		print( '%s: %s'%(self.name, ', '.join( [ user.username for user in users ] ) ) )
 		return users
 
 	def is_member( self, user, recursive=True, lvl=0 ):
@@ -44,7 +47,7 @@ class Group( models.Model ):
 		return False
 
 	def is_indirect_member( self, user, lvl=0 ):
-		for group in self.groups.all():
+		for group in self.parent_groups.all():
 			if group.is_member( user, True, lvl ):
 				return True
 		return False
