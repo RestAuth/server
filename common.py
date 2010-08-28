@@ -12,6 +12,9 @@ class RestAuthException( Exception ):
 class UsernameInvalid( RestAuthException ):
 	code = 400
 
+class ServiceNotFound( RestAuthException ):
+	pass
+
 class PasswordInvalid( RestAuthException ):
 	code = 400
 
