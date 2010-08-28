@@ -35,13 +35,9 @@ def create( request ):
 		# If UsernameInvalid: 400 Bad Request
 		check_valid_username( username )
 		check_valid_password( password )
-	
-		if user_exists( username ):
-			return HttpResponse( status=409 )
 
-		user = ServiceUser( username=username )
-		user.set_password( password )
-		user.save()
+		# If ResourceExists: 409 Conflict
+		user_create( username, password )
 		return HttpResponse( status=201 )
 	else:
 		return HttpResponse( status=405 )
@@ -106,6 +102,3 @@ def user_handler( request, username ):
 	else:
 		# mmmh, exotic HTTP method!
 		return HttpResponse( status=405 ) # Method Not Allowed
-
-	# Unreachable
-	return HttpResponse( status=500 ) # Internal Server Error

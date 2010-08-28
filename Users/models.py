@@ -2,7 +2,7 @@ import datetime
 from django.db import models
 from django.contrib.auth.models import User, get_hexdigest
 from django.utils.translation import ugettext_lazy as _
-from RestAuth.common import ResourceNotFound, get_setting, UsernameInvalid, PasswordInvalid
+from RestAuth.common import ResourceNotFound, get_setting, UsernameInvalid, PasswordInvalid, ResourceExists
 from RestAuth.Users import validators
 
 def user_exists( name ):
@@ -16,6 +16,15 @@ def user_get( name ):
 		return ServiceUser.objects.get( username=name )
 	except ServiceUser.DoesNotExist:
 		raise ResourceNotFound( 'user not found' )
+
+def user_create( name, password ):
+	if user_exists( name ):
+		raise ResourceExists( "A user with the given name already exists." )
+	
+	user = ServiceUser( username=name )
+	user.set_password( password )
+	user.save()
+	
 
 def check_valid_username( username ):
 	min_length = get_setting( 'MIN_USERNAME_LENGTH', 3 )
@@ -72,15 +81,17 @@ class ServiceUser( models.Model ):
 	def check_password( self, raw_password ):
 		return self.hash == get_hexdigest( self.algorithm, self.salt, raw_password )
 
-	def get_groups( self, project, recursive=True ):
-		groups = list( self.group_set.filter( project=project ) )
+	def get_groups( self, project=None, recursive=True ):
+		if project:
+			groups = list( self.group_set.filter( service=project ) )
+		else:
+			groups = list( self.group_set.all() )
+
 		if recursive:
 			from RestAuth.Groups.models import Group # avoid circular imports
-			all_groups = Group.objects.filter( project=project )
+			all_groups = Group.objects.filter( service=project )
 			for group in all_groups:
-				print( 'recursive for ' + group.name )
 				if group in groups:
-					print( 'skip' )
 					continue
 
 				if group.is_indirect_member( self ):

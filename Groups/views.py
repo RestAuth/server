@@ -47,7 +47,7 @@ def group_handler( request, groupname ):
 	project = request.user
 	
 	# If ResourceNotFound: 404 Not Found
-	group = group_get( project=project, name=groupname )
+	group = group_get( groupname, project )
 
 	if request.method == 'GET':
 		# get all members of a group
@@ -80,7 +80,7 @@ def group_handler( request, groupname ):
 			group.users.add( user )
 		elif 'group' in request.POST: # add a group to a group
 			# If ResourceNotFound: 404 Not Found
-			childgroup = group_get( project, request.POST['group'] )
+			childgroup = group_get( request.POST['group'], project )
 			group.groups.add( childgroup )
 		
 		group.save()
@@ -96,7 +96,7 @@ def member_handler( request, groupname, username ):
 	project = request.user
 	
 	# If ResourceNotFound: 404 Not Found
-	group = group_get( project, groupname )
+	group = group_get( groupname, project )
 	user = user_get( username )
 
 	if request.method == 'GET':

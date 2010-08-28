@@ -4,26 +4,36 @@ from RestAuth.Users.models import ServiceUser as User
 from RestAuth.common import *
 from django.utils.translation import ugettext_lazy as _
 
-def group_get( project, name ):
+def group_get( name, service=None ):
+	"""
+	@raises ResourceNotFound: If no group with the given name exists.
+	"""
 	try:
-		return Group.objects.get( project=project, name=name )
+		if service:
+			return Group.objects.get( service=service, name=name )
+		else:
+			return Group.objects.get( name=name )
+	except Group.MultipleObjectsReturned:
+		raise ResourceNotFound( 'The group "%s" is defined in multiple services'%(name) )
 	except Group.DoesNotExist:
 		raise ResourceNotFound( 'Group "%s" not found'%(name) )
 
-def group_exists( project, name ):
-	return Group.objects.filter( project=project, name=name ).exists()
+def group_exists( service, name ):
+	return Group.objects.filter( service=service, name=name ).exists()
 
-def group_create( project, name ):
-	if group_exists( project, name ):
+def group_create( service, name ):
+	if group_exists( service, name ):
 		raise ResourceExists( 'Group "%s" already exists'%(name) )
 	else:
-		group = Group( project=project, name=name )
+		group = Group( service=service, name=name )
 		group.save()
 
 # Create your models here.
 class Group( models.Model ):
-	project = models.ForeignKey( Project, help_text=_("Required. Associated project") )
-	name = models.CharField(_('name'), max_length=30, help_text=_("Required. Name of the group."))
+	service = models.ForeignKey( Project, 
+		help_text=_("Service that is associated with this group.") )
+	name = models.CharField(_('name'), max_length=30, 
+		help_text=_("Required. Name of the group."))
 	users = models.ManyToManyField( User )
 	groups = models.ManyToManyField( 'self', symmetrical=False, related_name='parent_groups' )
 
