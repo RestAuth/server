@@ -46,7 +46,7 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 
 	# Check if we are already authenticated:
 	if request.user.is_authenticated():
-		print( 'already authenticated' )
+#		print( 'already authenticated' )
 		return view(request, *args, **kwargs)
 
 	# get auth_provider
