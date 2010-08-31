@@ -88,7 +88,11 @@ class ServiceUser( models.Model ):
 			groups = list( self.group_set.all() )
 
 		if recursive:
-			from RestAuth.Groups.models import Group # avoid circular imports
+			# import here to avoid circular imports:
+			from RestAuth.Groups.models import Group
+
+			# get groups that this user is only an indirect member
+			# of. 
 			all_groups = Group.objects.filter( service=project )
 			for group in all_groups:
 				if group in groups:
@@ -96,5 +100,10 @@ class ServiceUser( models.Model ):
 
 				if group.is_indirect_member( self ):
 					groups.append( group )
+
+			# get child-groups
+			for group in groups:
+				child_groups = group.get_child_groups()
+				groups += ( child_groups )
 
 		return groups
