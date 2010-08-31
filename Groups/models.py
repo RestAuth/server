@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User as Project
+from django.contrib.auth.models import User as Service
+from RestAuth.BasicAuth.models import service_get
 from RestAuth.Users.models import ServiceUser as User
 from RestAuth.common import *
 from django.utils.translation import ugettext_lazy as _
@@ -9,7 +10,10 @@ def group_get( name, service=None ):
 	@raises ResourceNotFound: If no group with the given name exists.
 	"""
 	try:
-		if service:
+		if service.__class__ == str:
+			service = service_get( service )
+			return Group.objects.get( service=service, name=name )
+		if service.__class__ == Service:
 			return Group.objects.get( service=service, name=name )
 		else:
 			return Group.objects.get( name=name )
@@ -30,7 +34,7 @@ def group_create( service, name ):
 
 # Create your models here.
 class Group( models.Model ):
-	service = models.ForeignKey( Project, 
+	service = models.ForeignKey( Service, null=True, 
 		help_text=_("Service that is associated with this group.") )
 	name = models.CharField(_('name'), max_length=30, 
 		help_text=_("Required. Name of the group."))
@@ -40,12 +44,10 @@ class Group( models.Model ):
 	def get_members( self, recursive=True, lvl=0 ):
 		users = set( self.users.all() )
 		if recursive and lvl < 10:
-			print( 'recursive...' )
 			for gr in self.parent_groups.all():
 				print( gr.name )
 				users = users.union( gr.get_members( recursive, lvl+1 ) )
 
-		print( '%s: %s'%(self.name, ', '.join( [ user.username for user in users ] ) ) )
 		return users
 
 	def is_member( self, user, recursive=True, lvl=0 ):
@@ -61,3 +63,20 @@ class Group( models.Model ):
 			if group.is_member( user, True, lvl ):
 				return True
 		return False
+
+	def get_child_groups( self, lvl=0 ):
+		"""
+		Get a set of child groups.
+
+		@param lvl: The recursion level. Used internally.
+		@type  lvl: int
+		@rtype: set
+		@return: All direct and indirect child-groups of this group.
+		"""
+		child_groups = set( self.groups.all() )
+
+		if lvl < 10:
+			for group in self.groups.all():
+				child_groups.union( group.get_child_groups( lvl+1 ) )
+
+		return child_groups
