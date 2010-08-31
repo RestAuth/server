@@ -39,7 +39,7 @@ def service_get( name ):
 	try:
 		return Service.objects.get( username=name )
 	except User.DoesNotExist:
-		raise ServiceNotFound( name )
+		raise ServiceNotFound( "Service not found: %s"%(name) )
 
 def service_delete( name ):
 	service = service_get( name )
