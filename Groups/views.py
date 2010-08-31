@@ -23,7 +23,7 @@ def index( request ):
 			groups = user.get_groups( project, recursive )
 		else:
 			# get all groups for this project
-			groups = Group.objects.filter( project=project )
+			groups = Group.objects.filter( service=project )
 
 		names = [ group.name for group in groups ]
 		# If MarshalError: 500 Internal Server Error
