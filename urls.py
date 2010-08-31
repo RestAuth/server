@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
+    (r'^/?$', 'RestAuth.views.index' ),
     (r'^admin/',  include('admin.site.urls')),
     (r'^users/',  include('RestAuth.Users.urls')),
     (r'^groups/', include('RestAuth.Groups.urls')),
