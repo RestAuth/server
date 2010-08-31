@@ -13,7 +13,7 @@ class UsernameInvalid( RestAuthException ):
 	code = 400
 
 class ServiceNotFound( RestAuthException ):
-	pass
+	code = 500
 
 class PasswordInvalid( RestAuthException ):
 	code = 400
@@ -45,39 +45,51 @@ def marshal( request, obj ):
 			import json
 			return json.dumps( obj )
 		else:  
-			raise ContentTypeNotAcceptable()
+			raise ContentTypeNotAcceptable('Failed to determine an acceptable content-type! (%s)'%(response_type) )
 	except ContentTypeNotAcceptable as e:
 		raise e
 	except Exception as e:
 		raise MarshalError( e )
 
+CONTENT_TYPES = [ 'application/json', 'text/plain' ]
+
 def get_response_type( request ):
 	try:
 		if request.META['HTTP_ACCEPT'] == '*/*':
-			accept = []
+			accept = CONTENT_TYPES
 		else:
 			accept = request.META['HTTP_ACCEPT'].split( ',' )
 	except KeyError:
-		accept = []
+		accept = CONTENT_TYPES
 
 	try:
 		request_type = request.META['CONTENT_TYPE']
 	except KeyError:
 		request_type = None
 
+	# neither Content-Type nor Accept header:
 	if not request_type and not accept:
-		return 'text/plain'
+		return 'application/json'
 	
-	if not accept:
-		return request_type
+	if not accept: # no accept header
+		if request_type in CONTENT_TYPES:
+			return request_type
+		else:
+			raise ContentTypeNotAcceptable( "Unacceptable content type requested: The Content-Type header is unsupported and no Accept header was provided" )
+
+	# No Content-Type header, but there is an Accept value that we can produce:
 	if not request_type:
-		return accept[0]
+		acceptable = [ typ for typ in accept if typ in CONTENT_TYPES ]
+		if acceptable:
+			return acceptable[0]
+		else:
+			raise ContentTypeNotAcceptable( "Unacceptable content type requested: The Accept-Header lists no acceptable content type" )
 	
 	if request_type and request_type in accept:
 		return request_type
 
 	if request_type not in accept:
-		raise ContentTypeNotAcceptable();
+		raise ContentTypeNotAcceptable( 'Unable to determine content-type' );
 
 class RestAuthMiddleware:
 	def process_exception( self, request, exception ):
