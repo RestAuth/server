@@ -81,11 +81,18 @@ class ServiceUser( models.Model ):
 	def check_password( self, raw_password ):
 		return self.hash == get_hexdigest( self.algorithm, self.salt, raw_password )
 
-	def get_groups( self, project=None, recursive=True ):
-		if project:
-			groups = list( self.group_set.filter( service=project ) )
+	def get_groups( self, service=None, recursive=True ):
+		"""
+		Get a list of groups that this user is a member of.
+
+		@param service: Limit the list of groups to those defined by the
+			given service.
+		@type  service: service
+		"""
+		if service:
+			groups = set( self.group_set.filter( service=service ) )
 		else:
-			groups = list( self.group_set.all() )
+			groups = set( self.group_set.all() )
 
 		if recursive:
 			# import here to avoid circular imports:
@@ -93,17 +100,18 @@ class ServiceUser( models.Model ):
 
 			# get groups that this user is only an indirect member
 			# of. 
-			all_groups = Group.objects.filter( service=project )
+			all_groups = Group.objects.filter( service=service )
 			for group in all_groups:
 				if group in groups:
 					continue
 
 				if group.is_indirect_member( self ):
-					groups.append( group )
+					groups.add( group )
 
 			# get child-groups
+			child_groups = set()
 			for group in groups:
-				child_groups = group.get_child_groups()
-				groups += ( child_groups )
+				child_groups.update( group.get_child_groups() )
+			groups.update( child_groups )
 
 		return groups
