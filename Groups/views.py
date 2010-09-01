@@ -37,7 +37,7 @@ def index( request ):
 			return HttpResponse( status=400 ) # Bad request
 
 		# If ResourceExists: 409 Conflict
-		group_create( project, groupname )
+		group_create( groupname, project )
 		return HttpResponse( status=201 ) # Created
 	else:
 		return HttpResponse( status=405 ) # method not allowed
@@ -69,7 +69,7 @@ def group_handler( request, groupname ):
 
 		if 'autocreate' in request.POST:
 			try:
-				group_create( project, groupname )
+				group_create( groupname, project )
 			except ResourceExists:
 				# This is not an error
 				pass

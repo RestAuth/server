@@ -25,7 +25,10 @@ def group_get( name, service=None ):
 def group_exists( service, name ):
 	return Group.objects.filter( service=service, name=name ).exists()
 
-def group_create( service, name ):
+def group_create( name, service='' ):
+	"""
+	Create a new group.
+	"""
 	if group_exists( service, name ):
 		raise ResourceExists( 'Group "%s" already exists'%(name) )
 	else:
@@ -34,7 +37,7 @@ def group_create( service, name ):
 
 # Create your models here.
 class Group( models.Model ):
-	service = models.ForeignKey( Service, null=True, 
+	service = models.ForeignKey( Service, 
 		help_text=_("Service that is associated with this group.") )
 	name = models.CharField(_('name'), max_length=30, 
 		help_text=_("Required. Name of the group."))
