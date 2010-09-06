@@ -7,37 +7,54 @@ from django.utils.translation import ugettext_lazy as _
 
 def group_get( name, service=None ):
 	"""
+	Get a group object from the name and service.
+
+	@param name: Name of the new group
+	@type  name: str
+	@param service: The service this group should be associated to. If
+		ommitted, the group will not be associated with any service.
+	@type service: service
+	
 	@raises ResourceNotFound: If no group with the given name exists.
 	"""
 	try:
-		if service.__class__ == str:
-			service = service_get( service )
-			return Group.objects.get( service=service, name=name )
-		if service.__class__ == Service:
-			return Group.objects.get( service=service, name=name )
-		else:
-			return Group.objects.get( name=name )
+		return Group.objects.get( name=name, service=service )
 	except Group.MultipleObjectsReturned:
 		raise ResourceNotFound( 'The group "%s" is defined in multiple services'%(name) )
 	except Group.DoesNotExist:
 		raise ResourceNotFound( 'Group "%s" not found'%(name) )
 
-def group_exists( service, name ):
+def group_exists( name, service=None ):
+	"""
+	Check if a given service already exists.
+	
+	@param name: Name of the new group
+	@type  name: str
+	@param service: The service this group should be associated to. If
+		ommitted, the group will not be associated with any service.
+	@type service: service
+	"""
 	return Group.objects.filter( service=service, name=name ).exists()
 
-def group_create( name, service='' ):
+def group_create( name, service=None ):
 	"""
 	Create a new group.
+
+	@param name: Name of the new group
+	@type  name: str
+	@param service: The service this group should be associated to. If
+		ommitted, the group will not be associated with any service.
+	@type service: service
 	"""
-	if group_exists( service, name ):
+	if group_exists( name, service ):
 		raise ResourceExists( 'Group "%s" already exists'%(name) )
-	else:
-		group = Group( service=service, name=name )
-		group.save()
+	
+	group = Group( name=name, service=service )
+	group.save()
 
 # Create your models here.
 class Group( models.Model ):
-	service = models.ForeignKey( Service, 
+	service = models.ForeignKey( Service, null=True,
 		help_text=_("Service that is associated with this group.") )
 	name = models.CharField(_('name'), max_length=30, 
 		help_text=_("Required. Name of the group."))
