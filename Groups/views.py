@@ -4,6 +4,8 @@ from RestAuth.Groups.models import *
 from RestAuth.common import *
 from django.http import HttpResponse, QueryDict
 
+import sys
+
 @require_basicauth( "group management" )
 def index( request ):
 	project = request.user
@@ -46,10 +48,10 @@ def index( request ):
 def group_handler( request, groupname ):
 	project = request.user
 	
-	# If ResourceNotFound: 404 Not Found
-	group = group_get( groupname, project )
-
 	if request.method == 'GET':
+		# If ResourceNotFound: 404 Not Found
+		group = group_get( groupname, project )
+
 		# get all members of a group
 		if 'nonrecursive' in request.GET:
 			recursive = False
@@ -69,10 +71,14 @@ def group_handler( request, groupname ):
 
 		if 'autocreate' in request.POST:
 			try:
-				group_create( groupname, project )
+				group = group_create( groupname, project )
 			except ResourceExists:
-				# This is not an error
-				pass
+				# If ResourceNotFound: 404 Not Found
+				group = group_get( groupname, project )
+		else:
+			# If ResourceNotFound: 404 Not Found
+			group = group_get( groupname, project )
+			
 
 		if 'user' in request.POST: # add a user to a group
 			# If ResourceNotFound: 404 Not Found
@@ -86,6 +92,8 @@ def group_handler( request, groupname ):
 		group.save()
 		return HttpResponse( status=200 )
 	elif request.method == 'DELETE':
+		# If ResourceNotFound: 404 Not Found
+		group = group_get( groupname, project )
 		group.delete()
 		return HttpResponse( status=200 ) # OK
 	else:
