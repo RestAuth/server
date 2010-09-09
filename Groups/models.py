@@ -51,6 +51,7 @@ def group_create( name, service=None ):
 	
 	group = Group( name=name, service=service )
 	group.save()
+	return group
 
 # Create your models here.
 class Group( models.Model ):
