@@ -8,7 +8,7 @@ import sys
 
 @require_basicauth( "group management" )
 def index( request ):
-	project = request.user
+	service = request.user
 
 	if request.method == 'GET':
 		if 'user' in request.GET:
@@ -22,10 +22,10 @@ def index( request ):
 				recursive = True
 
 			# If ResourceNotFound: 404 Not Found
-			groups = user.get_groups( project, recursive )
+			groups = user.get_groups( service, recursive )
 		else:
-			# get all groups for this project
-			groups = Group.objects.filter( service=project )
+			# get all groups for this service
+			groups = Group.objects.filter( service=service )
 
 		names = [ group.name for group in groups ]
 		# If MarshalError: 500 Internal Server Error
@@ -39,18 +39,18 @@ def index( request ):
 			return HttpResponse( status=400 ) # Bad request
 
 		# If ResourceExists: 409 Conflict
-		group_create( groupname, project )
+		group_create( groupname, service )
 		return HttpResponse( status=201 ) # Created
 	else:
 		return HttpResponse( status=405 ) # method not allowed
 
 @require_basicauth( "group management" )
 def group_handler( request, groupname ):
-	project = request.user
+	service = request.user
 	
 	if request.method == 'GET':
 		# If ResourceNotFound: 404 Not Found
-		group = group_get( groupname, project )
+		group = group_get( groupname, service )
 
 		# get all members of a group
 		if 'nonrecursive' in request.GET:
@@ -71,13 +71,13 @@ def group_handler( request, groupname ):
 
 		if 'autocreate' in request.POST:
 			try:
-				group = group_create( groupname, project )
+				group = group_create( groupname, service )
 			except ResourceExists:
 				# If ResourceNotFound: 404 Not Found
-				group = group_get( groupname, project )
+				group = group_get( groupname, service )
 		else:
 			# If ResourceNotFound: 404 Not Found
-			group = group_get( groupname, project )
+			group = group_get( groupname, service )
 			
 
 		if 'user' in request.POST: # add a user to a group
@@ -86,14 +86,14 @@ def group_handler( request, groupname ):
 			group.users.add( user )
 		elif 'group' in request.POST: # add a group to a group
 			# If ResourceNotFound: 404 Not Found
-			childgroup = group_get( request.POST['group'], project )
+			childgroup = group_get( request.POST['group'], service )
 			group.groups.add( childgroup )
 		
 		group.save()
 		return HttpResponse( status=200 )
 	elif request.method == 'DELETE':
 		# If ResourceNotFound: 404 Not Found
-		group = group_get( groupname, project )
+		group = group_get( groupname, service )
 		group.delete()
 		return HttpResponse( status=200 ) # OK
 	else:
@@ -101,10 +101,10 @@ def group_handler( request, groupname ):
 
 @require_basicauth( "group management" )
 def member_handler( request, groupname, username ):
-	project = request.user
+	service = request.user
 	
 	# If ResourceNotFound: 404 Not Found
-	group = group_get( groupname, project )
+	group = group_get( groupname, service )
 	user = user_get( username )
 
 	if request.method == 'GET':
