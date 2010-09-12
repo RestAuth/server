@@ -102,3 +102,55 @@ def user_handler( request, username ):
 	else:
 		# mmmh, exotic HTTP method!
 		return HttpResponse( status=405 ) # Method Not Allowed
+
+
+#@require_basicauth("Userproperties index")
+def userprops_index( request, username ):
+	# If UsernameInvalid: 400 Bad Request
+	check_valid_username( username )
+	
+	# If ResourceNotFound: 404 Not Found
+	user = user_get( username )
+
+	if request.method == 'GET':
+		props = user.get_properties()
+		return HttpResponse( marshal( request, props ) )
+	elif request.method == 'POST':
+		if 'prop' not in request.POST and 'value' not in request.POST:
+			# We check for this right away so we don't cause any
+			# database load in case this happens
+			return HttpResponse( status=400 )
+
+		if user.has_property( request.POST['prop'] ):
+			return HttpResponse( 'Property already set', status=409 )
+		else:
+			user.set_property( request.POST['prop'], request.POST['value'] )
+			return HttpResponse()
+	else:
+		return HttpResponse( status=405 ) # Method Not Allowed
+
+#@require_basicauth("Userproperties prop")
+def userprops_prop( request, username, prop ):
+	# If UsernameInvalid: 400 Bad Request
+	check_valid_username( username )
+	
+	# If ResourceNotFound: 404 Not Found
+	user = user_get( username )
+	
+	if request.method == 'GET':
+		prop = user.get_property( prop )
+		return HttpResponse( prop.value )
+	elif request.method == 'PUT':
+		put_data = QueryDict( request.raw_post_data, encoding=request._encoding)
+		if 'value' not in put_data:
+			# We check for this right away so we don't cause any
+			# database load in case this happens
+			return HttpResponse( status=400 )
+
+		user.set_property( prop, put_data['value'] )
+		return HttpResponse()
+	elif request.method == 'DELETE':
+		user.del_property( prop )
+		return HttpResponse() 
+	else:
+		return HttpResponse( status=405 ) # Method Not Allowed

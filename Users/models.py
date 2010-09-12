@@ -114,10 +114,9 @@ class ServiceUser( models.Model ):
 		return groups
 
 	def has_property( self, key ):
-		try:
-			self.property_set.get( key=key )
+		if self.property_set.filter( key=key ).exists():
 			return True
-		except Property.DoesNotExist:
+		else:
 			return False
 
 	def get_properties( self ):
@@ -132,6 +131,7 @@ class ServiceUser( models.Model ):
 		if self.has_property( key ):
 			prop = self.get_property( key )
 			prop.value = value
+			prop.save()
 		else:
 			self.property_set.add( Property( key=key, value=value ) )
 
@@ -139,7 +139,10 @@ class ServiceUser( models.Model ):
 		return self.property_set.get( key=key )
 	
 	def del_property( self, key ):
-		pass
+		try:
+			self.get_property( key ).delete()
+		except Property.DoesNotExist:
+			pass
 
 	def __unicode__( self ):
 		return self.username
