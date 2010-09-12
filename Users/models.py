@@ -55,14 +55,11 @@ def check_valid_password( password ):
 
 	return True
 
-# Create your models here.
 class ServiceUser( models.Model ):
 	username = models.CharField(_('username'), max_length=30, unique=True, help_text=_("Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters"))
 	algorithm = models.CharField( _('algorithm'), max_length=5, help_text=_("The algorithm used to hash passwords") )
 	salt = models.CharField( _('salt'), max_length=16, help_text=_("salt for the hash") )
 	hash = models.CharField( _('hash'), max_length=128, help_text=_("actual hash of the password") )
-# original:
-#	password = models.CharField(_('password'), max_length=128, help_text=_("Use '[algo]$[salt]$[hexdigest]' or use the <a href=\"password/\">change password form</a>."))
 	last_login = models.DateTimeField(_('last login'), default=datetime.datetime.now, auto_now=True)
 	date_joined = models.DateTimeField(_('date joined'), default=datetime.datetime.now)
 
@@ -115,3 +112,42 @@ class ServiceUser( models.Model ):
 			groups.update( child_groups )
 
 		return groups
+
+	def has_property( self, key ):
+		try:
+			self.property_set.get( key=key )
+			return True
+		except Property.DoesNotExist:
+			return False
+
+	def get_properties( self ):
+		dictionary = {}
+
+		props = self.property_set.all()
+		for prop in props:
+			dictionary[prop.key] = prop.value
+		return dictionary
+
+	def set_property( self, key, value ):
+		if self.has_property( key ):
+			prop = self.get_property( key )
+			prop.value = value
+		else:
+			self.property_set.add( Property( key=key, value=value ) )
+
+	def get_property( self, key ):
+		return self.property_set.get( key=key )
+	
+	def del_property( self, key ):
+		pass
+
+	def __unicode__( self ):
+		return self.username
+
+class Property( models.Model ):
+	user = models.ForeignKey( ServiceUser )
+	key = models.CharField( max_length=30 )
+	value = models.CharField( max_length=100 )
+
+	def __unicode__( self ):
+		return "%s: %s=%s"%(self.user.username, self.key, self.value)
