@@ -14,14 +14,13 @@ def index( request ):
 		if 'user' in request.GET:
 			# get groups for a specific user
 			
-			# If ResourceNotFound: 404 Not Found
+			# If User.DoesNotExist: 404 Not Found
 			user = user_get( request.GET['user'] ) 
 			if 'nonrecursive' in request.GET:
 				recursive = False
 			else:
 				recursive = True
 
-			# If ResourceNotFound: 404 Not Found
 			groups = user.get_groups( service, recursive )
 		else:
 			# get all groups for this service
@@ -49,7 +48,7 @@ def group_handler( request, groupname ):
 	service = request.user
 	
 	if request.method == 'GET':
-		# If ResourceNotFound: 404 Not Found
+		# If Group.DoesNotExist: 404 Not Found
 		group = group_get( groupname, service )
 
 		# get all members of a group
@@ -73,26 +72,25 @@ def group_handler( request, groupname ):
 			try:
 				group = group_create( groupname, service )
 			except ResourceExists:
-				# If ResourceNotFound: 404 Not Found
+				# If Group.DoesNotExist: 404 Not Found
 				group = group_get( groupname, service )
 		else:
-			# If ResourceNotFound: 404 Not Found
+			# If Group.DoesNotExist: 404 Not Found
 			group = group_get( groupname, service )
-			
 
 		if 'user' in request.POST: # add a user to a group
-			# If ResourceNotFound: 404 Not Found
+			# If User.DoesNotExist: 404 Not Found
 			user = user_get( request.POST['user'] )
 			group.users.add( user )
 		elif 'group' in request.POST: # add a group to a group
-			# If ResourceNotFound: 404 Not Found
+			# If Group.DoesNotExist: 404 Not Found
 			childgroup = group_get( request.POST['group'], service )
 			group.groups.add( childgroup )
 		
 		group.save()
 		return HttpResponse( status=200 )
 	elif request.method == 'DELETE':
-		# If ResourceNotFound: 404 Not Found
+		# If Group.DoesNotExist: 404 Not Found
 		group = group_get( groupname, service )
 		group.delete()
 		return HttpResponse( status=200 ) # OK
@@ -103,8 +101,9 @@ def group_handler( request, groupname ):
 def member_handler( request, groupname, username ):
 	service = request.user
 	
-	# If ResourceNotFound: 404 Not Found
+	# If Group.DoesNotExist: 404 Not Found
 	group = group_get( groupname, service )
+	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
 
 	if request.method == 'GET':

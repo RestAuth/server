@@ -2,7 +2,7 @@ import datetime
 from django.db import models
 from django.contrib.auth.models import User, get_hexdigest
 from django.utils.translation import ugettext_lazy as _
-from RestAuth.common import ResourceNotFound, get_setting, UsernameInvalid, PasswordInvalid, ResourceExists
+from RestAuth.common import get_setting, UsernameInvalid, PasswordInvalid, ResourceExists
 from RestAuth.Users import validators
 
 def user_exists( name ):
@@ -12,10 +12,7 @@ def user_exists( name ):
 		return False
 
 def user_get( name ):
-	try:
-		return ServiceUser.objects.get( username=name )
-	except ServiceUser.DoesNotExist:
-		raise ResourceNotFound( 'user not found' )
+	return ServiceUser.objects.get( username=name )
 
 def user_create( name, password ):
 	if user_exists( name ):
@@ -24,7 +21,6 @@ def user_create( name, password ):
 	user = ServiceUser( username=name )
 	user.set_password( password )
 	user.save()
-	
 
 def check_valid_username( username ):
 	min_length = get_setting( 'MIN_USERNAME_LENGTH', 3 )

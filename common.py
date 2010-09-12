@@ -19,9 +19,6 @@ class ServiceNotFound( RestAuthException ):
 class PasswordInvalid( RestAuthException ):
 	code = 400
 
-class ResourceNotFound( RestAuthException ):
-	code = 404
-
 class ResourceExists( RestAuthException ):
 	code = 409
 

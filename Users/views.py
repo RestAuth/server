@@ -47,7 +47,7 @@ def user_handler( request, username ):
 	# If UsernameInvalid: 400 Bad Request
 	check_valid_username( username )
 	
-	# If ResourceNotFound: 404 Not Found
+	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
 
 	if request.method == 'DELETE':
@@ -109,7 +109,7 @@ def userprops_index( request, username ):
 	# If UsernameInvalid: 400 Bad Request
 	check_valid_username( username )
 	
-	# If ResourceNotFound: 404 Not Found
+	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
 
 	if request.method == 'GET':
@@ -134,7 +134,7 @@ def userprops_prop( request, username, prop ):
 	# If UsernameInvalid: 400 Bad Request
 	check_valid_username( username )
 	
-	# If ResourceNotFound: 404 Not Found
+	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
 	
 	if request.method == 'GET':

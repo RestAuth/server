@@ -14,15 +14,8 @@ def group_get( name, service=None ):
 	@param service: The service this group should be associated to. If
 		ommitted, the group will not be associated with any service.
 	@type service: service
-	
-	@raises ResourceNotFound: If no group with the given name exists.
 	"""
-	try:
-		return Group.objects.get( name=name, service=service )
-	except Group.MultipleObjectsReturned:
-		raise ResourceNotFound( 'The group "%s" is defined in multiple services'%(name) )
-	except Group.DoesNotExist:
-		raise ResourceNotFound( 'Group "%s" not found'%(name) )
+	return Group.objects.get( name=name, service=service )
 
 def group_exists( name, service=None ):
 	"""
