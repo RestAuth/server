@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 class RestAuthException( Exception ):
 	code = 500
@@ -93,6 +94,8 @@ def get_response_type( request ):
 
 class RestAuthMiddleware:
 	def process_exception( self, request, exception ):
+		if isinstance( exception, ObjectDoesNotExist ):
+			return HttpResponse( exception, status=404 )
 		if isinstance( exception, RestAuthException ):
 			body = exception.body
 			status = exception.code
