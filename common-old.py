@@ -2,6 +2,8 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
+from Users.models import DoesNotExists as UserDoesNotExist
+
 class RestAuthException( Exception ):
 	code = 500
 	body = 'If you get this text, file a bugreport!'
@@ -92,6 +94,9 @@ def get_response_type( request ):
 class RestAuthMiddleware:
 	def process_exception( self, request, exception ):
 		if isinstance( exception, ObjectDoesNotExist ):
+			print( 'ObjectDoesNotExists: %s'%(dir( exception )) )
+			print( exception.__class__ )
+			print( exception.__module__ ) # str!
 			return HttpResponse( exception, status=404 )
 		if isinstance( exception, RestAuthException ):
 			body = exception.body

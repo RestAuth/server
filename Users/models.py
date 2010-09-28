@@ -2,7 +2,8 @@ import datetime
 from django.db import models
 from django.contrib.auth.models import User, get_hexdigest
 from django.utils.translation import ugettext_lazy as _
-from RestAuth.common import get_setting, UsernameInvalid, PasswordInvalid, ResourceExists
+from RestAuth.common import get_setting
+from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, ResourceExists
 from RestAuth.Users import validators
 
 def user_exists( name ):

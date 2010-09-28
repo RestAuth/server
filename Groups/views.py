@@ -1,7 +1,7 @@
 from RestAuth.BasicAuth.decorator import require_basicauth
 from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
-from RestAuth.common import *
+from RestAuth.common import marshal
 from django.http import HttpResponse, QueryDict
 
 import sys
@@ -82,6 +82,7 @@ def group_handler( request, groupname ):
 			# If User.DoesNotExist: 404 Not Found
 			user = user_get( request.POST['user'] )
 			group.users.add( user )
+			group.save()
 		elif 'group' in request.POST: # add a group to a group
 			# If Group.DoesNotExist: 404 Not Found
 			childgroup = group_get( request.POST['group'], service )
@@ -115,7 +116,7 @@ def member_handler( request, groupname, username ):
 		if group.is_member( user, recursive ):
 			return HttpResponse( status=200 )
 		else:
-			return HttpResponse( 'not in group', status=404 ) # Not Found
+			return HttpResponse( status=404 ) # Not Found
 	elif request.method == 'DELETE':
 		group.users.remove( user )
 		return HttpResponse( status=200 )

@@ -75,7 +75,7 @@ MIDDLEWARE_CLASSES = (
 #    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'RestAuth.common.RestAuthMiddleware',
+    'RestAuth.common.middleware.ExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'RestAuth.urls'

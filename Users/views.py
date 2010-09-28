@@ -1,8 +1,8 @@
 from RestAuth.BasicAuth.decorator import require_basicauth
 from RestAuth.Users.models import *
-from RestAuth.common import *
 
-from django.shortcuts import get_object_or_404, render_to_response
+from RestAuth.common import get_setting, marshal
+
 from django.http import HttpResponse, QueryDict
 from django.http.multipartparser import MultiPartParser
 
@@ -66,8 +66,8 @@ def user_handler( request, username ):
 			user.save() # update "modified" timestamp
 			return HttpResponse( status=200 ) # Ok
 		else:
-			# password does not match
-			return HttpResponse( status=404 ) # Not found
+			# password does not match - raises 404
+			raise ServiceUser.DoesNotExist( "Password invalid for this user." )
 
 	elif request.method == 'PUT':
 		# update the users credentials

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from RestAuth.common import ServiceNotFound
+from RestAuth.common.errors import ServiceNotFound
 
 class ServiceUsernameNotValid( BaseException ):
 	pass

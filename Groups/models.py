@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User as Service
 from RestAuth.BasicAuth.models import service_get
 from RestAuth.Users.models import ServiceUser as User
-from RestAuth.common import *
+from RestAuth.common.errors import ResourceExists
 from django.utils.translation import ugettext_lazy as _
 
 def group_get( name, service=None ):
