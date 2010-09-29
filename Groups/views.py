@@ -63,9 +63,15 @@ def group_handler( request, groupname ):
 		response = marshal( request, [ user.username for user in users ] )
 		return HttpResponse( response, status=200 )
 	elif request.method == 'POST':
-		if 'user' not in request.POST and 'group' not in request.POST:
-			# We check for this right away so we don't cause any
-			# database load in case this happens
+		# we get the user/group we want to add right away so that we
+		# throw a 404 *before* the parent-group is created:
+		if 'user' in request.POST:
+			# If User.DoesNotExist: 404 Not Found
+			user = user_get( request.POST['user'] )
+		elif 'group' in request.POST:
+			# If Group.DoesNotExist: 404 Not Found
+			childgroup = group_get( request.POST['group'], service )
+		else:
 			return HttpResponse( status=400 )
 
 		if 'autocreate' in request.POST:
@@ -79,13 +85,8 @@ def group_handler( request, groupname ):
 			group = group_get( groupname, service )
 
 		if 'user' in request.POST: # add a user to a group
-			# If User.DoesNotExist: 404 Not Found
-			user = user_get( request.POST['user'] )
 			group.users.add( user )
-			group.save()
-		elif 'group' in request.POST: # add a group to a group
-			# If Group.DoesNotExist: 404 Not Found
-			childgroup = group_get( request.POST['group'], service )
+		if 'group' in request.POST: # add a group to a group
 			group.groups.add( childgroup )
 		
 		group.save()
@@ -116,7 +117,7 @@ def member_handler( request, groupname, username ):
 		if group.is_member( user, recursive ):
 			return HttpResponse( status=200 )
 		else:
-			return HttpResponse( status=404 ) # Not Found
+			raise ServiceUser.DoesNotExist()
 	elif request.method == 'DELETE':
 		group.users.remove( user )
 		return HttpResponse( status=200 )
