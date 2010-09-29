@@ -13,7 +13,6 @@ from RestAuth.Groups.models import Group
 class ExceptionMiddleware:
 	def process_exception( self, request, exception ):
 		if isinstance( exception, ServiceUser.DoesNotExist ):
-			print( 'ServiceUser.DoesNotExist: %s'%(exception) )
 			resp = HttpResponse( exception, status=404 )
 			resp['Resource'] = 'User'
 			return resp
