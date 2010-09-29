@@ -1,7 +1,7 @@
 from RestAuth.BasicAuth.decorator import require_basicauth
 from RestAuth.Users.models import *
 
-from RestAuth.common import get_setting, marshal
+from RestAuth.common import get_setting, marshal, parse_request_body
 
 from django.http import HttpResponse, QueryDict
 from django.http.multipartparser import MultiPartParser
@@ -25,10 +25,12 @@ def create( request ):
 		response = marshal( request, names )
 		return HttpResponse( response )
 	elif request.method == 'POST':
+		body = parse_request_body( request )
+
 		# add a user
 		try:
-			username = request.POST['user']
-			password = request.POST['password']
+			username = body['user']
+			password = body['password']
 		except KeyError:
 			return HttpResponse( 'Could not retrieve username/password from POST data', status=400 )
 
@@ -56,9 +58,10 @@ def user_handler( request, username ):
 		return HttpResponse( status=200 ) # OK
 	elif request.method == 'POST':
 		# check users credentials
+		body = parse_request_body( request )
 
 		try:
-			password = request.POST['password']
+			password = body['password']
 		except KeyError:
 			return HttpResponse( status=400 ) # Bad Request
 
@@ -71,27 +74,26 @@ def user_handler( request, username ):
 
 	elif request.method == 'PUT':
 		# update the users credentials
-
-		put_data = QueryDict( request.raw_post_data, encoding=request._encoding)
-		if len( put_data ) == 0:
+		body = parse_request_body( request )
+		if len( body ) == 0:
 			return HttpResponse( status=400 ) # Bad Request
 
 		if get_setting( 'ALLOW_USERNAME_CHANGE', False ):
-			if put_data.has_key( 'username' ):
+			if body.has_key( 'username' ):
 				# If UsernameInvalid: 400 Bad Request
 				check_valid_username( put_data['username'] )
 				user.username = put_data['username']
 		else:
-			if put_data.has_key( 'username' ):
+			if body.has_key( 'username' ):
 				return HttpResponse( status=403 ) # Forbidden
 
-		if put_data.has_key( 'password' ):
+		if body.has_key( 'password' ):
 			try:
-				check_valid_password( put_data['password'] )
+				check_valid_password( body['password'] )
 			except InvalidPostData as e:
 				return HttpResponse( e.args[0] + "\n", status=400 ) # Bad Request
 
-			user.set_password( put_data['password'] )
+			user.set_password( body['password'] )
 
 		user.save()
 		return HttpResponse( status=200 ) # Ok
@@ -116,15 +118,17 @@ def userprops_index( request, username ):
 		props = user.get_properties()
 		return HttpResponse( marshal( request, props ) )
 	elif request.method == 'POST':
-		if 'prop' not in request.POST and 'value' not in request.POST:
+		body = parse_request_body( request )
+
+		if 'prop' not in body and 'value' not in body:
 			# We check for this right away so we don't cause any
 			# database load in case this happens
 			return HttpResponse( status=400 )
 
-		if user.has_property( request.POST['prop'] ):
+		if user.has_property( body['prop'] ):
 			return HttpResponse( 'Property already set', status=409 )
 		else:
-			user.set_property( request.POST['prop'], request.POST['value'] )
+			user.set_property( body['prop'], body['value'] )
 			return HttpResponse()
 	else:
 		return HttpResponse( status=405 ) # Method Not Allowed
@@ -141,13 +145,13 @@ def userprops_prop( request, username, prop ):
 		prop = user.get_property( prop )
 		return HttpResponse( prop.value )
 	elif request.method == 'PUT':
-		put_data = QueryDict( request.raw_post_data, encoding=request._encoding)
-		if 'value' not in put_data:
+		body = parse_request_body( request )
+		if 'value' not in body:
 			# We check for this right away so we don't cause any
 			# database load in case this happens
 			return HttpResponse( status=400 )
 
-		user.set_property( prop, put_data['value'] )
+		user.set_property( prop, body['value'] )
 		return HttpResponse()
 	elif request.method == 'DELETE':
 		user.del_property( prop )

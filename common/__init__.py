@@ -5,22 +5,38 @@ from django.core.exceptions import ObjectDoesNotExist
 from errors import BadRequest
 
 def parse_request_body( request ):
-	if request.has_key( 'Content-Type' ):
-		content_type = request['Content-Type']
+	"""
+	Parse the request body of POST and PUT requests according to the format
+	indicated by the 'Content-Type' header. Currently, either
+	'application/json' or 'x-www-form-urlencoded' is supported. If the
+	header is missing, the data is assumed to be of type
+	'x-www-form-urlencoded'. 
+
+	@param request: The request as passed to the django invocation handler
+	@raise BadRequest: When the request could not be parsed or *any*
+		Exception is thrown.
+
+	"""
+	if request.META.has_key( 'CONTENT_TYPE' ):
+		content_type = request.META['CONTENT_TYPE']
 	else:
 		content_type = 'application/x-www-form-urlencoded'
 
-	if content_type == 'application/x-www-form-urlencoded':
-		if request.method == 'POST':
-			return request.POST
-		elif request.method == 'PUT':
-			return QueryDict( request.raw_post_data, encoding=request._encoding)
-	elif content_type == 'application/json':
-		import json
-		print( type( request.raw_post_data ) )
-		json.loads( request.raw_post_data )
-	else:
-		raise BadRequest( 'Content-Type is unacceptable: %s'%(content_type) )
+	try:
+		if content_type == 'application/x-www-form-urlencoded':
+			if request.method == 'POST':
+				return request.POST
+			elif request.method == 'PUT':
+				return QueryDict( request.raw_post_data, encoding=request._encoding)
+		elif content_type == 'application/json':
+			import json
+			return json.loads( request.raw_post_data )
+	except Exception as e:
+		print( 'Ex: %s'%(e) )
+		print( request.raw_post_data )
+		raise BadRequest( 'Error parsing body: %s'%(e) )
+
+	raise BadRequest( 'Content-Type is unacceptable: %s'%(content_type) )
 
 def get_setting( setting, default=None ):
 	if hasattr( settings, setting ):
@@ -39,46 +55,48 @@ def marshal( request, obj ):
 		else:  
 			raise ContentTypeNotAcceptable('Failed to determine an acceptable content-type! (%s)'%(response_type) )
 	except ContentTypeNotAcceptable as e:
+		print( e )
 		raise e
 	except Exception as e:
+		print( e )
 		raise MarshalError( e )
 
-CONTENT_TYPES = [ 'application/json', 'text/plain' ]
+CONTENT_TYPES = [ 'application/json', 'application/x-www-form-urlencoded' ]
 
 def get_response_type( request ):
-	try:
-		if request.META['HTTP_ACCEPT'] == '*/*':
+	# parse HTTP-Accept header:
+	if 'HTTP_ACCEPT' in request.META:
+		# parse HTTP-Accept header:
+		header = request.META['HTTP_ACCEPT']
+		if not header or header == ['*/*']:
 			accept = CONTENT_TYPES
 		else:
-			accept = request.META['HTTP_ACCEPT'].split( ',' )
-	except KeyError:
-		accept = CONTENT_TYPES
+			accept = header.split( ',' )
 
-	try:
-		request_type = request.META['CONTENT_TYPE']
-	except KeyError:
-		request_type = None
-
-	# neither Content-Type nor Accept header:
-	if not request_type and not accept:
+			# filter types not acceptable to us:
+			accept = [ typ for typ in accept if typ in CONTENT_TYPES ]
+	else:
+		# no header, default to application/json:
 		return 'application/json'
-	
-	if not accept: # no accept header
-		if request_type in CONTENT_TYPES:
-			return request_type
-		else:
-			raise ContentTypeNotAcceptable( "Unacceptable content type requested: The Content-Type header is unsupported and no Accept header was provided" )
 
-	# No Content-Type header, but there is an Accept value that we can produce:
-	if not request_type:
-		acceptable = [ typ for typ in accept if typ in CONTENT_TYPES ]
-		if acceptable:
-			return acceptable[0]
+	if len( accept ) == 1:
+		# Most of the time, the client will tell us one format to use
+		if accept[0] in CONTENT_TYPES:
+			# if we only accept one content type and its acceptable
+			# to us, we use that
+			return accept[0]
 		else:
-			raise ContentTypeNotAcceptable( "Unacceptable content type requested: The Accept-Header lists no acceptable content type" )
+			raise ContentTypeNotAcceptable( "No acceptable mime type was provided by the HTTP-Accept header." )
 	
-	if request_type and request_type in accept:
-		return request_type
+	# The client accepts more than one format:
+	if 'CONTENT_TYPE' in request.META:
+		if request.META['CONTENT_TYPE'] in accept:
+			# If the Content-Type used by the client is acceptable,
+			# we return that:
+			return request.META['CONTENT_TYPE']
+		else:
+			return accept[0]
+	else:
+		return accept[0]
 
-	if request_type not in accept:
-		raise ContentTypeNotAcceptable( 'Unable to determine content-type' );
+	raise ContentTypeNotAcceptable( "Could not determine response content-type!" )

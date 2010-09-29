@@ -6,14 +6,17 @@ class RestAuthException( Exception ):
 		if body:
 			self.body = body
 
-class UsernameInvalid( RestAuthException ):
-	code = 400
-
 class ServiceNotFound( RestAuthException ):
 	code = 500
 
-class PasswordInvalid( RestAuthException ):
+class BadRequest( RestAuthException ):
 	code = 400
+
+class PasswordInvalid( BadRequest ):
+	pass
+
+class UsernameInvalid( BadRequest ):
+	pass
 
 class ResourceExists( RestAuthException ):
 	code = 409

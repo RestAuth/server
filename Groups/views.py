@@ -1,7 +1,7 @@
 from RestAuth.BasicAuth.decorator import require_basicauth
 from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
-from RestAuth.common import marshal
+from RestAuth.common import marshal, parse_request_body
 from django.http import HttpResponse, QueryDict
 
 import sys
@@ -31,9 +31,11 @@ def index( request ):
 		response = marshal( request, names )
 		return HttpResponse( response, status=200 ) # Ok
 	elif request.method == 'POST':
+		body = parse_request_body( request )
+
 		# add a new group
-		if 'group' in request.POST:
-			groupname = request.POST['group']
+		if 'group' in body:
+			groupname = body['group']
 		else:
 			return HttpResponse( status=400 ) # Bad request
 
@@ -63,18 +65,20 @@ def group_handler( request, groupname ):
 		response = marshal( request, [ user.username for user in users ] )
 		return HttpResponse( response, status=200 )
 	elif request.method == 'POST':
+		body = parse_request_body( request )
+
 		# we get the user/group we want to add right away so that we
 		# throw a 404 *before* the parent-group is created:
-		if 'user' in request.POST:
+		if 'user' in body:
 			# If User.DoesNotExist: 404 Not Found
-			user = user_get( request.POST['user'] )
-		elif 'group' in request.POST:
+			user = user_get( body['user'] )
+		elif 'group' in body:
 			# If Group.DoesNotExist: 404 Not Found
-			childgroup = group_get( request.POST['group'], service )
+			childgroup = group_get( body['group'], service )
 		else:
 			return HttpResponse( status=400 )
 
-		if 'autocreate' in request.POST:
+		if 'autocreate' in body:
 			try:
 				group = group_create( groupname, service )
 			except ResourceExists:
@@ -84,9 +88,9 @@ def group_handler( request, groupname ):
 			# If Group.DoesNotExist: 404 Not Found
 			group = group_get( groupname, service )
 
-		if 'user' in request.POST: # add a user to a group
+		if 'user' in body: # add a user to a group
 			group.users.add( user )
-		if 'group' in request.POST: # add a group to a group
+		if 'group' in body: # add a group to a group
 			group.groups.add( childgroup )
 		
 		group.save()
