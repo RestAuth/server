@@ -59,7 +59,6 @@ class Group( models.Model ):
 		users = set( self.users.all() )
 		if recursive and lvl < 10:
 			for gr in self.parent_groups.all():
-				print( gr.name )
 				users = users.union( gr.get_members( recursive, lvl+1 ) )
 
 		return users
