@@ -2,6 +2,26 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
+from errors import BadRequest
+
+def parse_request_body( request ):
+	if request.has_key( 'Content-Type' ):
+		content_type = request['Content-Type']
+	else:
+		content_type = 'application/x-www-form-urlencoded'
+
+	if content_type == 'application/x-www-form-urlencoded':
+		if request.method == 'POST':
+			return request.POST
+		elif request.method == 'PUT':
+			return QueryDict( request.raw_post_data, encoding=request._encoding)
+	elif content_type == 'application/json':
+		import json
+		print( type( request.raw_post_data ) )
+		json.loads( request.raw_post_data )
+	else:
+		raise BadRequest( 'Content-Type is unacceptable: %s'%(content_type) )
+
 def get_setting( setting, default=None ):
 	if hasattr( settings, setting ):
 		return getattr( settings, setting )
