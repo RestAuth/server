@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from errors import BadRequest, ContentTypeNotAcceptable
+from errors import BadRequest, ContentTypeNotAcceptable, MarshalError
 
 def parse_request_body( request ):
 	"""
@@ -32,8 +32,6 @@ def parse_request_body( request ):
 			import json
 			return json.loads( request.raw_post_data )
 	except Exception as e:
-		print( 'Ex: %s'%(e) )
-		print( request.raw_post_data )
 		raise BadRequest( 'Error parsing body: %s'%(e) )
 
 	raise BadRequest( 'Content-Type is unacceptable: %s'%(content_type) )
@@ -55,11 +53,9 @@ def marshal( request, obj ):
 		else:  
 			raise ContentTypeNotAcceptable('Failed to determine an acceptable content-type! (%s)'%(response_type) )
 	except ContentTypeNotAcceptable as e:
-		print( e )
 		raise e
-	except Exception as e:
-		print( e )
-		raise MarshalError( e )
+#	except Exception as e:
+#		raise MarshalError( e )
 
 CONTENT_TYPES = [ 'application/json', 'application/x-www-form-urlencoded' ]
 
@@ -68,7 +64,7 @@ def get_response_type( request ):
 	if 'HTTP_ACCEPT' in request.META:
 		# parse HTTP-Accept header:
 		header = request.META['HTTP_ACCEPT']
-		if not header or header == ['*/*']:
+		if not header or header == '*/*':
 			accept = CONTENT_TYPES
 		else:
 			accept = header.split( ',' )
@@ -78,6 +74,9 @@ def get_response_type( request ):
 	else:
 		# no header, default to application/json:
 		return 'application/json'
+
+	if not accept:
+		raise ContentTypeNotAcceptable( "Accept-Header did not list any acceptable mime types: '%s'"%(header) )
 
 	if len( accept ) == 1:
 		# Most of the time, the client will tell us one format to use

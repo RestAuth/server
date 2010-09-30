@@ -24,5 +24,5 @@ class ResourceExists( RestAuthException ):
 class ContentTypeNotAcceptable( RestAuthException ):
 	code = 406
 
-class MarshallError( RestAuthException ):
+class MarshalError( RestAuthException ):
 	code = 500
