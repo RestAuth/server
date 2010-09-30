@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from errors import BadRequest
+from errors import BadRequest, ContentTypeNotAcceptable
 
 def parse_request_body( request ):
 	"""
