@@ -43,7 +43,6 @@ def check_valid_username( username ):
 		if not func( username ):
 			raise UsernameInvalid( 'Username is not valid on %s'%(val) )
 
-
 def check_valid_password( password ):
 	min_length = get_setting( 'MIN_PASSWORD_LENGTH', 6 )
 	
