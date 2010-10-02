@@ -74,25 +74,24 @@ def user_handler( request, username ):
 
 	elif request.method == 'PUT':
 		# update the users credentials
+
+		can_change_name = get_setting( 'ALLOW_USERNAME_CHANGE', False )
 		body = parse_request_body( request )
+		
+		# Check validity of request data:
 		if len( body ) == 0:
 			return HttpResponse( status=400 ) # Bad Request
+		if can_change_name and 'user' in body:
+			check_valid_username( body['user'] )
+		elif 'user' in body:
+			return HttpResponse( "Changing the username is not allowed with this RestAuth installation.", status=412 )
+		if 'password' in body:
+			check_valid_password( body['password'] )
 
-		if get_setting( 'ALLOW_USERNAME_CHANGE', False ):
-			if body.has_key( 'username' ):
-				# If UsernameInvalid: 400 Bad Request
-				check_valid_username( put_data['username'] )
-				user.username = put_data['username']
-		else:
-			if body.has_key( 'username' ):
-				return HttpResponse( status=403 ) # Forbidden
-
-		if body.has_key( 'password' ):
-			try:
-				check_valid_password( body['password'] )
-			except InvalidPostData as e:
-				return HttpResponse( e.args[0] + "\n", status=400 ) # Bad Request
-
+		# update credentials
+		if 'user' in body:
+			user.username = body['user']
+		if 'password' in body:
 			user.set_password( body['password'] )
 
 		user.save()
