@@ -29,7 +29,7 @@ def create( request ):
 
 		# add a user
 		try:
-			username = body['user']
+			username = body['user'].lower()
 			password = body['password']
 		except KeyError:
 			return HttpResponse( 'Could not retrieve username/password from POST data', status=400 )
@@ -46,6 +46,7 @@ def create( request ):
 
 @require_basicauth("Handle ServiceUser")
 def user_handler( request, username ):
+	username = username.lower()
 	# If UsernameInvalid: 400 Bad Request
 	check_valid_username( username )
 	
@@ -82,7 +83,7 @@ def user_handler( request, username ):
 		if len( body ) == 0:
 			return HttpResponse( status=400 ) # Bad Request
 		if can_change_name and 'user' in body:
-			check_valid_username( body['user'] )
+			check_valid_username( body['user'].lower() )
 		elif 'user' in body:
 			return HttpResponse( "Changing the username is not allowed with this RestAuth installation.", status=412 )
 		if 'password' in body:
@@ -90,7 +91,7 @@ def user_handler( request, username ):
 
 		# update credentials
 		if 'user' in body:
-			user.username = body['user']
+			user.username = body['user'].lower()
 		if 'password' in body:
 			user.set_password( body['password'] )
 
