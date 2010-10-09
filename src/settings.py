@@ -75,3 +75,14 @@ RESTAUTH_AUTH_PROVIDER = 'internal'
 # range of usernames. Valid values are 'xmpp', 'email', 'mediawiki', 'linux' and
 # 'windows'.
 SKIP_VALIDATORS = [ 'windows' ]
+
+# Set a different hash algorithm for hashing passwords. Currently this supports
+# md5, sha1 and crypt. The default is sha1.
+HASH_ALGORITHM = 'sha1'
+
+# Set to True if RestAuth should allow the username of a user to be changed:
+ALLOW_USERNAME_CHANGE = False
+
+# You can override the minimum username and password length:
+MIN_USERNAME_LENGTH = 3
+MIN_PASSWORD_LENGTH = 6
