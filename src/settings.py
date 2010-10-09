@@ -11,7 +11,7 @@
 # below, please see:
 # 	http://docs.djangoproject.com/en/dev/ref/settings/
 
-# This import sets some sensible defaults, that you usually don't want to
+# This import sets some sensible defaults that you usually don't want to
 # override.
 import djangosettings 
 
@@ -64,7 +64,7 @@ RESTAUTH_AUTH_PROVIDER = 'internal'
 
 # A tricky problem for a shared authentication service is what characters are
 # legal for a username. For example, 'Mathias Ertl' is a valid MediaWiki
-# username, but it is not valid XMPP username. When creating a new user, the
+# username, but it is not a valid XMPP username. When creating a new user, the
 # username must pass tests for various systems. If the username is invalid in
 # any of the systems, a user with that name cannot be created. RestAuth comes
 # with a variety of validators, which essentially restrict the usernames to
@@ -72,6 +72,6 @@ RESTAUTH_AUTH_PROVIDER = 'internal'
 # 	http://fs.fsinf.at/wiki/RestAuth/Usernames
 #
 # You can use this setting to disable some validators so you can support a wider
-# range of usernames. Valud values are 'xmpp', 'email', 'mediawiki', 'linux' and
+# range of usernames. Valid values are 'xmpp', 'email', 'mediawiki', 'linux' and
 # 'windows'.
 SKIP_VALIDATORS = [ 'windows' ]
