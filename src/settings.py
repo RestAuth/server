@@ -1,20 +1,35 @@
-import os
+###################################
+### RestAuth configuration file ###
+###################################
 
-# Django settings for RestAuth project.
+# This file configures the behaviour of the RestAuth webservice. Please fill in
+# the apropriate details below.
+#
+# Since the RestAuth service is implemented as a Django project, you can
+# configure anything available in Django settings.py files. For more information
+# on available settings and more thorough documentation on the settings given
+# below, please see:
+# 	http://docs.djangoproject.com/en/dev/ref/settings/
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+# This import sets some sensible defaults, that you usually don't want to
+# override.
+import djangosettings 
 
+# Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
+# to False, backtraces will be sent to the adresses listed in the ADMINS
+# variable.
+DEBUG = False
+
+# Adresses that will receive backtraces when DEBUG=False
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
 
-MANAGERS = ADMINS
-
+# Configure your database settings
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.expanduser( '~/.RestAuth.sqlite3' ), # Or path to database file if using sqlite3.
+        'NAME': './RestAuth.sqlite3', # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -35,71 +50,28 @@ TIME_ZONE = 'Europe/Vienna'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = 1
-
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
-USE_I18N = True
-
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale
-USE_L10N = True
-
-# Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash if there is a path component (optional in other cases).
-# Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
-
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'or)igev-_de7=18%9=nx)@z7ry3vq2%yr--j-4*kka#d)a^r*#'
+SECRET_KEY = ''
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
+# Use this setting to configure how RestAuth assumes service authentication
+# is performed:
+# * internal: HTTP basic authentication is evaluated by RestAuth itself.
+# * apache: RestAuth trusts the HTTP headers passed on to it by the webserver.
+# The latter setting is faster but requires more configuration. For more
+# information, please see:
+# 	http://fs.fsinf.at/wiki/RestAuth/Service_authentication
+RESTAUTH_AUTH_PROVIDER = 'internal'
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-#    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'RestAuth.common.middleware.ExceptionMiddleware',
-)
-
-ROOT_URLCONF = 'RestAuth.urls'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
-
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.admin',
-    'RestAuth.BasicAuth',
-    'RestAuth.Users',
-    'RestAuth.Groups',
-)
-
-# Note that you need some settings in localsettings.py!
-try:
-	from localsettings import *
-except ImportError:
-	pass
+# A tricky problem for a shared authentication service is what characters are
+# legal for a username. For example, 'Mathias Ertl' is a valid MediaWiki
+# username, but it is not valid XMPP username. When creating a new user, the
+# username must pass tests for various systems. If the username is invalid in
+# any of the systems, a user with that name cannot be created. RestAuth comes
+# with a variety of validators, which essentially restrict the usernames to
+# ASCII characters (a-z) and digits (0-9). For more information, please see:
+# 	http://fs.fsinf.at/wiki/RestAuth/Usernames
+#
+# You can use this setting to disable some validators so you can support a wider
+# range of usernames. Valud values are 'xmpp', 'email', 'mediawiki', 'linux' and
+# 'windows'.
+SKIP_VALIDATORS = [ 'windows' ]
