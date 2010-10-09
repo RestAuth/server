@@ -1,0 +1,21 @@
+<VirtualHost *:443>
+	# basic configuration...
+	#...
+
+        # basic django configuration:
+        WSGIScriptAlias / /usr/local/share/RestAuth/wsgi/django
+
+        # authentication:
+	# In this case, we want the webserver to perform the service
+	# authentication. This assumes that you have
+	#	RESTAUTH_AUTH_PROVIDER = 'apache'
+	# in your settings.py:
+        <Location />
+                AuthType Basic
+                AuthName "RestAuth authentication service"
+                AuthBasicProvider wsgi
+                Require valid-user
+
+                WSGIAuthUserScript /usr/local/share/RestAuth/wsgi/django/auth
+        </Location>
+</VirtualHost>
