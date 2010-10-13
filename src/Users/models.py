@@ -60,11 +60,14 @@ class ServiceUser( models.Model ):
 	date_joined = models.DateTimeField(_('date joined'), default=datetime.datetime.now)
 
 	def set_password( self, raw_password ):
-		self.algorithm = get_setting( 'HASH_ALGORITHM', 'sha1' )
-
 		import random
+		self.algorithm = get_setting( 'HASH_ALGORITHM', 'sha1' )
 		self.salt = get_hexdigest(self.algorithm, str(random.random()), str(random.random()))[:5]
-		self.hash = get_hexdigest(self.algorithm, self.salt, raw_password)
+
+		if self.hash == 'mediawiki':
+			self.hash = md5( '%s-%s'%(self.salt, pure_hash) )
+		else:
+			self.hash = get_hexdigest(self.algorithm, self.salt, raw_password)
 
 	def set_unusable_password( self ):
 		self.hash = None
@@ -72,7 +75,16 @@ class ServiceUser( models.Model ):
 		self.algorithm = None
 
 	def check_password( self, raw_password ):
-		return self.hash == get_hexdigest( self.algorithm, self.salt, raw_password )
+		if self.hash == 'mediawiki':
+			pure_hash = md5( raw_password ).hexdigest()
+			if self.salt:
+				salted_hash = md5( '%s-%s'%(self.salt, pure_hash) )
+				return self.hash == salted_hash.hexdigest()
+			else:
+				return self.hash == pure_hash
+
+		else:
+			return self.hash == get_hexdigest( self.algorithm, self.salt, raw_password )
 
 	def get_groups( self, service=None, recursive=True ):
 		"""

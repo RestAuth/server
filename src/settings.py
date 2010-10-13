@@ -76,13 +76,27 @@ RESTAUTH_AUTH_PROVIDER = 'internal'
 # 'windows'.
 SKIP_VALIDATORS = [ 'windows' ]
 
-# Set a different hash algorithm for hashing passwords. Currently this supports
-# md5, sha1 and crypt. The default is sha1.
-HASH_ALGORITHM = 'sha1'
-
 # Set to True if RestAuth should allow the username of a user to be changed:
 ALLOW_USERNAME_CHANGE = False
 
 # You can override the minimum username and password length:
 MIN_USERNAME_LENGTH = 3
+
+#################
+### PASSWORDS ###
+#################
+# You can configure various aspects on how RestAuth handles/stores passwords.
+# All settings in this section are optional, the defaults are usually fine.
+
+# Reconfigure the minimum password length. Only affects new passwords.
 MIN_PASSWORD_LENGTH = 6
+
+# Set a different hash algorithm for hashing passwords. This only affects newly
+# created passwords, so you can safely change this at any time, old hashes will
+# still work.
+# 
+# You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha1' is the
+# default and recommended. Additionally, RestAuth supports using hashes
+# compatible with other systems. Currectly 'mediawiki' creates hashes compatible
+# with a MediaWiki database.
+HASH_ALGORITHM = 'sha1'
