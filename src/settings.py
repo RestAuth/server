@@ -13,7 +13,7 @@
 
 # This import sets some sensible defaults that you usually don't want to
 # override.
-import djangosettings 
+from djangosettings import *
 
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
 # to False, backtraces will be sent to the adresses listed in the ADMINS
