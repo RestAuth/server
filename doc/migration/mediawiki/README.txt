@@ -7,7 +7,9 @@ password.
 
 === Importing old hashes ===
 RestAuth supports importing old MediaWiki hashes. A description of how to do
-this manually is written below, writing a script at least for MySQL is a TODO.
+this manually is written below, you can find a script that creates INSERT
+statements from a MediaWiki MySQL database to a RestAuth MySQL database in the
+same directory as this file - execute it with --help for usage.
 
 MediaWiki can store hashes in two different ways, either with a salt (default) 
 or without a salt. The former start with :B:, the latter with :A:. In any case,
