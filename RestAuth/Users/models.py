@@ -75,7 +75,8 @@ class ServiceUser( models.Model ):
 		self.algorithm = None
 
 	def check_password( self, raw_password ):
-		if self.hash == 'mediawiki':
+		if self.algorithm == 'mediawiki':
+			from hashlib import md5
 			pure_hash = md5( raw_password ).hexdigest()
 			if self.salt:
 				salted_hash = md5( '%s-%s'%(self.salt, pure_hash) )
