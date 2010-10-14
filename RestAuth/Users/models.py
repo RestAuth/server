@@ -68,7 +68,7 @@ def check_valid_password( password ):
 
 class ServiceUser( models.Model ):
 	username = models.CharField(_('username'), max_length=30, unique=True, help_text=_("Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters"))
-	algorithm = models.CharField( _('algorithm'), max_length=5, help_text=_("The algorithm used to hash passwords") )
+	algorithm = models.CharField( _('algorithm'), max_length=20, help_text=_("The algorithm used to hash passwords") )
 	salt = models.CharField( _('salt'), max_length=16, help_text=_("salt for the hash") )
 	hash = models.CharField( _('hash'), max_length=128, help_text=_("actual hash of the password") )
 	last_login = models.DateTimeField(_('last login'), default=datetime.datetime.now, auto_now=True)

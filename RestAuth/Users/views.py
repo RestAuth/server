@@ -62,8 +62,6 @@ def create( request ):
 @require_basicauth("Handle ServiceUser")
 def user_handler( request, username ):
 	username = username.lower()
-	# If UsernameInvalid: 400 Bad Request
-	check_valid_username( username )
 	
 	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
