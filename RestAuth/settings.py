@@ -75,7 +75,7 @@ SECRET_KEY = ''
 # The latter setting is faster but requires more configuration. For more
 # information, please see:
 # 	http://fs.fsinf.at/wiki/RestAuth/Service_authentication
-RESTAUTH_AUTH_PROVIDER = 'internal'
+AUTH_PROVIDER = 'internal'
 
 # A tricky problem for a shared authentication service is what characters are
 # legal for a username. For example, 'Mathias Ertl' is a valid MediaWiki
