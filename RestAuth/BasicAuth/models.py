@@ -60,9 +60,25 @@ def service_delete( name ):
 	service = service_get( name )
 	service.delete()
 
+def verify_service( name, password, host ):
+	try:
+		obj = Service.objects.get( username=name )
+
+		if not obj.check_password( password ):
+			return False
+		return obj.verify_host( host )
+	except Service.DoesNotExist:
+		return None
+
 class Service( User ):
 	class Meta:
 		proxy = True
+	
+	def verify_host( self, host ):
+		if self.addresses.filter( address=host ).exists():
+			return True
+		else: 
+			return False
 	
 	def set_hosts( self, addresses=[] ):
 		self.addresses = []

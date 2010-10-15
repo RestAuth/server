@@ -5,25 +5,14 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()
 
-import os, sys
-
-from django.contrib.auth.models import User
 from django import db
+from RestAuth.BasicAuth.models import verify_service
 
 def check_password(environ, user, password):
-        db.reset_queries()
-
-        kwargs = {'username': user, 'is_active': True}
+	host = environ['REMOTE_ADDR']
 
         try:
-                try:
-                        user = User.objects.get(**kwargs)
-                except User.DoesNotExist:
-                        return None
-
-                if user.check_password(password):
-                        return True
-                else:
-                        return False
+        	db.reset_queries()
+		return verify_service( user, password, host )
         finally:
                 db.connection.close()

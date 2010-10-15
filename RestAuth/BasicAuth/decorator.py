@@ -61,7 +61,6 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 
 	# Check if we are already authenticated:
 	if request.user.is_authenticated():
-#		print( 'already authenticated' )
 		return view(request, *args, **kwargs)
 
 	# get auth_provider
@@ -72,9 +71,6 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 		# we only need to log the user in:
 		if 'REMOTE_USER' in request.META:
 			username = request.META['REMOTE_USER']
-			if not verify_hostname( username, remote_addr ):
-				msg = '%s is not allowed to authenticate from %s'%(username, remote_addr)
-				return auth_request( realm, msg )
 
 			try:
 				user = User.objects.get( username=username )
