@@ -29,11 +29,12 @@
 # This import sets some sensible defaults that you usually don't want to
 # override.
 from djangosettings import *
+import logging
 
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
-DEBUG = False
+DEBUG = True
 
 # Adresses that will receive backtraces when DEBUG=False
 ADMINS = (
@@ -115,3 +116,20 @@ MIN_PASSWORD_LENGTH = 6
 # compatible with other systems. Currectly 'mediawiki' creates hashes compatible
 # with a MediaWiki database.
 HASH_ALGORITHM = 'sha1'
+
+###############
+### LOGGING ###
+###############
+# You can define the LogLevel for RestAuth. There are several possible values:
+# * CRITICAL: Only log errors due to an internal malfunction.
+# * ERROR:    Also log errors due to misbehaving clients.
+# * WARNING:  Also log requests where an implicit assumption doesn't hold.
+#	(i.e. when a client assumes that a user exists but in fact does not)
+# * INFO:     Also log successfully processed requests that change data.
+# * DEBUG:    Also log idempotent requests, i.e. if a user exists, etc.
+LOG_LEVEL = 'DEBUG'
+
+# Define the target for logging. LOG_TARGET may either be 'stdout', 'stderr' or
+# or a path to a filename. If RestAuth is run with mod_wsgi, 'stdout' does not 
+# work and 'stderr' logs to the global apache log-file, not the VHOST log file.
+LOG_TARGET = 'stderr'

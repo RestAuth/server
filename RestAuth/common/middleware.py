@@ -17,6 +17,8 @@
 The ExceptionMiddleware is located in its own class to avoid circular imports.
 """
 
+import sys, logging
+
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -26,6 +28,33 @@ from RestAuth.Users.models import ServiceUser, Property
 from RestAuth.Groups.models import Group
 
 class ExceptionMiddleware:
+	def process_request( self, request ):
+		try:
+			self.log_level = getattr( logging, settings.LOG_LEVEL )
+		except AttributeError, e:
+			sys.stderr.write( "%s\n"%(e) )
+			return
+
+		kwargs = { 'level': self.log_level,
+			'format': '%(asctime)s %(levelname)-8s %(message)s',
+			'datefmt': '%a, %d %b %Y %H:%M:%S' }
+
+		if settings.LOG_TARGET == 'stderr':
+			kwargs['handler'] = sys.stderr
+		elif settings.LOG_TARGET == 'stdout':
+			kwargs['handler'] = sys.stdout
+		else:
+			kwargs['filename'] = LOG_TARGET
+
+		logging.basicConfig( **kwargs )
+
+#	def process_view( self, request, view_func, view_args, view_kwargs ):
+#		name = request.user.username
+#		logger = logging.getLogger()
+#		handler = logger.handlers[0]
+#		formatter = logging.Formatter( '%(asctime)s %(levelname)-8s '+name+': %(message)s' )
+#		handler.setFormatter( formatter )
+		
 	def process_exception( self, request, exception ):
 		if isinstance( exception, ServiceUser.DoesNotExist ):
 			resp = HttpResponse( exception, status=404 )
