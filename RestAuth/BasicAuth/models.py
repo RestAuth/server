@@ -72,40 +72,35 @@ def verify_service( name, password, host ):
 	except Service.DoesNotExist:
 		return None
 
+class ServiceAddress( models.Model ):
+	address = models.CharField( max_length=39, unique=True )
+
+	def __unicode__( self ):
+		return self.address
+
 class Service( User ):
-	class Meta:
-		proxy = True
+	hosts = models.ManyToManyField( ServiceAddress )
 	
 	def verify_host( self, host ):
-		if self.addresses.filter( address=host ).exists():
+		if self.hosts.filter( address=host ).exists():
 			return True
 		else: 
 			return False
 
-	def clear_hosts( self ):
-		# TODO: self.addresses.clear() has two queries, could be one
-		self.addresses.clear()
-	
 	def set_hosts( self, addresses=[] ):
-		self.clear_hosts()
+		self.hosts.clear()
 
 		for addr in addresses:
 			self.add_host( addr )
 
 	def add_host( self, address ):
 		addr = ServiceAddress.objects.get_or_create( address=address )[0]
-		self.addresses.add( addr )
+		self.hosts.add( addr )
 
 	def del_host( self, address ):
 		try:
 			host = ServiceAddress.objects.get( address=addr )
-			self.addresses.remove( host )
+			self.hosts.remove( host )
 		except ServiceAddress.DoesNotExist:
 			pass
 
-class ServiceAddress( models.Model ):
-	address = models.CharField( max_length=39, unique=True )
-	services = models.ManyToManyField( User, related_name='addresses' )
-
-	def __unicode__( self ):
-		return self.address
