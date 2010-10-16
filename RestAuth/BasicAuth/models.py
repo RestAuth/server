@@ -14,6 +14,7 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.db import models
+from django.db.utils import IntegrityError
 from django.contrib.auth.models import User
 from RestAuth.common.errors import ServiceNotFound
 
@@ -34,12 +35,13 @@ def check_service_username( name ):
 def service_create( name, password, addresses=[] ):
 	check_service_username( name )
 	
-	if Service.objects.filter( username=name ).exists():
+	try:
+		service = Service( username=name )
+		service.set_password( password )
+		service.save()
+	except IntegrityError:
 		raise ServiceAlreadyExists( "Service already exists. Please use a different name." )
-
-	service = Service( username=name )
-	service.set_password( password )
-	service.save()
+		
 
 	if addresses:
 		service.set_hosts( addresses )
@@ -79,30 +81,20 @@ class Service( User ):
 			return True
 		else: 
 			return False
+
+	def clear_hosts( self ):
+		# TODO: self.addresses.clear() has two queries, could be one
+		self.addresses.clear()
 	
 	def set_hosts( self, addresses=[] ):
-		self.addresses = []
-		self.save()
+		self.clear_hosts()
 
 		for addr in addresses:
-			try:
-				host = ServiceAddress.objects.get( address=addr )
-			except ServiceAddress.DoesNotExist:
-				host = ServiceAddress( address=addr )
-				host.save()
-
-			self.addresses.add( host )
-			self.save()
+			self.add_host( addr )
 
 	def add_host( self, address ):
-		try:
-			host = ServiceAddress.objects.get( address=addr )
-		except ServiceAddress.DoesNotExist:
-			host = ServiceAddress( address=addr )
-			host.save()
-		
-		self.addresses.add( host )
-		self.save()
+		addr = ServiceAddress.objects.get_or_create( address=address )[0]
+		self.addresses.add( addr )
 
 	def del_host( self, address ):
 		try:
@@ -114,3 +106,6 @@ class Service( User ):
 class ServiceAddress( models.Model ):
 	address = models.CharField( max_length=39, unique=True )
 	services = models.ManyToManyField( User, related_name='addresses' )
+
+	def __unicode__( self ):
+		return self.address
