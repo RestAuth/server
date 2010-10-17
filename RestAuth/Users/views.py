@@ -15,15 +15,14 @@
 
 import logging
 
-from RestAuth.BasicAuth.decorator import require_basicauth
+from RestAuth.BasicAuth.decorator import login_required
 from RestAuth.Users.models import *
-
 from RestAuth.common import get_setting, marshal, parse_request_body
 
 from django.http import HttpResponse, QueryDict
 from django.http.multipartparser import MultiPartParser
 
-@require_basicauth("Create ServiceUser")
+@login_required(realm="/users/")
 def create( request ):
 	"""
 	This handles /users/:
@@ -66,7 +65,7 @@ def create( request ):
 	else:
 		return HttpResponse( status=405 )
 
-@require_basicauth("Handle ServiceUser")
+@login_required(realm="/users/<user>/")
 def user_handler( request, username ):
 	service = request.user.username
 	username = username.lower()
@@ -137,7 +136,7 @@ def user_handler( request, username ):
 		return HttpResponse( status=405 ) # Method Not Allowed
 
 
-@require_basicauth("Userproperties index")
+@login_required(realm="/users/<user>/props/")
 def userprops_index( request, username ):
 	# If UsernameInvalid: 400 Bad Request
 	check_valid_username( username )
@@ -170,7 +169,7 @@ def userprops_index( request, username ):
 	else:
 		return HttpResponse( status=405 ) # Method Not Allowed
 
-@require_basicauth("Userproperties prop")
+@login_required(realm="/users/<user>/props/<prop>/")
 def userprops_prop( request, username, prop ):
 	# If UsernameInvalid: 400 Bad Request
 	check_valid_username( username )

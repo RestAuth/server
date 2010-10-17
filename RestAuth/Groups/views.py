@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from RestAuth.BasicAuth.decorator import require_basicauth
+from RestAuth.BasicAuth.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
 from RestAuth.common import marshal, parse_request_body
@@ -21,7 +21,7 @@ from django.http import HttpResponse, QueryDict
 
 import sys
 
-@require_basicauth( "group management" )
+@login_required( realm='/groups/' )
 def index( request ):
 	service = request.user
 
@@ -60,7 +60,7 @@ def index( request ):
 	else:
 		return HttpResponse( status=405 ) # method not allowed
 
-@require_basicauth( "group management" )
+@login_required( realm='/groups/<group>/' )
 def group_handler( request, groupname ):
 	service = request.user
 	
@@ -118,7 +118,7 @@ def group_handler( request, groupname ):
 	else:
 		return HttpResponse( status=405 )
 
-@require_basicauth( "group management" )
+@login_required( realm='/groups/<group>/<user>/' )
 def member_handler( request, groupname, username ):
 	service = request.user
 	

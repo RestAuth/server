@@ -67,6 +67,9 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 	auth_provider = get_setting( 'AUTH_PROVIDER', 'internal' )
 
 	if auth_provider == 'apache':
+		# REPLACE WITH RemoteUserMiddleware
+
+
 		# The credentials of the service were verified by the webserver,
 		# we only need to log the user in:
 		if 'REMOTE_USER' in request.META:
@@ -84,17 +87,15 @@ def view_or_basicauth(view, request, test_func, realm = "", *args, **kwargs):
 				return HttpResponse( msg, status=500 )
 
 	elif auth_provider == 'internal':
+		# REPLACE WITH InternatlAuthenticationMiddleware
+
 		# RestAuth should also handle service authentication:
 		if 'HTTP_AUTHORIZATION' in request.META:
 			method, data = request.META['HTTP_AUTHORIZATION'].split()
 			if method.lower() == "basic":
 				username, passwd = base64.b64decode(data).split(':')
-				if not verify_hostname( username, remote_addr ):
-					msg = '%s is not allowed to authenticate from %s'%(username, remote_addr)
-					return auth_request( realm, msg )
-
 				user = authenticate( username=username, password=passwd )
-				if user is not None:
+				if user and user.verify_host( self.remote_addr ):
 					login(request, user)
 					request.user = user
 					return view(request, *args, **kwargs)
@@ -140,6 +141,34 @@ def require_basicauth(realm = ""):
 	def view_decorator(func):
 		def wrapper(request, *args, **kwargs):
 			return view_or_basicauth(func, request,
+					realm, *args, **kwargs)
+		return wrapper
+	return view_decorator
+
+def login_user( view, request, realm, *args, **kwargs ):
+	if request.user.is_authenticated():
+		return view(request, *args, **kwargs)
+
+	if 'REMOTE_USER' in request.META:
+		print( 'REMOTE_USER' )
+		user = authenticate( remote_user=request.META['REMOTE_USER'] )
+	if 'HTTP_AUTHORIZATION' in request.META:
+		header = request.META['HTTP_AUTHORIZATION']
+		host = request.META['REMOTE_ADDR']
+		user = authenticate( header=header, host=host )
+
+	if user:
+		login(request, user)
+		return view(request, *args, **kwargs)
+	else:
+		response = HttpResponse( "Please authenticate", status=401 )
+		response['WWW-Authenticate'] = 'Basic realm="%s"' % realm
+		return response
+
+def login_required( function = None, realm = "" ):
+	def view_decorator(func):
+		def wrapper(request, *args, **kwargs):
+			return login_user(func, request,
 					realm, *args, **kwargs)
 		return wrapper
 	return view_decorator

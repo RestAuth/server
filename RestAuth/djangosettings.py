@@ -54,8 +54,8 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-#    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'RestAuth.common.middleware.ExceptionMiddleware',
 )
@@ -78,4 +78,9 @@ INSTALLED_APPS = (
     'RestAuth.BasicAuth',
     'RestAuth.Users',
     'RestAuth.Groups',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.RemoteUserBackend',
+    'RestAuth.BasicAuth.backend.InternalAuthenticationBackend',
 )
