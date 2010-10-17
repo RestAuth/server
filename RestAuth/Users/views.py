@@ -138,9 +138,6 @@ def user_handler( request, username ):
 
 @login_required(realm="/users/<user>/props/")
 def userprops_index( request, username ):
-	# If UsernameInvalid: 400 Bad Request
-	check_valid_username( username )
-	#TODO: this shouldn't be checked here
 	service = request.user.username
 	
 	# If User.DoesNotExist: 404 Not Found
@@ -159,21 +156,14 @@ def userprops_index( request, username ):
 			logging.error( "%s: Bad POST body: %s"%(service, request.raw_post_data) )
 			return HttpResponse( status=400 )
 
-		if user.has_property( body['prop'] ):
-			logging.error( "%s: Tried to set property %s, which is already set"%(service, body['prop']) )
-			return HttpResponse( 'Property already set', status=409 )
-		else:
-			user.set_property( body['prop'], body['value'] )
-			logging.info( "%s: Set '%s'='%s' for '%s'"%(service, body['prop'], body['value'], username ) )
-			return HttpResponse()
+		user.add_property( body['prop'], body['value'] )
+		logging.info( "%s: Set '%s'='%s' for '%s'"%(service, body['prop'], body['value'], username ) )
+		return HttpResponse()
 	else:
 		return HttpResponse( status=405 ) # Method Not Allowed
 
 @login_required(realm="/users/<user>/props/<prop>/")
 def userprops_prop( request, username, prop ):
-	# If UsernameInvalid: 400 Bad Request
-	check_valid_username( username )
-	# TODO: do not check this here.
 	service = request.user.username
 	
 	# If User.DoesNotExist: 404 Not Found
