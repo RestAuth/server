@@ -15,11 +15,15 @@
 
 import datetime
 from django.db import models
+from django.db.utils import IntegrityError
 from django.contrib.auth.models import User, get_hexdigest
 from django.utils.translation import ugettext_lazy as _
 from RestAuth.common import get_setting
 from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, ResourceExists
 from RestAuth.Users import validators
+
+class PropertyExists( ResourceExists ):
+	pass
 
 def user_exists( name ):
 	if ServiceUser.objects.filter( username=name ).exists():
@@ -31,12 +35,13 @@ def user_get( name ):
 	return ServiceUser.objects.get( username=name )
 
 def user_create( name, password ):
-	if user_exists( name ):
+	try:
+		user = ServiceUser( username=name )
+		user.set_password( password )
+		user.save()
+		return user
+	except IntegrityError:
 		raise ResourceExists( "A user with the given name already exists." )
-	
-	user = ServiceUser( username=name )
-	user.set_password( password )
-	user.save()
 
 def check_valid_username( username ):
 	min_length = get_setting( 'MIN_USERNAME_LENGTH', 3 )
@@ -143,6 +148,18 @@ class ServiceUser( models.Model ):
 		else:
 			return False
 
+	def add_property( self, key, value ):
+		"""
+		Add a new property to this user. It is an error if this property
+		already exists.
+
+		@raises PropertyExists: If the property already exists.
+		"""
+		try:
+			self.property_set.add( Property( key=key, value=value ) )
+		except IntegrityError:
+			raise PropertyExists( key )		
+
 	def get_properties( self ):
 		dictionary = {}
 
@@ -152,14 +169,25 @@ class ServiceUser( models.Model ):
 		return dictionary
 
 	def set_property( self, key, value ):
-		if self.has_property( key ):
-			prop = self.get_property( key )
-			prop.value = value
-			prop.save()
-		else:
+		"""
+		Set the property identified by I{key} to I{value}. If the
+		property already exists, it is overwritten.
+		"""
+		try:
+			# This issues a plain INSERT, which throws an 
+			# IntegrityError if the property already exists:
 			self.property_set.add( Property( key=key, value=value ) )
+		except IntegrityError:
+			# This means that the property already exists. 
+			# since user and key are unique, this is guaranteed to
+			# only update the right key.
+			self.property_set.filter( key=key ).update( value=value )
 
 	def get_property( self, key ):
+		"""
+		@raises Property.DoesNotExist: When the property does not exist.
+		"""
+		# exactly one SELECT statement
 		return self.property_set.get( key=key )
 	
 	def del_property( self, key ):
@@ -175,6 +203,9 @@ class Property( models.Model ):
 	user = models.ForeignKey( ServiceUser )
 	key = models.CharField( max_length=30 )
 	value = models.CharField( max_length=100 )
+
+	class Meta:
+		unique_together = ( 'user', 'key' )
 
 	def __unicode__( self ):
 		return "%s: %s=%s"%(self.user.username, self.key, self.value)
