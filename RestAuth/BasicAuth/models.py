@@ -64,11 +64,12 @@ def service_delete( name ):
 
 def verify_service( name, password, host ):
 	try:
-		obj = Service.objects.get( username=name )
+		serv = Service.objects.get( username=name )
 
-		if not obj.check_password( password ):
+		if self.verify( password, host ):
+			return serv
+		else:
 			return False
-		return obj.verify_host( host )
 	except Service.DoesNotExist:
 		return None
 
@@ -81,6 +82,12 @@ class ServiceAddress( models.Model ):
 class Service( User ):
 	hosts = models.ManyToManyField( ServiceAddress )
 	
+	def verify( self, password, host ):
+		if self.check_password( password ) and self.verify_host( host ):
+			return True
+		else:
+			return False
+
 	def verify_host( self, host ):
 		if self.hosts.filter( address=host ).exists():
 			return True
