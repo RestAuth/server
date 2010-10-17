@@ -44,7 +44,7 @@ class ExceptionMiddleware:
 		elif settings.LOG_TARGET == 'stdout':
 			kwargs['handler'] = sys.stdout
 		else:
-			kwargs['filename'] = LOG_TARGET
+			kwargs['filename'] = settings.LOG_TARGET
 
 		logging.basicConfig( **kwargs )
 
