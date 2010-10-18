@@ -49,6 +49,7 @@ options, args = parser.parse_args()
 os.environ['DJANGO_SETTINGS_MODULE'] = options.settings
 if 'RESTAUTH_PATH' in os.environ:
 	sys.path.append( os.environ['RESTAUTH_PATH'] )
+sys.path.append( os.getcwd() )
 
 # error-handling arguments
 if not args:

@@ -39,16 +39,19 @@ options, args = parser.parse_args()
 os.environ['DJANGO_SETTINGS_MODULE'] = options.settings
 if 'RESTAUTH_PATH' in os.environ:
 	sys.path.append( os.environ['RESTAUTH_PATH'] )
+sys.path.append( os.getcwd() )
 
 # error-handling arguments
 if not args:
 	sys.stderr.write( "Please provide an action." )
 	sys.exit(1)
+
 if args[0] != 'help':
 	# we don't need this for help
 	try:
 		from RestAuth.BasicAuth.models import *
 	except ImportError:
+		print( sys.path )
 		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 		sys.exit(1)
 
