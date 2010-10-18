@@ -80,7 +80,7 @@ elif args[0] == 'view':
 	service = service_get( args[1] )
 	print( service.username )
 	print( 'Last used: %s'%(service.last_login) )
-	hosts = service.addresses.all()
+	hosts = service.hosts.all()
 	print( 'Hosts: %s'%(', '.join( [ host.address for host in hosts ] ) ) )
 elif args[0] == 'set-hosts':
 	service = service_get( args[1] )
