@@ -63,7 +63,11 @@ if args[0] == 'add':
 			options.pwd = getpass.getpass( 'password: ' )
 			confirm = getpass.getpass( 'confirm: ' )
 
-	service_create( args[1], options.pwd, args[2:] )
+	try:
+		service_create( args[1], options.pwd, args[2:] )
+	except ServiceAlreadyExists:
+		print( "Error: Service already exists." )
+		sys.exit(1)
 elif args[0] == 'remove' or args[0] == 'rm':
 	service_delete( args[1] )
 elif args[0] == 'list':
