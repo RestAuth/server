@@ -23,5 +23,5 @@ setup(
 	author='Mathias Ertl',
 	author_email='mati@fsinf.at',
 	url='http://fs.fsinf.at/wiki/RestAuth',
-	packages=['RestAuth']
+	packages=['RestAuth', 'RestAuth.BasicAuth', 'RestAuth.common', 'RestAuth.Groups', 'RestAuth.Users' ]
 )
