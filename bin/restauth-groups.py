@@ -60,32 +60,31 @@ if args[0] != 'help':
 	try:
 		from RestAuth.Groups.models import Group, group_get, group_create
 		from RestAuth.Users.models import ServiceUser, user_get
-		from RestAuth.BasicAuth.models import service_get
+		from RestAuth.Services.models import service_get
 	except ImportError:
 		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 		sys.exit(1)
 
 def print_groups_by_service( groups, indent='' ):
-	services = {}
+	servs = {}
 	for group in groups:
-		if services.has_key( group.service ):
-			services[group.service].append( group )
+		if servs.has_key( group.service ):
+			servs[group.service].append( group )
 		else:
-			services[group.service] = [ group ]
+			servs[group.service] = [ group ]
 
-	if None in services:
-		none_names = [ service.name for service in services[None] ]
+	if None in servs:
+		none_names = [ service.name for service in servs[None] ]
 		none_names.sort()
 		print( '%sNone: %s'%(indent, ', '.join( none_names ) ) )
-		del services[None]
+		del servs[None]
 	
-	service_names = sorted( services.keys(), key=attrgetter('username') )
+	service_names = sorted( servs.keys(), key=attrgetter('username') )
 	
 	for name in service_names:
-		names = [ service.name for service in services[name] ]
+		names = [ service.name for service in servs[name] ]
 		names.sort()
 		print( '%s%s: %s'%(indent, name, ', '.join(names) ) )
-	
 
 if args[0] in [ 'create', 'add' ]:
 	if options.service:

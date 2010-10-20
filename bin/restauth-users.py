@@ -59,7 +59,7 @@ if args[0] != 'help':
 	# we don't need this for help
 	try:
 		from RestAuth.Users.models import ServiceUser, user_get, user_create
-		from RestAuth.BasicAuth.models import service_get
+		from RestAuth.Services.models import service_get
 	except ImportError:
 		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 		sys.exit(1)

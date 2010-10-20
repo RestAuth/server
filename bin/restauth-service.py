@@ -49,7 +49,7 @@ if not args:
 if args[0] != 'help':
 	# we don't need this for help
 	try:
-		from RestAuth.BasicAuth.models import *
+		from RestAuth.Services.models import *
 	except ImportError:
 		print( sys.path )
 		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
