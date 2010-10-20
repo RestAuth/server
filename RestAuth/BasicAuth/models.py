@@ -66,7 +66,7 @@ def verify_service( name, password, host ):
 	try:
 		serv = Service.objects.get( username=name )
 
-		if self.verify( password, host ):
+		if serv.verify( password, host ):
 			return serv
 		else:
 			return False
