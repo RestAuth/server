@@ -41,7 +41,6 @@ def service_create( name, password, addresses=[] ):
 		service.save()
 	except IntegrityError:
 		raise ServiceAlreadyExists( "Service already exists. Please use a different name." )
-		
 
 	if addresses:
 		service.set_hosts( addresses )
@@ -61,17 +60,6 @@ def service_get( name ):
 def service_delete( name ):
 	service = service_get( name )
 	service.delete()
-
-def verify_service( name, password, host ):
-	try:
-		serv = Service.objects.get( username=name )
-
-		if serv.verify( password, host ):
-			return serv
-		else:
-			return False
-	except Service.DoesNotExist:
-		return None
 
 class ServiceAddress( models.Model ):
 	address = models.CharField( max_length=39, unique=True )
