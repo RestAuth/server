@@ -1,5 +1,5 @@
 import sys, base64
-from RestAuth.BasicAuth.models import Service
+from RestAuth.Services.models import Service
 
 class InternalAuthenticationBackend:
 	def authenticate( self, header, host ):

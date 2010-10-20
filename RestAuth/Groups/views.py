@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from RestAuth.BasicAuth.decorator import login_required
+from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
 from RestAuth.common import marshal, parse_request_body

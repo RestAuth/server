@@ -15,7 +15,7 @@
 
 import logging
 
-from RestAuth.BasicAuth.decorator import login_required
+from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.common import get_setting, marshal, parse_request_body
 

@@ -75,12 +75,12 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
-    'RestAuth.BasicAuth',
+    'RestAuth.Services',
     'RestAuth.Users',
     'RestAuth.Groups',
 )
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.RemoteUserBackend',
-    'RestAuth.BasicAuth.backend.InternalAuthenticationBackend',
+    'RestAuth.Services.backend.InternalAuthenticationBackend',
 )
