@@ -1,2 +1,4 @@
 * /userprops should be moved to /users/<user>/props
 * add support for /users/<user>/blobs
+* Finish logging in groups, properties
+* Refactor groups
