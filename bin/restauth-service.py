@@ -72,19 +72,33 @@ if args[0] == 'add':
 		print( "Error: Service already exists." )
 		sys.exit(1)
 elif args[0] == 'remove' or args[0] == 'rm':
-	service_delete( args[1] )
+	try:
+		service_delete( args[1] )
+	except ServiceNotFound:
+		print( "Error: Service not found." )
+		sys.exit(1)
 elif args[0] == 'list':
 	for service in Service.objects.all():
-		print( service.username )
+		hosts = service.hosts.all()
+		hosts = [ host.address for host in hosts ]
+		hosts = ', '.join( hosts )
+		print( '%s (%s)'%(service.username, hosts) )
 elif args[0] == 'view':
-	service = service_get( args[1] )
-	print( service.username )
-	print( 'Last used: %s'%(service.last_login) )
-	hosts = service.hosts.all()
-	print( 'Hosts: %s'%(', '.join( [ host.address for host in hosts ] ) ) )
+	try:
+		service = service_get( args[1] )
+		print( service.username )
+		print( 'Last used: %s'%(service.last_login) )
+		hosts = service.hosts.all()
+		print( 'Hosts: %s'%(', '.join( [ host.address for host in hosts ] ) ) )
+	except ServiceNotFound:
+		print( "Error: Service not found." )
+		sys.exit(1) 
 elif args[0] == 'set-hosts':
-	service = service_get( args[1] )
-	service.set_hosts( args[2:] )
+	try:
+		service = service_get( args[1] )
+		service.set_hosts( args[2:] )
+	except ServiceNotFound:
+		print( "Error: Service not found." )
 elif args[0] == 'help':
 	if len(args) > 1:
 		usage = '%prog [options] ' + args[1] + ' '
