@@ -54,7 +54,7 @@ def service_exists( name ):
 def service_get( name ):
 	try:
 		return Service.objects.get( username=name )
-	except User.DoesNotExist:
+	except Service.DoesNotExist:
 		raise ServiceNotFound( "Service not found: %s"%(name) )
 
 def service_delete( name ):
