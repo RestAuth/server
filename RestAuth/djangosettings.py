@@ -84,3 +84,30 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.RemoteUserBackend',
     'RestAuth.Services.backend.InternalAuthenticationBackend',
 )
+
+#############################################
+### Defaults for the standard settings.py ###
+#############################################
+DEBUG = False
+
+# Configure your database settings
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': './RestAuth.sqlite3', # Or path to database file if using sqlite3.
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+    }
+}
+TIME_ZONE = 'Europe/Vienna'
+LANGUAGE_CODE = 'en-us'
+AUTH_PROVIDER = 'internal'
+SKIP_VALIDATORS = [ 'linux', 'windows' ]
+ALLOW_USERNAME_CHANGE = False
+MIN_USERNAME_LENGTH = 3
+MIN_PASSWORD_LENGTH = 6
+HASH_ALGORITHM = 'sha512'
+LOG_LEVEL = 'CRITICAL'
+LOG_TARGET = 'stderr'
