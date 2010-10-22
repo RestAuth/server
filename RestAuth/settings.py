@@ -114,7 +114,7 @@ MIN_PASSWORD_LENGTH = 6
 # default and recommended. Additionally, RestAuth supports using hashes
 # compatible with other systems. Currectly 'mediawiki' creates hashes compatible
 # with a MediaWiki database.
-HASH_ALGORITHM = 'sha1'
+HASH_ALGORITHM = 'sha512'
 
 ###############
 ### LOGGING ###

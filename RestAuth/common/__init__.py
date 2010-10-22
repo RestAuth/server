@@ -16,6 +16,8 @@
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.encoding import smart_str
+import hashlib
 
 from errors import BadRequest, ContentTypeNotAcceptable, MarshalError
 
@@ -114,3 +116,26 @@ def get_response_type( request ):
 		return accept[0]
 
 	raise ContentTypeNotAcceptable( "Could not determine response content-type!" )
+
+def get_salt():
+	"""
+	Get a very random salt. The salt is the first eight characters of a
+	sha512 hash of 5 random numbers concatenated.
+	"""
+	from random import random
+	random_string = ','.join( map( lambda a: str(random()), range(5) ) )
+	return hashlib.sha512( random_string ).hexdigest()[:8]
+
+def get_hexdigest( algorithm, salt, secret ):
+	"""
+	This method overrides the standard get_hexdigest method for service
+	users. It adds support for for the 'mediawiki' hash-type and any
+	crypto-algorithm included in the hashlib module.
+
+	Unlike the django function, this function requires python2.5 or higher.
+	"""
+	salt, secret = smart_str(salt), smart_str(secret)
+	if algorithm == 'mediawiki':
+		return hashlib.md5( '%s-%s'%(salt, raw_password ).hexdigest() )
+	else:
+		return getattr( hashlib, algorithm )( salt + secret ).hexdigest()
