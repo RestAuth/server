@@ -23,7 +23,7 @@ from django.http import HttpResponse, QueryDict
 from django.http.multipartparser import MultiPartParser
 
 @login_required(realm="/users/")
-def create( request ):
+def index( request ):
 	"""
 	This handles /users/:
 	POST: create a new ServiceUser, returns HTTP status code:

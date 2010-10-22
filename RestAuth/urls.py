@@ -27,6 +27,5 @@ urlpatterns = patterns('',
     (r'^/?$', 'RestAuth.views.index' ),
     (r'^admin/',  include('admin.site.urls')),
     (r'^users/',  include('RestAuth.Users.urls')),
-    (r'^userprops/',  include('RestAuth.Users.prop-urls')),
     (r'^groups/', include('RestAuth.Groups.urls')),
 )
