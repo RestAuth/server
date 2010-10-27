@@ -17,8 +17,13 @@ def check_password(environ, user, password):
 			return True
 		else:
 			return False
-	except:
-		# most likely: Service.DoesNotExist
+	except Service.DoesNotExist:
+		return None
+	except Exception, e:
+		import sys
+		sys.stderr.write( "Error: Uncought exception: %s"%(type(e)) )
+		sys.stderr.write( "    %s"%(e) )
+		sys.stderr.flush()
 		return None
         finally:
                 db.connection.close()
