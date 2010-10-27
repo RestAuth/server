@@ -136,6 +136,6 @@ def get_hexdigest( algorithm, salt, secret ):
 	"""
 	salt, secret = smart_str(salt), smart_str(secret)
 	if algorithm == 'mediawiki':
-		return hashlib.md5( '%s-%s'%(salt, raw_password ).hexdigest() )
+		return hashlib.md5( '%s-%s'%(salt, secret ) ).hexdigest()
 	else:
 		return getattr( hashlib, algorithm )( salt + secret ).hexdigest()
