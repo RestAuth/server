@@ -10,7 +10,7 @@ def check_password(environ, user, password):
 		from RestAuth.Services.models import Service
 		from django import db
         	db.reset_queries()
-		if 'REMOTE_ADDR in environ:
+		if 'REMOTE_ADDR' in environ:
 			host = environ['REMOTE_ADDR']
 		else:
 			sys.stderr.write( "Error: Could not get remote host from environment!" )
