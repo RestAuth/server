@@ -28,6 +28,9 @@ from RestAuth.Users.models import ServiceUser, Property
 from RestAuth.Groups.models import Group
 
 class LoggingMiddleware:
+	"""
+	This middleware is responsible for setting up the logging environment.
+	"""
 	def process_request( self, request ):
 		kwargs = { 'level': settings.LOG_LEVEL,
 			'format': '%(asctime)s %(levelname)-8s %(message)s',
@@ -43,6 +46,9 @@ class LoggingMiddleware:
 		logging.basicConfig( **kwargs )
 
 class ExceptionMiddleware:
+	"""
+	Exception to handle RestAuth related exceptions.
+	"""
 	def process_exception( self, request, ex ):
 		if isinstance( ex, ServiceUser.DoesNotExist ):
 			resp = HttpResponse( ex, status=404 )
