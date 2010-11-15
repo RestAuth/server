@@ -27,15 +27,9 @@ from RestAuth.common.errors import RestAuthException
 from RestAuth.Users.models import ServiceUser, Property
 from RestAuth.Groups.models import Group
 
-class ExceptionMiddleware:
+class LoggingMiddleware:
 	def process_request( self, request ):
-		try:
-			self.log_level = getattr( logging, settings.LOG_LEVEL )
-		except AttributeError, e:
-			sys.stderr.write( "%s\n"%(e) )
-			return
-
-		kwargs = { 'level': self.log_level,
+		kwargs = { 'level': settings.LOG_LEVEL,
 			'format': '%(asctime)s %(levelname)-8s %(message)s',
 			'datefmt': '%a, %d %b %Y %H:%M:%S' }
 
@@ -48,28 +42,20 @@ class ExceptionMiddleware:
 
 		logging.basicConfig( **kwargs )
 
-#	def process_view( self, request, view_func, view_args, view_kwargs ):
-#		name = request.user.username
-#		logger = logging.getLogger()
-#		handler = logger.handlers[0]
-#		formatter = logging.Formatter( '%(asctime)s %(levelname)-8s '+name+': %(message)s' )
-#		handler.setFormatter( formatter )
-		
-	def process_exception( self, request, exception ):
-		if isinstance( exception, ServiceUser.DoesNotExist ):
-			resp = HttpResponse( exception, status=404 )
+class ExceptionMiddleware:
+	def process_exception( self, request, ex ):
+		if isinstance( ex, ServiceUser.DoesNotExist ):
+			resp = HttpResponse( ex, status=404 )
 			resp['Resource'] = 'User'
 			return resp
-		if isinstance( exception, Group.DoesNotExist ):
-			resp = HttpResponse( exception, status=404 )
+		if isinstance( ex, Group.DoesNotExist ):
+			resp = HttpResponse( ex, status=404 )
 			resp['Resource'] = 'Group'
 			return resp
-		if isinstance( exception, Property.DoesNotExist ):
-			resp = HttpResponse( exception, status=404 )
+		if isinstance( ex, Property.DoesNotExist ):
+			resp = HttpResponse( ex, status=404 )
 			resp['Resource'] = 'Property'
 			return resp
 
-		if isinstance( exception, RestAuthException ):
-			body = exception.body
-			status = exception.code
-			return HttpResponse( body, status=status )
+		if isinstance( ex, RestAuthException ):
+			return HttpResponse( ex.body, status=ex.code )
