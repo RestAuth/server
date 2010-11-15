@@ -68,15 +68,6 @@ LANGUAGE_CODE = 'en-us'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
 
-# Use this setting to configure how RestAuth assumes service authentication
-# is performed:
-# * internal: HTTP basic authentication is evaluated by RestAuth itself.
-# * apache: RestAuth trusts the HTTP headers passed on to it by the webserver.
-# The latter setting is faster but requires more configuration. For more
-# information, please see:
-# 	http://fs.fsinf.at/wiki/RestAuth/Service_authentication
-AUTH_PROVIDER = 'internal'
-
 # A tricky problem for a shared authentication service is what characters are
 # legal for a username. For example, 'Mathias Ertl' is a valid MediaWiki
 # username, but it is not a valid XMPP username. When creating a new user, the

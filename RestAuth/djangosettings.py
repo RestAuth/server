@@ -104,7 +104,6 @@ DATABASES = {
 }
 TIME_ZONE = 'Europe/Vienna'
 LANGUAGE_CODE = 'en-us'
-AUTH_PROVIDER = 'internal'
 SKIP_VALIDATORS = [ 'linux', 'windows' ]
 ALLOW_USERNAME_CHANGE = False
 MIN_USERNAME_LENGTH = 3
