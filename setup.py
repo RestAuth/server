@@ -13,10 +13,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with RestAuthClient.py.  If not, see <http://www.gnu.org/licenses/>.
 
-from os.path import normpath, isdir, basename, exists
+from subprocess import Popen, PIPE
+from os import listdir
+from os.path import normpath, isdir, basename, exists, isfile
 from shutil import copytree, ignore_patterns
-from distutils.core import setup
+from distutils.core import setup, Command
 from distutils.command.install_data import install_data as _install_data
+from distutils.command.build import build as _build
 from distutils.util import execute
 
 class install_data( _install_data ):
@@ -40,6 +43,74 @@ class install_data( _install_data ):
 				nodes.remove( src )
 		_install_data.run( self )
 
+added_options = [('prefix=', None, 'installation prefix'),
+	('exec-prefix=', None, 'prefix for platform-specific files'),
+	('patch-dir=', None, 'Directory where patches are located.') ]
+
+class patch( Command ):
+	description = "Patch source code before installation" 
+	
+	user_options = added_options
+
+	def initialize_options( self ):
+		self.prefix = None
+		self.exec_prefix = None
+		self.patch_dir = None
+	
+	def finalize_options( self ):
+		if 'build' in self.distribution.command_options:
+			options = self.distribution.command_options['build']
+		else:
+			options = self.distribution.command_options['patch']
+
+		if 'prefix' in options:
+			self.prefix = options['prefix'][1]
+		if 'exec_prefix' in options:
+			self.exec_prefix = options['exec_prefix'][1]
+		if 'patch_dir' in options:
+			self.patch_dir = options['patch_dir'][1]
+
+	def run( self ):
+		for patch in listdir( self.patch_dir ):
+			print( " Applying %s"%(patch) )
+
+			full_path = normpath( self.patch_dir + '/' + patch )
+			f = open( full_path )
+			lines = f.readlines()
+			patch_lines = []
+			for line in lines:
+				line = line.replace( '__PREFIX__', self.prefix )
+				patch_lines.append( line )
+
+			patch = "".join( patch_lines )
+
+			cmd = [ 'patch', '-p0', '--backup', '--version-control=simple' ]
+			p = Popen( cmd, stdin=PIPE )
+			p.stdin.write( patch )
+
+class build( _build ):
+	def has_patches(self):
+		if not self.patch_dir or not exists( self.patch_dir ):
+			return False
+
+		ls = listdir( self.patch_dir )
+		files = [ f for f in ls if isfile( "%s/%s"%(self.patch_dir, f) ) ]
+		if files:
+			return True
+
+		return False
+
+	def initialize_options( self ):
+		"""
+		Modify this class so that we also understand --install-dir.
+		"""
+		_build.initialize_options( self )
+		self.prefix = None
+		self.exec_prefix = None
+		self.patch_dir = None
+
+	sub_commands = [('patch', has_patches)] + _build.sub_commands
+	user_options = _build.user_options + added_options
 
 setup(
 	name='RestAuth',
@@ -55,5 +126,8 @@ setup(
 		('share/', ['doc'] ),
 		('share/doc', ['AUTHORS', 'COPYING', 'COPYRIGHT'] ),
 		],
-	cmdclass={'install_data': install_data}
+	cmdclass={
+		'install_data': install_data,
+		'build': build,
+		'patch': patch },
 )
