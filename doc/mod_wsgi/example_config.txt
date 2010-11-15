@@ -5,7 +5,7 @@
 	#...
 
         # basic django configuration:
-        WSGIScriptAlias / /usr/local/share/RestAuth/wsgi/django
+        WSGIScriptAlias / /usr/local/share/restauth/wsgi/restauth
 
         <Location />
                 AuthType Basic
@@ -13,6 +13,6 @@
                 AuthBasicProvider wsgi
                 Require valid-user
 
-                WSGIAuthUserScript /usr/local/share/RestAuth/wsgi/django/auth
+                WSGIAuthUserScript /usr/local/share/restauth/wsgi/restauth
         </Location>
 </VirtualHost>
