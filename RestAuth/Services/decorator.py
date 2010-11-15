@@ -15,6 +15,7 @@
 
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
+import logging
 
 def login_user( view, request, realm, *args, **kwargs ):
 	"""
@@ -23,22 +24,29 @@ def login_user( view, request, realm, *args, **kwargs ):
 	if request.user.is_authenticated():
 		return view(request, *args, **kwargs)
 
+	user = None
 	if 'REMOTE_USER' in request.META:
 		# The web-server already authenticated the remote user:
+		logging.debug( "Using remote_user passed by webserver." )
 		user = authenticate( remote_user=request.META['REMOTE_USER'] )
-	if 'HTTP_AUTHORIZATION' in request.META:
+	elif 'HTTP_AUTHORIZATION' in request.META:
 		# The web-server does *not* handle authentication and the client
 		# tries to authenticate.
+		logging.debug( "Using HTTP basic authentication headers." )
 		header = request.META['HTTP_AUTHORIZATION']
 		host = request.META['REMOTE_ADDR']
 		user = authenticate( header=header, host=host )
+	else:
+		logging.critical( "Unable to get authentication source." )
 
 	if user:
 		# log the user in:
 		login(request, user)
+		logging.debug( "User successfully logged in." )
 		return view(request, *args, **kwargs)
 	else:
 		# send an authentication challenge:
+		logging.info( "Client did not authenticate" )
 		response = HttpResponse( "Please authenticate", status=401 )
 		response['WWW-Authenticate'] = 'Basic realm="%s"' % realm
 		return response
