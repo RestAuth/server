@@ -173,7 +173,7 @@ setup(
 	author_email='mati@fsinf.at',
 	url='http://fs.fsinf.at/wiki/RestAuth',
 	packages=['RestAuth', 'RestAuth.Services', 'RestAuth.common', 'RestAuth.Groups', 'RestAuth.Users' ],
-	scripts = [ 'bin/restauth-groups.py' ],
+#	scripts = [ 'bin/restauth-groups.py' ],
 	data_files = [
 		('share/restauth', [ 'wsgi' ] ),
 		('share/', ['doc'] ),
