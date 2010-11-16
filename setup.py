@@ -144,7 +144,10 @@ class clean( _clean ):
 
 def get_version():
 	version = '0.1'
-	if exists( '.svn' ):
+	if exists( '.version' ):
+		print( 'get version from file...' )
+		version = open( '.version' ).readlines()[0]
+	elif exists( '.svn' ):
 		cmd = [ 'svn', 'info' ]
 		p = Popen( cmd, stdout=PIPE )
 		stdin, stderr = p.communicate()
