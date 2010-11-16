@@ -20,6 +20,7 @@ from shutil import copytree, ignore_patterns
 from distutils.core import setup, Command
 from distutils.command.install_data import install_data as _install_data
 from distutils.command.build import build as _build
+from distutils.command.clean import clean as _clean
 from distutils.util import execute
 
 class install_data( _install_data ):
@@ -47,34 +48,34 @@ added_options = [('prefix=', None, 'installation prefix'),
 	('exec-prefix=', None, 'prefix for platform-specific files'),
 	('patch-dir=', None, 'Directory where patches are located.') ]
 
-class patch( Command ):
-	description = "Patch source code before installation" 
-	
+class patch_command( Command ):
 	user_options = added_options
-
-	def initialize_options( self ):
-		self.prefix = None
-		self.exec_prefix = None
-		self.patch_dir = None
 	
-	def finalize_options( self ):
-		if 'build' in self.distribution.command_options:
-			options = self.distribution.command_options['build']
-		else:
-			options = self.distribution.command_options['patch']
+	def initialize_options( self ):
+		self.prefix = '/usr/local'
+		self.exec_prefix = '/usr/local/bin'
+		self.patch_dir = 'patches'
 
+	def finalize_options( self ):
+		command = self.get_command_name()
+		options = self.distribution.command_options[ command ]
+		
 		if 'prefix' in options:
 			self.prefix = options['prefix'][1]
 		if 'exec_prefix' in options:
 			self.exec_prefix = options['exec_prefix'][1]
 		if 'patch_dir' in options:
 			self.patch_dir = options['patch_dir'][1]
-
+	
 	def run( self ):
 		for patch in listdir( self.patch_dir ):
-			print( " Applying %s"%(patch) )
-
 			full_path = normpath( self.patch_dir + '/' + patch )
+
+			if isdir( full_path ):
+				continue
+
+			print( " Applying %s..."%(patch) )
+
 			f = open( full_path )
 			lines = f.readlines()
 			patch_lines = []
@@ -84,9 +85,19 @@ class patch( Command ):
 
 			patch = "".join( patch_lines )
 
-			cmd = [ 'patch', '-p0', '--backup', '--version-control=simple' ]
+			# todo: already applied patches
+			cmd = [ 'patch' ] + self.__class__.patch_args
+			print( ' '.join( cmd ) )
 			p = Popen( cmd, stdin=PIPE )
 			p.stdin.write( patch )
+
+class patch( patch_command ):
+	description = "Patch source code before installation" 
+	patch_args = [ '-t', '-p0' ]
+	
+class unpatch( patch_command ):
+	description = "Patch source code before installation"
+	patch_args = [ '-R', '-t', '-p0' ]
 
 class build( _build ):
 	def has_patches(self):
@@ -112,9 +123,48 @@ class build( _build ):
 	sub_commands = [('patch', has_patches)] + _build.sub_commands
 	user_options = _build.user_options + added_options
 
+class clean( _clean ):
+	def has_patches( self ):
+		if not self.patch_dir or not exists( self.patch_dir ):
+			return False
+
+		ls = listdir( self.patch_dir )
+		files = [ f for f in ls if isfile( "%s/%s"%(self.patch_dir, f) ) ]
+		if files:
+			return True
+
+		return False
+
+	def initialize_options( self ):
+		_clean.initialize_options( self )
+		self.patch_dir = None
+		
+	sub_commands = [('unpatch', has_patches)] + _build.sub_commands
+	user_options = _clean.user_options + [ ('patch-dir=', None, 'Directory where patches are located.') ]
+
+def get_version():
+	version = 0.1
+	if exists( '.svn' ):
+		cmd = [ 'svn', 'info' ]
+		p = Popen( cmd, stdout=PIPE )
+		stdin, stderr = p.communicate()
+		lines = stdin.split( "\n" )
+		line = [ line for line in lines if line.startswith( 'Revision' ) ][0]
+		version = '0.0-' + line.split( ': ' )[1].strip()
+	return version
+
+class version( Command ):
+	user_options = []
+	def initialize_options( self ):
+		pass
+	def finalize_options( self ):
+		pass
+	def run( self ):
+		print( get_version() )
+
 setup(
 	name='RestAuth',
-	version='1.0',
+	version=get_version(),
 	description='RestAuth web service',
 	author='Mathias Ertl',
 	author_email='mati@fsinf.at',
@@ -128,6 +178,6 @@ setup(
 		],
 	cmdclass={
 		'install_data': install_data,
-		'build': build,
-		'patch': patch },
+		'build': build, 'version': version,
+		'patch': patch, 'unpatch': unpatch },
 )
