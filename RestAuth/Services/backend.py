@@ -23,4 +23,9 @@ class InternalAuthenticationBackend:
 			# service does not exist
 			return None
 
-				
+	def get_user( self, user_id ):
+		"""
+		Get the user by id. This is used by clients that implement
+		sessions.
+		"""
+		return Service.objects.get( id=user_id )
