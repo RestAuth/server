@@ -143,7 +143,7 @@ class clean( _clean ):
 	user_options = _clean.user_options + [ ('patch-dir=', None, 'Directory where patches are located.') ]
 
 def get_version():
-	version = 0.1
+	version = '0.1'
 	if exists( '.svn' ):
 		cmd = [ 'svn', 'info' ]
 		p = Popen( cmd, stdout=PIPE )
