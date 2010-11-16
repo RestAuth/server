@@ -177,7 +177,7 @@ setup(
 	data_files = [
 		('share/restauth', [ 'wsgi' ] ),
 		('share/', ['doc'] ),
-		('share/doc', ['AUTHORS', 'COPYING', 'COPYRIGHT'] ),
+		('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT'] ),
 		],
 	cmdclass={
 		'install_data': install_data,
