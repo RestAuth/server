@@ -1,5 +1,6 @@
 import sys, base64
 from RestAuth.Services.models import Service
+from django.contrib.auth.models import User
 
 class InternalAuthenticationBackend:
 	def authenticate( self, header, host ):
