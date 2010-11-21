@@ -65,3 +65,12 @@ class ExceptionMiddleware:
 
 		if isinstance( ex, RestAuthException ):
 			return HttpResponse( ex.body, status=ex.code )
+
+class HeaderMiddleware:
+	"""
+	Middleware to ensure required headers are present.
+	"""
+	def process_request( self, request ):
+		print( request.META )
+		if request.method in ['POST', 'PUT'] and 'CONTENT_TYPE' not in request.META:
+			return HttpResponse( 'POST/PUT requests must include a Content-Type header.', status=415 )
