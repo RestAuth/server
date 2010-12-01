@@ -186,8 +186,8 @@ class ServiceUser( models.Model ):
 
 class Property( models.Model ):
 	user = models.ForeignKey( ServiceUser )
-	key = models.CharField( max_length=30 )
-	value = models.CharField( max_length=100 )
+	key = models.CharField( max_length=128 )
+	value = models.TextField()
 
 	class Meta:
 		unique_together = ( 'user', 'key' )
