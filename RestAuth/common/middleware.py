@@ -74,5 +74,5 @@ class HeaderMiddleware:
 		if request.method in ['POST', 'PUT'] and 'CONTENT_TYPE' not in request.META:
 			return HttpResponse( 'POST/PUT requests must include a Content-Type header.', status=415 )
 
-		if 'ACCEPT' in request.META:
-			return HttpResponse( 'The Accept header is recommended on all requests.', status=406 )
+		if 'ACCEPT' not in request.META:
+			logging.warn( 'Accept header is recommended in all requests.' )
