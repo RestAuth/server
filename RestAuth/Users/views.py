@@ -17,53 +17,37 @@ import logging
 
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
-from RestAuth.common import get_setting, marshal, parse_request_body
+from RestAuth.common import marshal
+from RestAuth.common.types import get_dict
 
-from django.http import HttpResponse, QueryDict
-from django.http.multipartparser import MultiPartParser
+from django.http import HttpResponse
 
 @login_required(realm="/users/")
 def index( request ):
-	"""
-	This handles /users/:
-	POST: create a new ServiceUser, returns HTTP status code:
-		201: created
-		400: bad request (i.e. POST-data is invalid/missing)
-		403: forbidden (not allowed for client)
-		409: conflict (user already exists)
-		500: internal server error (i.e. uncought exception)
-	else: return 405 (method not allowed)
-	"""
 	service = request.user.username
 
-	if request.method == "GET":
-		# get list of users
-		users = ServiceUser.objects.all()
-		names = [ user.username for user in users ]
+	if request.method == "GET": # get list of users:
+		names = [ user.username for user in ServiceUser.objects.all() ]
 		response = marshal( request, names )
+		
 		logging.debug( "%s: Got list of users"%(service) )
 		return HttpResponse( response )
-	elif request.method == 'POST':
-		body = parse_request_body( request )
-
-		# add a user
-		try:
-			username = body['user'].lower()
-			password = body['password']
-		except KeyError:
-			logging.error( "%s: Bad POST body: %s"%(service, request.raw_post_data) )
-			return HttpResponse( 'Could not retrieve username/password from POST data', status=400 )
-
-		# If UsernameInvalid: 400 Bad Request
-		check_valid_username( username )
-		check_valid_password( password )
-
+	elif request.method == 'POST': # create new user:
+		# If BadRequest: 400 Bad Request
+		name, password = get_dict( request, [u'user', u'password'] )
+		
 		# If ResourceExists: 409 Conflict
-		user_create( username, password )
-		logging.info( "%s: Created user '%s'"%(service, username) )
-		return HttpResponse( status=201 )
-	else:
-		return HttpResponse( status=405 )
+		# If UsernameInvalid: 412 Precondition Failed
+		# If PasswordInvalid: 412 Precondition Failed
+		user = user_create( name, password )
+		
+		logging.info( "%s: Created user '%s'"%(service, user.username) )
+		response = HttpResponse( status=201 )
+# TODO: This header needs URL-encoding
+		response['Location'] = '/users/%s/'%(name)
+		return response
+	
+	return HttpResponse( status=405 )
 
 @login_required(realm="/users/<user>/")
 def user_handler( request, username ):
@@ -73,67 +57,37 @@ def user_handler( request, username ):
 	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
 
-	if request.method == 'DELETE':
-		# delete a user
-		user.delete()
-		logging.info( "%s: Deleted user '%s'"%(service, username ) )
-		return HttpResponse( status=200 ) # OK
-	elif request.method == 'POST':
-		# check users credentials
-		body = parse_request_body( request )
+	if request.method == 'GET': # Verify that a user exists:
+		logging.debug( "%s: Check if user '%s' exists"%(service, user.username) )
+		return HttpResponse( status=204 ) # OK
+	elif request.method == 'POST': # verify password
+		# If BadRequest: 400 Bad Request
+		password = get_dict( request, [ u'password' ] )
 
-		try:
-			password = body['password']
-		except KeyError:
-			logging.error( "%s: Bad POST body: %s"%(service, request.raw_post_data) )
-			return HttpResponse( status=400 ) # Bad Request
-
-		logging.debug( "%s: Check password for user '%s'"%(service, username ) )
-
-		if user.check_password( password ):
-			user.save() # update "modified" timestamp
-			return HttpResponse( status=200 ) # Ok
-		else:
+		user.save() # update "modified" timestamp
+		if not user.check_password( password ):
 			# password does not match - raises 404
 			raise ServiceUser.DoesNotExist( "Password invalid for this user." )
-
-	elif request.method == 'PUT':
-		# update the users credentials
-
-		can_change_name = get_setting( 'ALLOW_USERNAME_CHANGE', False )
-		body = parse_request_body( request )
 		
-		# Check validity of request data:
-		if len( body ) == 0:
-			logging.error( "%s: Bad PUT data: []"%(service) )
-			return HttpResponse( status=400 ) # Bad Request
-		if can_change_name and 'user' in body:
-			check_valid_username( body['user'].lower() )
-		elif 'user' in body:
-			logging.error( "%s: Changing username is not allowed."%(service) )
-			return HttpResponse( "Changing the username is not allowed with this RestAuth installation.", status=412 )
-		if 'password' in body:
-			check_valid_password( body['password'] )
+		logging.debug( "%s: Checked password for user '%s'"%(service, username ) )
+		return HttpResponse( status=204 ) # Ok
+	elif request.method == 'PUT': # Change password
+		# If BadRequest: 400 Bad Request
+		password = get_dict( request, [ u'password' ] )
 
-		# update credentials
-		if 'user' in body:
-			old_name = user.username
-			user.username = body['user'].lower()
-			logging.info( "%s: Renamed user '%s' to '%s'"%(service, user.username, old_name) )
-		if 'password' in body:
-			user.set_password( body['password'] )
-			logging.info( "%s: Updated password for '%s'"%(service, user.username ) )
-
+		# If UsernameInvalid: 412 Precondition Failed
+		user.set_password( password )
 		user.save()
-		return HttpResponse( status=200 ) # Ok
-	elif request.method == 'GET':
-		# Check if a user exists 
-		# (If user doesn't exist, we already returned 404)
-		logging.debug( "%s: Check if user '%s' exists"%(service, user.username) )
-		return HttpResponse( status=200 ) # OK
-	else:
-		# mmmh, exotic HTTP method!
-		return HttpResponse( status=405 ) # Method Not Allowed
+		
+		logging.debug( "%s: Update password for user '%s'"%(service, username ) )
+		return HttpResponse( status=204 ) # Ok
+	elif request.method == 'DELETE': # delete a user:
+		user.delete()
+
+		logging.info( "%s: Deleted user '%s'"%(service, username ) )
+		return HttpResponse( status=204 ) # OK
+	
+	return HttpResponse( status=405 ) # Method Not Allowed
 
 
 @login_required(realm="/users/<user>/props/")
@@ -143,22 +97,22 @@ def userprops_index( request, username ):
 	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
 
-	if request.method == 'GET':
+	if request.method == 'GET': # get all properties
 		props = user.get_properties()
+		
 		logging.debug( "%s: Get properties for '%s'"%(service, username) )
 		return HttpResponse( marshal( request, props ) )
-	elif request.method == 'POST':
-		body = parse_request_body( request )
+	elif request.method == 'POST': # create property
+		# If BadRequest: 400 Bad Request
+		prop, value = get_dict( request, [ u'prop', u'value' ] )
 
-		if 'prop' not in body and 'value' not in body:
-			# We check for this right away so we don't cause any
-			# database load in case this happens
-			logging.error( "%s: Bad POST body: %s"%(service, request.raw_post_data) )
-			return HttpResponse( status=400 )
+		# If PropertyExists: 409 Conflict
+		user.add_property( prop, value )
 
-		user.add_property( body['prop'], body['value'] )
-		logging.info( "%s: Set '%s'='%s' for '%s'"%(service, body['prop'], body['value'], username ) )
-		return HttpResponse()
+		logging.info( "%s: Created property '%s' for '%s'"%(service, prop, username ) )
+		response = HttpResponse( status=201 )
+		response['Location'] = '/users/%s/props/%s'%(username, prop)
+		return response
 	else:
 		return HttpResponse( status=405 ) # Method Not Allowed
 
@@ -169,24 +123,28 @@ def userprops_prop( request, username, prop ):
 	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
 	
-	if request.method == 'GET':
+	if request.method == 'GET': # get value of a property
+		# If Property.DoesNotExist: 404 Not Found
 		prop = user.get_property( prop )
+
 		logging.debug( "%s: Got property '%s' for '%s'"%(service, prop, username) )
 		return HttpResponse( prop.value )
-	elif request.method == 'PUT':
-		body = parse_request_body( request )
-		if 'value' not in body:
-			# We check for this right away so we don't cause any
-			# database load in case this happens
-			logging.critical( "%s: Bad PUT body: %s"%(service, request.raw_post_data) )
-			return HttpResponse( status=400 )
+	elif request.method == 'PUT': # Set property
+		# If BadRequest: 400 Bad Request
+		value = get_dict( request, [ u'value' ] )
 
-		user.set_property( prop, body['value'] )
-		logging.info( "%s: Set property '%s' for user '%s'"%(service, prop, username) )
-		return HttpResponse()
-	elif request.method == 'DELETE':
+		old_value = user.set_property( prop, value )
+		if old_value != None: # property previously defined:
+			return HttpResponse( marshal( request, old_value ) )
+		else: # new property:
+			response = HttpResponse( status=201 )
+			response['Location'] = '/users/%s/props/%s'%(username, value)
+			return response
+	elif request.method == 'DELETE': # Delete property:
+		# If Property.DoesNotExist: 404 Not Found
 		user.del_property( prop )
-		logging.info( "%s: Deleted property '%s' for user '%s'"%(service, prop, username) )
-		return HttpResponse() 
-	else:
-		return HttpResponse( status=405 ) # Method Not Allowed
+
+		logging.info( "%s: Delete property '%s' for user '%s'"%(service, prop, username) )
+		return HttpResponse( status=204 )
+	
+	return HttpResponse( status=405 ) # Method Not Allowed

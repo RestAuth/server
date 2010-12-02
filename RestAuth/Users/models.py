@@ -14,15 +14,19 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+from django.contrib.auth.models import User, get_hexdigest
 from django.db import models
 from django.db.utils import IntegrityError
-from django.contrib.auth.models import User, get_hexdigest
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from RestAuth.common import get_setting, get_hexdigest, get_salt
 from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, ResourceExists
 from RestAuth.Users import validators
 
 class PropertyExists( ResourceExists ):
+	pass
+
+class UserExists( ResourceExists ):
 	pass
 
 def user_exists( name ):
@@ -32,18 +36,31 @@ def user_exists( name ):
 		return False
 
 def user_get( name ):
+	"""
+	Get a user with the given username.
+
+	@raises ServiceUser.DoesNotExist: When the user does not exist.
+	"""
 	return ServiceUser.objects.get( username=name )
 
 def user_create( name, password ):
+	"""
+	Creates a new user. Lowercases the username.
+
+	@raise UserExists: If the user already exists
+	@raise UsernameInvalid: If the username is unacceptable
+	@raise PasswordInvalid: If the password is unacceptable
+	"""
+	name = name.lower()
 	try:
 		user = ServiceUser( username=name )
 		user.set_password( password )
 		user.save()
 		return user
 	except IntegrityError:
-		raise ResourceExists( "A user with the given name already exists." )
+		raise UserExists( "A user with the given name already exists." )
 
-def check_valid_username( username ):
+def validate_username( username ):
 	min_length = get_setting( 'MIN_USERNAME_LENGTH', 3 )
 	max_length = get_setting( 'MAX_USERNAME_LENGTH', 255 )
 	if len( username ) < min_length:
@@ -63,14 +80,6 @@ def check_valid_username( username ):
 		if not func( username ):
 			raise UsernameInvalid( 'Username is not valid on %s'%(val) )
 
-def check_valid_password( password ):
-	min_length = get_setting( 'MIN_PASSWORD_LENGTH', 6 )
-	
-	if len( password ) < min_length:
-		raise PasswordInvalid( "Password too short" )
-
-	return True
-
 class ServiceUser( models.Model ):
 	username = models.CharField(_('username'), max_length=30, unique=True, help_text=_("Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters"))
 	algorithm = models.CharField( _('algorithm'), max_length=20, help_text=_("The algorithm used to hash passwords") )
@@ -79,7 +88,21 @@ class ServiceUser( models.Model ):
 	last_login = models.DateTimeField(_('last login'), default=datetime.datetime.now, auto_now=True)
 	date_joined = models.DateTimeField(_('date joined'), default=datetime.datetime.now)
 
+	def __init__( self, *args, **kwargs ):
+		models.Model.__init__( self, *args, **kwargs )
+		
+		validate_username( self.username )
+
 	def set_password( self, raw_password ):
+		"""
+		Set the password to the given value. Throws PasswordInvalid if
+		the password is shorter than settings.MIN_PASSWORD_LENGTH.
+
+		@raise PasswordInvalid: When the password is too short.
+		"""
+		if len( raw_password ) < settings.MIN_PASSWORD_LENGTH:
+			raise PasswordInvalid( "Password too short" )
+
 		self.algorithm = get_setting( 'HASH_ALGORITHM', 'sha1' )
 		self.salt = get_salt()
 		self.hash = get_hexdigest( self.algorithm, self.salt, raw_password )
@@ -157,6 +180,8 @@ class ServiceUser( models.Model ):
 		"""
 		Set the property identified by I{key} to I{value}. If the
 		property already exists, it is overwritten.
+
+		@return: old value if property already existed, None otherwise
 		"""
 		try:
 			# This issues a plain INSERT, which throws an 
@@ -166,20 +191,26 @@ class ServiceUser( models.Model ):
 			# This means that the property already exists. 
 			# since user and key are unique, this is guaranteed to
 			# only update the right key.
+			old_value = self.property_set.get( key=key ).value
 			self.property_set.filter( key=key ).update( value=value )
+			return old_value
 
 	def get_property( self, key ):
 		"""
+		Get value of a specific property.
+
 		@raises Property.DoesNotExist: When the property does not exist.
 		"""
 		# exactly one SELECT statement
 		return self.property_set.get( key=key )
 	
 	def del_property( self, key ):
-		try:
-			self.get_property( key ).delete()
-		except Property.DoesNotExist:
-			pass
+		"""
+		Delete a property.
+
+		@raises Property.DoesNotExist: When the property does not exist.
+		"""
+		self.property_set.filter( key=key ).delete()
 
 	def __unicode__( self ):
 		return self.username

@@ -27,10 +27,13 @@ class ServiceNotFound( RestAuthException ):
 class BadRequest( RestAuthException ):
 	code = 400
 
-class PasswordInvalid( BadRequest ):
+class PreconditionFailed( RestAuthException ):
+	code = 412
+
+class PasswordInvalid( PreconditionFailed ):
 	pass
 
-class UsernameInvalid( BadRequest ):
+class UsernameInvalid( PreconditionFailed ):
 	pass
 
 class ResourceExists( RestAuthException ):
