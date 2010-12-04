@@ -22,6 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 from RestAuth.common import get_setting, get_hexdigest, get_salt
 from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, ResourceExists
 from RestAuth.Users import validators
+from django.utils.http import urlquote
 
 class PropertyExists( ResourceExists ):
 	pass
@@ -162,9 +163,12 @@ class ServiceUser( models.Model ):
 		already exists.
 
 		@raises PropertyExists: If the property already exists.
+		@return: The property that was created
 		"""
 		try:
-			self.property_set.add( Property( key=key, value=value ) )
+			prop = Property( user=self, key=key, value=value )
+			prop.save()
+			return prop
 		except IntegrityError:
 			raise PropertyExists( key )		
 
@@ -181,19 +185,20 @@ class ServiceUser( models.Model ):
 		Set the property identified by I{key} to I{value}. If the
 		property already exists, it is overwritten.
 
-		@return: old value if property already existed, None otherwise
+		@return: Returns a tuple. The first value represents the 
+			L{Property} acted upon and the second value is a string
+			with the previous value or None if this was a new
+			property.
 		"""
 		try:
-			# This issues a plain INSERT, which throws an 
-			# IntegrityError if the property already exists:
-			self.property_set.add( Property( key=key, value=value ) )
-		except IntegrityError:
-			# This means that the property already exists. 
-			# since user and key are unique, this is guaranteed to
+			return self.add_property( key, value ), None
+		except PropertyExists:
 			# only update the right key.
-			old_value = self.property_set.get( key=key ).value
-			self.property_set.filter( key=key ).update( value=value )
-			return old_value
+			prop = self.property_set.get( key=key )
+			old_value = prop.value
+			prop.value = value
+			prop.save()
+			return prop, old_value
 
 	def get_property( self, key ):
 		"""
@@ -215,6 +220,9 @@ class ServiceUser( models.Model ):
 	def __unicode__( self ):
 		return self.username
 
+	def get_absolute_url( self ):
+		return '/users/%s/'% urlquote( self.username )
+
 class Property( models.Model ):
 	user = models.ForeignKey( ServiceUser )
 	key = models.CharField( max_length=128 )
@@ -225,3 +233,7 @@ class Property( models.Model ):
 
 	def __unicode__( self ):
 		return "%s: %s=%s"%(self.user.username, self.key, self.value)
+	
+	def get_absolute_url( self ):
+		userpath = self.user.get_absolute_url()
+		return '%sprops/%s/'%(userpath, urlquote( self.key ) )

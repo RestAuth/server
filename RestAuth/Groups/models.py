@@ -19,6 +19,7 @@ from RestAuth.Services.models import service_get
 from RestAuth.Users.models import ServiceUser as User
 from RestAuth.common.errors import ResourceExists
 from django.utils.translation import ugettext_lazy as _
+from django.utils.http import urlquote
 
 def group_get( name, service=None ):
 	"""
@@ -108,3 +109,6 @@ class Group( models.Model ):
 				child_groups.union( group.get_child_groups( lvl+1 ) )
 
 		return child_groups
+
+	def get_absolute_url( self ):
+		return '/groups/%s/'%  urlquote(self.name)
