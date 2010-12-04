@@ -19,6 +19,7 @@ from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.common import marshal
 from RestAuth.common.types import get_dict
+from RestAuth.common.responses import HttpResponseCreated
 
 from django.http import HttpResponse
 
@@ -42,10 +43,7 @@ def index( request ):
 		user = user_create( name, password )
 		
 		logging.info( "%s: Created user '%s'"%(service, user.username) )
-		response = HttpResponse( status=201 )
-# TODO: This header needs URL-encoding
-		response['Location'] = '/users/%s/'%(name)
-		return response
+		return HttpResponseCreated( request, user )
 	
 	return HttpResponse( status=405 )
 
@@ -107,14 +105,12 @@ def userprops_index( request, username ):
 		prop, value = get_dict( request, [ u'prop', u'value' ] )
 
 		# If PropertyExists: 409 Conflict
-		user.add_property( prop, value )
+		prop = user.add_property( prop, value )
 
 		logging.info( "%s: Created property '%s' for '%s'"%(service, prop, username ) )
-		response = HttpResponse( status=201 )
-		response['Location'] = '/users/%s/props/%s'%(username, prop)
-		return response
-	else:
-		return HttpResponse( status=405 ) # Method Not Allowed
+		return HttpResponseCreated( request, prop )
+	
+	return HttpResponse( status=405 ) # Method Not Allowed
 
 @login_required(realm="/users/<user>/props/<prop>/")
 def userprops_prop( request, username, prop ):
@@ -129,17 +125,17 @@ def userprops_prop( request, username, prop ):
 
 		logging.debug( "%s: Got property '%s' for '%s'"%(service, prop, username) )
 		return HttpResponse( prop.value )
+
 	elif request.method == 'PUT': # Set property
 		# If BadRequest: 400 Bad Request
 		value = get_dict( request, [ u'value' ] )
 
-		old_value = user.set_property( prop, value )
-		if old_value != None: # property previously defined:
-			return HttpResponse( marshal( request, old_value ) )
+		prop, old_value = user.set_property( prop, value )
+		if old_value.__class__ == str: # property previously defined:
+			return HttpResponse( marshal( request, prop ) )
 		else: # new property:
-			response = HttpResponse( status=201 )
-			response['Location'] = '/users/%s/props/%s'%(username, value)
-			return response
+			return HttpResponseCreated( request, prop )
+
 	elif request.method == 'DELETE': # Delete property:
 		# If Property.DoesNotExist: 404 Not Found
 		user.del_property( prop )

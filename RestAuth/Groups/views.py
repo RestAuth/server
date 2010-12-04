@@ -18,6 +18,7 @@ from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
 from RestAuth.common import marshal
 from RestAuth.common.types import get_dict
+from RestAuth.common.responses import HttpResponseCreated
 from django.http import HttpResponse
 
 @login_required( realm='/groups/' )
@@ -48,9 +49,8 @@ def index( request ):
 		groupname = get_dict( request, [ u'group' ] )
 
 		# If ResourceExists: 409 Conflict
-		group_create( groupname, service )
-# TODO: Location header
-		return HttpResponse( status=201 ) # Created
+		group = group_create( groupname, service )
+		return HttpResponseCreated( request, group ) # Created
 	
 	return HttpResponse( status=405 ) # method not allowed
 
