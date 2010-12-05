@@ -21,38 +21,6 @@ import hashlib
 
 from errors import BadRequest, ContentTypeNotAcceptable, MarshalError
 
-def parse_request_body( request ):
-	"""
-	Parse the request body of POST and PUT requests according to the format
-	indicated by the 'Content-Type' header. Currently, either
-	'application/json' or 'x-www-form-urlencoded' is supported. If the
-	header is missing, the data is assumed to be of type
-	'x-www-form-urlencoded'. 
-
-	@param request: The request as passed to the django invocation handler
-	@raise BadRequest: When the request could not be parsed or *any*
-		Exception is thrown.
-
-	"""
-	if request.META.has_key( 'CONTENT_TYPE' ):
-		content_type = request.META['CONTENT_TYPE']
-	else:
-		content_type = 'application/x-www-form-urlencoded'
-
-	try:
-		if content_type == 'application/x-www-form-urlencoded':
-			if request.method == 'POST':
-				return request.POST
-			elif request.method == 'PUT':
-				return QueryDict( request.raw_post_data, encoding=request._encoding)
-		elif content_type == 'application/json':
-			import json
-			return json.loads( request.raw_post_data )
-	except Exception as e:
-		raise BadRequest( 'Error parsing body: %s'%(e) )
-
-	raise BadRequest( 'Content-Type is unacceptable: %s'%(content_type) )
-
 def get_setting( setting, default=None ):
 	if hasattr( settings, setting ):
 		return getattr( settings, setting )

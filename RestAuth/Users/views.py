@@ -17,8 +17,7 @@ import logging
 
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
-from RestAuth.common import marshal
-from RestAuth.common.types import get_dict
+from RestAuth.common.types import get_dict, serialize
 from RestAuth.common.responses import HttpResponseCreated
 
 from django.http import HttpResponse
@@ -29,10 +28,9 @@ def index( request ):
 
 	if request.method == "GET": # get list of users:
 		names = [ user.username for user in ServiceUser.objects.all() ]
-		response = marshal( request, names )
 		
 		logging.debug( "%s: Got list of users"%(service) )
-		return HttpResponse( response )
+		return HttpResponse( serialize( request, names ) )
 	elif request.method == 'POST': # create new user:
 		# If BadRequest: 400 Bad Request
 		name, password = get_dict( request, [u'user', u'password'] )
@@ -99,7 +97,7 @@ def userprops_index( request, username ):
 		props = user.get_properties()
 		
 		logging.debug( "%s: Get properties for '%s'"%(service, username) )
-		return HttpResponse( marshal( request, props ) )
+		return HttpResponse( serialize( request, props ) )
 	elif request.method == 'POST': # create property
 		# If BadRequest: 400 Bad Request
 		prop, value = get_dict( request, [ u'prop', u'value' ] )
@@ -132,7 +130,7 @@ def userprops_prop( request, username, prop ):
 
 		prop, old_value = user.set_property( prop, value )
 		if old_value.__class__ == str: # property previously defined:
-			return HttpResponse( marshal( request, prop ) )
+			return HttpResponse( serialize( request, prop.value ) )
 		else: # new property:
 			return HttpResponseCreated( request, prop )
 

@@ -16,8 +16,7 @@
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
-from RestAuth.common import marshal
-from RestAuth.common.types import get_dict
+from RestAuth.common.types import get_dict, serialize
 from RestAuth.common.responses import HttpResponseCreated
 from django.http import HttpResponse
 
@@ -31,7 +30,7 @@ def index( request ):
 
 		names = [ group.name for group in groups ]
 		# If MarshalError: 500 Internal Server Error
-		response = marshal( request, names )
+		response = serialize( request, names )
 		return HttpResponse( response, status=200 ) # Ok
 	elif request.method == 'GET' and 'user' in request.GET: 
 		# Get all users in a group
@@ -42,7 +41,7 @@ def index( request ):
 		groups = user.get_groups( service )
 		names = [ group.name for group in groups ]
 
-		response = marshal( request, names )
+		response = serialize( request, names )
 		return HttpResponse( response, status=200 ) # Ok
 	elif request.method == 'POST': # Create a group
 		# If BadRequest: 400 Bad Request
@@ -80,7 +79,8 @@ def group_users_index_handler( request, groupname ):
 		users = group.get_members()
 
 		# If MarshalError: 500 Internal Server Error
-		response = marshal( request, [ user.username for user in users ] )
+		usernames = [ user.username for user in users ]
+		response = serialize( request, usernames )
 		return HttpResponse( response, status=200 )
 	elif request.method == 'POST': # Add a user to a group
 		# If BadRequest: 400 Bad Request
@@ -127,7 +127,7 @@ def group_groups_index_handler( request, groupname ):
 		groups = group.groups.filter( service=service )
 
 		# If MarshalError: 500 Internal Server Error
-		body = marshal( request, [ group.name for group in groups ] )
+		body = serialize( request, [ group.name for group in groups ] )
 		return HttpResponse( body )
 	elif request.method == 'POST': # Add a sub-group:
 		# If BadRequest: 400 Bad Request

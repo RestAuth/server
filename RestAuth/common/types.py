@@ -1,5 +1,6 @@
 import logging
 from errors import ContentTypeNotAcceptable, BadRequest
+import mimeparse
 
 class content_handler( object ):
 	def get_str( self, body ):
@@ -11,6 +12,15 @@ class content_handler( object ):
 	def get_bool( self, body ):
 		pass
 
+	def serialize_str( self, obj ):
+		pass
+	def serialize_bool( self, obj ):
+		pass
+	def serialize_list( self, obj ):
+		pass
+	def serialize_dict( self, obj ):
+		pass
+
 class json_handler( content_handler ):
 	def __init__( self ):
 		import json
@@ -19,34 +29,67 @@ class json_handler( content_handler ):
 	def get_str( self, body ):
 		return self.json.loads( body )
 
-	def get_dict( self, body ):
-		return self.json.loads( body )
+	def get_dict( self, body, encoding ):
+		return self.json.loads( body, encoding )
 
 	def get_list( self, body ):
 		return self.json.loads( body )
 
 	def get_bool( self, body ):
 		return self.json.loads( body )
+	
+	def serialize_str( self, obj ):
+		return self.json.dumps( obj )
+
+	def serialize_bool( self, obj ):
+		return self.json.dumps( obj )
+
+	def serialize_list( self, obj ):
+		return self.json.dumps( obj )
+
+	def serialize_dict( self, obj ):
+		return self.json.dumps( obj )
 
 class form_handler( content_handler ):
-	pass
+	def get_dict( self, body ):
+		return QueryDict( body, encoding=request.encoding)
+
+	def serialize_str( self, obj ):
+		return obj
+
+	def serialize_bool( self, obj ):
+		if obj:
+			return "1"
+		else:
+			return "0"
+
+	def serialize_dict( self, obj ):
+		d = QueryDict('', True )
+		d.update( obj )
+		return d.urlencode()
+
+	def serialize_list( self, obj ):
+		d = dict( [ ('key%s'%i, obj[i]) for i in range(0,len(obj)) ] )
+		return self.serialize_dict( d )
 
 class xml_handler( content_handler ):
 	pass
 
-CONTENT_TYPES = { 'application/json': json_handler, 
+CONTENT_HANDLERS = { 'application/json': json_handler, 
 	'application/xml': xml_handler,
 	'application/x-www-form-urlencoded': form_handler }
 
 def get_data( request, typ ):
 	content_type = request.META['CONTENT_TYPE']
-	if content_type not in CONTENT_TYPES:
+	if content_type not in CONTENT_HANDLERS:
 		raise ContentTypeNotAcceptable()
 
-	handler_obj = CONTENT_TYPES[content_type]()
+	handler_obj = CONTENT_HANDLERS[content_type]()
 	func = getattr( handler_obj, 'get_%s'%(typ.__name__) )
 	try:
-		val = func( request.raw_post_data )
+		val = func( request.raw_post_data, request.encoding )
+	except BadRequest as e:
+		raise e
 	except Exception as e:
 		raise BadRequest( "Request body unparsable: %s"%(e) )
 	if val.__class__ != typ:
@@ -54,9 +97,6 @@ def get_data( request, typ ):
 			%(val.__class__, typ) )
 
 	return val
-
-def get_str( request ):
-	return get_data( request, str )
 
 def get_dict( request, keys ):
 	"""
@@ -88,8 +128,14 @@ def get_dict( request, keys ):
 	else:
 		return [ val[key] for key in keys ]
 
-def get_list( request ):
-	return get_data( request, list )
+def serialize( request, obj ):
+	header = request.META['HTTP_ACCEPT']
+	match = mimeparse.best_match( CONTENT_HANDLERS.keys(), header )
+	handler = CONTENT_HANDLERS[match]()
+	func_name = 'serialize_%s'%(obj.__class__.__name__)
 
-def get_bool( request ):
-	return get_data( request, 'bool' )
+	try:
+		func = getattr( handler, func_name )
+		return func( obj )
+	except Exception as e:
+		raise MarshalError( e )
