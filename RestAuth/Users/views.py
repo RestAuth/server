@@ -122,7 +122,7 @@ def userprops_prop( request, username, prop ):
 		prop = user.get_property( prop )
 
 		logging.debug( "%s: Got property '%s' for '%s'"%(service, prop, username) )
-		return HttpResponse( prop.value )
+		return HttpResponse( serialize( request, prop.value ) )
 
 	elif request.method == 'PUT': # Set property
 		# If BadRequest: 400 Bad Request
