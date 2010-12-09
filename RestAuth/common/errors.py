@@ -39,8 +39,11 @@ class UsernameInvalid( PreconditionFailed ):
 class ResourceExists( RestAuthException ):
 	code = 409
 
-class ContentTypeNotAcceptable( RestAuthException ):
+class NotAcceptable( RestAuthException ):
 	code = 406
+
+class UnsupportedMediaType( RestAuthException ):
+	code = 415
 
 class MarshalError( RestAuthException ):
 	code = 500

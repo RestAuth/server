@@ -16,8 +16,8 @@
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
-from RestAuth.common.types import get_dict, serialize
-from RestAuth.common.responses import HttpResponseCreated
+from RestAuth.common.types import get_dict
+from RestAuth.common.responses import *
 from django.http import HttpResponse
 
 @login_required( realm='/groups/' )
@@ -29,9 +29,7 @@ def index( request ):
 		groups = Group.objects.filter( service=service )
 
 		names = [ group.name for group in groups ]
-		# If MarshalError: 500 Internal Server Error
-		response = serialize( request, names )
-		return HttpResponse( response, status=200 ) # Ok
+		return HttpRestAuthResponse( request, names ) # Ok
 	elif request.method == 'GET' and 'user' in request.GET: 
 		# Get all users in a group
 			
@@ -41,8 +39,7 @@ def index( request ):
 		groups = user.get_groups( service )
 		names = [ group.name for group in groups ]
 
-		response = serialize( request, names )
-		return HttpResponse( response, status=200 ) # Ok
+		return HttpRestAuthResponse( request, names ) # Ok
 	elif request.method == 'POST': # Create a group
 		# If BadRequest: 400 Bad Request
 		groupname = get_dict( request, [ u'group' ] )
@@ -61,10 +58,10 @@ def group_handler( request, groupname ):
 	group = group_get( groupname, service )
 	
 	if request.method == 'GET': # Verify that a group exists:
-		return HttpResponse( status=204 )
+		return HttpResponseNoContent()
 	if request.method == 'DELETE': # Delete group
 		group.delete()
-		return HttpResponse( status=204 ) # OK
+		return HttpResponseNoContent() # OK
 	
 	return HttpResponse( status=405 )
 
@@ -78,10 +75,9 @@ def group_users_index_handler( request, groupname ):
 	if request.method == 'GET': # Get all users in a group
 		users = group.get_members()
 
-		# If MarshalError: 500 Internal Server Error
 		usernames = [ user.username for user in users ]
-		response = serialize( request, usernames )
-		return HttpResponse( response, status=200 )
+		# If MarshalError: 500 Internal Server Error
+		return HttpRestAuthResponse( request, usernames )
 	elif request.method == 'POST': # Add a user to a group
 		# If BadRequest: 400 Bad Request
 		username = get_dict( request, [ u'user' ] )
@@ -91,7 +87,7 @@ def group_users_index_handler( request, groupname ):
 		
 		group.users.add( user )
 		group.save()
-		return HttpResponse( status=204 )
+		return HttpResponseNoContent()
 	
 	return HttpResponse( status=405 )
 
@@ -106,14 +102,14 @@ def group_user_handler( request, groupname, username ):
 	
 	if request.method == 'GET': # Verify that a user is in a group
 		if group.is_member( user ):
-			return HttpResponse( status=204 )
+			return HttpResponseNoContent()
 		else:
 			# 404 Not Found
 			raise ServiceUser.DoesNotExist()
 	elif request.method == 'DELETE': # Remove user from a group
 		group.users.remove( user )
 # TODO: 404 if the user was not in the group
-		return HttpResponse( status=204 )
+		return HttpResponseNoContent()
 
 	return HttpResponse( status=405 )
 
@@ -126,9 +122,9 @@ def group_groups_index_handler( request, groupname ):
 	if request.method == 'GET': # get a list of sub-groups
 		groups = group.groups.filter( service=service )
 
+		groupnames = [ group.name for group in groups ] 
 		# If MarshalError: 500 Internal Server Error
-		body = serialize( request, [ group.name for group in groups ] )
-		return HttpResponse( body )
+		return HttpRestAuthResponse( request, groupnames )
 	elif request.method == 'POST': # Add a sub-group:
 		# If BadRequest: 400 Bad Request
 		sub_groupname = get_dict( request, [ u'group' ] )
@@ -138,7 +134,7 @@ def group_groups_index_handler( request, groupname ):
 		
 		group.groups.add( sub_group )
 		group.save()
-		return HttpResponse( status=204 )
+		return HttpResponseNoContent()
 
 	return HttpResponse( status=405 )
 
@@ -154,6 +150,6 @@ def group_groups_handler( request, meta_groupname, sub_groupname ):
 	if request.method == 'DELETE': # Remove group from a group
 		meta_group.groups.remove( sub_group )
 # TODO: 404 if the user was not in the group
-		return HttpResponse( status=204 )
+		return HttpResponseNoContent()
 	
 	return HttpResponse( status=405 )

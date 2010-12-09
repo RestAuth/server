@@ -17,8 +17,8 @@ import logging
 
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
-from RestAuth.common.types import get_dict, serialize
-from RestAuth.common.responses import HttpResponseCreated
+from RestAuth.common.types import get_dict
+from RestAuth.common.responses import *
 
 from django.http import HttpResponse
 
@@ -30,7 +30,7 @@ def index( request ):
 		names = [ user.username for user in ServiceUser.objects.all() ]
 		
 		logging.debug( "%s: Got list of users"%(service) )
-		return HttpResponse( serialize( request, names ) )
+		return HttpRestAuthResponse( request, names )
 	elif request.method == 'POST': # create new user:
 		# If BadRequest: 400 Bad Request
 		name, password = get_dict( request, [u'user', u'password'] )
@@ -55,7 +55,7 @@ def user_handler( request, username ):
 
 	if request.method == 'GET': # Verify that a user exists:
 		logging.debug( "%s: Check if user '%s' exists"%(service, user.username) )
-		return HttpResponse( status=204 ) # OK
+		return HttpResponseNoContent() # OK
 	elif request.method == 'POST': # verify password
 		# If BadRequest: 400 Bad Request
 		password = get_dict( request, [ u'password' ] )
@@ -66,7 +66,7 @@ def user_handler( request, username ):
 			raise ServiceUser.DoesNotExist( "Password invalid for this user." )
 		
 		logging.debug( "%s: Checked password for user '%s'"%(service, username ) )
-		return HttpResponse( status=204 ) # Ok
+		return HttpResponseNoContent() # Ok
 	elif request.method == 'PUT': # Change password
 		# If BadRequest: 400 Bad Request
 		password = get_dict( request, [ u'password' ] )
@@ -76,12 +76,12 @@ def user_handler( request, username ):
 		user.save()
 		
 		logging.debug( "%s: Update password for user '%s'"%(service, username ) )
-		return HttpResponse( status=204 ) # Ok
+		return HttpResponseNoContent()
 	elif request.method == 'DELETE': # delete a user:
 		user.delete()
 
 		logging.info( "%s: Deleted user '%s'"%(service, username ) )
-		return HttpResponse( status=204 ) # OK
+		return HttpResponseNoContent()
 	
 	return HttpResponse( status=405 ) # Method Not Allowed
 
@@ -97,7 +97,7 @@ def userprops_index( request, username ):
 		props = user.get_properties()
 		
 		logging.debug( "%s: Get properties for '%s'"%(service, username) )
-		return HttpResponse( serialize( request, props ) )
+		return HttpRestAuthResponse( request, props )
 	elif request.method == 'POST': # create property
 		# If BadRequest: 400 Bad Request
 		prop, value = get_dict( request, [ u'prop', u'value' ] )
@@ -122,7 +122,7 @@ def userprops_prop( request, username, prop ):
 		prop = user.get_property( prop )
 
 		logging.debug( "%s: Got property '%s' for '%s'"%(service, prop, username) )
-		return HttpResponse( serialize( request, prop.value ) )
+		return HttpRestAuthResponse( request, prop.value )
 
 	elif request.method == 'PUT': # Set property
 		# If BadRequest: 400 Bad Request
@@ -130,7 +130,7 @@ def userprops_prop( request, username, prop ):
 
 		prop, old_value = user.set_property( prop, value )
 		if old_value.__class__ == str: # property previously defined:
-			return HttpResponse( serialize( request, prop.value ) )
+			return HttpRestAuthResponse( request, prop.value )
 		else: # new property:
 			return HttpResponseCreated( request, prop )
 
@@ -139,6 +139,6 @@ def userprops_prop( request, username, prop ):
 		user.del_property( prop )
 
 		logging.info( "%s: Delete property '%s' for user '%s'"%(service, prop, username) )
-		return HttpResponse( status=204 )
+		return HttpResponseNoContent()
 	
 	return HttpResponse( status=405 ) # Method Not Allowed

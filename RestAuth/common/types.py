@@ -1,5 +1,5 @@
 import logging
-from errors import ContentTypeNotAcceptable, BadRequest
+from errors import UnsupportedMediaType, NotAcceptable, BadRequest, MarshalError
 import mimeparse
 
 class content_handler( object ):
@@ -11,6 +11,9 @@ class content_handler( object ):
 		pass
 	def get_bool( self, body ):
 		pass
+
+	def serialize_unicode( self, obj ):
+		return self.serialize_str( str( obj ) )
 
 	def serialize_str( self, obj ):
 		pass
@@ -79,10 +82,24 @@ CONTENT_HANDLERS = { 'application/json': json_handler,
 	'application/xml': xml_handler,
 	'application/x-www-form-urlencoded': form_handler }
 
+def get_request_type( request ):
+	header = request.META['CONTENT_TYPE']
+	match = mimeparse.best_match( CONTENT_HANDLERS.keys(), header )
+	if match:
+		return match
+	else:
+		raise NotAcceptable()
+
+def get_response_type( request ):
+	header = request.META['HTTP_ACCEPT']
+	match = mimeparse.best_match( CONTENT_HANDLERS.keys(), header )
+	if match:
+		return match
+	else:
+		raise UnsupportedMediaType()
+
 def get_data( request, typ ):
-	content_type = request.META['CONTENT_TYPE']
-	if content_type not in CONTENT_HANDLERS:
-		raise ContentTypeNotAcceptable()
+	content_type = get_request_type( request )
 
 	handler_obj = CONTENT_HANDLERS[content_type]()
 	func = getattr( handler_obj, 'get_%s'%(typ.__name__) )
@@ -128,10 +145,8 @@ def get_dict( request, keys ):
 	else:
 		return [ val[key] for key in keys ]
 
-def serialize( request, obj ):
-	header = request.META['HTTP_ACCEPT']
-	match = mimeparse.best_match( CONTENT_HANDLERS.keys(), header )
-	handler = CONTENT_HANDLERS[match]()
+def serialize( content_type, obj ):
+	handler = CONTENT_HANDLERS[content_type]()
 	func_name = 'serialize_%s'%(obj.__class__.__name__)
 
 	try:

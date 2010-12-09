@@ -19,71 +19,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import smart_str
 import hashlib
 
-from errors import BadRequest, ContentTypeNotAcceptable, MarshalError
-
 def get_setting( setting, default=None ):
 	if hasattr( settings, setting ):
 		return getattr( settings, setting )
 	else:
 		return default
-
-def marshal( request, obj ):
-	try:   
-		response_type = get_response_type( request )
-		if response_type == 'text/plain':
-			return ', '.join( obj )
-		elif response_type == 'application/json':
-			import json
-			return json.dumps( obj )
-		else:  
-			raise ContentTypeNotAcceptable('Failed to determine an acceptable content-type! (%s)'%(response_type) )
-	except ContentTypeNotAcceptable as e:
-		raise e
-#	except Exception as e:
-#		raise MarshalError( e )
-
-CONTENT_TYPES = [ 'application/json', 'application/x-www-form-urlencoded' ]
-
-def get_response_type( request ):
-	# parse HTTP-Accept header:
-	if 'HTTP_ACCEPT' in request.META:
-		# parse HTTP-Accept header:
-		header = request.META['HTTP_ACCEPT']
-		if not header or header == '*/*':
-			accept = CONTENT_TYPES
-		else:
-			accept = header.split( ',' )
-
-			# filter types not acceptable to us:
-			accept = [ typ for typ in accept if typ in CONTENT_TYPES ]
-	else:
-		# no header, default to application/json:
-		return 'application/json'
-
-	if not accept:
-		raise ContentTypeNotAcceptable( "Accept-Header did not list any acceptable mime types: '%s'"%(header) )
-
-	if len( accept ) == 1:
-		# Most of the time, the client will tell us one format to use
-		if accept[0] in CONTENT_TYPES:
-			# if we only accept one content type and its acceptable
-			# to us, we use that
-			return accept[0]
-		else:
-			raise ContentTypeNotAcceptable( "No acceptable mime type was provided by the HTTP-Accept header." )
-	
-	# The client accepts more than one format:
-	if 'CONTENT_TYPE' in request.META:
-		if request.META['CONTENT_TYPE'] in accept:
-			# If the Content-Type used by the client is acceptable,
-			# we return that:
-			return request.META['CONTENT_TYPE']
-		else:
-			return accept[0]
-	else:
-		return accept[0]
-
-	raise ContentTypeNotAcceptable( "Could not determine response content-type!" )
 
 def get_salt():
 	"""
