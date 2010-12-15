@@ -1,5 +1,6 @@
 import logging
 from errors import UnsupportedMediaType, NotAcceptable, BadRequest, MarshalError
+from django.http import QueryDict
 import mimeparse
 
 class content_handler( object ):
@@ -54,8 +55,8 @@ class json_handler( content_handler ):
 		return self.json.dumps( obj )
 
 class form_handler( content_handler ):
-	def get_dict( self, body ):
-		return QueryDict( body, encoding=request.encoding)
+	def get_dict( self, body, encoding ):
+		return QueryDict( body, encoding )
 
 	def serialize_str( self, obj ):
 		return obj
@@ -109,7 +110,7 @@ def get_data( request, typ ):
 		raise e
 	except Exception as e:
 		raise BadRequest( "Request body unparsable: %s"%(e) )
-	if val.__class__ != typ:
+	if not issubclass(val.__class__, typ):
 		raise BadRequest( "Request body contained %s instead of %s"
 			%(val.__class__, typ) )
 
