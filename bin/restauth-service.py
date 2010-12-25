@@ -56,6 +56,14 @@ if args[0] != 'help':
 		sys.exit(1)
 
 if args[0] == 'add':
+	if len( args ) < 2:
+		print( "Please name a service to add." )
+		sys.exit(1)
+
+	if service_exists( args[1] ):
+		print( "Error: Service already exists." )
+		sys.exit(1)
+
 	if not options.pwd:
 		import getpass
 		options.pwd = getpass.getpass( 'password: ' )
@@ -66,34 +74,38 @@ if args[0] == 'add':
 			options.pwd = getpass.getpass( 'password: ' )
 			confirm = getpass.getpass( 'confirm: ' )
 
-	try:
-		service_create( args[1], options.pwd, args[2:] )
-	except ServiceAlreadyExists:
-		print( "Error: Service already exists." )
-		sys.exit(1)
-elif args[0] == 'remove' or args[0] == 'rm':
+	service_create( args[1], options.pwd, args[2:] )
+elif args[0] in [ 'remove', 'rm', 'del', 'delete' ]:
+	if len( args ) != 2:
+		print( "Please name a service to remove." )
+
 	try:
 		service_delete( args[1] )
 	except ServiceNotFound:
 		print( "Error: Service not found." )
 		sys.exit(1)
-elif args[0] == 'list':
+elif args[0] in [ 'list', 'ls' ]:
 	for service in Service.objects.all():
-		hosts = service.hosts.all()
-		hosts = [ host.address for host in hosts ]
-		hosts = ', '.join( hosts )
-		print( '%s (%s)'%(service.username, hosts) )
+		hosts = [ str(host.address) for host in service.hosts.all() ]
+		print( '%s %s'%(service.username, hosts) )
 elif args[0] == 'view':
+	if len( args ) != 2:
+		print( "Please name a service. Try 'list' for a list of services." )
+		sys.exit(1)
+
 	try:
 		service = service_get( args[1] )
 		print( service.username )
 		print( 'Last used: %s'%(service.last_login) )
-		hosts = service.hosts.all()
-		print( 'Hosts: %s'%(', '.join( [ host.address for host in hosts ] ) ) )
+		hosts = [ str(host.address) for host in service.hosts.all() ]
+		print( 'Hosts: %s'%(hosts) )
 	except ServiceNotFound:
 		print( "Error: Service not found." )
 		sys.exit(1) 
 elif args[0] == 'set-hosts':
+	if len( args ) < 2:
+		print( "Please name a service to add." )
+
 	try:
 		service = service_get( args[1] )
 		service.set_hosts( args[2:] )
