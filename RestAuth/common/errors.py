@@ -44,6 +44,3 @@ class NotAcceptable( RestAuthException ):
 
 class UnsupportedMediaType( RestAuthException ):
 	code = 415
-
-class MarshalError( RestAuthException ):
-	code = 500

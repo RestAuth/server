@@ -1,13 +1,13 @@
 from django.http import HttpResponse as HttpResponseBase
-from RestAuth.common.types import serialize, get_response_type
+from RestAuth.common.types import get_response_type
+from RestAuthCommon import marshal
 
 class HttpRestAuthResponse( HttpResponseBase ):
 	def __init__( self, request, response_object, status=200 ):
-		# Best match of Content-Type header:
-		typ = get_response_type( request )
-		body = serialize( typ, response_object )
+		mime_type = get_response_type( request )
+		body = marshal( mime_type, response_object )
 
-		HttpResponseBase.__init__( self, body, typ, status, typ )
+		HttpResponseBase.__init__( self, body, mime_type, status, mime_type )
 
 class HttpResponseNoContent( HttpRestAuthResponse ):
 	def __init__( self ):
