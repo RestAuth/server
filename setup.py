@@ -171,7 +171,7 @@ setup(
 	description='RestAuth web service',
 	author='Mathias Ertl',
 	author_email='mati@fsinf.at',
-	url='http://fs.fsinf.at/wiki/RestAuth',
+	url='http://fs.fsinf.at/wiki/RestAuth/RestAuth',
 	packages=['RestAuth', 'RestAuth.Services', 'RestAuth.common', 'RestAuth.Groups', 'RestAuth.Users' ],
 #	scripts = [ 'bin/restauth-groups.py' ],
 	data_files = [
