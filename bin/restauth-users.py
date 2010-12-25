@@ -37,8 +37,6 @@ prompted.""" )
 parser.add_option_group( pwd_group )
 
 view_group = OptionGroup( parser, "Options for the 'view' action" )
-view_group.add_option( '--non-recursive', action='store_false', default=True, dest='recursive',
-	help="Do not list groups where the given user is only an indirect member." )
 view_group.add_option( '--service', 
 	help="View the information as SERVICE would see it. (optional)." )
 parser.add_option_group( view_group )
@@ -60,6 +58,7 @@ if args[0] != 'help':
 	try:
 		from RestAuth.Users.models import ServiceUser, user_get, user_create
 		from RestAuth.Services.models import service_get
+		from RestAuth.common import errors
 	except ImportError:
 		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 		sys.exit(1)
@@ -75,6 +74,10 @@ def get_password():
 		return get_password()
 
 if args[0] in ['create', 'add']:
+	if len( args ) != 2:
+		print( "Please name a user to add!" )
+		sys.exit(1)
+
 	if not options.password:
 		options.password = get_password()
 
@@ -83,26 +86,42 @@ elif args[0] in ['ls', 'list']:
 	for user in ServiceUser.objects.all():
 		print( user.username )
 elif args[0] == 'verify':
+	if len( args ) != 2:
+		print( "Please name a user to verify!" )
+		sys.exit(1)
+
 	user = user_get( args[1] )
 	if not options.password:
 		options.password = getpass.getpass( 'password: ' )
 
 	print( user.check_password( options.password ) )
 elif args[0] == 'set-password':
+	if len( args ) != 2:
+		print( "Please name a user to update!" )
+		sys.exit(1)
+
 	user = user_get( args[1] )
 
 	if not options.password:
 		options.password = getpass.getpass( 'password: ' )
 
-	user.set_password( options.password )
-	user.save()
+	try:
+		user.set_password( options.password )
+		user.save()
+	except errors.PasswordInvalid as e:
+		print( e.body )
+		sys.exit(1)
 elif args[0] == 'view':
+	if len( args ) != 2:
+		print( "Please name a user to view!" )
+		sys.exit(1)
+
 	user = user_get( args[1] )
 	if options.service:
 		service = service_get( options.service )
-		groups = user.get_groups( service, options.recursive )
+		groups = user.get_groups( service )
 	else:
-		groups = user.get_groups( recursive=options.recursive )
+		groups = user.get_groups()
 
 	group_names = [ group.name for group in groups ]
 	group_names.sort()
@@ -112,6 +131,10 @@ elif args[0] == 'view':
 	print( 'Groups: %s'%(', '.join( group_names ) ) )
 
 elif args[0] in [ 'delete', 'rm', 'remove' ]:
+	if len( args ) != 2:
+		print( "Please name a user to delete!" )
+		sys.exit(1)
+
 	user = user_get( args[1] )
 	user.delete()
 elif args[0] == 'help':
@@ -143,8 +166,6 @@ for the given user."""
 			help_parser.usage += 'view <user>'
 			desc = """View all details of the given user."""
 			opt = parser.get_option( '--service' )
-			help_parser.add_option( opt )
-			opt = parser.get_option( '--non-recursive' )
 			help_parser.add_option( opt )
 		elif args[1] == 'delete':
 			help_parser.usage += 'delete <user>'
