@@ -53,14 +53,15 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
-#    'django.contrib.sessions.middleware.SessionMiddleware',
-#    'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.middleware.csrf.CsrfViewMiddleware',
 #    'django.contrib.messages.middleware.MessageMiddleware',
     'RestAuth.common.middleware.ExceptionMiddleware',
     'RestAuth.common.middleware.LoggingMiddleware',
     'RestAuth.common.middleware.HeaderMiddleware',
 ]
+
+CACHE_MIDDLEWARE_SECONDS = 300
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
 ROOT_URLCONF = 'RestAuth.urls'
 
