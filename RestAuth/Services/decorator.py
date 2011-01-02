@@ -15,33 +15,39 @@
 
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
+from django.conf import settings
 import logging
 
 def login_user( view, request, realm, *args, **kwargs ):
 	"""
 	The function called when the login_user decorator is used.
 	"""
-	if request.user.is_authenticated():
-		return view(request, *args, **kwargs)
-
 	user = None
-	if 'REMOTE_USER' in request.META:
-		# The web-server already authenticated the remote user:
-		logging.debug( "Using remote_user passed by webserver." )
-		user = authenticate( remote_user=request.META['REMOTE_USER'] )
-	elif 'HTTP_AUTHORIZATION' in request.META:
+	if 'HTTP_AUTHORIZATION' in request.META:
 		# The web-server does *not* handle authentication and the client
 		# tries to authenticate.
 		logging.debug( "Using HTTP basic authentication headers." )
 		header = request.META['HTTP_AUTHORIZATION']
 		host = request.META['REMOTE_ADDR']
 		user = authenticate( header=header, host=host )
+	elif 'REMOTE_USER' in request.META:
+		# The web-server already authenticated the remote user:
+		logging.debug( "Using remote_user passed by webserver." )
+		user = authenticate( remote_user=request.META['REMOTE_USER'] )
+	elif hasattr( request, 'user' ) and request.user.is_authenticated():
+		return view(request, *args, **kwargs)
 	else:
 		logging.critical( "Unable to get authentication source." )
 
+
 	if user:
+		auth_middleware = 'django.contrib.auth.middleware.AuthenticationMiddleware'
+
 		# log the user in:
-		login(request, user)
+		if auth_middleware in settings.MIDDLEWARE_CLASSES:
+			login(request, user)
+		else:
+			setattr( request, 'user', user )
 		logging.debug( "User successfully logged in." )
 		return view(request, *args, **kwargs)
 	else:
