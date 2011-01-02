@@ -44,6 +44,7 @@ def get_hexdigest( algorithm, salt, secret ):
 	"""
 	salt, secret = smart_str(salt), smart_str(secret)
 	if algorithm == 'mediawiki':
-		return hashlib.md5( '%s-%s'%(salt, secret ) ).hexdigest()
+		secret_hash = hashlib.md5( secret ).hexdigest()
+		return hashlib.md5( '%s-%s'%(salt, secret_hash ) ).hexdigest()
 	else:
 		return getattr( hashlib, algorithm )( salt + secret ).hexdigest()
