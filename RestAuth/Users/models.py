@@ -53,6 +53,7 @@ def user_create( name, password ):
 	@raise PasswordInvalid: If the password is unacceptable
 	"""
 	name = name.lower()
+	validate_username( name )
 	try:
 		user = ServiceUser( username=name )
 		user.set_password( password )
@@ -88,11 +89,6 @@ class ServiceUser( models.Model ):
 	hash = models.CharField( _('hash'), max_length=128, help_text=_("actual hash of the password") )
 	last_login = models.DateTimeField(_('last login'), default=datetime.datetime.now, auto_now=True)
 	date_joined = models.DateTimeField(_('date joined'), default=datetime.datetime.now)
-
-	def __init__( self, *args, **kwargs ):
-		models.Model.__init__( self, *args, **kwargs )
-		
-		validate_username( self.username )
 
 	def set_password( self, raw_password ):
 		"""
