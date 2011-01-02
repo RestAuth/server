@@ -37,10 +37,18 @@ except Exception, e:
 	print( e )
 	sys.exit(1)
 
+records = {}
+table = 'Users_serviceuser'
 for record in results:
 	name, raw_hash, created, touched = record
 	name = name.lower()
-	table = 'Users_serviceuser'
+	if name in records:
+		print( "# WARNING: %s exists more than once after case normalization!"%(name) )
+	
+	records[name] = ( raw_hash, created, touched )
+
+for name, data in records.iteritems():
+	raw_hash, created, touched = data
 
 	if raw_hash.startswith( ':B:' ):
 		salt, hash = raw_hash.split(':')[2:]
