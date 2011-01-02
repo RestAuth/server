@@ -56,7 +56,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+#    'django.contrib.messages.middleware.MessageMiddleware',
     'RestAuth.common.middleware.ExceptionMiddleware',
     'RestAuth.common.middleware.LoggingMiddleware',
     'RestAuth.common.middleware.HeaderMiddleware',
