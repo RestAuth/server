@@ -52,15 +52,15 @@ class ExceptionMiddleware:
 	def process_exception( self, request, ex ):
 		if isinstance( ex, ServiceUser.DoesNotExist ):
 			resp = HttpResponse( ex, status=404 )
-			resp['Resource-Type'] = 'User'
+			resp['Resource-Type'] = 'user'
 			return resp
 		if isinstance( ex, Group.DoesNotExist ):
 			resp = HttpResponse( ex, status=404 )
-			resp['Resource-Type'] = 'Group'
+			resp['Resource-Type'] = 'group'
 			return resp
 		if isinstance( ex, Property.DoesNotExist ):
 			resp = HttpResponse( ex, status=404 )
-			resp['Resource-Type'] = 'Property'
+			resp['Resource-Type'] = 'property'
 			return resp
 
 		if isinstance( ex, RestAuthException ):
