@@ -129,8 +129,8 @@ def userprops_prop( request, username, prop ):
 		value = get_dict( request, [ u'value' ] )
 
 		prop, old_value = user.set_property( prop, value )
-		if old_value.__class__ == str: # property previously defined:
-			return HttpRestAuthResponse( request, prop.value )
+		if old_value.__class__ == unicode: # property previously defined:
+			return HttpRestAuthResponse( request, old_value )
 		else: # new property:
 			return HttpResponseCreated( request, prop )
 
