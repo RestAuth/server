@@ -1,9 +1,10 @@
 from django.http import HttpResponse as HttpResponseBase
 from RestAuth.common.types import get_response_type
-from RestAuthCommon import marshal
 
 class HttpRestAuthResponse( HttpResponseBase ):
 	def __init__( self, request, response_object, status=200 ):
+		from RestAuthCommon import marshal
+
 		mime_type = get_response_type( request )
 		body = marshal( mime_type, response_object )
 
