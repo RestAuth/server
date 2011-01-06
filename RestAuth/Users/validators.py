@@ -33,7 +33,7 @@ def general( name ):
 
 	# filter various dangerous characters
 	for char in name:
-		enc_char = char.decode( 'utf-8' )
+#		enc_char = char.decode( 'utf-8' )
 		if stringprep.in_table_c21_c22( enc_char ):
 			# control characters
 			return False
