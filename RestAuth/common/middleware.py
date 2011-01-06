@@ -19,7 +19,7 @@ The ExceptionMiddleware is located in its own class to avoid circular imports.
 
 import sys, logging
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -65,6 +65,10 @@ class ExceptionMiddleware:
 
 		if isinstance( ex, RestAuthException ):
 			return HttpResponse( ex.body, status=ex.code )
+		else:
+			import traceback
+			logging.critical( traceback.format_exc() )
+			return HttpResponseServerError( "Internal Server Error. Please see server log for details." )
 
 class HeaderMiddleware:
 	"""
