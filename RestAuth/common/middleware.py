@@ -32,7 +32,13 @@ class LoggingMiddleware:
 	This middleware is responsible for setting up the logging environment.
 	"""
 	def process_request( self, request ):
-		kwargs = { 'level': settings.LOG_LEVEL,
+		valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+		if settings.LOG_LEVEL in valid_levels:
+			log_level = getattr( logging, settings.LOG_LEVEL )
+		else:
+			log_level = logging.DEBUG
+
+		kwargs = { 'level': log_level,
 			'format': '%(asctime)s %(levelname)-8s %(message)s',
 			'datefmt': '%a, %d %b %Y %H:%M:%S' }
 
