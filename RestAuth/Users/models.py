@@ -20,7 +20,7 @@ from django.db.utils import IntegrityError
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from RestAuth.common import get_setting, get_hexdigest, get_salt
-from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, ResourceExists
+from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, ResourceExists, PreconditionFailed
 from RestAuth.Users import validators
 from django.utils.http import urlquote
 
@@ -83,12 +83,19 @@ def validate_username( username ):
 			raise UsernameInvalid( 'Username is not valid on %s'%(val) )
 
 class ServiceUser( models.Model ):
-	username = models.CharField(_('username'), max_length=30, unique=True, help_text=_("Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters"))
+	username = models.CharField(_('username'), max_length=30, unique=True, help_text=_("Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters") )
 	algorithm = models.CharField( _('algorithm'), max_length=20, help_text=_("The algorithm used to hash passwords") )
 	salt = models.CharField( _('salt'), max_length=16, help_text=_("salt for the hash") )
 	hash = models.CharField( _('hash'), max_length=128, help_text=_("actual hash of the password") )
 	last_login = models.DateTimeField(_('last login'), default=datetime.datetime.now, auto_now=True)
 	date_joined = models.DateTimeField(_('date joined'), default=datetime.datetime.now)
+
+	def __init__( self, *args, **kwargs ):
+		models.Model.__init__( self, *args, **kwargs )
+		from RestAuthCommon import resource_validator
+
+		if self.username and not resource_validator( self.username ):
+			raise PreconditionFailed( "Username contains invalid characters" )
 
 	def set_password( self, raw_password ):
 		"""
@@ -211,7 +218,10 @@ class ServiceUser( models.Model ):
 
 		@raises Property.DoesNotExist: When the property does not exist.
 		"""
-		self.property_set.filter( key=key ).delete()
+		if self.property_set.filter( key=key ).exists():	
+			self.property_set.filter( key=key ).delete()
+		else:
+			raise Property.DoesNotExist()
 
 	def __unicode__( self ):
 		return self.username

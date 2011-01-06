@@ -70,6 +70,13 @@ class Group( models.Model ):
 		help_text=_("Required. Name of the group."))
 	users = models.ManyToManyField( User )
 	groups = models.ManyToManyField( 'self', symmetrical=False, related_name='parent_groups' )
+	
+	def __init__( self, *args, **kwargs ):
+		models.Model.__init__( self, *args, **kwargs )
+		from RestAuthCommon import resource_validator
+
+		if self.name and not resource_validator( self.name ):
+			raise PreconditionFailed( "Name of group contains invalid characters" )
 
 	def get_members( self, recursive=True, lvl=0 ):
 		users = set( self.users.all() )
