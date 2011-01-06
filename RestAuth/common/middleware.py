@@ -74,7 +74,7 @@ class ExceptionMiddleware:
 		else:
 			import traceback
 			logging.critical( traceback.format_exc() )
-			return HttpResponseServerError( "Internal Server Error. Please see server log for details." )
+			return HttpResponseServerError( "Internal Server Error. Please see server log for details.\n" )
 
 class HeaderMiddleware:
 	"""
