@@ -1,12 +1,12 @@
 import logging
 from errors import RestAuthException, UnsupportedMediaType, NotAcceptable, BadRequest
-import mimeparse
 from RestAuthCommon import CONTENT_HANDLERS, unmarshal
 from RestAuthCommon.handlers import MarshalError, UnmarshalError
 
 supported = CONTENT_HANDLERS.keys()
 
 def get_request_type( request ):
+	import mimeparse
 	header = request.META['CONTENT_TYPE']
 	match = mimeparse.best_match( supported, header )
 	if match:
@@ -15,6 +15,7 @@ def get_request_type( request ):
 		raise NotAcceptable()
 
 def get_response_type( request ):
+	import mimeparse
 	header = request.META['HTTP_ACCEPT']
 	match = mimeparse.best_match( supported, header )
 	if match:
