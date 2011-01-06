@@ -17,7 +17,7 @@ from django.db import models
 from django.contrib.auth.models import User as Service
 from RestAuth.Services.models import service_get
 from RestAuth.Users.models import ServiceUser as User
-from RestAuth.common.errors import ResourceExists
+from RestAuth.common.errors import ResourceExists, PreconditionFailed
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote
 
