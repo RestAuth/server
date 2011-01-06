@@ -19,18 +19,13 @@ from RestAuth.Groups.models import *
 from RestAuth.common.types import get_dict
 from RestAuth.common.responses import *
 from django.http import HttpResponse
+import logging
 
 @login_required( realm='/groups/' )
 def index( request ):
 	service = request.user
 
-	if request.method == 'GET': # Get a list of groups:
-		# get all groups for this service
-		groups = Group.objects.filter( service=service )
-
-		names = [ group.name for group in groups ]
-		return HttpRestAuthResponse( request, names ) # Ok
-	elif request.method == 'GET' and 'user' in request.GET: 
+	if request.method == 'GET' and 'user' in request.GET: 
 		# Get all users in a group
 			
 		# If User.DoesNotExist: 404 Not Found
@@ -40,12 +35,19 @@ def index( request ):
 		names = [ group.name for group in groups ]
 
 		return HttpRestAuthResponse( request, names ) # Ok
+	elif request.method == 'GET': # Get a list of groups:
+		# get all groups for this service
+		groups = Group.objects.filter( service=service )
+
+		names = [ group.name for group in groups ]
+		return HttpRestAuthResponse( request, names ) # Ok
 	elif request.method == 'POST': # Create a group
 		# If BadRequest: 400 Bad Request
 		groupname = get_dict( request, [ u'group' ] )
 
 		# If ResourceExists: 409 Conflict
 		group = group_create( groupname, service )
+		logging.info( "Created group '%s'"%(groupname ) )
 		return HttpResponseCreated( request, group ) # Created
 	
 	return HttpResponse( status=405 ) # method not allowed
@@ -58,9 +60,11 @@ def group_handler( request, groupname ):
 	group = group_get( groupname, service )
 	
 	if request.method == 'GET': # Verify that a group exists:
+		logging.info( "Verified that group '%s' exists"%(groupname) )
 		return HttpResponseNoContent()
 	if request.method == 'DELETE': # Delete group
 		group.delete()
+		logging.info( "Delete group '%s'"%(groupname) )
 		return HttpResponseNoContent() # OK
 	
 	return HttpResponse( status=405 )
@@ -76,6 +80,8 @@ def group_users_index_handler( request, groupname ):
 		users = group.get_members()
 
 		usernames = [ user.username for user in users ]
+		logging.debug( "Get users in group '%s'"%(groupname) )
+
 		# If MarshalError: 500 Internal Server Error
 		return HttpRestAuthResponse( request, usernames )
 	elif request.method == 'POST': # Add a user to a group
@@ -87,6 +93,8 @@ def group_users_index_handler( request, groupname ):
 		
 		group.users.add( user )
 		group.save()
+
+		logging.info( "Add user '%s' to group '%s'"%(username, groupname ) )
 		return HttpResponseNoContent()
 	
 	return HttpResponse( status=405 )
@@ -107,8 +115,11 @@ def group_user_handler( request, groupname, username ):
 			# 404 Not Found
 			raise ServiceUser.DoesNotExist()
 	elif request.method == 'DELETE': # Remove user from a group
+		if not group.is_member( user, False ):
+			raise User.DoesNotExist()
+
 		group.users.remove( user )
-# TODO: 404 if the user was not in the group
+		logging.info( "User '%s' is no longer member of group '%s'"%(username, groupname) )
 		return HttpResponseNoContent()
 
 	return HttpResponse( status=405 )
@@ -148,8 +159,10 @@ def group_groups_handler( request, meta_groupname, sub_groupname ):
 	sub_group = group_get( sub_groupname, service )
 
 	if request.method == 'DELETE': # Remove group from a group
+		if not meta_group.groups.filter( name=sub_groupname ).exists():
+			raise Group.DoesNotExist()
+
 		meta_group.groups.remove( sub_group )
-# TODO: 404 if the user was not in the group
 		return HttpResponseNoContent()
 	
 	return HttpResponse( status=405 )
