@@ -32,8 +32,8 @@ def general( name ):
 		return False
 
 	# filter various dangerous characters
-	for char in name:
-#		enc_char = char.decode( 'utf-8' )
+	for enc_char in name:
+#		enc_char = enc_char.decode( 'utf-8' )
 		if stringprep.in_table_c21_c22( enc_char ):
 			# control characters
 			return False
