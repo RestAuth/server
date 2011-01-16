@@ -11,7 +11,7 @@ def get_request_type( request ):
 	if match:
 		return match
 	else:
-		raise NotAcceptable()
+		raise UnsupportedMediaType()
 
 def get_response_type( request ):
 	import mimeparse
@@ -23,7 +23,7 @@ def get_response_type( request ):
 	if match:
 		return match
 	else:
-		raise UnsupportedMediaType()
+		raise NotAcceptable()
 
 def get_dict( request, keys ):
 	"""
