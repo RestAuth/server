@@ -27,18 +27,19 @@
 # 	http://docs.djangoproject.com/en/dev/ref/settings/
 
 # This import sets some sensible defaults that you usually don't want to
-# override.
+# override. Do not remove this line unless you know what you are doing.
 from djangosettings import *
 
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
-DEBUG = False
+# It is highly recommended to set DEBUG = False in any debugging environment.
+#DEBUG = False
 
 # Adresses that will receive backtraces when DEBUG=False
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
+#ADMINS = (
+#	('Your Name', 'your_email@domain.com'),
+#)
 
 # Configure your database settings
 DATABASES = {
@@ -61,13 +62,6 @@ DATABASES = {
 # system time zone.
 #TIME_ZONE = 'Europe/Vienna'
 
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
-#LANGUAGE_CODE = 'en-us'
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = ''
-
 # A tricky problem for a shared authentication service is what characters are
 # legal for a username. For example, 'Mathias Ertl' is a valid MediaWiki
 # username, but it is not a valid XMPP username. When creating a new user, the
@@ -81,9 +75,6 @@ SECRET_KEY = ''
 # range of usernames. Valid values are 'xmpp', 'email', 'mediawiki', 'linux' and
 # 'windows'.
 #SKIP_VALIDATORS = [ 'windows' ]
-
-# Set to True if RestAuth should allow the username of a user to be changed:
-#ALLOW_USERNAME_CHANGE = False
 
 # You can override the minimum username and password length:
 #MIN_USERNAME_LENGTH = 3
@@ -128,7 +119,7 @@ SECRET_KEY = ''
 # created passwords, so you can safely change this at any time, old hashes will
 # still work.
 # 
-# You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha1' is the
+# You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha152' is the
 # default and recommended. Additionally, RestAuth supports using hashes
 # compatible with other systems. Currectly 'mediawiki' creates hashes compatible
 # with a MediaWiki database.
