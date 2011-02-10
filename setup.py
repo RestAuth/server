@@ -123,6 +123,23 @@ class build( _build ):
 	sub_commands = [('patch', has_patches)] + _build.sub_commands
 	user_options = _build.user_options + added_options
 
+	def run( self ):
+		_build.run( self )
+
+		import string, random
+		chars = string.letters + string.digits + string.punctuation
+		SECRET_KEY = "".join( [random.choice(chars) for i in xrange(30)] )
+		SECRET_KEY = SECRET_KEY.replace( '\\', '\\\\' )
+		SECRET_KEY = SECRET_KEY.replace( '\'', '\\\\\'' )
+		SECRET_KEY = SECRET_KEY.replace( '/', '\/' )
+		SECRET_KEY = SECRET_KEY.replace( '&', '\&' )
+		sed_string = '''s/^SECRET_KEY\s*=\s*.*$/SECRET_KEY = \'\'\'%s\'\'\'/'''%SECRET_KEY
+
+		cmd = [ 'sed', '-i', sed_string, 'RestAuth/djangosettings.py' ]
+		print( ' '.join( cmd ) )
+		p = Popen( cmd )
+		p.communicate()
+
 class clean( _clean ):
 	def has_patches( self ):
 		if not self.patch_dir or not exists( self.patch_dir ):
@@ -141,6 +158,15 @@ class clean( _clean ):
 		
 	sub_commands = [('unpatch', has_patches)] + _build.sub_commands
 	user_options = _clean.user_options + [ ('patch-dir=', None, 'Directory where patches are located.') ]
+
+	def run( self ):
+		_clean.run( self )
+		sed_string = '''s/^SECRET_KEY\s*=\s*.*$/SECRET_KEY = ''/'''
+
+		cmd = [ 'sed', '-i', sed_string, 'RestAuth/djangosettings.py' ]
+		print( ' '.join( cmd ) )
+		p = Popen( cmd )
+		p.communicate()
 
 def get_version():
 	version = '0.1'
@@ -179,7 +205,6 @@ setup(
 		('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT', 'doc/migration', 'doc/mod_wsgi'] ),
 		],
 	cmdclass={
-		'install_data': install_data,
-		'build': build, 'version': version,
-		'patch': patch, 'unpatch': unpatch },
+		'install_data': install_data, 'build': build, 'version': version,
+		'clean': clean, 'patch': patch, 'unpatch': unpatch },
 )
