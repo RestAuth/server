@@ -1,4 +1,4 @@
-import os, sys
+import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 
 import django.core.handlers.wsgi
@@ -7,24 +7,26 @@ application = django.core.handlers.wsgi.WSGIHandler()
 def check_password(environ, user, password):
         try:
 		# set up environment:
-		from RestAuth.Services.models import Service
 		from django import db
         	db.reset_queries()
 		if 'REMOTE_ADDR' in environ:
 			host = environ['REMOTE_ADDR']
 		else:
+			import sys
 			sys.stderr.write( "Error: Could not get remote host from environment!" )
 			sys.stderr.flush()
 			return False
 
 		# verify service
-		serv = Service.objects.get( username=user )
-		if serv.verify( password, host ):
-			return True
-		else:
-			return False
-	except Service.DoesNotExist:
-		return None
+		from RestAuth.Services.models import Service
+		try:
+			serv = Service.objects.get( username=user )
+			if serv.verify( password, host ):
+				return True
+			else:
+				return False
+		except Service.DoesNotExist:
+			return None
 	except Exception, e:
 		import sys
 		sys.stderr.write( "Error: Uncought exception: %s"%(type(e)) )
