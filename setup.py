@@ -187,19 +187,21 @@ class build( _build ):
 	user_options = _build.user_options + added_options
 
 	def run( self ):
-		# generate secret key:
-		import string, random
-		chars = string.letters + string.digits + string.punctuation
-		SECRET_KEY = "".join( [random.choice(chars) for i in xrange(30)] )
-		SECRET_KEY = SECRET_KEY.replace( '\\', '\\\\' )
-		SECRET_KEY = SECRET_KEY.replace( '\'', '\\\\\'' )
-		SECRET_KEY = SECRET_KEY.replace( '/', '\/' )
-		SECRET_KEY = SECRET_KEY.replace( '&', '\&' )
-
-		in_file = 'RestAuth/djangosettings.py.in'
+		# generate djangosettings.py
 		out_file = 'RestAuth/djangosettings.py'
-		dictionary = { '__SECRET_KEY__':SECRET_KEY }
-		process_file( in_file, out_file, dictionary )
+		if not os.path.exists( out_file ):
+			# generate secret key:
+			import string, random
+			chars = string.letters + string.digits + string.punctuation
+			KEY = "".join( [random.choice(chars) for i in xrange(30)] )
+			KEY = SECRET_KEY.replace( '\\', '\\\\' )
+			KEY = SECRET_KEY.replace( '\'', '\\\\\'' )
+			KEY = SECRET_KEY.replace( '/', '\/' )
+			KEY = SECRET_KEY.replace( '&', '\&' )
+
+			in_file = 'RestAuth/djangosettings.py.in'
+			dictionary = { '__SECRET_KEY__': KEY }
+			process_file( in_file, out_file, dictionary )
 		
 		_build.run( self )
 
