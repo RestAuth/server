@@ -2,3 +2,5 @@
 *.swp
 *.sqlite3
 build/
+RestAuth/djangosettings.py
+man/*.8
