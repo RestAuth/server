@@ -14,12 +14,10 @@
 #    along with RestAuthClient.py.  If not, see <http://www.gnu.org/licenses/>.
 
 from subprocess import Popen, PIPE
-from os.path import normpath, isdir, basename, splitext
 from distutils.core import setup, Command
 from distutils.command.install_data import install_data as _install_data
 from distutils.command.build import build as _build
 from distutils.command.clean import clean as _clean
-from distutils.util import execute
 import os, time, glob, shutil
 
 def get_version():
@@ -55,8 +53,8 @@ class install_data( _install_data ):
 	Improve the install_data command so it can also copy directories
 	"""
 	def custom_copy_tree( self, src, dest ):
-		base = basename( src )
-		dest = normpath( "%s/%s/%s"%( self.install_dir, dest, base ) )
+		base = os.path.basename( src )
+		dest = os.path.normpath( "%s/%s/%s"%( self.install_dir, dest, base ) )
 		if os.path.exists( dest ):
 			return
 		ignore = shutil.ignore_patterns( '.svn', '*.pyc' )
@@ -65,7 +63,7 @@ class install_data( _install_data ):
 		
 	def run( self ):
 		for dest, nodes in self.data_files:
-			dirs = [ node for node in nodes if isdir( node ) ]
+			dirs = [ node for node in nodes if os.path.isdir( node ) ]
 			for src in dirs:
 				self.custom_copy_tree(src, dest)
 				nodes.remove( src )
@@ -161,8 +159,8 @@ Please submitt bugs to our issue tracker:
 		version = get_version()
 		date = time.strftime( '%Y-%m-%d' )
 		for filename in glob.glob( 'man/*.in' ):
-			output_path, ext = splitext( filename )
-			man_name, ext = splitext( basename( output_path ) )
+			output_path, ext = os.path.splitext( filename )
+			man_name, ext = os.path.splitext( os.path.basename( output_path ) )
 			dictionary['__HEADER__'] = '''."
 ."     Title: %s
 ."    Author: Mathias Ertl <mati@fsinf.at>
