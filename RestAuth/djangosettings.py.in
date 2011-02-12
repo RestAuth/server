@@ -65,4 +65,4 @@ LOG_LEVEL = 'CRITICAL'
 LOG_TARGET = 'stderr'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = ''
+SECRET_KEY = '__SECRET_KEY__'

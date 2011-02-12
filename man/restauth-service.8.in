@@ -1,10 +1,4 @@
-."
-."     Title: restauth-service
-."    Author: Mathias Ertl <mati@fsinf.at>
-."  Language: English
-."      Date: 2011-02-12
-."
-.TH restauth-service 8  "February 12, 2011" "Version 0.1\-git" "RestAuth Manual"
+__HEADER__
 .SH NAME
 restauth-service \- Utility to manage services able to access RestAuth.
 .SH SYNOPSIS
@@ -21,19 +15,7 @@ host, even if the credentials are correct.
 .SH OPTIONS
 .RS 4
 .RE
-\fB\-\-settings\fR=\fISETTINGS\fR
-.RS 4
-The path to the Django settings module. This is equivalent to setting the
-environment variable \fBDJANGO_SETTINGS_MODULE\fR. \fISETTINGS\fR should be the
-path to your \fBsettings.py\fR. The setting should be in Python path syntax, e.g.
-\fBRestAuth.settings\fR. The default is usually fine. 
-
-For additinal help, you might want to check out:
-.RS 4
-\fIhttp://docs.djangoproject.com/en/dev/topics/settings/\fR
-.sp
-.RE
-.RE
+__SETTINGS_OPTION__
 \fB\-\-password\fR=\fIPWD\fR
 .RS 4
 Use \fIPWD\fR for the password for actions \fBadd\fR and \fBset-password\fR. If
@@ -85,40 +67,4 @@ with the \fB--password\fR option, you will be prompted for it interactively.
 .RS 4
 Give the help-text on one of the \fIactions\fR named above.
 .RE
-.SH ENVIRONMENT
-\fBrestauth-service\fR uses the Django framework and as such is affected by its
-environment variables.
-.sp
-\fBDJANGO_SETTINGS_MODULE\fR
-.RS 4
-Setting this environment variable is equivalent to using the \fB--settings\fR
-option.
-.SH AUTHORS
-Copyright \(co 2010\-2011 by RestAuth engineers:
-.sp
-.RS 4
-.ie n \{\h'-04'\(bu\h'+03'\c
-.\}
-.el \{.sp -1
-.IP \(bu 2.3
-.\}
-Mathias Ertl <mati@fsinf\&.at>
-.RE
-." template end ;)
-.sp
-License GPLv3+: GNU GPL version 3 or later.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-.sp
-See http://gnu.org/licenses/gpl.html for more information.
-.SH SEE ALSO
-\fBrestauth-user\fP(8), \fBrestauth-group\fP(8)
-.sp
-For more information, see the RestAuth homepage at
-.RS 4
-https://redmine.fsinf.at/projects/restauth-server
-
-.SH BUGS
-Please submit bugs to our issue tracker:
-.RS 4
-https://redmine.fsinf.at/projects/restauth-server/issues
+__END__
