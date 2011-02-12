@@ -14,27 +14,26 @@
 #    along with RestAuthClient.py.  If not, see <http://www.gnu.org/licenses/>.
 
 from subprocess import Popen, PIPE
-from os.path import normpath, isdir, basename, exists, isfile, splitext
-from shutil import copytree, ignore_patterns
+from os.path import normpath, isdir, basename, splitext
 from distutils.core import setup, Command
 from distutils.command.install_data import install_data as _install_data
 from distutils.command.build import build as _build
 from distutils.command.clean import clean as _clean
 from distutils.util import execute
-import os, time, glob
+import os, time, glob, shutil
 
 def get_version():
 	version = '0.0'
-	if exists( '.version' ): # get from file
+	if os.path.exists( '.version' ): # get from file
 		version = open( '.version' ).readlines()[0]
-	elif exists( '.svn' ): # get from svn
+	elif os.path.exists( '.svn' ): # get from svn
 		cmd = [ 'svn', 'info' ]
 		p = Popen( cmd, stdout=PIPE )
 		stdin, stderr = p.communicate()
 		lines = stdin.split( "\n" )
 		line = [ line for line in lines if line.startswith( 'Revision' ) ][0]
 		version = '0.0-' + line.split( ': ' )[1].strip()
-	elif exists( '.git' ): # get from git
+	elif os.path.exists( '.git' ): # get from git
 		date = time.strftime( '%Y.%m.%d' )
 		cmd = [ 'git', 'rev-parse', '--short', 'HEAD' ]
 		p = Popen( cmd, stdout=PIPE )
@@ -58,11 +57,11 @@ class install_data( _install_data ):
 	def custom_copy_tree( self, src, dest ):
 		base = basename( src )
 		dest = normpath( "%s/%s/%s"%( self.install_dir, dest, base ) )
-		if exists( dest ):
+		if os.path.exists( dest ):
 			return
-		ignore = ignore_patterns( '.svn', '*.pyc' )
+		ignore = shutil.ignore_patterns( '.svn', '*.pyc' )
 		print( "copying %s -> %s"%(src, dest) )
-		copytree( src, dest, ignore=ignore )
+		shutil.copytree( src, dest, ignore=ignore )
 		
 	def run( self ):
 		for dest, nodes in self.data_files:
@@ -194,10 +193,10 @@ class build( _build ):
 			import string, random
 			chars = string.letters + string.digits + string.punctuation
 			KEY = "".join( [random.choice(chars) for i in xrange(30)] )
-			KEY = SECRET_KEY.replace( '\\', '\\\\' )
-			KEY = SECRET_KEY.replace( '\'', '\\\\\'' )
-			KEY = SECRET_KEY.replace( '/', '\/' )
-			KEY = SECRET_KEY.replace( '&', '\&' )
+			KEY = KEY.replace( '\\', '\\\\' )
+			KEY = KEY.replace( '\'', '\\\\\'' )
+			KEY = KEY.replace( '/', '\/' )
+			KEY = KEY.replace( '&', '\&' )
 
 			in_file = 'RestAuth/djangosettings.py.in'
 			dictionary = { '__SECRET_KEY__': KEY }
