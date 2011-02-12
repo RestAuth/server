@@ -171,36 +171,35 @@ elif args[0] in [ 'delete', 'rm', 'remove' ]:
 		sys.exit(1)
 elif args[0] == 'help':
 	if len(args) > 1:
-		help_parser = OptionParser(usage='%prog [options] ', add_help_option=False )
-		help_parser.add_option( '--settings', default='RestAuth.settings',
-			help="The path to the Django settings module (Usually the default is fine)." )
+		usage = '%prog [options] ' + args[1] + ' '
+		help_parser = OptionParser(usage=usage, add_help_option=False )
+		help_parser.add_option( parser.get_option( '--settings' ) )
 
 		if args[1] == 'add':
-			help_parser.usage += 'add <user>'
+			help_parser.usage += '<user>'
 			desc = """Create a new user in the database."""
 			opt = parser.get_option( '--password' )
 			help_parser.add_option( opt )
 		elif args[1] == 'list':
-			help_parser.usage += 'list'
 			desc = """List all users in the RestAuth database."""
 		elif args[1] == 'verify-password':
-			help_parser.usage += 'verify-password <user>'
+			help_parser.usage += '<user>'
 			desc = """Verify that a password is the correct password
 for the given user."""
 			opt = parser.get_option( '--password' )
 			help_parser.add_option( opt )
 		elif args[1] == 'set-password':
-			help_parser.usage += 'set-password <user>'
+			help_parser.usage += '<user>'
 			desc = """Update the password of the given user."""
 			opt = parser.get_option( '--password' )
 			help_parser.add_option( opt )
 		elif args[1] == 'view':
-			help_parser.usage += 'view <user>'
+			help_parser.usage += '<user>'
 			desc = """View all details of the given user."""
 			opt = parser.get_option( '--service' )
 			help_parser.add_option( opt )
 		elif args[1] == 'delete':
-			help_parser.usage += 'delete <user>'
+			help_parser.usage += '<user>'
 			desc = """Delete a user from the database."""
 		else:
 			print( "Unknown action." )
