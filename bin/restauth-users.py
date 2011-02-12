@@ -22,7 +22,7 @@ from optparse import OptionParser, OptionGroup, IndentedHelpFormatter
 usage = "%prog [options] [action] [action parameters]"
 desc = """%prog manages users in RestAuth. Users are clients that want to
 authenticate with services that use RestAuth. Valid actions are help, add,
-list, verify, set-password, groups and delete."""
+list, verify, set-password, groups and remove."""
 prog = os.path.basename(sys.argv[0])
 epilog = """Use %s help <action>  to get help for each action and their
 parameters""" % (prog)
@@ -176,31 +176,30 @@ elif args[0] == 'help':
 		help_parser.add_option( parser.get_option( '--settings' ) )
 
 		if args[1] == 'add':
-			help_parser.usage += '<user>'
-			desc = """Create a new user in the database."""
+			help_parser.usage += '<username>'
+			desc = """Create a new user."""
 			opt = parser.get_option( '--password' )
 			help_parser.add_option( opt )
 		elif args[1] == 'list':
-			desc = """List all users in the RestAuth database."""
+			desc = """List all users."""
 		elif args[1] == 'verify-password':
-			help_parser.usage += '<user>'
-			desc = """Verify that a password is the correct password
-for the given user."""
+			help_parser.usage += '<username>'
+			desc = """Verify the password of the given user."""
 			opt = parser.get_option( '--password' )
 			help_parser.add_option( opt )
 		elif args[1] == 'set-password':
-			help_parser.usage += '<user>'
+			help_parser.usage += '<username>'
 			desc = """Update the password of the given user."""
 			opt = parser.get_option( '--password' )
 			help_parser.add_option( opt )
 		elif args[1] == 'view':
-			help_parser.usage += '<user>'
+			help_parser.usage += '<username>'
 			desc = """View all details of the given user."""
 			opt = parser.get_option( '--service' )
 			help_parser.add_option( opt )
-		elif args[1] == 'delete':
-			help_parser.usage += '<user>'
-			desc = """Delete a user from the database."""
+		elif args[1] == 'remove':
+			help_parser.usage += '<username>'
+			desc = """Delete the given user."""
 		else:
 			print( "Unknown action." )
 			sys.exit(1)
