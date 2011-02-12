@@ -21,26 +21,19 @@ from RestAuth.common.errors import ServiceNotFound
 class ServiceUsernameNotValid( BaseException ):
 	pass
 
-class ServiceAlreadyExists( BaseException ):
-	pass
-
 def check_service_username( name ):
-	if type( name ) != str:
-		raise ServiceUsernameNotValid( "Name must be of type string" )
-	if not name:
-		raise ServiceUsernameNotValid( "Service names must be at least one character long" )
 	if ':' in name:
-		raise ServiceUsernameNotValid( "Service names must not contain a ':'" )
+		raise ServiceUsernameNotValid( "Service name must not contain a ':'" )
 
 def service_create( name, password, addresses=[] ):
+	"""
+	@raises IntegrityError: If the service already exists.
+	"""
 	check_service_username( name )
 	
-	try:
-		service = Service( username=name )
-		service.set_password( password )
-		service.save()
-	except IntegrityError:
-		raise ServiceAlreadyExists( "Service already exists. Please use a different name." )
+	service = Service( username=name )
+	service.set_password( password )
+	service.save()
 
 	if addresses:
 		service.set_hosts( addresses )
