@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os, sys, getpass
 from optparse import OptionParser, OptionGroup, IndentedHelpFormatter
 
 # parse arguments
@@ -29,7 +29,7 @@ parameters.""" % (prog)
 parser = OptionParser( usage=usage, description=desc, epilog=epilog)
 parser.add_option( '--settings', default='RestAuth.settings',
 	help="The path to the Django settings module (Usually the default is fine)." )
-group = OptionGroup( parser, 'Options for action "add"' )
+group = OptionGroup( parser, 'Options for actions add/set-password' )
 group.add_option( '--password', dest="pwd", 
 	help="Password of the service. If not provided, you will be prompted." )
 parser.add_option_group( group )
@@ -59,7 +59,6 @@ def get_password( options ):
 	if options.pwd:
 		return options.pwd
 
-	import getpass
 	password = getpass.getpass( 'password: ' )
 	confirm = getpass.getpass( 'confirm: ' )
 	if password != confirm:
@@ -68,7 +67,7 @@ def get_password( options ):
 	else:
 		return password
 
-if args[0] == 'add':
+if args[0] in [ 'create', 'add']:
 	if len( args ) < 2:
 		print( "Please name a service to add." )
 		sys.exit(1)
