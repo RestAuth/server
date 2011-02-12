@@ -200,7 +200,7 @@ class build( _build ):
 			chars = string.letters + string.digits + string.punctuation
 			KEY = "".join( [random.choice(chars) for i in xrange(30)] )
 			KEY = KEY.replace( '\\', '\\\\' )
-			KEY = KEY.replace( '\'', '\\\\\'' )
+			KEY = KEY.replace( '\'', '\\\'' )
 			KEY = KEY.replace( '/', '\/' )
 			KEY = KEY.replace( '&', '\&' )
 
