@@ -21,7 +21,10 @@ from distutils.command.clean import clean as _clean
 import os, time, glob, shutil
 
 def get_version():
-	version = '0.0'
+	"""
+	Dynamically get the current version.
+	"""
+	version = '0.0' # default
 	if os.path.exists( '.version' ): # get from file
 		version = open( '.version' ).readlines()[0]
 	elif os.path.exists( '.svn' ): # get from svn
@@ -40,6 +43,11 @@ def get_version():
 	return version
 
 def process_file( in_path, out_path, dictionary ):
+	"""
+	Used to dynamically create files. Reads file at in_path, writes it to
+	out_path and replaces all occurrences of any key of the dictionary with
+	its corresponding value.
+	"""
 	in_file = open( in_path )
 	out_file = open( out_path, 'w' )
 	for line in in_file.readlines():
