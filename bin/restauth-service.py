@@ -22,7 +22,7 @@ from optparse import OptionParser, OptionGroup, IndentedHelpFormatter
 usage = "%prog [options] [action] [action parameters]"
 desc = """%prog manages services in RestAuth. Services are websites, hosts, etc.
 that use RestAuth as authentication service. Valid actions are help, add, remove,
-view, list and set-hosts."""
+view, list, set-hosts and set-password."""
 prog = os.path.basename(sys.argv[0])
 epilog = """Use %s help <action> to get help for each action and their
 parameters.""" % (prog)
@@ -147,7 +147,8 @@ elif args[0] == 'help':
 		
 		if args[1] == 'add':
 			help_parser.usage += '<service> [host]...'
-			desc = """Add a service to RestAuth. You can give one or
+			desc = """Add a service to RestAuth. The service can
+contain any ASCII character except a double colon (':'). You can give one or
 more hosts that the new service is able to connect from. If ommitted, the
 service can't connect from any host and is thus unusable."""
 			opt = parser.get_option( '--password' )
