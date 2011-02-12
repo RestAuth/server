@@ -31,7 +31,7 @@ parser.add_option( '--settings', default='RestAuth.settings',
 	help="The path to the Django settings module (Usually the default is fine)." )
 
 pwd_group = OptionGroup( parser, "Options for the actions add, verify and set-password." )
-pwd_group.add_option( '--password', metavar='PWD',
+pwd_group.add_option( '--password', metavar='PWD', dest='pwd',
 	help="""Use PWD for the users password. If not given, you will be
 prompted.""" )
 parser.add_option_group( pwd_group )
@@ -53,90 +53,122 @@ sys.path.append( os.getcwd() )
 if not args:
 	sys.stderr.write( "Please provide an action." )
 	sys.exit(1)
+
 if args[0] != 'help':
 	# we don't need this for help
 	try:
-		from RestAuth.Users.models import ServiceUser, user_get, user_create
-		from RestAuth.Services.models import service_get
+		from RestAuth.Users.models import ServiceUser, user_get, user_create, validate_username, UsernameInvalid
+		from RestAuth.Services.models import service_get, ServiceNotFound
 		from RestAuth.common import errors
+		from django.db.utils import IntegrityError
 	except ImportError:
 		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 		sys.exit(1)
 
-def get_password():
+def get_password( options ):
+	if options.pwd:
+		return options.pwd
+
 	password = getpass.getpass( 'password: ' )
 	confirm = getpass.getpass( 'confirm: ' )
-
-	if password == confirm:
-		return password
+	if password != confirm:
+		print( "Passwords do not match, please try again." )
+		return get_password( options )
 	else:
-		print( "Passwords do not match, please try again!" )
-		return get_password()
+		return password
 
 if args[0] in ['create', 'add']:
-	if len( args ) != 2:
+	if len( args ) < 2:
 		print( "Please name a user to add!" )
 		sys.exit(1)
+	elif len( args ) > 2:
+		print( "Please name exactly one user to add!" )
 
-	if not options.password:
-		options.password = get_password()
-
-	user_create( args[1], options.password )
+	try:
+		validate_username( args[1] )
+		user = ServiceUser( username=args[1] )
+		user.save()
+		password = get_password( options )
+		user.set_password( password )
+		user.save()
+	except IntegrityError as e:
+		print( e )
+		print( "Error: %s: User already exists."%args[1] )
+		sys.exit(1)
+	except errors.PreconditionFailed as e:
+		print( e )
+		sys.exit(1)
 elif args[0] in ['ls', 'list']:
 	for user in ServiceUser.objects.all():
 		print( user.username )
 elif args[0] == 'verify':
 	if len( args ) != 2:
-		print( "Please name a user to verify!" )
+		print( "Please name exactly one user to verify!" )
 		sys.exit(1)
-
-	user = user_get( args[1] )
-	if not options.password:
-		options.password = getpass.getpass( 'password: ' )
-
-	print( user.check_password( options.password ) )
-elif args[0] == 'set-password':
-	if len( args ) != 2:
-		print( "Please name a user to update!" )
-		sys.exit(1)
-
-	user = user_get( args[1] )
-
-	if not options.password:
-		options.password = getpass.getpass( 'password: ' )
 
 	try:
-		user.set_password( options.password )
+		user = user_get( args[1] )
+		if not options.pwd:
+			options.pwd = getpass.getpass( 'password: ' )
+		if user.check_password( options.pwd ):
+			print( 'Ok.' )
+		else:
+			print( 'Failed.' )
+	except ServiceUser.DoesNotExist:
+		print( "Error: %s: User does not exist."%args[1] )
+		sys.exit(1)
+elif args[0] == 'set-password':
+	if len( args ) != 2:
+		print( "Please name exactly one user to update!" )
+		sys.exit(1)
+
+	try:
+		user = user_get( args[1] )
+		password = get_password( options )
+		user.set_password( password )
 		user.save()
+	except ServiceUser.DoesNotExist:
+		print( "Error: %s: User does not exist."%args[1] )
+		sys.exit(1)
 	except errors.PasswordInvalid as e:
-		print( e.body )
+		print( "Error: %s"%e.body )
 		sys.exit(1)
 elif args[0] == 'view':
 	if len( args ) != 2:
 		print( "Please name a user to view!" )
 		sys.exit(1)
 
-	user = user_get( args[1] )
-	if options.service:
-		service = service_get( options.service )
-		groups = user.get_groups( service )
-	else:
-		groups = user.get_groups()
+	try:
+		user = user_get( args[1] )
+		if options.service:
+			service = service_get( options.service )
+			groups = user.get_groups( service )
+		else:
+			groups = user.get_groups()
+	
+		group_names = [ group.name for group in groups ]
+		group_names.sort()
 
-	group_names = [ group.name for group in groups ]
-	group_names.sort()
-
-	print( 'Joined: %s'%( user.date_joined ) )
-	print( 'Last login: %s'%(user.last_login) )
-	print( 'Groups: %s'%(', '.join( group_names ) ) )
-
+		print( 'Joined: %s'%( user.date_joined ) )
+		print( 'Last login: %s'%(user.last_login) )
+		print( 'Groups: %s'%(', '.join( group_names ) ) )
+	except ServiceNotFound:
+		print( "Error: %s: Service does not exist."%options.service )
+		sys.exit(1)
+	except ServiceUser.DoesNotExist:
+		print( "Error: %s: User does not exist."%args[1] )
+		sys.exit(1)
 elif args[0] in [ 'delete', 'rm', 'remove' ]:
 	if len( args ) != 2:
 		print( "Please name a user to delete!" )
 		sys.exit(1)
 
-	user = user_get( args[1] )
-	user.delete()
+	try:
+		user = user_get( args[1] )
+		user.delete()
+	except ServiceUser.DoesNotExist:
+		print( "Error: %s: User does not exist."%args[1] )
+		sys.exit(1)
 elif args[0] == 'help':
 	if len(args) > 1:
 		help_parser = OptionParser(usage='%prog [options] ', add_help_option=False )
