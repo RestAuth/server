@@ -55,42 +55,60 @@ if args[0] != 'help':
 		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 		sys.exit(1)
 
+def get_password( options ):
+	if options.pwd:
+		return options.pwd
+
+	import getpass
+	password = getpass.getpass( 'password: ' )
+	confirm = getpass.getpass( 'confirm: ' )
+	if password != confirm:
+		print( "Passwords do not match, please try again." )
+		return get_password( options )
+	else:
+		return password
+
 if args[0] == 'add':
 	if len( args ) < 2:
 		print( "Please name a service to add." )
 		sys.exit(1)
 
-	if service_exists( args[1] ):
-		print( "Error: Service already exists." )
+	try:
+		check_service_username( args[1] )
+		service = Service( username=args[1] )
+		service.save()
+		service.set_password( get_password( options ) )
+		service.set_hosts( args[2:] )
+		service.save()
+	except IntegrityError as e:
+		print( "Error: %s: Service already exists."%args[1] )
 		sys.exit(1)
-
-	if not options.pwd:
-		import getpass
-		options.pwd = getpass.getpass( 'password: ' )
-		confirm = getpass.getpass( 'confirm: ' )
-
-		while options.pwd != confirm:
-			print( "Passwords do not match, please try again!" )
-			options.pwd = getpass.getpass( 'password: ' )
-			confirm = getpass.getpass( 'confirm: ' )
-
-	service_create( args[1], options.pwd, args[2:] )
+	except ServiceUsernameNotValid as e:
+		print( e )
+		sys.exit(1)
 elif args[0] in [ 'remove', 'rm', 'del', 'delete' ]:
-	if len( args ) != 2:
+	if len( args ) < 2:
 		print( "Please name a service to remove." )
+		sys.exit(1)
+	elif len( args ) > 2:
+		print( "Please name exactly one service to remove." )
+		sys.exit(1)
 
 	try:
 		service_delete( args[1] )
 	except ServiceNotFound:
-		print( "Error: Service not found." )
+		print( "Error: %s: Service not found."%args[1] )
 		sys.exit(1)
 elif args[0] in [ 'list', 'ls' ]:
 	for service in Service.objects.all():
 		hosts = [ str(host.address) for host in service.hosts.all() ]
-		print( '%s %s'%(service.username, hosts) )
+		print( '%s: %s'%(service.username, ', '.join(hosts)) )
 elif args[0] == 'view':
-	if len( args ) != 2:
-		print( "Please name a service. Try 'list' for a list of services." )
+	if len( args ) < 2:
+		print( "Please name a service to view. Try 'list' for a list of services." )
+		sys.exit(1)
+	elif len( args ) > 2:
+		print( "Please name exactly one service to remove." )
 		sys.exit(1)
 
 	try:
@@ -98,19 +116,29 @@ elif args[0] == 'view':
 		print( service.username )
 		print( 'Last used: %s'%(service.last_login) )
 		hosts = [ str(host.address) for host in service.hosts.all() ]
-		print( 'Hosts: %s'%(hosts) )
+		print( 'Hosts: %s'%(', '.join( hosts )) )
 	except ServiceNotFound:
-		print( "Error: Service not found." )
+		print( "Error: %s: Service not found."%args[1] )
 		sys.exit(1) 
 elif args[0] == 'set-hosts':
 	if len( args ) < 2:
-		print( "Please name a service to add." )
+		print( "Please name a service to set hosts for." )
+		sys.exit(1)
 
 	try:
 		service = service_get( args[1] )
 		service.set_hosts( args[2:] )
 	except ServiceNotFound:
-		print( "Error: Service not found." )
+		print( "Error: %s: Service not found."%args[1] )
+		sys.exit(1)
+elif args[0] == 'set-password':
+	try:
+		service = service_get( args[1] )
+		service.set_password( get_password( options ) )
+		service.save()
+	except ServiceNotFound:
+		print( "Error: %s: Service not found."%args[1] )
+		sys.exit(1) 
 elif args[0] == 'help':
 	if len(args) > 1:
 		usage = '%prog [options] ' + args[1] + ' '
@@ -119,7 +147,7 @@ elif args[0] == 'help':
 		
 		if args[1] == 'add':
 			help_parser.usage += '<service> [host]...'
-			desc = """Add <service> to RestAuth. You can give one or
+			desc = """Add a service to RestAuth. You can give one or
 more hosts that the new service is able to connect from. If ommitted, the
 service can't connect from any host and is thus unusable."""
 			opt = parser.get_option( '--password' )
@@ -131,11 +159,16 @@ service can't connect from any host and is thus unusable."""
 			desc = 'List all services known to RestAuth.'
 		elif args[1] == 'view':
 			help_parser.usage += '<service>'
-			desc = 'View details on <service>.'
+			desc = 'View details on a service.'
 		elif args[1] == 'set-hosts':
 			help_parser.usage += '<service> [host]...'
-			desc = """The given service is allowed to connect from
-the given hosts. Naming no hosts effectively disables the service."""
+			desc = """Set the hosts that a service is allowed to
+connect from. Naming no hosts effectively disables the service."""
+		elif args[1] == 'set-password':
+			help_parser.usage += '<service>'
+			desc = """Set the password for the given service."""
+			opt = parser.get_option( '--password' )
+			help_parser.add_option( opt )
 		else:
 			print('Unknown action.')
 			sys.exit(1)
