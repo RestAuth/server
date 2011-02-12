@@ -124,9 +124,27 @@ For additinal help, you might want to check out:
 .sp
 .RE
 .RE
-''',
-			'__END__': '''.SH ENVIRONMENT
-\\fBrestauth-service\\fR uses the Django framework and as such is affected by its
+''' }
+
+		version = get_version()
+		date = time.strftime( '%Y-%m-%d' )
+		in_files = glob.glob( 'man/*.in' )
+		out_files = [ os.path.splitext(e)[0] for e in in_files ]
+		man_names = [ os.path.splitext( os.path.basename( e ) ) for e in out_files ]
+		data = zip( in_files, out_files, man_names )
+		for in_file, out_file, man_name in data:
+			name = man_name[0]
+			others = [ '\\fB%s\\fR(%s)'%(e[0], e[1].strip('.')) for e in man_names if e != man_name ]
+			dictionary['__HEADER__'] = '''."
+."     Title: %s
+."    Author: Mathias Ertl <mati@fsinf.at>
+."  Language: English
+."      Date: %s
+."
+.TH %s 8  "%s" "Version %s" "RestAuth Manual"
+'''%(name, date, name, date, version)
+			dictionary['__END__'] = '''.SH ENVIRONMENT
+\\fB%s\\fR uses the Django framework and as such is affected by its
 environment variables.
 .sp
 \\fBDJANGO_SETTINGS_MODULE\\fR
@@ -152,7 +170,7 @@ There is NO WARRANTY, to the extent permitted by law.
 .sp
 See http://gnu.org/licenses/gpl.html for more information.
 .SH SEE ALSO
-\\fBrestauth-user\\fP(8), \\fBrestauth-group\\fP(8)
+%s
 .sp
 For more information, see the RestAuth homepage at
 .RS 4
@@ -162,22 +180,8 @@ For more information, see the RestAuth homepage at
 Please submitt bugs to our issue tracker:
 .RS 4
 \\fIhttps://redmine.fsinf.at/projects/restauth-server/issues\\fR
-'''}
-
-		version = get_version()
-		date = time.strftime( '%Y-%m-%d' )
-		for filename in glob.glob( 'man/*.in' ):
-			output_path, ext = os.path.splitext( filename )
-			man_name, ext = os.path.splitext( os.path.basename( output_path ) )
-			dictionary['__HEADER__'] = '''."
-."     Title: %s
-."    Author: Mathias Ertl <mati@fsinf.at>
-."  Language: English
-."      Date: %s
-."
-.TH %s 8  "%s" "Version %s" "RestAuth Manual"
-'''%(man_name, date, man_name, date, version)
-			process_file( filename, output_path, dictionary )
+'''%(name, ', '.join( others ) )
+			process_file( in_file, out_file, dictionary )
 
 class build( _build ):
 	def initialize_options( self ):
