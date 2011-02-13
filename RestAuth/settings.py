@@ -33,7 +33,7 @@ from djangosettings import *
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
-# It is highly recommended to set DEBUG = False in any debugging environment.
+# It is highly recommended to set DEBUG = False in any production environment.
 #DEBUG = False
 
 # Adresses that will receive backtraces when DEBUG=False
@@ -119,7 +119,7 @@ DATABASES = {
 # created passwords, so you can safely change this at any time, old hashes will
 # still work.
 # 
-# You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha152' is the
+# You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha512' is the
 # default and recommended. Additionally, RestAuth supports using hashes
 # compatible with other systems. Currectly 'mediawiki' creates hashes compatible
 # with a MediaWiki database.
