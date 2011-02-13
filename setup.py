@@ -27,20 +27,13 @@ def get_version():
 	version = '0.0' # default
 	if os.path.exists( '.version' ): # get from file
 		version = open( '.version' ).readlines()[0]
-	elif os.path.exists( '.svn' ): # get from svn
-		cmd = [ 'svn', 'info' ]
-		p = Popen( cmd, stdout=PIPE )
-		stdin, stderr = p.communicate()
-		lines = stdin.split( "\n" )
-		line = [ line for line in lines if line.startswith( 'Revision' ) ][0]
-		version = '0.0-' + line.split( ': ' )[1].strip()
 	elif os.path.exists( '.git' ): # get from git
 		date = time.strftime( '%Y.%m.%d' )
 		cmd = [ 'git', 'rev-parse', '--short', 'HEAD' ]
 		p = Popen( cmd, stdout=PIPE )
-		stdin, stderr = p.communicate()
-		version = '%s-%s-%s'%(version, date, stdin.strip() )
-	return version
+		stdin = p.communicate()[0].decode( 'utf-8' ).strip()
+		version = '%s-%s-%s'%(version, date, stdin )
+	return version.strip()
 
 def process_file( in_path, out_path, dictionary ):
 	"""
