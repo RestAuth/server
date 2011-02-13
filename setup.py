@@ -137,11 +137,6 @@ For additinal help, you might want to check out:
 			name = man_name[0]
 			others = [ '\\fB%s\\fR(%s)'%(e[0], e[1].strip('.')) for e in man_names if e != man_name ]
 			dictionary['__HEADER__'] = '''."
-."     Title: %s
-."    Author: Mathias Ertl <mati@fsinf.at>
-."  Language: English
-."      Date: %s
-."
 .TH %s 8  "%s" "Version %s" "RestAuth Manual"
 '''%(name, date, name, date, version)
 			dictionary['__END__'] = '''.SH ENVIRONMENT
@@ -163,7 +158,6 @@ Copyright \(co 2010\-2011 by RestAuth engineers:
 .\}
 Mathias Ertl <mati@fsinf\&.at>
 .RE
-." template end ;)
 .sp
 License GPLv3+: GNU GPL version 3 or later.
 This is free software: you are free to change and redistribute it.
