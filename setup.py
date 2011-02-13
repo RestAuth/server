@@ -29,10 +29,9 @@ def get_version():
 		version = open( '.version' ).readlines()[0]
 	elif os.path.exists( '.git' ): # get from git
 		date = time.strftime( '%Y.%m.%d' )
-		cmd = [ 'git', 'rev-parse', '--short', 'HEAD' ]
+		cmd = [ 'git', 'describe' ]
 		p = Popen( cmd, stdout=PIPE )
-		stdin = p.communicate()[0].decode( 'utf-8' ).strip()
-		version = '%s-%s-%s'%(version, date, stdin )
+		version = p.communicate()[0].decode( 'utf-8' )
 	return version.strip()
 
 
