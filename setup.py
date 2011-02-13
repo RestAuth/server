@@ -88,7 +88,7 @@ class clean( _clean ):
 		_clean.run( self )
 
 		# remove generated files
-		if os.path.exists( 'RestAuth/djangosettings.py' )
+		if os.path.exists( 'RestAuth/djangosettings.py' ):
 			os.remove( 'RestAuth/djangosettings.py' )
 		for filename in glob.glob( 'man/*.[0-9]' ):
 			os.remove( filename )
