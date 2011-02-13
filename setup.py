@@ -35,6 +35,7 @@ def get_version():
 		version = '%s-%s-%s'%(version, date, stdin )
 	return version.strip()
 
+
 def process_file( in_path, out_path, dictionary ):
 	"""
 	Used to dynamically create files. Reads file at in_path, writes it to
