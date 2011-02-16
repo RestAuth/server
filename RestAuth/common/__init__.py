@@ -13,17 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponse
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import smart_str
 import hashlib
-
-def get_setting( setting, default=None ):
-	if hasattr( settings, setting ):
-		return getattr( settings, setting )
-	else:
-		return default
 
 def get_salt():
 	"""

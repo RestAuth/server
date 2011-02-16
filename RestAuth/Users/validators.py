@@ -96,8 +96,8 @@ def linux( name ):
 	if re.search( '\s', name ):
 		return False
 
-	from RestAuth.common import get_setting
-	filter_not_recommended = get_setting( 'FILTER_LINUX_USERNAME_NOT_RECOMMENDED', True )
+	from django.conf import settings
+	filter_not_recommended = settings.FILTER_LINUX_USERNAME_NOT_RECOMMENDED
 	
 	# filter names that are not recommended:
 	if filter_not_recommended and not re.match( '[a-z_][a-z0-9_-]*[$]?', name ):

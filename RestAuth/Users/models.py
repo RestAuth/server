@@ -19,7 +19,7 @@ from django.db import models
 from django.db.utils import IntegrityError
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from RestAuth.common import get_setting, get_hexdigest, get_salt
+from RestAuth.common import get_hexdigest, get_salt
 from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, ResourceExists, PreconditionFailed
 from RestAuth.Users import validators
 from django.utils.http import urlquote
@@ -63,14 +63,14 @@ def user_create( name, password ):
 		raise UserExists( "A user with the given name already exists." )
 
 def validate_username( username ):
-	min_length = get_setting( 'MIN_USERNAME_LENGTH', 3 )
-	max_length = get_setting( 'MAX_USERNAME_LENGTH', 255 )
+	min_length = settings.MIN_USERNAME_LENGTH
+	max_length = settings.MAX_USERNAME_LENGTH
 	if len( username ) < min_length:
 		raise UsernameInvalid( "Username too short" )
 	if len( username ) > max_length:
 		raise UsernameInvalid( "Username too long" )
 
-	skip_validators = get_setting( 'SKIP_VALIDATORS', [] )
+	skip_validators = settings.SKIP_VALIDATORS
 	for val in [ f for f in dir( validators ) ]:
 		if val in skip_validators:
 			continue
@@ -107,7 +107,7 @@ class ServiceUser( models.Model ):
 		if len( raw_password ) < settings.MIN_PASSWORD_LENGTH:
 			raise PasswordInvalid( "Password too short" )
 
-		self.algorithm = get_setting( 'HASH_ALGORITHM', 'sha1' )
+		self.algorithm = settings.HASH_ALGORITHM
 		self.salt = get_salt()
 		self.hash = get_hexdigest( self.algorithm, self.salt, raw_password )
 
