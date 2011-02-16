@@ -87,16 +87,14 @@ if args[0] in ['create', 'add']:
 	try:
 		validate_username( args[1] )
 		user = ServiceUser( username=args[1] )
-		user.save()
 		password = get_password( options )
 		user.set_password( password )
 		user.save()
 	except IntegrityError as e:
-		print( e )
 		print( "Error: %s: User already exists."%args[1] )
 		sys.exit(1)
 	except errors.PreconditionFailed as e:
-		print( e )
+		print( "Error: %s"%e.body )
 		sys.exit(1)
 elif args[0] in ['ls', 'list']:
 	for user in ServiceUser.objects.all():
