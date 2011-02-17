@@ -117,7 +117,21 @@ class ServiceUser( models.Model ):
 		self.algorithm = None
 
 	def check_password( self, raw_password ):
-		return self.hash == get_hexdigest( self.algorithm, self.salt, raw_password )
+		"""
+		Check the users password. If the current password hash is not
+		of the same type as the current settings.HASH_ALGORITHM, the
+		hash is updated but *not* saved.
+		"""
+		digest = get_hexdigest( self.algorithm, self.salt, raw_password )
+		if digest == self.hash: # correct
+			if self.algorithm != settings.HASH_ALGORITHM:
+				# we do this manually so we avoid any checks.
+				self.algorithm = settings.HASH_ALGORITHM
+				self.salt = get_salt()
+				self.hash = get_hexdigest( self.algorithm, self.salt, raw_password )
+			return True
+		else: # password not correct
+			return False
 
 	def get_groups( self, service=None, recursive=True ):
 		"""
