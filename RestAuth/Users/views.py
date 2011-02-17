@@ -60,10 +60,10 @@ def user_handler( request, username ):
 		# If BadRequest: 400 Bad Request
 		password = get_dict( request, [ u'password' ] )
 
-		user.save() # update "modified" timestamp
 		if not user.check_password( password ):
 			# password does not match - raises 404
 			raise ServiceUser.DoesNotExist( "Password invalid for this user." )
+		user.save() # update "modified" timestamp, perhaps hash
 		
 		logging.debug( "%s: Checked password for user '%s'"%(service, username ) )
 		return HttpResponseNoContent() # Ok
