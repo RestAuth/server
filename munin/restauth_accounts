@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+# 
+# Watch number of accounts on RestAuth.
+#
+#%# family=auto
+#%# capabilities=autoconf
+
+import os, sys
+
+if 'DJANGO_SETTINGS_MODULE' not in os.environ:
+	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
+
+if len( sys.argv ) > 1 and sys.argv[1] == 'autoconf':
+	try:
+		from django.conf import settings
+		dir( settings )
+		print( 'yes' )
+		sys.exit(0)
+	except ImportError:
+		print( 'no (cannot import django settings)' )
+		sys.exit(1)
+
+from RestAuth.Users.models import ServiceUser
+
+if len( sys.argv ) > 1 and sys.argv[1] == 'config':
+	print( """graph_title Number of RestAuth accounts
+graph_args --base 1000 -l 0
+graph_vlabel no. of accounts
+graph_category restauth
+total.label total no. of accounts""" )
+	qs = ServiceUser.objects.values( 'algorithm' ).distinct()
+	if len(qs) > 0:
+		for result in qs:
+			algo = result['algorithm']
+			print( '%s.label no. of accounts with %s hash'%(algo,algo ) )
+	sys.exit(0)
+
+from django.db.models import Count
+qs = ServiceUser.objects.values( 'algorithm' ).annotate( Count('algorithm') )
+total = 0
+for result in qs:
+	total += result['algorithm__count']
+	print( '%s.value %s'%(result['algorithm'], result['algorithm__count']) )
+
+print( 'total.value %s'%total )
