@@ -58,7 +58,9 @@ AUTHENTICATION_BACKENDS = (
 ### Defaults for the standard settings.py ###
 #############################################
 SKIP_VALIDATORS = [ 'linux', 'windows' ]
+FILTER_LINUX_USERNAME_NOT_RECOMMENDED = True
 MIN_USERNAME_LENGTH = 3
+MAX_USERNAME_LENGTH = 255
 MIN_PASSWORD_LENGTH = 6
 HASH_ALGORITHM = 'sha512'
 LOG_LEVEL = 'CRITICAL'
