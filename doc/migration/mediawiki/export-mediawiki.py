@@ -18,6 +18,8 @@ parser.add_option( '--host', default='localhost',
 parser.add_option( '--port', default=3306, type='int',
 	help="Use PORT to connect to MySQL server. [default: %default]" )
 parser.add_option( '--db', '--database', help="Database to use." )
+parser.add_option( '--mediawiki-group', 
+	help="Only output users in the specified group." )
 opts, args = parser.parse_args()
 
 if not opts.password:
@@ -26,11 +28,15 @@ if not opts.db:
 	print( "Error: You must give a Database using --database." )
 	sys.exit(1)
 
+query = 'SELECT user_name, user_password, user_registration, user_touched FROM user'
+if opts.mediawiki_group:
+	query += ', user_groups WHERE user_id = ug_user AND ug_group = "%s"'%opts.mediawiki_group
+
 try:
 	db = MySQLdb.connect( opts.host, opts.user, opts.password, opts.db )
 	c = db.cursor()
 
-	c.execute( 'SELECT user_name, user_password, user_registration, user_touched FROM user' )
+	c.execute( query )
 	results = c.fetchall()
 except Exception, e:
 	print( "Error connecting to database:" )

@@ -34,7 +34,7 @@ from djangosettings import *
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
 # It is highly recommended to set DEBUG = False in any production environment.
-#DEBUG = False
+DEBUG = True
 
 # Adresses that will receive backtraces when DEBUG=False
 #ADMINS = (
@@ -74,7 +74,7 @@ DATABASES = {
 # You can use this setting to disable some validators so you can support a wider
 # range of usernames. Valid values are 'xmpp', 'email', 'mediawiki', 'linux' and
 # 'windows'.
-#SKIP_VALIDATORS = [ 'windows' ]
+SKIP_VALIDATORS = [ 'windows', 'email', 'xmpp', 'linux' ]
 
 # You can override the minimum username and password length:
 #MIN_USERNAME_LENGTH = 3
