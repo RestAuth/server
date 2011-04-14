@@ -25,6 +25,7 @@ import logging
 def index( request ):
 	service = request.user
 	logger = logging.getLogger( 'groups' )
+	log_args = { 'service': service }
 
 	if request.method == 'GET' and 'user' in request.GET: 
 		# Get all users in a group
@@ -36,14 +37,14 @@ def index( request ):
 		groups = user.get_groups( service )
 		names = [ group.name for group in groups ]
 
-		logger.debug( '%s: Get groups for user %s'%(service, username) )
+		logger.debug( 'Get groups for user %s'%(username), extra=log_args )
 		return HttpRestAuthResponse( request, names ) # Ok
 	elif request.method == 'GET': # Get a list of groups:
 		# get all groups for this service
 		groups = Group.objects.filter( service=service )
 
 		names = [ group.name for group in groups ]
-		logger.debug( '%s: Get all groups'%(service) )
+		logger.debug( 'Get all groups', extra=log_args )
 		return HttpRestAuthResponse( request, names ) # Ok
 	elif request.method == 'POST': # Create a group
 		# If BadRequest: 400 Bad Request
@@ -52,7 +53,7 @@ def index( request ):
 		# If ResourceExists: 409 Conflict
 		group = group_create( groupname, service )
 		
-		logger.info( '%s: Create group %s'%( service, groupname ) )
+		logger.info( '%s: Created group'%(groupname), extra=log_args )
 		return HttpResponseCreated( request, group ) # Created
 	
 	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
@@ -62,16 +63,17 @@ def index( request ):
 def group_handler( request, groupname ):
 	service = request.user
 	logger = logging.getLogger( 'groups.group' )
+	log_args = { 'service': service, 'group': groupname }
 	
 	# If Group.DoesNotExist: 404 Not Found
 	group = group_get( groupname, service )
 	
 	if request.method == 'GET': # Verify that a group exists:
-		logger.debug( "%s: Check if group %s exists"%(service, groupname) )
+		logger.debug( "Check if group exists", extra=log_args )
 		return HttpResponseNoContent()
 	if request.method == 'DELETE': # Delete group
 		group.delete()
-		logger.info( "%s: Deleted group %s"%(service, groupname) )
+		logger.info( "Deleted group", extra=log_args )
 		return HttpResponseNoContent() # OK
 	
 	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
@@ -81,6 +83,7 @@ def group_handler( request, groupname ):
 def group_users_index_handler( request, groupname ):
 	service = request.user
 	logger = logging.getLogger( 'groups.group.users' )
+	log_args = { 'service': service, 'group': groupname }
 	
 	# If Group.DoesNotExist: 404 Not Found
 	group = group_get( groupname, service )
@@ -90,7 +93,7 @@ def group_users_index_handler( request, groupname ):
 		usernames = [ user.username for user in users ]
 
 		# If MarshalError: 500 Internal Server Error
-		logger.debug( "Get users in group '%s'"%(group.name) )
+		logger.debug( "Get users in group", extra=log_args )
 		return HttpRestAuthResponse( request, usernames )
 	elif request.method == 'POST': # Add a user to a group
 		# If BadRequest: 400 Bad Request
@@ -102,7 +105,7 @@ def group_users_index_handler( request, groupname ):
 		group.users.add( user )
 		group.save()
 
-		logger.info( '%s: Add user "%s" to group "%s"'%(service, username, group.name) )
+		logger.info( 'Add user "%s"'%(username), extra=log_args )
 		return HttpResponseNoContent()
 	
 	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
@@ -112,6 +115,7 @@ def group_users_index_handler( request, groupname ):
 def group_user_handler( request, groupname, username ):
 	service = request.user
 	logger = logging.getLogger( 'groups.group.users.user' )
+	log_args = { 'service': service, 'group': groupname, 'user': username }
 	
 	# If Group.DoesNotExist: 404 Not Found
 	group = group_get( groupname, service )
@@ -119,7 +123,7 @@ def group_user_handler( request, groupname, username ):
 	user = user_get( username )
 	
 	if request.method == 'GET': # Verify that a user is in a group
-		logger.debug( '%s: Check if user "%s" is in group "%s"'%(service, group.name, user.username) )
+		logger.debug( 'Check if user is in group', extra=log_args )
 		if group.is_member( user ):
 			return HttpResponseNoContent()
 		else:
@@ -130,7 +134,7 @@ def group_user_handler( request, groupname, username ):
 			raise User.DoesNotExist()
 
 		group.users.remove( user )
-		logger.info( '%s: Remove user "%s" from group "%s"'%(service, user.username, group.name) )
+		logger.info( 'Remove user from group', extra=log_args )
 		return HttpResponseNoContent()
 
 	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
@@ -140,6 +144,7 @@ def group_user_handler( request, groupname, username ):
 def group_groups_index_handler( request, groupname ):
 	service = request.user
 	logger = logging.getLogger( 'groups.group.groups' )
+	log_args = { 'service': service, 'group': groupname }
 	
 	# If Group.DoesNotExist: 404 Not Found
 	group = group_get( groupname, service )
@@ -148,7 +153,7 @@ def group_groups_index_handler( request, groupname ):
 
 		groupnames = [ group.name for group in groups ] 
 		# If MarshalError: 500 Internal Server Error
-		logger.debug( '%s: %s: Get subgroups'%(service, group.name) )
+		logger.debug( 'Get subgroups', extra=log_args )
 		return HttpRestAuthResponse( request, groupnames )
 	elif request.method == 'POST': # Add a sub-group:
 		# If BadRequest: 400 Bad Request
@@ -159,7 +164,7 @@ def group_groups_index_handler( request, groupname ):
 		
 		group.groups.add( sub_group )
 		group.save()
-		logger.info( '%s: %s: Add subgroup %s'%(service, group.name, sub_group.name) )
+		logger.info( 'Add subgroup %s', sub_groupname, extra=log_args )
 		return HttpResponseNoContent()
 
 	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
@@ -169,6 +174,7 @@ def group_groups_index_handler( request, groupname ):
 def group_groups_handler( request, meta_groupname, sub_groupname ):
 	service = request.user
 	logger = logging.getLogger( 'groups.group.groups.subgroup' )
+	log_args = { 'service': service, 'group': meta_groupname, 'subgroup': sub_groupname }
 	
 	# If Group.DoesNotExist: 404 Not Found
 	meta_group = group_get( meta_groupname, service )
@@ -180,7 +186,7 @@ def group_groups_handler( request, meta_groupname, sub_groupname ):
 			raise Group.DoesNotExist()
 
 		meta_group.groups.remove( sub_group )
-		logger.info( '%s: %s: Remove subgroup %s'%(service, meta_group.name, sub_group.name) )
+		logger.info( 'Remove subgroup %s', sub_groupname, extra=log_args )
 		return HttpResponseNoContent()
 	
 	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
