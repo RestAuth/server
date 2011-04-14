@@ -68,3 +68,142 @@ LOG_TARGET = 'stderr'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '__SECRET_KEY__'
+
+# logging-config
+LOGGING = {
+	'version': 1,
+	'disable_existing_loggers': True,
+	'formatters': {
+		'verbose': {
+			'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+		},
+		'simple': {
+			'format': '%(levelname)s %(service)s: %(message)s'
+		},
+		'users.user': { 
+			'format': '%(levelname)s %(service)s: %(username)s: %(message)s'
+		},
+		'users.user.props.prop': { 
+			'format': '%(levelname)s %(service)s: %(username)s: %(prop)s: %(message)s'
+		},
+		'groups.group' : {
+			'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+		},
+		'groups.group.users' : {
+			'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+		},
+		'groups.group.users.user' : {
+			'format': '%(levelname)s %(service)s: %(group)s: %(user)s: %(message)s'
+		},
+		'groups.group.groups' : {
+			'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+		},
+		'groups.group.groups.subgroup' : {
+			'format': '%(levelname)s %(service)s: %(group)s: %(subgroup)s: %(message)s'
+		},
+	},
+#	'filters': {
+#		'special': {
+#			'()': 'project.logging.SpecialFilter',
+#			'foo': 'bar',
+#		}
+#	},
+	'handlers': {
+		'null': {
+			'level':'DEBUG',
+			'class':'django.utils.log.NullHandler',
+		},
+		'console':{
+			'level':'DEBUG',
+			'class':'logging.StreamHandler',
+			'formatter': 'simple'
+		},
+		'users.user':{
+			'level':'DEBUG',
+			'class':'logging.StreamHandler',
+			'formatter': 'users.user'
+		},
+		'users.user.props.prop':{
+			'level':'DEBUG',
+			'class':'logging.StreamHandler',
+			'formatter': 'users.user.props.prop'
+		},
+		'groups.group': {
+			'level':'DEBUG',
+			'class':'logging.StreamHandler',
+			'formatter': 'groups.group'
+		},
+		'groups.group.users': {
+			'level':'DEBUG',
+			'class':'logging.StreamHandler',
+			'formatter': 'groups.group.users'
+		},
+		'groups.group.users.user': {
+			'level':'DEBUG',
+			'class':'logging.StreamHandler',
+			'formatter': 'groups.group.users.user'
+		},
+		'groups.group.groups': {
+			'level':'DEBUG',
+			'class':'logging.StreamHandler',
+			'formatter': 'groups.group.groups'
+		},
+		'groups.group.groups.subgroup': {
+			'level':'DEBUG',
+			'class':'logging.StreamHandler',
+			'formatter': 'groups.group.groups.subgroup'
+		}
+	},
+	'loggers': {
+		'users': {
+			'handlers':['console'],
+			'propagate': False,
+			'level':'DEBUG',
+		},
+		'users.user': {
+			'handlers':['users.user'],
+			'propagate': False,
+			'level':'DEBUG',
+		},
+		'users.user.props': { # we have no additional info here!
+			'handlers':['users.user'],
+			'propagate': False,
+			'level':'DEBUG',
+		},
+		'users.user.props.prop': {
+			'handlers':['users.user.props.prop'],
+			'propagate': False,
+			'level':'DEBUG',
+		},
+		'groups': {
+			'handlers':['console'],
+			'propagate': False,
+			'level':'DEBUG',
+		},
+		'groups.group': {
+			'handlers':['groups.group'],
+			'propagate': False,
+			'level':'DEBUG',
+		},
+		'groups.group.users': {
+			'handlers':['groups.group.users'],
+			'propagate': False,
+			'level':'DEBUG',
+		},
+		'groups.group.users.user': {
+			'handlers':['groups.group.users.user'],
+			'propagate': False,
+			'level':'DEBUG',
+		},
+		'groups.group.groups': {
+			'handlers':['groups.group.groups'],
+			'propagate': False,
+			'level':'DEBUG',
+		},
+		'groups.group.groups.subgroup': {
+			'handlers':['groups.group.groups.subgroup'],
+			'propagate': False,
+			'level':'DEBUG',
+		}
+	}
+}
