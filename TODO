@@ -1,3 +1,9 @@
-* add support for /users/<user>/blobs
-* Finish logging in groups, properties
-* Refactor groups
+This is a prioritized list of TODOs:
+
+1. Add server-side test-suite
+2. Refactor and optimize groups
+3. Add support for optional parameters 
+   i.e. optionally create user, set password and some properties in one request
+4. Add support for multiple parameters
+   i.e. setting or adding multiple properties at once
+5. add support for /users/<user>/blobs
