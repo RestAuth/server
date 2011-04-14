@@ -26,11 +26,12 @@ from django.http import HttpResponse
 def index( request ):
 	service = request.user.username
 	logger = logging.getLogger( 'users' )
+	log_args = {'service': service}
 
 	if request.method == "GET": # get list of users:
 		names = [ user.username for user in ServiceUser.objects.all() ]
 		
-		logger.debug( "%s: Got list of users"%(service) )
+		logger.debug( "Got list of users", extra=log_args )
 		return HttpRestAuthResponse( request, names )
 	elif request.method == 'POST': # create new user:
 		# If BadRequest: 400 Bad Request
@@ -41,23 +42,24 @@ def index( request ):
 		# If PasswordInvalid: 412 Precondition Failed
 		user = user_create( name, password )
 		
-		logger.info( "%s: %s: Created user"%(service, user.username) )
+		logger.info( '%s: Created user', name, extra=log_args )
 		return HttpResponseCreated( request, user )
 	
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+	logger.error( 'Method not allowed: %s', request.method, extra=log_args )
 	return HttpResponse( status=405 )
 
 @login_required(realm="/users/<user>/")
 def user_handler( request, username ):
-	logger = logging.getLogger( 'users.user' )
 	service = request.user.username
 	username = username.lower()
+	logger = logging.getLogger( 'users.user' )
+	log_args = { 'service': service, 'username': username }
 	
 	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
 
 	if request.method == 'GET': # Verify that a user exists:
-		logger.debug( "%s: %s: Check if user exists"%(service, user.username ) )
+		logger.debug( "Check if user exists", extra=log_args )
 		return HttpResponseNoContent() # OK
 	elif request.method == 'POST': # verify password
 		# If BadRequest: 400 Bad Request
@@ -65,11 +67,11 @@ def user_handler( request, username ):
 
 		if not user.check_password( password ):
 			# password does not match - raises 404
-			logger.info( "%s: %s: Wrong password checked"%(service, user.username) ) 
+			logger.info( "Wrong password checked", extra=log_args )
 			raise ServiceUser.DoesNotExist( "Password invalid for this user." )
 		user.save() # update "modified" timestamp, perhaps hash
 		
-		logger.debug( "%s: %s: Checked password (ok)"%(service, user.username ) )
+		logger.debug( "Checked password (ok)", extra=log_args )
 		return HttpResponseNoContent() # Ok
 	elif request.method == 'PUT': # Change password
 		# If BadRequest: 400 Bad Request
@@ -79,22 +81,23 @@ def user_handler( request, username ):
 		user.set_password( password )
 		user.save()
 		
-		logger.info( "%s: %s: Updated password"%(service, user.username ) )
+		logger.info( "Updated password", extra=log_args )
 		return HttpResponseNoContent()
 	elif request.method == 'DELETE': # delete a user:
 		user.delete()
 
-		logger.info( "%s: %s: Deleted user"%(service, user.username ) )
+		logger.info( "Deleted user", extra=log_args )
 		return HttpResponseNoContent()
 	
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+	logger.error( 'Method not allowed: %s', request.method, extra=log_args )
 	return HttpResponse( status=405 ) # Method Not Allowed
 
 
 @login_required(realm="/users/<user>/props/")
 def userprops_index( request, username ):
-	logger = logging.getLogger( 'users.user.props' )
 	service = request.user.username
+	logger = logging.getLogger( 'users.user.props' )
+	log_args = { 'service': service, 'username': username}
 	
 	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
@@ -102,7 +105,7 @@ def userprops_index( request, username ):
 	if request.method == 'GET': # get all properties
 		props = user.get_properties()
 		
-		logger.debug( "%s: %s: Got properties"%(service, username) )
+		logger.debug( "Got properties", extra=log_args )
 		return HttpRestAuthResponse( request, props )
 	elif request.method == 'POST': # create property
 		# If BadRequest: 400 Bad Request
@@ -111,16 +114,17 @@ def userprops_index( request, username ):
 		# If PropertyExists: 409 Conflict
 		prop = user.add_property( prop, value )
 
-		logger.info( '%s: %s: Created property "%s" as "%s"'%(service, username, prop, value) )
+		logger.info( 'Created property "%s" as "%s"', prop, value, extra=log_args )
 		return HttpResponseCreated( request, prop )
 	
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+	logger.error( 'Method not allowed: %s', request.method, extra=log_args )
 	return HttpResponse( status=405 ) # Method Not Allowed
 
 @login_required(realm="/users/<user>/props/<prop>/")
 def userprops_prop( request, username, prop ):
 	service = request.user.username
 	logger = logging.getLogger( 'users.user.props.prop' )
+	log_args = { 'service': service, 'username': username, 'prop': prop }
 	
 	# If User.DoesNotExist: 404 Not Found
 	user = user_get( username )
@@ -129,7 +133,7 @@ def userprops_prop( request, username, prop ):
 		# If Property.DoesNotExist: 404 Not Found
 		prop = user.get_property( prop )
 
-		logger.debug( '%s: %s: Got property "%s"'%(service, username, prop) )
+		logger.debug( 'Got property', extra=log_args )
 		return HttpRestAuthResponse( request, prop.value )
 
 	elif request.method == 'PUT': # Set property
@@ -138,18 +142,18 @@ def userprops_prop( request, username, prop ):
 
 		prop, old_value = user.set_property( prop, value )
 		if old_value.__class__ == unicode: # property previously defined:
-			logger.info( '%s: %s: Changed property "%s" from "%s" to "%s"'%(service, username, prop, old_value, value) )
+			logger.info( 'Changed from "%s" to "%s"', old_value, value, extra=log_args )
 			return HttpRestAuthResponse( request, old_value )
 		else: # new property:
-			logger.info( '%s: %s: Set property "%s" to "%s"'%(service, username, prop, value) )
+			logger.info( 'Set to "%s"', value, extra=log_args )
 			return HttpResponseCreated( request, prop )
 
 	elif request.method == 'DELETE': # Delete property:
 		# If Property.DoesNotExist: 404 Not Found
 		user.del_property( prop )
 
-		logger.info( '%s: %s: Delete property "%s"'%(service, user.username, prop) )
+		logger.info( 'Delete property', extra=log_args )
 		return HttpResponseNoContent()
 	
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+	logger.error( 'Method not allowed: %s', request.method, extra=log_args )
 	return HttpResponse( status=405 ) # Method Not Allowed
