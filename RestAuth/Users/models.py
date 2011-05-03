@@ -30,22 +30,15 @@ class PropertyExists( ResourceExists ):
 class UserExists( ResourceExists ):
 	pass
 
-def user_exists( name ):
-	if ServiceUser.objects.filter( username=name ).exists():
-		return True
-	else:
-		return False
-
-def user_get( name, only=[] ):
+def user_get( name ):
 	"""
 	Get a user with the given username.
+	
+	Note: this is only used by the CLI interface any more.
 
 	@raises ServiceUser.DoesNotExist: When the user does not exist.
 	"""
-	qs = ServiceUser.objects
-	if only:
-		qs = qs.only( *only )
-	return qs.get( username=name )
+	return ServiceUser.objects.get( username=username.lower() )
 
 def user_create( name, password ):
 	"""
