@@ -31,11 +31,11 @@ def index( request ):
 	log_args = { 'service': service }
 
 	if request.method == 'GET' and 'user' in request.GET:
-		# Get all users in a group
-		username = request.GET['user']
+		# Get all groups of a user
+		username = request.GET['user'].lower()
 			
 		# If User.DoesNotExist: 404 Not Found
-		user = user_get( username ) 
+		user = ServiceUser.objects.only( 'username' ).get( username=username ) 
 
 		groups = user.get_groups( service )
 		names = [ group.name for group in groups ]
