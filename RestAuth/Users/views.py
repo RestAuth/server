@@ -22,6 +22,8 @@ from RestAuth.common.responses import *
 
 from django.http import HttpResponse
 
+from RestAuth.common.decorators import sql_profile
+
 @login_required(realm="/users/")
 def index( request ):
 	service = request.user.username
@@ -29,10 +31,10 @@ def index( request ):
 	log_args = {'service': service}
 
 	if request.method == "GET": # get list of users:
-		names = [ user.username for user in ServiceUser.objects.all() ]
+		names = ServiceUser.objects.values_list( 'username', flat=True )
 		
 		logger.debug( "Got list of users", extra=log_args )
-		return HttpRestAuthResponse( request, names )
+		return HttpRestAuthResponse( request, list( names ) )
 	elif request.method == 'POST': # create new user:
 		# If BadRequest: 400 Bad Request
 		name, password = get_dict( request, [u'user', u'password'] )
@@ -54,16 +56,19 @@ def user_handler( request, username ):
 	username = username.lower()
 	logger = logging.getLogger( 'users.user' )
 	log_args = { 'service': service, 'username': username }
-	
-	# If User.DoesNotExist: 404 Not Found
-	user = user_get( username )
 
 	if request.method == 'GET': # Verify that a user exists:
+		# If User.DoesNotExist: 404 Not Found
+		user = ServiceUser.objects.only( 'username' ).get( username=username )
 		logger.debug( "Check if user exists", extra=log_args )
 		return HttpResponseNoContent() # OK
 	elif request.method == 'POST': # verify password
 		# If BadRequest: 400 Bad Request
 		password = get_dict( request, [ u'password' ] )
+		
+		# If User.DoesNotExist: 404 Not Found
+		fields = [ 'username', 'algorithm', 'salt', 'hash' ]
+		user = ServiceUser.objects.only( *fields ).get( username=username )
 
 		if not user.check_password( password ):
 			# password does not match - raises 404
@@ -76,6 +81,9 @@ def user_handler( request, username ):
 	elif request.method == 'PUT': # Change password
 		# If BadRequest: 400 Bad Request
 		password = get_dict( request, [ u'password' ] )
+		
+		# If User.DoesNotExist: 404 Not Found
+		user = ServiceUser.objects.only( 'username' ).get( username=username )
 
 		# If UsernameInvalid: 412 Precondition Failed
 		user.set_password( password )
@@ -84,6 +92,10 @@ def user_handler( request, username ):
 		logger.info( "Updated password", extra=log_args )
 		return HttpResponseNoContent()
 	elif request.method == 'DELETE': # delete a user:
+		logger.info ("1", extra=log_args)
+		# If User.DoesNotExist: 404 Not Found
+		user = ServiceUser.objects.only( 'username' ).get( username=username )
+		
 		user.delete()
 
 		logger.info( "Deleted user", extra=log_args )
@@ -127,7 +139,7 @@ def userprops_prop( request, username, prop ):
 	log_args = { 'service': service, 'username': username, 'prop': prop }
 	
 	# If User.DoesNotExist: 404 Not Found
-	user = user_get( username )
+	user = ServiceUser.objects.only( 'username' ).get( username=username )
 	
 	if request.method == 'GET': # get value of a property
 		# If Property.DoesNotExist: 404 Not Found

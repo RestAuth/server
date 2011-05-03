@@ -79,24 +79,53 @@ class Group( models.Model ):
 			raise PreconditionFailed( "Name of group contains invalid characters" )
 
 	def get_members( self, recursive=True, lvl=0 ):
-		users = set( self.users.all() )
+		users = set( self.users.values_list( 'username', flat=True ) )
+		
 		if recursive and lvl < 10:
-			for gr in self.parent_groups.all():
-				users = users.union( gr.get_members( recursive, lvl+1 ) )
+			for parent in self.parent_groups.only( 'name' ):
+				users = users.union( parent.get_members( recursive, lvl+1 ) )
 
 		return users
+	
+	def get_inherited_memberships( self, service, excludes ):
+		"""
+		Get group memberships inherited from this group.
+		"""
+		groups = set()
+		exclude_ids = [ exclude.id for exclude in excludes ]
+		
+		# directly inherited memberships:
+		# note that we do not filter for the service, because groups in a different service
+		# might in turn have group-memberships with *this* service again.
+		children = self.groups.exclude( id__in=exclude_ids ).select_related( 'service' ).only( 'name', 'service__username' )
+		for child in children:
+			if child.service.username == service.username:
+				groups.add( child )
+				exclude_ids.append( child.id )
+			
+			inherited = child.get_inherited_memberships( service,  excludes )
+			
+			exclude_ids += [ i.id for i in inherited ]
+			groups.update( inherited )
+
+		return groups
 
 	def is_member( self, user, recursive=True, lvl=0 ):
-		if self.users.filter( username=user.username ).exists():
+		if self.users.filter( id=user.id ).exists():
 			return True
 
 		if recursive and lvl < 10:
-			return self.is_indirect_member( user, lvl+1 )
+			for parent in self.parent_groups.only( 'name' ):
+				if parent.is_member( user, recursive, lvl+1 ):
+					return True
 		return False
 
-	def is_indirect_member( self, user, lvl=0 ):
-		for group in self.parent_groups.all():
-			if group.is_member( user, True, lvl ):
+	def is_indirect_member( self, user, excludes=[], lvl=0 ):
+		if lvl >= 10:
+			return False
+		
+		for parent in self.parent_groups.only( 'name' ):
+			if parent.is_member( user, recursive, lvl+1 ):
 				return True
 		return False
 

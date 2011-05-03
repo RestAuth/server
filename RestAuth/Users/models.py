@@ -36,13 +36,17 @@ def user_exists( name ):
 	else:
 		return False
 
-def user_get( name ):
+def user_get( name, only=[] ):
 	"""
 	Get a user with the given username.
 
 	@raises ServiceUser.DoesNotExist: When the user does not exist.
 	"""
-	return ServiceUser.objects.get( username=name )
+	qs = ServiceUser.objects
+	if only:
+		print( 'only: %s'%(only) )
+		qs = qs.only( *only )
+	return qs.get( username=name )
 
 def user_create( name, password ):
 	"""
@@ -133,7 +137,7 @@ class ServiceUser( models.Model ):
 		else: # password not correct
 			return False
 
-	def get_groups( self, service=None, recursive=True ):
+	def get_groups( self, service, recursive=True ):
 		"""
 		Get a list of groups that this user is a member of.
 
@@ -141,33 +145,28 @@ class ServiceUser( models.Model ):
 			given service.
 		@type  service: service
 		"""
-		if service:
-			groups = set( self.group_set.filter( service=service ) )
-		else:
-			groups = set( self.group_set.all() )
-
-		if recursive:
-			# import here to avoid circular imports:
-			from RestAuth.Groups.models import Group
-
-			# get groups that this user is only an indirect member
-			# of. 
-			all_groups = Group.objects.filter( service=service )
-			for group in all_groups:
-				if group in groups:
-					continue
-
-				if group.is_indirect_member( self ):
-					groups.add( group )
-
-			# get child-groups
-			child_groups = set()
-			for group in groups:
-				child_groups.update( group.get_child_groups() )
-			groups.update( child_groups )
-
+		groups = set( self.group_set.filter( service=service ).only( 'name' ) )
+		
+		if not recursive:
+			return groups
+		
+		# import here to avoid circular imports:
+		from RestAuth.Groups.models import Group
+		
+		# next we get memberships derived from direct memberships:
+		for group in groups.copy():
+			inherited = group.get_inherited_memberships( service, groups )
+			groups.update( inherited )
+			
+		# any remaining candidates
+		exclude_ids = [ group.id for group in groups ]
+		others = Group.objects.filter( service=service ).exclude( id__in=exclude_ids ).only( 'name' )
+		for other in others:
+			if other.is_indirect_member( self ):
+				groups.add( other )
 		return groups
-
+	
+	
 	def has_property( self, key ):
 		if self.property_set.filter( key=key ).exists():
 			return True
