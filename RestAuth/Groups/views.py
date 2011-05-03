@@ -119,6 +119,7 @@ def group_users_index_handler( request, groupname ):
 #@sql_profile()
 def group_user_handler( request, groupname, username ):
 	service = request.user
+	username = username.lower()
 	logger = logging.getLogger( 'groups.group.users.user' )
 	log_args = { 'service': service, 'group': groupname, 'user': username }
 	

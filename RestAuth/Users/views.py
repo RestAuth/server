@@ -108,12 +108,13 @@ def user_handler( request, username ):
 @login_required(realm="/users/<user>/props/")
 def userprops_index( request, username ):
 	service = request.user.username
+	username = username.lower()
+	# If User.DoesNotExist: 404 Not Found
+	user = ServiceUser.objects.only( 'username' ).get( username=username )
+	
 	logger = logging.getLogger( 'users.user.props' )
 	log_args = { 'service': service, 'username': username}
 	
-	# If User.DoesNotExist: 404 Not Found
-	user = user_get( username )
-
 	if request.method == 'GET': # get all properties
 		props = user.get_properties()
 		
@@ -135,11 +136,12 @@ def userprops_index( request, username ):
 @login_required(realm="/users/<user>/props/<prop>/")
 def userprops_prop( request, username, prop ):
 	service = request.user.username
-	logger = logging.getLogger( 'users.user.props.prop' )
-	log_args = { 'service': service, 'username': username, 'prop': prop }
-	
+	username = username.lower()
 	# If User.DoesNotExist: 404 Not Found
 	user = ServiceUser.objects.only( 'username' ).get( username=username )
+	
+	logger = logging.getLogger( 'users.user.props.prop' )
+	log_args = { 'service': service, 'username': username, 'prop': prop }
 	
 	if request.method == 'GET': # get value of a property
 		# If Property.DoesNotExist: 404 Not Found
