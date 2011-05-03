@@ -38,7 +38,6 @@ def index( request ):
 		user = user_get( username ) 
 
 		groups = user.get_groups( service )
-		print( groups )
 		names = [ group.name for group in groups ]
 
 		logger.debug( 'Get groups for user %s'%(username), extra=log_args )

@@ -44,7 +44,6 @@ def user_get( name, only=[] ):
 	"""
 	qs = ServiceUser.objects
 	if only:
-		print( 'only: %s'%(only) )
 		qs = qs.only( *only )
 	return qs.get( username=name )
 
