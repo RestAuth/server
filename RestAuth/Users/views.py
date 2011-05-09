@@ -92,7 +92,6 @@ def user_handler( request, username ):
 		logger.info( "Updated password", extra=log_args )
 		return HttpResponseNoContent()
 	elif request.method == 'DELETE': # delete a user:
-		logger.info ("1", extra=log_args)
 		# If User.DoesNotExist: 404 Not Found
 		user = ServiceUser.objects.only( 'username' ).get( username=username )
 		
