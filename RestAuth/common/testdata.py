@@ -44,6 +44,9 @@ propval5 = u"propval \u6131"
 
 class RestAuthTest( TestCase ):
     def setUp(self):
+        # requires django-1.3.1:
+        #self.settings( LOGGING_CONFIG=None )
+        
         self.factory = RequestFactory()
         self.content_handler = RestAuthCommon.handlers.json()
         self.authorization = "Basic %s"%(base64.b64encode( "vowi:vowi".encode() ).decode() )
@@ -52,9 +55,6 @@ class RestAuthTest( TestCase ):
         
     def tearDown( self ):
         Service.objects.all().delete()
-        
-    def get_usernames( self ):
-        return list( ServiceUser.objects.values_list( 'username', flat=True ) )
     
     def request( self, method, url, **kwargs ):
         request = getattr( self.factory, method )( url, **kwargs )

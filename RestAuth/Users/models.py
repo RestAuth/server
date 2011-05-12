@@ -38,7 +38,7 @@ def user_get( name ):
 
 	@raises ServiceUser.DoesNotExist: When the user does not exist.
 	"""
-	return ServiceUser.objects.get( username=username.lower() )
+	return ServiceUser.objects.get( username=name.lower() )
 
 def user_create( name, password ):
 	"""
