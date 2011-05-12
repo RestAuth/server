@@ -3,6 +3,9 @@ from RestAuth.Services.models import Service
 from django.contrib.auth.models import User
 
 class InternalAuthenticationBackend:
+	supports_anonymous_user = False
+	supports_object_permissions = False
+	
 	def authenticate( self, header, host ):
 		"""
 		Authenticate against a header as send by HTTP basic
