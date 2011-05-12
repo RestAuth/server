@@ -183,9 +183,9 @@ class ServiceUser( models.Model ):
 	def get_properties( self ):
 		dictionary = {}
 
-		props = self.property_set.all()
-		for prop in props:
-			dictionary[prop.key] = prop.value
+		props = self.property_set.values_list( 'key', 'value' ).all()
+		for key, value in props:
+			dictionary[key] = value
 		return dictionary
 
 	def set_property( self, key, value ):
