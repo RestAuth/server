@@ -124,10 +124,10 @@ def userprops_index( request, username ):
 		prop, value = get_dict( request, [ u'prop', u'value' ] )
 
 		# If PropertyExists: 409 Conflict
-		prop = user.add_property( prop, value )
+		property = user.add_property( prop, value )
 
 		logger.info( 'Created property "%s" as "%s"', prop, value, extra=log_args )
-		return HttpResponseCreated( request, prop )
+		return HttpResponseCreated( request, property )
 	
 	logger.error( 'Method not allowed: %s', request.method, extra=log_args )
 	return HttpResponse( status=405 ) # Method Not Allowed
