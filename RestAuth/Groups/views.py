@@ -35,7 +35,7 @@ def index( request ):
 		username = request.GET['user'].lower()
 			
 		# If User.DoesNotExist: 404 Not Found
-		user = ServiceUser.objects.only( 'username' ).get( username=username ) 
+		user = ServiceUser.objects.only( 'username' ).get( username=username )
 
 		groups = user.get_groups( service )
 		names = [ group.name for group in groups ]
@@ -70,7 +70,7 @@ def group_handler( request, groupname ):
 	log_args = { 'service': service, 'group': groupname }
 	
 	# If Group.DoesNotExist: 404 Not Found
-	group = Group.objects.only( 'name' ).get( name=groupname )
+	group = Group.objects.only( 'name' ).get( name=groupname, service=service )
 	
 	if request.method == 'GET': # Verify that a group exists:
 		logger.debug( "Check if group exists", extra=log_args )
