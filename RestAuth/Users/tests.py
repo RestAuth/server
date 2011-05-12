@@ -5,8 +5,6 @@ unittest). These will both pass when you run "manage.py test".
 Replace these with more appropriate tests for your application.
 """
 
-from django.conf import settings
-
 from RestAuth.common import errors
 from RestAuth.common.testdata import *
 
