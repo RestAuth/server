@@ -305,7 +305,6 @@ class UsersUserPropsTests( RestAuthTest ):
         request = self.post( '/users/%s/props/'%username2, {'prop': propkey3, 'value': propval3} )
         resp = self.make_request( views.userprops_index, request, username2 )
         self.assertEquals( resp.status_code, httplib.CREATED )
-        
         self.assertDictEqual( user1.get_properties(), {propkey1: propval1, propkey2: propval2} )
         self.assertDictEqual( user2.get_properties(), {propkey3: propval3} )
         
@@ -327,6 +326,14 @@ class UsersUserPropsTests( RestAuthTest ):
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         self.assertDictEqual( user1.get_properties(), {propkey1: propval1, propkey2: propval2} )
         self.assertDictEqual( user2.get_properties(), {propkey3: propval3} )
+        
+        # user not found:
+        request = self.post( '/users/%s/props/'%username3, {'prop': propkey4, 'value': propval4} )
+        resp = self.make_request( views.userprops_index, request, username3 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertDictEqual( user1.get_properties(), {propkey1: propval1, propkey2: propval2} )
+        self.assertDictEqual( user2.get_properties(), {propkey3: propval3} )
+        self.assertItemsEqual( ServiceUser.objects.value_list( 'username').all(), [username1, username2])
         
         
         
