@@ -11,7 +11,7 @@ from RestAuth.common import errors
 from RestAuth.common.testdata import *
 
 from Users import views
-from Users.models import ServiceUser, user_create
+from Users.models import ServiceUser, user_create, Property
 
 class UsersIndexTests( RestAuthTest ):
         
@@ -224,12 +224,109 @@ class UsersUserPropsTests( RestAuthTest ):
         self.assertEqual( resp['Resource-Type'], 'user' )
         
     def test_get_all_properties( self ):
-        user_create( username1, password1 )
+        # two users, so we can make sure nothing leaks to the other user
+        user1 = user_create( username1, password1 )
+        user2 = user_create( username2, password2 )
         
         request = self.get( '/users/%s/props/'%username1 )
         resp = self.make_request( views.userprops_index, request, username1 )
         self.assertEquals( resp.status_code, httplib.OK )
-        self.assertItemsEqual( self.parse( resp, 'list' ), [] )
+        self.assertDictEqual( self.parse( resp, 'dict' ), {} )
+        
+        request = self.get( '/users/%s/props/'%username2 )
+        resp = self.make_request( views.userprops_index, request, username2 )
+        self.assertEquals( resp.status_code, httplib.OK )
+        self.assertDictEqual( self.parse( resp, 'dict' ), {} )
+        
+        user1.add_property( propkey1, propval1 )
+        
+        request = self.get( '/users/%s/props/'%username1 )
+        resp = self.make_request( views.userprops_index, request, username1 )
+        self.assertEquals( resp.status_code, httplib.OK )
+        self.assertDictEqual( self.parse( resp, 'dict' ), {propkey1: propval1} )
+        
+        request = self.get( '/users/%s/props/'%username2 )
+        resp = self.make_request( views.userprops_index, request, username2 )
+        self.assertEquals( resp.status_code, httplib.OK )
+        self.assertDictEqual( self.parse( resp, 'dict' ), {} )
+        
+        user1.add_property( propkey2, propval2 )
+        
+        request = self.get( '/users/%s/props/'%username1 )
+        resp = self.make_request( views.userprops_index, request, username1 )
+        self.assertEquals( resp.status_code, httplib.OK )
+        self.assertDictEqual( self.parse( resp, 'dict' ), {propkey1: propval1, propkey2: propval2} )
+        
+        request = self.get( '/users/%s/props/'%username2 )
+        resp = self.make_request( views.userprops_index, request, username2 )
+        self.assertEquals( resp.status_code, httplib.OK )
+        self.assertDictEqual( self.parse( resp, 'dict' ), {} )
+        
+        user2.add_property( propkey3, propval3 )
+        
+        request = self.get( '/users/%s/props/'%username1 )
+        resp = self.make_request( views.userprops_index, request, username1 )
+        self.assertEquals( resp.status_code, httplib.OK )
+        self.assertDictEqual( self.parse( resp, 'dict' ), {propkey1: propval1, propkey2: propval2} )
+        
+        request = self.get( '/users/%s/props/'%username2 )
+        resp = self.make_request( views.userprops_index, request, username2 )
+        self.assertEquals( resp.status_code, httplib.OK )
+        self.assertDictEqual( self.parse( resp, 'dict' ), {propkey3: propval3} )
+        
+    def test_create_property( self ):
+        # two users, so we can make sure nothing leaks to the other user
+        user1 = user_create( username1, password1 )
+        user2 = user_create( username2, password2 )
+        self.assertDictEqual( user1.get_properties(), {} )
+        self.assertDictEqual( user2.get_properties(), {} )
+        
+        request = self.post( '/users/%s/props/'%username1, {'prop': propkey1, 'value': propval1} )
+        resp = self.make_request( views.userprops_index, request, username1 )
+        self.assertEquals( resp.status_code, httplib.CREATED )
+        
+        self.assertDictEqual( user1.get_properties(), {propkey1: propval1} )
+        self.assertDictEqual( user2.get_properties(), {} )
+        
+        request = self.post( '/users/%s/props/'%username1, {'prop': propkey1, 'value': propval2} )
+        resp = self.make_request( views.userprops_index, request, username1 )
+        self.assertEquals( resp.status_code, httplib.CONFLICT )
+        
+        self.assertDictEqual( user1.get_properties(), {propkey1: propval1} )
+        self.assertDictEqual( user2.get_properties(), {} )
+        
+        request = self.post( '/users/%s/props/'%username1, {'prop': propkey2, 'value': propval2} )
+        resp = self.make_request( views.userprops_index, request, username1 )
+        self.assertEquals( resp.status_code, httplib.CREATED )
+        
+        self.assertDictEqual( user1.get_properties(), {propkey1: propval1, propkey2: propval2} )
+        self.assertDictEqual( user2.get_properties(), {} )
+        
+        request = self.post( '/users/%s/props/'%username2, {'prop': propkey3, 'value': propval3} )
+        resp = self.make_request( views.userprops_index, request, username2 )
+        self.assertEquals( resp.status_code, httplib.CREATED )
+        
+        self.assertDictEqual( user1.get_properties(), {propkey1: propval1, propkey2: propval2} )
+        self.assertDictEqual( user2.get_properties(), {propkey3: propval3} )
+        
+        # try a few bad requests:
+        request = self.post( '/users/%s/props/'%username2, {} )
+        resp = self.make_request( views.userprops_index, request, username2 )
+        self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
+        self.assertDictEqual( user1.get_properties(), {propkey1: propval1, propkey2: propval2} )
+        self.assertDictEqual( user2.get_properties(), {propkey3: propval3} )
+        
+        request = self.post( '/users/%s/props/'%username2, {'foo': 'bar'} )
+        resp = self.make_request( views.userprops_index, request, username2 )
+        self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
+        self.assertDictEqual( user1.get_properties(), {propkey1: propval1, propkey2: propval2} )
+        self.assertDictEqual( user2.get_properties(), {propkey3: propval3} )
+        
+        request = self.post( '/users/%s/props/'%username2, {'foo': 'bar', 'prop': propkey3, 'value': propval3} )
+        resp = self.make_request( views.userprops_index, request, username2 )
+        self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
+        self.assertDictEqual( user1.get_properties(), {propkey1: propval1, propkey2: propval2} )
+        self.assertDictEqual( user2.get_properties(), {propkey3: propval3} )
         
         
         
