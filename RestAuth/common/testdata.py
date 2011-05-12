@@ -29,6 +29,19 @@ group3 = u"group \u6119"
 group4 = u"group \u6120"
 group5 = u"group \u6121"
 
+propkey1 = u"propkey \u6122"
+propkey2 = u"propkey \u6123"
+propkey3 = u"propkey \u6124"
+propkey4 = u"propkey \u6125"
+propkey5 = u"propkey \u6126"
+
+propval1 = u"propval \u6127"
+propval2 = u"propval \u6128"
+propval3 = u"propval \u6129"
+propval4 = u"propval \u6130"
+propval5 = u"propval \u6131"
+
+
 class RestAuthTest( TestCase ):
     def setUp(self):
         self.factory = RequestFactory()
