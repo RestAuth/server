@@ -99,7 +99,8 @@ class Group( models.Model ):
 		# might in turn have group-memberships with *this* service again.
 		children = self.groups.exclude( id__in=exclude_ids ).select_related( 'service' ).only( 'name', 'service__username' )
 		for child in children:
-			if child.service.username == service.username:
+			if ( child.service == None and service == None ) or \
+					( child.service and service and child.service.username == service.username):
 				groups.add( child )
 				exclude_ids.append( child.id )
 			
@@ -125,7 +126,7 @@ class Group( models.Model ):
 			return False
 		
 		for parent in self.parent_groups.only( 'name' ):
-			if parent.is_member( user, recursive, lvl+1 ):
+			if parent.is_member( user, True, lvl+1 ):
 				return True
 		return False
 
