@@ -11,35 +11,35 @@ from RestAuth.Services.models import Service, service_create
 from RestAuth.Users.models import ServiceUser, user_create
 from RestAuth.common.middleware import ExceptionMiddleware
 
-username1 = u"mati \u6110"
-username2 = u"mati \u6111"
-username3 = u"mati \u6112"
-username4 = u"mati \u6110"
-username5 = u"mati \u6111"
+username1 = u"mati \u6111"
+username2 = u"mati \u6112"
+username3 = u"mati \u6113"
+username4 = u"mati \u6114"
+username5 = u"mati \u6115"
 
-password1 = u"pass \u6112"
-password2 = u"pass \u6113"
-password3 = u"pass \u6114"
-password4 = u"pass \u6115"
-password5 = u"pass \u6116"
+password1 = u"pass \u6121"
+password2 = u"pass \u6122"
+password3 = u"pass \u6123"
+password4 = u"pass \u6124"
+password5 = u"pass \u6125"
 
-group1 = u"group \u6117"
-group2 = u"group \u6118"
-group3 = u"group \u6119"
-group4 = u"group \u6120"
-group5 = u"group \u6121"
+groupname1 = u"group \u6131"
+groupname2 = u"group \u6132"
+groupname3 = u"group \u6133"
+groupname4 = u"group \u6134"
+groupname5 = u"group \u6135"
 
-propkey1 = u"propkey \u6122"
-propkey2 = u"propkey \u6123"
-propkey3 = u"propkey \u6124"
-propkey4 = u"propkey \u6125"
-propkey5 = u"propkey \u6126"
+propkey1 = u"propkey \u6141"
+propkey2 = u"propkey \u6142"
+propkey3 = u"propkey \u6143"
+propkey4 = u"propkey \u6144"
+propkey5 = u"propkey \u6145"
 
-propval1 = u"propval \u6127"
-propval2 = u"propval \u6128"
-propval3 = u"propval \u6129"
-propval4 = u"propval \u6130"
-propval5 = u"propval \u6131"
+propval1 = u"propval \u6151"
+propval2 = u"propval \u6152"
+propval3 = u"propval \u6153"
+propval4 = u"propval \u6154"
+propval5 = u"propval \u6155"
 
 
 class RestAuthTest( TestCase ):
@@ -62,8 +62,9 @@ class RestAuthTest( TestCase ):
         request.META['HTTP_ACCEPT'] = self.content_handler.mime
         return request
     
-    def get( self, url ):
-        request = self.request( 'get', url )
+    def get( self, url, data={} ):
+        kwargs = {'data': data}
+        request = self.request( 'get', url, **kwargs )
         return request
     
     def post( self, url, data ):
