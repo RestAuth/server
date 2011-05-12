@@ -91,7 +91,7 @@ def group_users_index_handler( request, groupname ):
 	log_args = { 'service': service, 'group': groupname }
 	
 	# If Group.DoesNotExist: 404 Not Found
-	group = Group.objects.only( 'name' ).get( name=groupname )
+	group = Group.objects.only( 'name' ).get( name=groupname, service=service )
 
 	if request.method == 'GET': # Get all users in a group
 		users = group.get_members()
