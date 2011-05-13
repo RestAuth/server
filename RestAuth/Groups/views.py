@@ -154,8 +154,7 @@ def group_groups_index_handler( request, groupname ):
 	# If Group.DoesNotExist: 404 Not Found
 	group = Group.objects.only( 'name' ).get( name=groupname, service=service )
 	if request.method == 'GET': # get a list of sub-groups
-		groups = group.groups.filter( service=service )\
-				.values_list( 'name', flat=True )
+		groups = group.groups.filter( service=service ).values_list( 'name', flat=True )
 
 		# If MarshalError: 500 Internal Server Error
 		logger.debug( 'Get subgroups', extra=log_args )
