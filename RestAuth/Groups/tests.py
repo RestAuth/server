@@ -678,20 +678,67 @@ class AddSubGroupTests( GroupUserTests ): # POST /groups/<group>/groups/
 
 class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<subgroup>/
     def test_group_doesnt_exist( self ):
-        raise RuntimeError( "TODO." )
+        request = self.delete( '/groups/%s/groups/%s/'%(groupname6, groupname1) )
+        resp = self.make_request( views.group_groups_handler, request, groupname6, groupname1 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'group' )
+        
+        self.assertFalse( Group.objects.filter( name=groupname6 ).exists() )
     
     def test_subgroup_doesnt_exist( self ):
-        raise RuntimeError( "TODO." )
+        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname6) )
+        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname6 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'group' )
+        
+        self.assertFalse( Group.objects.filter( name=groupname6 ).exists() )
     
     def test_remove_subgroup( self ):
-        raise RuntimeError( "TODO." )
+        self.group1.groups.add( self.group2 )
+        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [ self.group2 ])
+        self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [ self.group1 ])
+        
+        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname2) )
+        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname2 )
+        self.assertEquals( resp.status_code, httplib.NO_CONTENT )
+        
+        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [])
+        self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [])
     
     def test_remove_invalid_subgroup( self ):
         # try to remove subgroup thats not really a subgroup
-        raise RuntimeError( "TODO." )
+        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [])
+        self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [])
+        
+        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname2) )
+        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname2 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'group' )
+        
+        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [])
+        self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [])
     
     def test_service_isolation( self ):
-        raise RuntimeError( "TODO." )
+        self.group1.groups.add( self.group4 )
+        self.group1.groups.add( self.group5 )
+        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [ self.group4, self.group5 ])
+        self.assertItemsEqual( group_get( groupname4, self.fsinf ).parent_groups.all(), [ self.group1 ])
+        self.assertItemsEqual( group_get( groupname5 ).parent_groups.all(), [ self.group1 ])
+        
+        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname4) )
+        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname4 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'group' )
+        
+        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname5) )
+        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname5 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'group' )
+        
+        # nothing has changed!?
+        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [ self.group4, self.group5 ])
+        self.assertItemsEqual( group_get( groupname4, self.fsinf ).parent_groups.all(), [ self.group1 ])
+        self.assertItemsEqual( group_get( groupname5 ).parent_groups.all(), [ self.group1 ])
 
 __test__ = {"doctest": """
 Another way to test that 1 + 1 is equal to 2.
