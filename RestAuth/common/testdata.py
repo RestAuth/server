@@ -23,15 +23,15 @@ password3 = u"pass \u6123"
 password4 = u"pass \u6124"
 password5 = u"pass \u6125"
 
-groupname1 = u"group \u6131"
-groupname2 = u"group \u6132"
-groupname3 = u"group \u6133"
-groupname4 = u"group \u6134"
-groupname5 = u"group \u6135"
-groupname6 = u"group \u6136"
-groupname7 = u"group \u6137"
-groupname8 = u"group \u6138"
-groupname9 = u"group \u6139"
+groupname1 = u"group 1 \u6131"
+groupname2 = u"group 2 \u6132"
+groupname3 = u"group 3 \u6133"
+groupname4 = u"group 4 \u6134"
+groupname5 = u"group 5 \u6135"
+groupname6 = u"group 6 \u6136"
+groupname7 = u"group 7 \u6137"
+groupname8 = u"group 8 \u6138"
+groupname9 = u"group 9 \u6139"
 
 propkey1 = u"propkey \u6141"
 propkey2 = u"propkey \u6142"
@@ -48,8 +48,8 @@ propval5 = u"propval \u6155"
 
 class RestAuthTest( TestCase ):
     def setUp(self):
-        # requires django-1.3.1:
-        #self.settings( LOGGING_CONFIG=None )
+        if hasattr( self, 'settings' ): # requires django-1.3.1:
+            self.settings( LOGGING_CONFIG=None )
         
         self.factory = RequestFactory()
         self.content_handler = RestAuthCommon.handlers.json()
