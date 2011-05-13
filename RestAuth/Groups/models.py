@@ -146,6 +146,12 @@ class Group( models.Model ):
 				child_groups.union( group.get_child_groups( lvl+1 ) )
 
 		return child_groups
-
+	
+	def __unicode__( self ):
+		if self.service:
+			return "%s/%s"%( self.name, self.service.username )
+		else:
+			return "%s/None"%(self.name)
+			
 	def get_absolute_url( self ):
 		return '/groups/%s/'%  urlquote(self.name)
