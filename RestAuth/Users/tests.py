@@ -186,6 +186,36 @@ class VerifyPasswordsTest( UserTests ): # POST /users/<user>/
         resp = self.make_request( views.user_handler, request, username2 )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'user' )
+    
+    def test_verify_disabled_password( self ):
+        user3 = user_create( username3, None )
+        user4 = user_create( username4, '' )
+        
+        request = self.post( '/users/%s'%username3, { 'password': 'wrong' } )
+        resp = self.make_request( views.user_handler, request, username3 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'user' )
+        request = self.post( '/users/%s'%username3, { 'password': '' } )
+        resp = self.make_request( views.user_handler, request, username3 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'user' )
+        request = self.post( '/users/%s'%username3, { 'password': None } )
+        resp = self.make_request( views.user_handler, request, username3 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'user' )
+        
+        request = self.post( '/users/%s'%username4, { 'password': 'wrong' } )
+        resp = self.make_request( views.user_handler, request, username4 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'user' )
+        request = self.post( '/users/%s'%username4, { 'password': '' } )
+        resp = self.make_request( views.user_handler, request, username4 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'user' )
+        request = self.post( '/users/%s'%username4, { 'password': None } )
+        resp = self.make_request( views.user_handler, request, username4 )
+        self.assertEquals( resp.status_code, httplib.NOT_FOUND )
+        self.assertEqual( resp['Resource-Type'], 'user' )
         
     def test_bad_requests( self ):
         request = self.post( '/users/%s'%username1, {} )
