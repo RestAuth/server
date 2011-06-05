@@ -25,7 +25,7 @@ def get_response_type( request ):
 	else:
 		raise NotAcceptable()
 
-def get_dict( request, keys ):
+def get_dict( request, keys=[], optional=[] ):
 	"""
 	Unmarshal a dictionary and verify that this dictionary only contains the specified
 	I{keys}. If I{keys} only contains one element, this method returns just
@@ -61,9 +61,16 @@ def get_dict( request, keys ):
 	except RestAuthException as e:
 		raise e
 
-	if sorted( keys ) != sorted( data.keys() ):
+	# check for mandatory parameters:
+	key_set = set(data.keys())
+	if not set(keys).issubset( key_set ):
 		raise BadRequest( "Did not find expected keys in string" )
-	if len( keys ) == 1:
+	# check for unknown parameters:
+	optional_parameters = key_set.difference( set(keys) )
+	if not optional_parameters.issubset( optional ):
+		raise BadRequest( "Did not find expected keys in string" )
+		
+	if len( keys ) == 1 and not optional:
 		return data[keys[0]]
 	else:   
-		return [ data[key] for key in keys ]
+		return [ data[key] for key in keys ] + [ data.pop(key, None) for key in optional ]
