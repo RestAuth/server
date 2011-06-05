@@ -37,7 +37,7 @@ def index( request ):
 		return HttpRestAuthResponse( request, list( names ) )
 	elif request.method == 'POST': # create new user:
 		# If BadRequest: 400 Bad Request
-		name, password = get_dict( request, [u'user', u'password'] )
+		name, password = get_dict( request, [u'user'], [u'password'] )
 		
 		# If ResourceExists: 409 Conflict
 		# If UsernameInvalid: 412 Precondition Failed

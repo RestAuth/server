@@ -52,7 +52,8 @@ def user_create( name, password ):
 	validate_username( name )
 	try:
 		user = ServiceUser( username=name )
-		user.set_password( password )
+		if password: 
+			user.set_password( password )
 		user.save()
 		return user
 	except IntegrityError:
@@ -118,6 +119,9 @@ class ServiceUser( models.Model ):
 		of the same type as the current settings.HASH_ALGORITHM, the
 		hash is updated but *not* saved.
 		"""
+		if not (self.algorithm and self.hash and self.salt):
+			return False
+		
 		digest = get_hexdigest( self.algorithm, self.salt, raw_password )
 		if digest == self.hash: # correct
 			if self.algorithm != settings.HASH_ALGORITHM:

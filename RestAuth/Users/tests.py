@@ -43,44 +43,81 @@ class AddUserTests( RestAuthTest ): # POST /users/
         return list( ServiceUser.objects.values_list( 'username', flat=True ) )
     
     def test_add_user( self ):
-        request = self.post( '/users/', { 'user': username1, 'password': 'foobar' } )
+        request = self.post( '/users/', { 'user': username1, 'password': password1 } )
         
         resp = views.index( request )
         self.assertEquals( resp.status_code, httplib.CREATED )
-        
         self.assertEquals( self.get_usernames(), [username1] )
+        self.assertTrue( user_get( username1 ).check_password( password1 ) )
     
     def test_add_two_users( self ):
-        request = self.post( '/users/', { 'user': username1, 'password': 'foobar' } )
+        request = self.post( '/users/', { 'user': username1, 'password': password1 } )
         resp = views.index( request )
         self.assertEquals( resp.status_code, httplib.CREATED )
-        request = self.post( '/users/', { 'user': username2, 'password': 'foobar' } )
+        request = self.post( '/users/', { 'user': username2, 'password': password2 } )
         resp = views.index( request )
         self.assertEquals( resp.status_code, httplib.CREATED )
         
         self.assertEquals( self.get_usernames(), [username1, username2] )
+        self.assertTrue( user_get( username1 ).check_password( password1 ) )
+        self.assertFalse( user_get( username1 ).check_password( password2 ) )
+        self.assertTrue( user_get( username2 ).check_password( password2 ) )
+        self.assertFalse( user_get( username2 ).check_password( password1 ) )
         
     def test_add_user_twice( self ):
         self.assertEquals( self.get_usernames(), [] )
-        request = self.post( '/users/', { 'user': username1, 'password': 'foobar' } )
+        request = self.post( '/users/', { 'user': username1, 'password': password1 } )
         resp = self.make_request( views.index, request )
         self.assertEquals( resp.status_code, httplib.CREATED )
         self.assertEquals( self.get_usernames(), [username1] )
         
+        self.assertTrue( user_get( username1 ).check_password( password1 ) )
+        self.assertFalse( user_get( username1 ).check_password( password2 ) )
+        
         # add again:
-        request = self.post( '/users/', { 'user': username1, 'password': 'foobar' } )
+        request = self.post( '/users/', { 'user': username1, 'password': password2 } )
         resp = self.make_request( views.index, request )
         self.assertEquals( resp.status_code, httplib.CONFLICT )
         self.assertEquals( self.get_usernames(), [username1] )
         
-    def test_bad_requests( self ):
-        self.assertEquals( self.get_usernames(), [] )
+        # check that we still have the old password:
+        self.assertTrue( user_get( username1 ).check_password( password1 ) )
+        self.assertFalse( user_get( username1 ).check_password( password2 ) )
         
+    def test_add_user_no_pass( self ):
         request = self.post( '/users/', { 'user': username1 } )
         resp = self.make_request( views.index, request )
-        self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
-        self.assertEquals( self.get_usernames(), [] )
+        self.assertEquals( resp.status_code, httplib.CREATED )
+        self.assertEquals( self.get_usernames(), [username1] )
+        user = user_get( username1 )
+        self.assertFalse( user.check_password( '' ) )
+        self.assertFalse( user.check_password( None ) )
+        self.assertFalse( user.check_password( password1 ) )
+        self.assertFalse( user.check_password( password2 ) )
         
+        request = self.post( '/users/', { 'user': username2, 'password': '' } )
+        resp = self.make_request( views.index, request )
+        self.assertEquals( resp.status_code, httplib.CREATED )
+        self.assertEquals( self.get_usernames(), [username1, username2] )
+        user = user_get( username2 )
+        self.assertFalse( user.check_password( '' ) )
+        self.assertFalse( user.check_password( None ) )
+        self.assertFalse( user.check_password( password1 ) )
+        self.assertFalse( user.check_password( password2 ) )
+        
+        request = self.post( '/users/', { 'user': username3, 'password': None } )
+        resp = self.make_request( views.index, request )
+        self.assertEquals( resp.status_code, httplib.CREATED )
+        self.assertEquals( self.get_usernames(), [username1, username2, username3] )
+        user = user_get( username3 )
+        self.assertFalse( user.check_password( '' ) )
+        self.assertFalse( user.check_password( None ) )
+        self.assertFalse( user.check_password( password1 ) )
+        self.assertFalse( user.check_password( password2 ) )
+        
+    def test_bad_requests( self ):
+        self.assertEquals( self.get_usernames(), [] )
+                
         request = self.post( '/users/', { 'password': 'foobar' } )
         resp = self.make_request( views.index, request )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
