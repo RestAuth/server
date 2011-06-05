@@ -219,14 +219,31 @@ class ChangePasswordsTest( UserTests ): # PUT /users/<user>/
         self.assertFalse( user_get( username2 ).check_password( password1 ) )
         self.assertTrue( user_get( username2 ).check_password( password2 ) )
         self.assertFalse( user_get( username2 ).check_password( password3 ) )
+        
+    def test_disable_password( self ):
+        request = self.put( '/users/%s'%username1, {} )
+        resp = self.make_request( views.user_handler, request, username1 )
+        self.assertEquals( resp.status_code, httplib.NO_CONTENT )
+        self.assertFalse( user_get( username1 ).check_password( password1 ) )
+        self.assertFalse( user_get( username1 ).check_password( '' ) )
+        self.assertFalse( user_get( username1 ).check_password( None ) )
+        
+        request = self.put( '/users/%s'%username1, {'password': ''} )
+        resp = self.make_request( views.user_handler, request, username1 )
+        self.assertEquals( resp.status_code, httplib.NO_CONTENT )
+        self.assertFalse( user_get( username1 ).check_password( password1 ) )
+        self.assertFalse( user_get( username1 ).check_password( '' ) )
+        self.assertFalse( user_get( username1 ).check_password( None ) )
+        
+        request = self.put( '/users/%s'%username1, {'password': None} )
+        resp = self.make_request( views.user_handler, request, username1 )
+        self.assertEquals( resp.status_code, httplib.NO_CONTENT )
+        self.assertFalse( user_get( username1 ).check_password( password1 ) )
+        self.assertFalse( user_get( username1 ).check_password( '' ) )
+        self.assertFalse( user_get( username1 ).check_password( None ) )
     
     def test_bad_requests( self ):            
         request = self.put( '/users/%s'%username1, { 'foo': password2 } )
-        resp = self.make_request( views.user_handler, request, username1 )
-        self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
-        self.assertTrue( user_get( username1 ).check_password( password1 ) )
-        
-        request = self.put( '/users/%s'%username1, {} )
         resp = self.make_request( views.user_handler, request, username1 )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         self.assertTrue( user_get( username1 ).check_password( password1 ) )

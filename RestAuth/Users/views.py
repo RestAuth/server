@@ -80,13 +80,17 @@ def user_handler( request, username ):
 		return HttpResponseNoContent() # Ok
 	elif request.method == 'PUT': # Change password
 		# If BadRequest: 400 Bad Request
-		password = get_dict( request, [ u'password' ] )
+		password, = get_dict( request, optional=[ u'password' ] )
 		
 		# If User.DoesNotExist: 404 Not Found
 		user = ServiceUser.objects.only( 'username' ).get( username=username )
 
 		# If UsernameInvalid: 412 Precondition Failed
-		user.set_password( password )
+		if password:
+			user.set_password( password )
+		else:
+			user.set_unusable_password()
+			
 		user.save()
 		
 		logger.info( "Updated password", extra=log_args )
