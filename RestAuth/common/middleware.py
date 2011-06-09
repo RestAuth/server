@@ -23,7 +23,7 @@ from django.http import HttpResponse, HttpResponseServerError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from RestAuth.common.errors import RestAuthException
+from RestAuthCommon.error import RestAuthException
 from RestAuth.Users.models import ServiceUser, Property
 from RestAuth.Groups.models import Group
 
@@ -70,7 +70,7 @@ class ExceptionMiddleware:
 			return resp
 
 		if isinstance( ex, RestAuthException ):
-			return HttpResponse( ex.body, status=ex.code )
+			return HttpResponse( ex.message, status=ex.response_code )
 		else:
 			import traceback
 			logging.critical( traceback.format_exc() )

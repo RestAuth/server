@@ -19,16 +19,12 @@ from django.db import models
 from django.db.utils import IntegrityError
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from RestAuth.common import get_hexdigest, get_salt
-from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, ResourceExists, PreconditionFailed
-from RestAuth.Users import validators
 from django.utils.http import urlquote
 
-class PropertyExists( ResourceExists ):
-	pass
+from RestAuth.common import get_hexdigest, get_salt
+from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, UserExists, PropertyExists
+from RestAuth.Users import validators
 
-class UserExists( ResourceExists ):
-	pass
 
 def user_get( name ):
 	"""

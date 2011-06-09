@@ -1,5 +1,5 @@
 import logging
-from errors import RestAuthException, UnsupportedMediaType, NotAcceptable, BadRequest
+from RestAuthCommon.error import BadRequest, RestAuthException, UnsupportedMediaType, NotAcceptable
 
 def get_request_type( request ):
 	import mimeparse
@@ -58,8 +58,6 @@ def get_dict( request, keys=[], optional=[] ):
 		data = unmarshal( mime_type, body, dict )
 	except UnmarshalError as e:
 		raise BadRequest( e )
-	except RestAuthException as e:
-		raise e
 
 	# check for mandatory parameters:
 	key_set = set(data.keys())

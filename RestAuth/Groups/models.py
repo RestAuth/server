@@ -15,10 +15,12 @@
 
 from django.db import models
 from django.contrib.auth.models import User as Service
-from RestAuth.Users.models import ServiceUser as User
-from RestAuth.common.errors import ResourceExists, PreconditionFailed
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote
+
+from RestAuth.Users.models import ServiceUser as User
+from RestAuth.common.errors import GroupExists
+from RestAuthCommon.error import PreconditionFailed
 
 def group_get( name, service=None ):
 	"""
@@ -55,7 +57,7 @@ def group_create( name, service=None ):
 	@type service: service
 	"""
 	if group_exists( name, service ):
-		raise ResourceExists( 'Group "%s" already exists'%(name) )
+		raise GroupExists( 'Group "%s" already exists'%(name) )
 	
 	group = Group( name=name, service=service )
 	group.save()

@@ -13,19 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-class RestAuthException( Exception ):
-	code = 500
-	body = 'If you get this text, file a bugreport!'
-
-	def __init__( self, body=None ):
-		if body:
-			self.body = body
-
-class BadRequest( RestAuthException ):
-	code = 400
-
-class PreconditionFailed( RestAuthException ):
-	code = 412
+from RestAuthCommon.error import PreconditionFailed, ResourceConflict
 
 class PasswordInvalid( PreconditionFailed ):
 	pass
@@ -33,11 +21,11 @@ class PasswordInvalid( PreconditionFailed ):
 class UsernameInvalid( PreconditionFailed ):
 	pass
 
-class ResourceExists( RestAuthException ):
-	code = 409
+class UserExists( ResourceConflict ):
+	pass
 
-class NotAcceptable( RestAuthException ):
-	code = 406
+class PropertyExists( ResourceConflict ):
+	pass
 
-class UnsupportedMediaType( RestAuthException ):
-	code = 415
+class GroupExists( ResourceConflict ):
+	pass
