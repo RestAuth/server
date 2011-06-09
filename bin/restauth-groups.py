@@ -60,7 +60,7 @@ if args[0] != 'help':
 	try:
 		from RestAuth.Groups.models import Group, group_get, group_create
 		from RestAuth.Users.models import ServiceUser, user_get
-		from RestAuth.Services.models import service_get
+		from RestAuth.Services.models import Service
 	except ImportError:
 		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 		sys.exit(1)
@@ -88,7 +88,7 @@ def print_groups_by_service( groups, indent='' ):
 
 if args[0] in [ 'create', 'add' ]:
 	if options.service:
-		service = service_get( options.service )
+		service = Service.objects.get( username=options.service )
 		group_create( args[1], service )
 	else:
 		group_create( args[1] )
@@ -96,7 +96,7 @@ elif args[0] in [ 'list', 'ls' ]:
 	if options.service == 'ALL':
 		print_groups_by_service( groups = Group.objects.all() )
 	elif options.service:
-		service = service_get( options.service )
+		service = Service.objects.get( username=options.service )
 		groups = Group.objects.filter( service=service )
 		names = sorted( [ group.name for group in groups ] )
 		if names:
@@ -108,7 +108,7 @@ elif args[0] in [ 'list', 'ls' ]:
 			print( ', '.join( names ) )
 elif args[0] == 'view':
 	if options.service:
-		group = group_get( args[1], service_get( options.service ) )
+		group = group_get( args[1], Service.objects.get( username=options.service ) )
 	else:
 		group = group_get( args[1] )
 
@@ -138,7 +138,7 @@ elif args[0] == 'view':
 		print( '* No child groups' )
 elif args[0] == 'add-user':
 	if options.service:
-		group = group_get( args[1], service_get( options.service ) )
+		group = group_get( args[1], Service.objects.get( username=options.service ) )
 	else:
 		group = group_get( args[1] )
 
@@ -148,11 +148,11 @@ elif args[0] == 'add-user':
 	group.save()
 elif args[0] == 'add-group':
 	if options.service:
-		group = group_get( args[1], service_get( options.service ) )
+		group = group_get( args[1], Service.objects.get( username=options.service ) )
 	else:
 		group = group_get( args[1] )
 	if options.child_service:
-		child_service = service_get( options.child_service )
+		child_service = Service.objects.get( username=options.cild_service )
 		child_group = group_get( args[2], child_service )
 	else:
 		child_group = group_get( args[2] )
@@ -161,14 +161,14 @@ elif args[0] == 'add-group':
 	group.save()
 elif args[0] in [ 'delete', 'del', 'rm' ]:
 	if options.service:
-		group = group_get( args[1], service_get( options.service ) )
+		group = group_get( args[1], Service.objects.get( username=options.service ) )
 	else:
 		group = group_get( args[1] )
 
 	group.delete()
 elif args[0] in [ 'remove-user', 'rm-user', 'del-user' ]:
 	if options.service:
-		group = group_get( args[1], service_get( options.service ) )
+		group = group_get( args[1], Service.objects.get( username=options.service ) )
 	else:
 		group = group_get( args[1] )
 
@@ -178,11 +178,11 @@ elif args[0] in [ 'remove-user', 'rm-user', 'del-user' ]:
 		group.save()
 elif args[0] in [ 'remove-group', 'rm-group', 'del-group' ]:
 	if options.service:
-		group = group_get( args[1], service_get( options.service ) )
+		group = group_get( args[1], Service.objects.get( username=options.service ) )
 	else:
 		group = group_get( args[1] )
 	if options.child_service:
-		child_service = service_get( options.child_service )
+		child_service = Service.objects.get( username=options.cild_service )
 		child_group = group_get( args[2], child_service )
 	else:
 		child_group = group_get( args[2] )

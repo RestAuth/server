@@ -21,9 +21,6 @@ class RestAuthException( Exception ):
 		if body:
 			self.body = body
 
-class ServiceNotFound( RestAuthException ):
-	code = 500
-
 class BadRequest( RestAuthException ):
 	code = 400
 

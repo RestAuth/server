@@ -58,7 +58,7 @@ if args[0] != 'help':
 	# we don't need this for help
 	try:
 		from RestAuth.Users.models import ServiceUser, user_get, user_create, validate_username, UsernameInvalid
-		from RestAuth.Services.models import service_get, ServiceNotFound
+		from RestAuth.Services.models import Service
 		from RestAuth.common import errors
 		from django.db.utils import IntegrityError
 	except ImportError:
@@ -139,7 +139,7 @@ elif args[0] == 'view':
 	try:
 		user = user_get( args[1] )
 		if options.service:
-			service = service_get( options.service )
+			service = Service.objects.get( username=options.service )
 			groups = user.get_groups( service )
 		else:
 			groups = user.get_groups()
@@ -150,7 +150,7 @@ elif args[0] == 'view':
 		print( 'Joined: %s'%( user.date_joined ) )
 		print( 'Last login: %s'%(user.last_login) )
 		print( 'Groups: %s'%(', '.join( group_names ) ) )
-	except ServiceNotFound:
+	except Service.DoesNotExist:
 		print( "Error: %s: Service does not exist."%options.service )
 		sys.exit(1)
 	except ServiceUser.DoesNotExist:

@@ -95,7 +95,7 @@ elif args[0] in [ 'remove', 'rm', 'del', 'delete' ]:
 
 	try:
 		service_delete( args[1] )
-	except ServiceNotFound:
+	except Service.DoesNotExist:
 		print( "Error: %s: Service not found."%args[1] )
 		sys.exit(1)
 elif args[0] in [ 'list', 'ls' ]:
@@ -111,12 +111,12 @@ elif args[0] == 'view':
 		sys.exit(1)
 
 	try:
-		service = service_get( args[1] )
+		service = Service.objects.get( username=args[1] )
 		print( service.username )
 		print( 'Last used: %s'%(service.last_login) )
 		hosts = [ str(host.address) for host in service.hosts.all() ]
 		print( 'Hosts: %s'%(', '.join( hosts )) )
-	except ServiceNotFound:
+	except Service.DoesNotExist:
 		print( "Error: %s: Service not found."%args[1] )
 		sys.exit(1) 
 elif args[0] == 'set-hosts':
@@ -125,17 +125,17 @@ elif args[0] == 'set-hosts':
 		sys.exit(1)
 
 	try:
-		service = service_get( args[1] )
+		service = Service.objects.get( username=args[1] )
 		service.set_hosts( args[2:] )
-	except ServiceNotFound:
+	except Service.DoesNotExist:
 		print( "Error: %s: Service not found."%args[1] )
 		sys.exit(1)
 elif args[0] == 'set-password':
 	try:
-		service = service_get( args[1] )
+		service = Service.objects.get( username=args[1] )
 		service.set_password( get_password( options ) )
 		service.save()
-	except ServiceNotFound:
+	except Service.DoesNotExist:
 		print( "Error: %s: Service not found."%args[1] )
 		sys.exit(1) 
 elif args[0] == 'help':

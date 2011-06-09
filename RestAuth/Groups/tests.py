@@ -7,7 +7,7 @@ Replace these with more appropriate tests for your application.
 
 from django.test import TestCase
 
-from RestAuth.Services.models import Service, service_create, service_get
+from RestAuth.Services.models import Service, service_create
 from RestAuth.common.testdata import *
 from RestAuth.Users.models import ServiceUser
 from Groups import views
@@ -22,7 +22,7 @@ class GroupTests( RestAuthTest ):
         self.user2 = user_create( username2, password2 )
         self.user3 = user_create( username3, password3 )
         
-        self.vowi = service_get( 'vowi' )
+        self.vowi = Service.objects.get( username='vowi' )
         self.fsinf = service_create( 'fsinf', 'fsinf', [ '127.0.0.1', '::1' ] )
         
     def tearDown( self ):

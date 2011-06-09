@@ -16,7 +16,6 @@
 from django.db import models
 from django.db.utils import IntegrityError
 from django.contrib.auth.models import User
-from RestAuth.common.errors import ServiceNotFound
 
 class ServiceUsernameNotValid( BaseException ):
 	pass
@@ -43,15 +42,9 @@ def service_exists( name ):
 		return True
 	else:
 		return False
-
-def service_get( name ):
-	try:
-		return Service.objects.get( username=name )
-	except Service.DoesNotExist:
-		raise ServiceNotFound( "Service not found: %s"%(name) )
-
+	
 def service_delete( name ):
-	service = service_get( name )
+	service = Service.objects.get( username=name )
 	service.delete()
 
 class ServiceAddress( models.Model ):

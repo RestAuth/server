@@ -50,7 +50,7 @@ def get_dict( request, keys=[], optional=[] ):
 		indicate a supported format.
 	"""
 	from RestAuthCommon import unmarshal
-	from RestAuthCommon.handlers import UnmarshalError
+	from RestAuthCommon.error import UnmarshalError
 
 	try:
 		mime_type = get_request_type( request )
