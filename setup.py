@@ -81,8 +81,6 @@ class clean( _clean ):
 		_clean.run( self )
 
 		# remove generated files
-		if os.path.exists( 'RestAuth/djangosettings.py' ):
-			os.remove( 'RestAuth/djangosettings.py' )
 		for filename in glob.glob( 'man/*.[0-9]' ):
 			os.remove( filename )
 
@@ -181,25 +179,6 @@ class build( _build ):
 
 	sub_commands = [('build_man', lambda self: True)] + _build.sub_commands
 	user_options = _build.user_options + added_options
-
-	def run( self ):
-		# generate djangosettings.py
-		out_file = 'RestAuth/djangosettings.py'
-		if not os.path.exists( out_file ):
-			# generate secret key:
-			import string, random
-			chars = string.letters + string.digits + string.punctuation
-			KEY = "".join( [random.choice(chars) for i in xrange(30)] )
-			KEY = KEY.replace( '\\', '\\\\' )
-			KEY = KEY.replace( '\'', '\\\'' )
-			KEY = KEY.replace( '/', '\/' )
-			KEY = KEY.replace( '&', '\&' )
-
-			in_file = 'RestAuth/djangosettings.py.in'
-			dictionary = { '__SECRET_KEY__': KEY }
-			process_file( in_file, out_file, dictionary )
-		
-		_build.run( self )
 
 setup(
 	name='RestAuth',
