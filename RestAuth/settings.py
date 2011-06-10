@@ -12,132 +12,216 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
-#
-###################################
-### RestAuth configuration file ###
-###################################
 
-# This file configures the behaviour of the RestAuth webservice. Please fill in
-# the apropriate details below.
-#
-# Since the RestAuth service is implemented as a Django project, you can
-# configure anything available in Django settings.py files. For more information
-# on available settings and more thorough documentation on the settings given
-# below, please see:
-# 	http://docs.djangoproject.com/en/dev/ref/settings/
 
-# This import sets some sensible defaults that you usually don't want to
-# override. Do not remove this line unless you know what you are doing.
-from djangosettings import *
+###############################
+### Default Django settings ###
+###############################
+# These settings are set for Django, a sysadmin will rarely need to change
+# these.
 
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
 # It is highly recommended to set DEBUG = False in any production environment.
-DEBUG = True
+DEBUG = False
+SITE_ID = 1
+USE_I18N = False
+ROOT_URLCONF = 'RestAuth.urls'
+TEMPLATE_LOADERS = ()
+TIME_ZONE=None  #None='same as os'
 
-# Adresses that will receive backtraces when DEBUG=False
-#ADMINS = (
-#	('Your Name', 'your_email@domain.com'),
-#)
+# do not insert session middleware:
+ENABLE_SESSIONS = False
+CACHES = {}
+LOGGING = {}
+LOG_HANDLER = 'logging.StreamHandler'
+LOG_HANDLER_KWARGS = {}
+LOG_LEVEL = 'ERROR'
 
-# Configure your database settings
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': './RestAuth.sqlite3', # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
+MIDDLEWARE_CLASSES = [
+	'django.middleware.common.CommonMiddleware',
+	'RestAuth.common.middleware.ExceptionMiddleware',
+	'RestAuth.common.middleware.HeaderMiddleware',
+]
 
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# On Unix systems, a value of None will cause Django to use the same
-# timezone as the operating system.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
-#TIME_ZONE = 'Europe/Vienna'
+CACHE_MIDDLEWARE_SECONDS = 300
+CACHE_MIDDLEWARE_KEY_PREFIX = 'restauth'
 
-# A tricky problem for a shared authentication service is what characters are
-# legal for a username. For example, 'Mathias Ertl' is a valid MediaWiki
-# username, but it is not a valid XMPP username. When creating a new user, the
-# username must pass tests for various systems. If the username is invalid in
-# any of the systems, a user with that name cannot be created. RestAuth comes
-# with a variety of validators, which essentially restrict the usernames to
-# ASCII characters (a-z) and digits (0-9). For more information, please see:
-# 	http://fs.fsinf.at/wiki/RestAuth/Usernames
-#
-# You can use this setting to disable some validators so you can support a wider
-# range of usernames. Valid values are 'xmpp', 'email', 'mediawiki', 'linux' and
-# 'windows'.
-SKIP_VALIDATORS = [ 'windows', 'email', 'xmpp', 'linux' ]
+INSTALLED_APPS = (
+	'django.contrib.auth',
+	'django.contrib.contenttypes',
+	'RestAuth.Services',
+	'RestAuth.Users',
+	'RestAuth.Groups',
+)
 
-# You can override the minimum username and password length:
-#MIN_USERNAME_LENGTH = 3
+AUTHENTICATION_BACKENDS = (
+	'django.contrib.auth.backends.RemoteUserBackend',
+	'RestAuth.Services.backend.InternalAuthenticationBackend',
+)
 
-########################
-### Session handling ###
-########################
-# HTTP sessions are disabled by default. You may want to enable it for libraries
-# that require it. Note that this costs considerable performance.
-#MIDDLEWARE_CLASSES.insert( 1,
-#	'django.contrib.auth.middleware.AuthenticationMiddleware' )
-#MIDDLEWARE_CLASSES.insert( 1,
-#	'django.contrib.sessions.middleware.SessionMiddleware' )
+#############################################
+### Defaults for the standard settings.py ###
+#############################################
+SKIP_VALIDATORS = [ 'linux', 'windows', 'email', 'xmpp' ]
+FILTER_LINUX_USERNAME_NOT_RECOMMENDED = True
+MIN_USERNAME_LENGTH = 3
+MAX_USERNAME_LENGTH = 255
+MIN_PASSWORD_LENGTH = 6
+HASH_ALGORITHM = 'sha512'
 
-###############
-### CACHING ###
-###############
-# Django can use memcached to considerably speed up some requests. Note that due
-# the Django caching implementation, the current performance improvement is not
-# that great.
 
-# If you want to use caching of any type, you must first uncomment these lines:
-#MIDDLEWARE_CLASSES.insert( 0, 'django.middleware.cache.UpdateCacheMiddleware' )
-#MIDDLEWARE_CLASSES.append( 'django.middleware.cache.FetchFromCacheMiddleware' )
+try:
+	from localsettings import *
+except ImportError:
+	pass
 
-# These are the required settings used by Django. See its documentation for
-# detailed informations on these settings.
-#CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
-#CACHE_MIDDLEWARE_SECONDS = 300
-#CACHE_MIDDLEWARE_KEY_PREFIX = ''
+if not LOGGING:
+	LOGGING = {
+		'version': 1,
+		'disable_existing_loggers': True,
+		'formatters': {
+			'users': {
+				'format': '%(levelname)s %(service)s: %(message)s'
+			},
+			'users.user': { 
+				'format': '%(levelname)s %(service)s: %(username)s: %(message)s'
+			},
+			'users.user.props.prop': { 
+				'format': '%(levelname)s %(service)s: %(username)s: %(prop)s: %(message)s'
+			},
+			'groups': {
+				'format': '%(levelname)s %(service)s: %(message)s'
+			},
+			'groups.group' : {
+				'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+			},
+			'groups.group.users' : {
+				'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+			},
+			'groups.group.users.user' : {
+				'format': '%(levelname)s %(service)s: %(group)s: %(user)s: %(message)s'
+			},
+			'groups.group.groups' : {
+				'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+			},
+			'groups.group.groups.subgroup' : {
+				'format': '%(levelname)s %(service)s: %(group)s: %(subgroup)s: %(message)s'
+			},
+		},
+		'handlers': {
+			'users':{
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'users'
+			},
+			'users.user':{
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'users.user'
+			},
+			'users.user.props.prop':{
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'users.user.props.prop'
+			},
+			'groups':{
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'groups'
+			},
+			'groups.group': {
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'groups.group'
+			},
+			'groups.group.users': {
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'groups.group.users'
+			},
+			'groups.group.users.user': {
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'groups.group.users.user'
+			},
+			'groups.group.groups': {
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'groups.group.groups'
+			},
+			'groups.group.groups.subgroup': {
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'groups.group.groups.subgroup'
+			}
+		},
+		'loggers': {
+			'users': {
+				'handlers':['users'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			},
+			'users.user': {
+				'handlers':['users.user'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			},
+			'users.user.props': { # we have no additional info here!
+				'handlers':['users.user'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			},
+			'users.user.props.prop': {
+				'handlers':['users.user.props.prop'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			},
+			'groups': {
+				'handlers':['groups'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			},
+			'groups.group': {
+				'handlers':['groups.group'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			},
+			'groups.group.users': {
+				'handlers':['groups.group.users'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			},
+			'groups.group.users.user': {
+				'handlers':['groups.group.users.user'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			},
+			'groups.group.groups': {
+				'handlers':['groups.group.groups'],
+				'propagate': False,
+			'level': LOG_LEVEL,
+			},
+			'groups.group.groups.subgroup': {
+				'handlers':['groups.group.groups.subgroup'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			}
+		}
+	}
+	
+	if LOG_HANDLER_KWARGS:
+		for handler in LOGGING['handlers'].values():
+			handler.update( LOG_HANDLER_KWARGS )
+	
+if ENABLE_SESSIONS:
+	index = MIDDLEWARE_CLASSES.index( 'django.middleware.common.CommonMiddleware' ) + 1
+	MIDDLEWARE_CLASSES.insert( index,
+		'django.contrib.auth.middleware.AuthenticationMiddleware' )
+	MIDDLEWARE_CLASSES.insert( index,
+		'django.contrib.sessions.middleware.SessionMiddleware' )
 
-#################
-### PASSWORDS ###
-#################
-# You can configure various aspects on how RestAuth handles/stores passwords.
-# All settings in this section are optional, the defaults are usually fine.
-
-# Reconfigure the minimum password length. Only affects new passwords.
-#MIN_PASSWORD_LENGTH = 6
-
-# Set a different hash algorithm for hashing passwords. This only affects newly
-# created passwords, so you can safely change this at any time, old hashes will
-# still work.
-# 
-# You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha512' is the
-# default and recommended. Additionally, RestAuth supports using hashes
-# compatible with other systems. Currectly 'mediawiki' creates hashes compatible
-# with a MediaWiki database.
-#HASH_ALGORITHM = 'sha512'
-
-###############
-### LOGGING ###
-###############
-# You can define the LogLevel for RestAuth. There are several possible values:
-# * CRITICAL: Only log errors due to an internal malfunction.
-# * ERROR:    Also log errors due to misbehaving clients.
-# * WARNING:  Also log requests where an implicit assumption doesn't hold.
-#	(i.e. when a client assumes that a user exists but in fact does not)
-# * INFO:     Also log successfully processed requests that change data.
-# * DEBUG:    Also log idempotent requests, i.e. if a user exists, etc.
-#LOG_LEVEL = 'DEBUG'
-
-# Define the target for logging. LOG_TARGET may either be 'stdout', 'stderr' or
-# or a path to a filename. If RestAuth is run with mod_wsgi, 'stdout' does not 
-# work and 'stderr' logs to the global apache log-file, not the VHOST log file.
-#LOG_TARGET = 'stderr'
+if CACHES:
+	MIDDLEWARE_CLASSES.insert( 0, 'django.middleware.cache.UpdateCacheMiddleware' )
+	MIDDLEWARE_CLASSES.append( 'django.middleware.cache.FetchFromCacheMiddleware' )
