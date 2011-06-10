@@ -24,6 +24,7 @@ from django.utils.http import urlquote
 from RestAuth.common import get_hexdigest, get_salt
 from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, UserExists, PropertyExists
 from RestAuth.Users import validators
+from RestAuthCommon.error import PreconditionFailed
 
 
 def user_get( name ):
