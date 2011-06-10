@@ -55,6 +55,9 @@ DATABASES = {
     }
 }
 
+# Set your SECRET_KEY to some long random string:
+SECRET_KEY=''
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -154,3 +157,4 @@ DATABASES = {
 # to True for libraries that require it. Note that this costs considerable
 # performance.
 #ENABLE_SESSIONS=False
+
