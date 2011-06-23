@@ -89,23 +89,21 @@ def print_groups_by_service( groups, indent='' ):
 if args[0] in [ 'create', 'add' ]:
 	if options.service:
 		service = Service.objects.get( username=options.service )
-		group_create( args[1], service )
+		group_create( args[1].decode( 'utf-8' ), service )
 	else:
-		group_create( args[1] )
+		group_create( args[1].decode( 'utf-8' ) )
 elif args[0] in [ 'list', 'ls' ]:
 	if options.service == 'ALL':
 		print_groups_by_service( groups = Group.objects.all() )
-	elif options.service:
-		service = Service.objects.get( username=options.service )
-		groups = Group.objects.filter( service=service )
-		names = sorted( [ group.name for group in groups ] )
-		if names:
-			print( ', '.join( names ) )
+		
 	else:
-		groups = Group.objects.filter( service=None )
-		names = sorted( [ group.name for group in groups ] )
-		if names:
-			print( ', '.join( names ) )
+		qs = Group.objects.values_list( 'name', flat=True ).order_by( 'name' )
+		if options.service:
+			groups = qs.filter( service__username=options.service )
+		else:
+			groups = qs.filter( service=None )
+		for group in groups:
+			print( group )
 elif args[0] == 'view':
 	if options.service:
 		group = group_get( args[1], Service.objects.get( username=options.service ) )
