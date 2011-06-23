@@ -83,10 +83,12 @@ if args[0] in ['create', 'add']:
 		sys.exit(1)
 	elif len( args ) > 2:
 		print( "Please name exactly one user to add!" )
+		
+	username = args[1].decode( 'utf-8')
 
 	try:
-		validate_username( args[1] )
-		user = ServiceUser( username=args[1] )
+		validate_username( username )
+		user = ServiceUser( username=username )
 		password = get_password( options )
 		user.set_password( password )
 		user.save()
@@ -94,11 +96,11 @@ if args[0] in ['create', 'add']:
 		print( "Error: %s: User already exists."%args[1] )
 		sys.exit(1)
 	except errors.PreconditionFailed as e:
-		print( "Error: %s"%e.body )
+		print( "Error: %s"%e )
 		sys.exit(1)
 elif args[0] in ['ls', 'list']:
-	for user in ServiceUser.objects.all():
-		print( user.username )
+	for user in ServiceUser.objects.values_list( 'username', flat=True ):
+		print( user )
 elif args[0] == 'verify':
 	if len( args ) != 2:
 		print( "Please name exactly one user to verify!" )
@@ -112,6 +114,7 @@ elif args[0] == 'verify':
 			print( 'Ok.' )
 		else:
 			print( 'Failed.' )
+			sys.exit(1)
 	except ServiceUser.DoesNotExist:
 		print( "Error: %s: User does not exist."%args[1] )
 		sys.exit(1)
@@ -129,7 +132,7 @@ elif args[0] == 'set-password':
 		print( "Error: %s: User does not exist."%args[1] )
 		sys.exit(1)
 	except errors.PasswordInvalid as e:
-		print( "Error: %s"%e.body )
+		print( "Error: %s"%e )
 		sys.exit(1)
 elif args[0] == 'view':
 	if len( args ) != 2:
@@ -138,18 +141,30 @@ elif args[0] == 'view':
 
 	try:
 		user = user_get( args[1] )
-		if options.service:
-			service = Service.objects.get( username=options.service )
-			groups = user.get_groups( service )
-		else:
-			groups = user.get_groups()
-	
-		group_names = [ group.name for group in groups ]
-		group_names.sort()
-
 		print( 'Joined: %s'%( user.date_joined ) )
 		print( 'Last login: %s'%(user.last_login) )
-		print( 'Groups: %s'%(', '.join( group_names ) ) )
+		
+		if options.service:
+			service = Service.objects.get( username=options.service )
+			groups = user.group_set.filter( service=service ).values_list('service__username', flat=True)
+			print( 'Groups: %s'%(', '.join( groups )))
+		else:
+			groups_dict = {}
+			qs = user.group_set.values_list( 'service__username', 'name' )
+			for service, name in qs:
+				if service in groups_dict:
+					groups_dict[service].append( name )
+				else:
+					groups_dict[service] = [name]
+
+		
+			print( 'Groups: ' )
+
+			for service in sorted( groups_dict ):
+				groups = groups_dict[service]
+				if service == None:
+					service = 'no-service'
+				print( '* %s: %s'%(service, ', '.join( groups )))
 	except Service.DoesNotExist:
 		print( "Error: %s: Service does not exist."%options.service )
 		sys.exit(1)
