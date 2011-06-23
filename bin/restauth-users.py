@@ -57,7 +57,7 @@ if not args:
 if args[0] != 'help':
 	# we don't need this for help
 	try:
-		from RestAuth.Users.models import ServiceUser, user_get, user_create, validate_username, UsernameInvalid
+		from RestAuth.Users.models import ServiceUser, user_get, validate_username
 		from RestAuth.Services.models import Service
 		from RestAuth.common import errors
 		from django.db.utils import IntegrityError
@@ -177,8 +177,7 @@ elif args[0] in [ 'delete', 'rm', 'remove' ]:
 		sys.exit(1)
 
 	try:
-		user = user_get( args[1] )
-		user.delete()
+		user_get( args[1] ).delete()
 	except ServiceUser.DoesNotExist:
 		print( "Error: %s: User does not exist."%args[1] )
 		sys.exit(1)
