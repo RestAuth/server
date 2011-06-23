@@ -105,23 +105,25 @@ elif args[0] in [ 'list', 'ls' ]:
 		for group in groups:
 			print( group )
 elif args[0] == 'view':
-	if options.service:
-		group = group_get( args[1], Service.objects.get( username=options.service ) )
-	else:
-		group = group_get( args[1] )
+	try:
+		if options.service:
+			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		else:
+			group = group_get( args[1] )
+	except Group.DoesNotExist:
+		print( 'Error: %s: Does not exist'%args[1] )
+		sys.exit( 1 )
 
-	explicit_users = [ user.username for user in group.get_members( False ) ]
-	effective_users = [ user.username for user in group.get_members() ]
+	explicit_users = group.get_members( False )
+	effective_users = group.get_members()
 	parent_groups = list( group.parent_groups.all() )
 	child_groups = list( group.groups.all() )
 	if explicit_users:
-		explicit_users.sort()
-		print( '* Explicit members: %s'%( ', '.join( explicit_users ) ) )
+		print( '* Explicit members: %s'%( ', '.join( sorted(explicit_users) ) ) )
 	else:
 		print( '* No explicit members' )
 	if effective_users:
-		effective_users.sort()
-		print( '* Effective members: %s'%( ', '.join( effective_users ) ) )
+		print( '* Effective members: %s'%( ', '.join( sorted(effective_users) ) ) )
 	else:
 		print( '* No effective members' )
 	if parent_groups:
@@ -135,20 +137,28 @@ elif args[0] == 'view':
 	else:
 		print( '* No child groups' )
 elif args[0] == 'add-user':
-	if options.service:
-		group = group_get( args[1], Service.objects.get( username=options.service ) )
-	else:
-		group = group_get( args[1] )
+	try:
+		if options.service:
+			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		else:
+			group = group_get( args[1] )
+	except Group.DoesNotExist:
+		print( 'Error: %s: Does not exist'%args[1] )
+		sys.exit( 1 )
 
 	user = user_get( args[2] )
 	
 	group.users.add( user )
 	group.save()
 elif args[0] == 'add-group':
-	if options.service:
-		group = group_get( args[1], Service.objects.get( username=options.service ) )
-	else:
-		group = group_get( args[1] )
+	try:
+		if options.service:
+			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		else:
+			group = group_get( args[1] )
+	except Group.DoesNotExist:
+		print( 'Error: %s: Does not exist'%args[1] )
+		sys.exit( 1 )
 	if options.child_service:
 		child_service = Service.objects.get( username=options.cild_service )
 		child_group = group_get( args[2], child_service )
@@ -158,32 +168,49 @@ elif args[0] == 'add-group':
 	group.groups.add( child_group )
 	group.save()
 elif args[0] in [ 'delete', 'del', 'rm' ]:
-	if options.service:
-		group = group_get( args[1], Service.objects.get( username=options.service ) )
-	else:
-		group = group_get( args[1] )
+	try:
+		if options.service:
+			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		else:
+			group = group_get( args[1] )
+	except Group.DoesNotExist:
+		print( 'Error: %s: Does not exist'%args[1] )
+		sys.exit( 1 )
 
 	group.delete()
 elif args[0] in [ 'remove-user', 'rm-user', 'del-user' ]:
-	if options.service:
-		group = group_get( args[1], Service.objects.get( username=options.service ) )
-	else:
-		group = group_get( args[1] )
+	try:
+		if options.service:
+			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		else:
+			group = group_get( args[1] )
+	except Group.DoesNotExist:
+		print( 'Error: %s: Does not exist'%args[1] )
+		sys.exit( 1 )
 
 	user = user_get( args[2] )
 	if user in group.users.all():
 		group.users.remove( user )
 		group.save()
 elif args[0] in [ 'remove-group', 'rm-group', 'del-group' ]:
-	if options.service:
-		group = group_get( args[1], Service.objects.get( username=options.service ) )
-	else:
-		group = group_get( args[1] )
-	if options.child_service:
-		child_service = Service.objects.get( username=options.cild_service )
-		child_group = group_get( args[2], child_service )
-	else:
-		child_group = group_get( args[2] )
+	try:
+		if options.service:
+			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		else:
+			group = group_get( args[1] )
+	except Group.DoesNotExist:
+		print( 'Error: %s: Does not exist'%args[1] )
+		sys.exit( 1 )
+	
+	try:
+		if options.child_service:
+			child_service = Service.objects.get( username=options.cild_service )
+			child_group = group_get( args[2], child_service )
+		else:
+			child_group = group_get( args[2] )
+	except Group.DoesNotExist:
+		print( 'Error: %s: Does not exist'%args[2] )
+		sys.exit( 1 )
 
 	if child_group in group.groups.all():
 		group.groups.remove( child_group )
