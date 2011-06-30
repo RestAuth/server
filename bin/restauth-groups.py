@@ -74,7 +74,7 @@ def print_groups_by_service( groups, indent='' ):
 			servs[group.service] = [ group ]
 
 	if None in servs:
-		none_names = [ service.name for service in servs[None] ]
+		none_names = [ service.name.encode('utf-8') for service in servs[None] ]
 		none_names.sort()
 		print( '%sNone: %s'%(indent, ', '.join( none_names ) ) )
 		del servs[None]
@@ -82,7 +82,7 @@ def print_groups_by_service( groups, indent='' ):
 	service_names = sorted( servs.keys(), key=attrgetter('username') )
 	
 	for name in service_names:
-		names = [ service.name for service in servs[name] ]
+		names = [ service.name.encode('utf-8') for service in servs[name] ]
 		names.sort()
 		print( '%s%s: %s'%(indent, name, ', '.join(names) ) )
 
@@ -103,7 +103,7 @@ elif args[0] in [ 'list', 'ls' ]:
 		else:
 			groups = qs.filter( service=None )
 		for group in groups:
-			print( group )
+			print( group.encode( 'utf-8' ) )
 elif args[0] == 'view':
 	try:
 		if options.service:
