@@ -100,7 +100,7 @@ if args[0] in ['create', 'add']:
 		sys.exit(1)
 elif args[0] in ['ls', 'list']:
 	for user in ServiceUser.objects.values_list( 'username', flat=True ):
-		print( user.encode('utf-8' )
+		print( user.encode('utf-8' ) )
 elif args[0] == 'verify':
 	if len( args ) != 2:
 		print( "Please name exactly one user to verify!" )
