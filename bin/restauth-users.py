@@ -18,6 +18,9 @@
 import os, sys, getpass
 from optparse import OptionParser, OptionGroup, IndentedHelpFormatter
 
+class MyHelpFormatter( OptionParser.HelpFormatter ):
+	pass
+
 # parse arguments
 usage = "%prog [options] [action] [action parameters]"
 desc = """%prog manages users in RestAuth. Users are clients that want to
