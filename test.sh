@@ -16,6 +16,7 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 export PYTHONPATH="$PWD"
+[ -d ../restauth-common/python ] && export PYTHONPATH="$PYTHONPATH;../restauth-common/python"
 
 rm -f ./RestAuth.sqlite3
 python RestAuth/manage.py syncdb --noinput
