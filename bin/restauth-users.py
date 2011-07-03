@@ -16,20 +16,15 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys, getpass
-from argparse import ArgumentParser, Action
+from argparse import ArgumentParser
 
 # parse arguments
-desc = """Manages users in RestAuth. Users are clients that want to
-authenticate with services that use RestAuth."""
-prog = os.path.basename(sys.argv[0])
-epilog = """Use %s help <action>  to get help for each action and their
-parameters""" % (prog)
-parser = ArgumentParser( description=desc, epilog=epilog)
-parser.add_argument( '--settings', default='RestAuth.settings',
-	help="The path to the Django settings module (Usually the default is fine)." )
+desc = """Manages users in RestAuth. Users are clients that want to authenticate with services that
+	use RestAuth."""
+parser = ArgumentParser( description=desc )
 
 username_p = ArgumentParser(add_help=False)
-username_p.add_argument( 'username', help="Add username" )
+username_p.add_argument( 'username', help="The name of the user." )
 
 pwd_p = ArgumentParser( add_help=False )
 pwd_p.add_argument( '--password', '-p', metavar='PWD', dest='pwd',
@@ -53,7 +48,8 @@ view_p.add_argument( '--service', help="View the information as SERVICE would se
 args = parser.parse_args()
 
 # Setup environment
-os.environ['DJANGO_SETTINGS_MODULE'] = args.settings
+if 'DJANGO_SETTINGS_MODULE' not in os.environ:
+	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 if 'RESTAUTH_PATH' in os.environ:
 	sys.path.append( os.environ['RESTAUTH_PATH'] )
 sys.path.append( os.getcwd() )
