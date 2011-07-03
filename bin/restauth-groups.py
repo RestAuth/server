@@ -16,54 +16,74 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys
-from optparse import OptionParser, OptionGroup
+from argparse import ArgumentParser
 from operator import attrgetter
 
 # parse arguments
-usage = "%prog [options] [action] [action parameters]"
-desc = """%prog manages groups in RestAuth. Groups can have users and groups as
-members, handing down users to member groups. For a group to be visible to a
-service, it must be associated with it. It is possible for a group to not be
-associated with any service, which is usefull for e.g. a group containing global
-super-users. Valid actions are help, add, list, view, add-user, add-group,
-remove, remove-user, and remove-group."""
-prog = os.path.basename(sys.argv[0])
-epilog = """Use %s help <action> to get help for each action and their
-parameters.""" % (prog)
-parser = OptionParser( usage=usage, description=desc, epilog=epilog)
-parser.add_option( '--settings', default='RestAuth.settings',
-	help="The path to the Django settings module (Usually the default is fine)." )
-parser.add_option( '--service', help="""Assume that the named group is from
-SERVICE. If ommitted, the group is assumed to not be associated with any
-service.""" )
+desc = """%(prog)s manages groups in RestAuth. Groups can have users and groups as members, handing
+down users to member groups. For a group to be visible to a service, it must be associated with it.
+It is possible for a group to not be associated with any service, which is usefull for e.g. a group
+containing global super-users. Valid actions are help, add, list, view, add-user, add-group, remove,
+remove-user, and remove-group."""
+parser = ArgumentParser( description=desc )
+parser.add_argument( '--service', help="""Act as if %(prog)s was the service named SERVICE. If
+	ommitted, %(prog)s acts on groups that are not associated with any service.""" )
 
-group = OptionGroup( parser, 'Options for action add-group and remove-group' )
-group.add_option( '--child-service', metavar='SERVICE', help="""Assume that the
-named childgroup is from SERVICE. If ommitted, %s will throw an error if the
-group is defined by multiple services."""%(prog) )
-parser.add_option_group( group )
+group_p = ArgumentParser(add_help=False)
+group_p.add_argument( 'group', help="The name of the group." )
 
-options, args = parser.parse_args()
+subparsers = parser.add_subparsers( title="Available actions", dest='action',
+	description="""Use '%(prog)s action --help' for more help on each action.""" )
+subparsers.add_parser( 'add', help="Add a new group.", parents=[group_p],
+	description="Add a new group." )
+subparsers.add_parser( 'list', help="List all groups.", description="List all groups." )
+subparsers.add_parser( 'view', help="View details of a group.", parents=[group_p],
+	description="View details of a group." )
+
+add_user_p = subparsers.add_parser( 'add-user', parents=[group_p], help="Add a user to a group.",
+	description="Add a user to a group." )
+add_user_p.add_argument( 'user', help="The name of the user.")
+
+add_group_p = subparsers.add_parser( 'add-group', parents=[group_p], help="""Make a group a subgroup
+		to another group.""",
+	description="""Make a group a subgroup of another group. The subgroup will inherit all
+		memberships from the parent group.""" )
+add_group_p.add_argument( 'subgroup', help="The name of the subgroup.")
+add_group_p.add_argument( '--child-service', metavar='SERVICE', help="""Assume that the named
+	subgroup is from SERVICE.""")
+
+add_user_p = subparsers.add_parser( 'rm-user', parents=[group_p],
+	help="Remove a user from a group.",
+	description="Remove a user from a group." )
+add_user_p.add_argument( 'user', help="The name of the user.")
+
+add_user_p = subparsers.add_parser( 'rm-group', parents=[group_p], help="""Remove a subgroup from
+		a group.""",
+	description="""Remove a subgroup from a group. The subgroup will no longer inherit all
+		memberships from a parent group.""" )
+add_user_p.add_argument( 'subgroup', help="The name of the subgroup.")
+
+add_user_p = subparsers.add_parser( 'rm', parents=[group_p],
+	help="Remove a group.",
+	description="Remove a group." )
+
+args = parser.parse_args()
 
 # Setup environment
-os.environ['DJANGO_SETTINGS_MODULE'] = options.settings
+if 'DJANGO_SETTINGS_MODULE' not in os.environ:
+	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 if 'RESTAUTH_PATH' in os.environ:
 	sys.path.append( os.environ['RESTAUTH_PATH'] )
 sys.path.append( os.getcwd() )
 
-# error-handling arguments
-if not args:
-	sys.stderr.write( "Please provide an action.\n" )
+# we don't need this for help
+try:
+	from RestAuth.Groups.models import Group, group_get, group_create
+	from RestAuth.Users.models import ServiceUser, user_get
+	from RestAuth.Services.models import Service
+except ImportError:
+	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 	sys.exit(1)
-if args[0] != 'help':
-	# we don't need this for help
-	try:
-		from RestAuth.Groups.models import Group, group_get, group_create
-		from RestAuth.Users.models import ServiceUser, user_get
-		from RestAuth.Services.models import Service
-	except ImportError:
-		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
-		sys.exit(1)
 
 def print_groups_by_service( groups, indent='' ):
 	servs = {}
@@ -86,32 +106,28 @@ def print_groups_by_service( groups, indent='' ):
 		names.sort()
 		print( '%s%s: %s'%(indent, name, ', '.join(names) ) )
 
-if args[0] in [ 'create', 'add' ]:
-	if options.service:
-		service = Service.objects.get( username=options.service )
-		group_create( args[1].decode( 'utf-8' ), service )
+if args.action in [ 'create', 'add' ]:
+	if args.service:
+		service = Service.objects.get( username=args.service )
+		group_create( args.group.decode( 'utf-8' ), service )
 	else:
-		group_create( args[1].decode( 'utf-8' ) )
-elif args[0] in [ 'list', 'ls' ]:
-	if options.service == 'ALL':
-		print_groups_by_service( groups = Group.objects.all() )
-		
+		group_create( args.group.decode( 'utf-8' ) )
+elif args.action in [ 'list', 'ls' ]:
+	qs = Group.objects.values_list( 'name', flat=True ).order_by( 'name' )
+	if args.service:
+		groups = qs.filter( service__username=args.service )
 	else:
-		qs = Group.objects.values_list( 'name', flat=True ).order_by( 'name' )
-		if options.service:
-			groups = qs.filter( service__username=options.service )
-		else:
-			groups = qs.filter( service=None )
-		for group in groups:
-			print( group.encode( 'utf-8' ) )
-elif args[0] == 'view':
+		groups = qs.filter( service=None )
+	for group in groups:
+		print( group.encode( 'utf-8' ) )
+elif args.action == 'view':
 	try:
-		if options.service:
-			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		if args.service:
+			group = group_get( args.group, Service.objects.get( username=args.service ) )
 		else:
-			group = group_get( args[1] )
+			group = group_get( args.group )
 	except Group.DoesNotExist:
-		print( 'Error: %s: Does not exist'%args[1] )
+		print( 'Error: %s: Group does not exist'%args.group )
 		sys.exit( 1 )
 
 	explicit_users = group.get_members( False )
@@ -136,86 +152,86 @@ elif args[0] == 'view':
 		print_groups_by_service( child_groups, '    ' )
 	else:
 		print( '* No child groups' )
-elif args[0] == 'add-user':
+elif args.action == 'add-user':
 	try:
-		if options.service:
-			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		if args.service:
+			group = group_get( args.group, Service.objects.get( username=args.service ) )
 		else:
-			group = group_get( args[1] )
+			group = group_get( args.group )
 	except Group.DoesNotExist:
-		print( 'Error: %s: Does not exist'%args[1] )
+		print( 'Error: %s: Group does not exist'%args.group )
 		sys.exit( 1 )
 
-	user = user_get( args[2] )
+	user = user_get( args.user )
 	
 	group.users.add( user )
 	group.save()
-elif args[0] == 'add-group':
+elif args.action == 'add-group':
 	try:
-		if options.service:
-			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		if args.service:
+			group = group_get( args.group, Service.objects.get( username=args.service ) )
 		else:
-			group = group_get( args[1] )
+			group = group_get( args.group )
 	except Group.DoesNotExist:
-		print( 'Error: %s: Does not exist'%args[1] )
+		print( 'Error: %s: Group does not exist'%args.group )
 		sys.exit( 1 )
-	if options.child_service:
-		child_service = Service.objects.get( username=options.cild_service )
-		child_group = group_get( args[2], child_service )
+	if args.child_service:
+		child_service = Service.objects.get( username=args.child_service )
+		child_group = group_get( args.subgroup, child_service )
 	else:
-		child_group = group_get( args[2] )
+		child_group = group_get( args.subgroup )
 
 	group.groups.add( child_group )
 	group.save()
-elif args[0] in [ 'delete', 'del', 'rm' ]:
+elif args.action in [ 'delete', 'del', 'rm' ]:
 	try:
-		if options.service:
-			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		if args.service:
+			group = group_get( args.group, Service.objects.get( username=args.service ) )
 		else:
-			group = group_get( args[1] )
+			group = group_get( args.group )
 	except Group.DoesNotExist:
-		print( 'Error: %s: Does not exist'%args[1] )
+		print( 'Error: %s: Group does not exist'%args.group )
 		sys.exit( 1 )
 
 	group.delete()
-elif args[0] in [ 'remove-user', 'rm-user', 'del-user' ]:
+elif args.action in [ 'remove-user', 'rm-user', 'del-user' ]:
 	try:
-		if options.service:
-			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		if args.service:
+			group = group_get( args.group, Service.objects.get( username=args.service ) )
 		else:
-			group = group_get( args[1] )
+			group = group_get( args.group )
 	except Group.DoesNotExist:
-		print( 'Error: %s: Does not exist'%args[1] )
+		print( 'Error: %s: Group does not exist'%args.group )
 		sys.exit( 1 )
 
-	user = user_get( args[2] )
+	user = user_get( args.user )
 	if user in group.users.all():
 		group.users.remove( user )
 		group.save()
-elif args[0] in [ 'remove-group', 'rm-group', 'del-group' ]:
+elif args.action in [ 'remove-group', 'rm-group', 'del-group' ]:
 	try:
-		if options.service:
-			group = group_get( args[1], Service.objects.get( username=options.service ) )
+		if args.service:
+			group = group_get( args.group, Service.objects.get( username=args.service ) )
 		else:
-			group = group_get( args[1] )
+			group = group_get( args.group )
 	except Group.DoesNotExist:
-		print( 'Error: %s: Does not exist'%args[1] )
+		print( 'Error: %s: Group does not exist'%args.group )
 		sys.exit( 1 )
 	
 	try:
-		if options.child_service:
-			child_service = Service.objects.get( username=options.cild_service )
-			child_group = group_get( args[2], child_service )
+		if args.child_service:
+			child_service = Service.objects.get( username=args.child_service )
+			child_group = group_get( args.subgroup, child_service )
 		else:
-			child_group = group_get( args[2] )
+			child_group = group_get( args.subgroup )
 	except Group.DoesNotExist:
-		print( 'Error: %s: Does not exist'%args[2] )
+		print( 'Error: %s: Does not exist'%args.subgroup )
 		sys.exit( 1 )
 
 	if child_group in group.groups.all():
 		group.groups.remove( child_group )
 		group.save()
-elif args[0] == 'help':
+elif args.action == 'help':
 	if len( args ) > 1:
 		help_parser = OptionParser(usage='%prog [options] ',
 			add_help_option=False )
