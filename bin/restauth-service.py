@@ -15,166 +15,129 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, getpass
-from optparse import OptionParser, OptionGroup, IndentedHelpFormatter
+import os, sys, getpass, random, string
+from argparse import ArgumentParser, Action
+
+class PasswordGenerator( Action ):
+	def __call__( self, parser, namespace, values, option_string ):
+		passwd = ''.join( random.choice( string.printable ) for x in range(30) )
+		print( passwd )
+		setattr( namespace, self.dest, passwd )
 
 # parse arguments
-usage = "%prog [options] [action] [action parameters]"
-desc = """%prog manages services in RestAuth. Services are websites, hosts, etc.
-that use RestAuth as authentication service. Valid actions are help, add, remove,
-view, list, set-hosts and set-password."""
-prog = os.path.basename(sys.argv[0])
-epilog = """Use %s help <action> to get help for each action and their
-parameters.""" % (prog)
-parser = OptionParser( usage=usage, description=desc, epilog=epilog)
-parser.add_option( '--settings', default='RestAuth.settings',
-	help="The path to the Django settings module (Usually the default is fine)." )
-group = OptionGroup( parser, 'Options for actions add/set-password' )
-group.add_option( '--password', dest="pwd", 
-	help="Password of the service. If not provided, you will be prompted." )
-parser.add_option_group( group )
-options, args = parser.parse_args()
+desc = """%(progs manages services in RestAuth. Services are websites, hosts, etc. that use RestAuth
+as authentication service."""
+parser = ArgumentParser( description=desc )
+
+service_p = ArgumentParser(add_help=False)
+service_p.add_argument( 'service', help="The name of the service." )
+
+pwd_p = ArgumentParser( add_help=False )
+pwd_group = pwd_p.add_mutually_exclusive_group()
+pwd_group.add_argument( '--password', dest='pwd', metavar='PWD', help="Password for the service." )
+pwd_group.add_argument( '--gen-password', action=PasswordGenerator, nargs=0, dest='pwd',
+	help="Generate password for the service and print it to stdout." )
+
+host_p = ArgumentParser( add_help=False )
+host_p.add_argument( 'hosts', metavar='host', nargs='*', help="""A host that the service is able to
+	connect from. You can name multiple hosts as additional positional arguments. If ommitted,
+	this service cannot be used from anywhere.""")
+
+subparsers = parser.add_subparsers( title="Available actions", dest='action',
+	description="""Use '%(prog)s action --help' for more help on each action.""" )
+
+add_p = subparsers.add_parser( 'add', help="Add a new service.", parents=[service_p, host_p],
+	description="Add a new service." )
+
+subparsers.add_parser( 'ls', help="List all services.",
+	description="""List all available services.""")
+subparsers.add_parser( 'rm', help="Remove a service.", parents=[service_p],
+	description="""Completely remove a service. This will also remove any groups associated with
+		that service.""" )
+subparsers.add_parser( 'view', help="View details of a service.", parents=[service_p],
+	description="View details of a service." )
+subparsers.add_parser( 'view', help="View details of a service.", parents=[service_p],
+	description="View details of a service." )
+
+subparsers.add_parser( 'set-hosts', parents=[service_p, host_p],
+	help="Set hosts that a service can connect from.",
+	description="Set hosts that a service can connect from." )
+subparsers.add_parser( 'set-password', parents=[service_p, pwd_p],
+	help="Set the password for a service.", description="Set the password for a service." )
+
+args = parser.parse_args()
 
 # Setup environment
-os.environ['DJANGO_SETTINGS_MODULE'] = options.settings
+if 'DJANGO_SETTINGS_MODULE' not in os.environ:
+	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 if 'RESTAUTH_PATH' in os.environ:
 	sys.path.append( os.environ['RESTAUTH_PATH'] )
 sys.path.append( os.getcwd() )
 
-# error-handling arguments
-if not args:
-	sys.stderr.write( "Please provide an action." )
+try:
+	from RestAuth.Services.models import *
+except ImportError:
+	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 	sys.exit(1)
 
-if args[0] != 'help':
-	# we don't need this for help
-	try:
-		from RestAuth.Services.models import *
-	except ImportError:
-		print( sys.path )
-		sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
-		sys.exit(1)
-
-def get_password( options ):
-	if options.pwd:
-		return options.pwd
+def get_password( args ):
+	if args.pwd:
+		return args.pwd
 
 	password = getpass.getpass( 'password: ' )
 	confirm = getpass.getpass( 'confirm: ' )
 	if password != confirm:
 		print( "Passwords do not match, please try again." )
-		return get_password( options )
+		return get_password( args )
 	else:
 		return password
 
-if args[0] in [ 'create', 'add']:
-	if len( args ) < 2:
-		print( "Please name a service to add." )
-		sys.exit(1)
-
+if args.action in [ 'create', 'add']:
 	try:
-		check_service_username( args[1] )
-		service = Service( username=args[1] )
+		check_service_username( args.service )
+		service = Service( username=args.service )
 		service.save()
-		service.set_password( get_password( options ) )
-		service.set_hosts( args[2:] )
+		service.set_password( get_password( args ) )
+		service.set_hosts( args.hosts )
 		service.save()
 	except IntegrityError as e:
-		print( "Error: %s: Service already exists."%args[1] )
+		print( "Error: %s: Service already exists."%args.service )
 		sys.exit(1)
 	except ServiceUsernameNotValid as e:
 		print( e )
 		sys.exit(1)
-elif args[0] in [ 'remove', 'rm', 'del', 'delete' ]:
-	if len( args ) < 2:
-		print( "Please name a service to remove." )
-		sys.exit(1)
-	elif len( args ) > 2:
-		print( "Please name exactly one service to remove." )
-		sys.exit(1)
-
+elif args.action in [ 'remove', 'rm', 'del', 'delete' ]:
 	try:
-		service_delete( args[1] )
+		service_delete( args.service )
 	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args[1] )
+		print( "Error: %s: Service not found."%args.service )
 		sys.exit(1)
-elif args[0] in [ 'list', 'ls' ]:
+elif args.action in [ 'list', 'ls' ]:
 	for service in Service.objects.all():
 		hosts = [ str(host.address) for host in service.hosts.all() ]
 		print( '%s: %s'%(service.username, ', '.join(hosts)) )
-elif args[0] == 'view':
-	if len( args ) < 2:
-		print( "Please name a service to view. Try 'list' for a list of services." )
-		sys.exit(1)
-	elif len( args ) > 2:
-		print( "Please name exactly one service to remove." )
-		sys.exit(1)
-
+elif args.action == 'view':
 	try:
-		service = Service.objects.get( username=args[1] )
+		service = Service.objects.get( username=args.service )
 		print( service.username )
 		print( 'Last used: %s'%(service.last_login) )
 		hosts = [ str(host.address) for host in service.hosts.all() ]
 		print( 'Hosts: %s'%(', '.join( hosts )) )
 	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args[1] )
+		print( "Error: %s: Service not found."%args.service )
 		sys.exit(1) 
-elif args[0] == 'set-hosts':
-	if len( args ) < 2:
-		print( "Please name a service to set hosts for." )
-		sys.exit(1)
-
+elif args.action == 'set-hosts':
 	try:
-		service = Service.objects.get( username=args[1] )
-		service.set_hosts( args[2:] )
+		service = Service.objects.get( username=args.service )
+		service.set_hosts( args.hosts )
 	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args[1] )
+		print( "Error: %s: Service not found."%args.service )
 		sys.exit(1)
-elif args[0] == 'set-password':
+elif args.action == 'set-password':
 	try:
-		service = Service.objects.get( username=args[1] )
-		service.set_password( get_password( options ) )
+		service = Service.objects.get( username=args.service )
+		service.set_password( get_password( args ) )
 		service.save()
 	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args[1] )
+		print( "Error: %s: Service not found."%args.service )
 		sys.exit(1) 
-elif args[0] == 'help':
-	if len(args) > 1:
-		usage = '%prog [options] ' + args[1] + ' '
-		help_parser = OptionParser(usage=usage, add_help_option=False )
-		help_parser.add_option( parser.get_option( '--settings' ) )
-		
-		if args[1] == 'add':
-			help_parser.usage += '<service> [host]...'
-			desc = """Add a service to RestAuth. The service can
-contain any ASCII character except a double colon (':'). You can give one or
-more hosts that the new service is able to connect from. If ommitted, the
-service can't connect from any host and is thus unusable."""
-			opt = parser.get_option( '--password' )
-			help_parser.add_option( opt )
-		elif args[1] == 'remove':
-			help_parser.usage += '<service>'
-			desc = 'Remove a service that no longer uses RestAuth.'
-		elif args[1] == 'list':
-			desc = 'List all services known to RestAuth.'
-		elif args[1] == 'view':
-			help_parser.usage += '<service>'
-			desc = 'View details on a service.'
-		elif args[1] == 'set-hosts':
-			help_parser.usage += '<service> [host]...'
-			desc = """Set the hosts that a service is allowed to
-connect from. Naming no hosts effectively disables the service."""
-		elif args[1] == 'set-password':
-			help_parser.usage += '<service>'
-			desc = """Set the password for the given service."""
-			opt = parser.get_option( '--password' )
-			help_parser.add_option( opt )
-		else:
-			print('Unknown action.')
-			sys.exit(1)
-		help_parser.description = desc
-		help_parser.print_help()
-	else:
-		parser.print_help()
-else:
-	print( 'unknown action' )
