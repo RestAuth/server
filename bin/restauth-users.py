@@ -18,50 +18,23 @@
 import os, sys, getpass
 from argparse import ArgumentParser
 
-# parse arguments
-desc = """Manages users in RestAuth. Users are clients that want to authenticate with services that
-	use RestAuth."""
-parser = ArgumentParser( description=desc )
-
-username_p = ArgumentParser(add_help=False)
-username_p.add_argument( 'username', help="The name of the user." )
-
-pwd_p = ArgumentParser( add_help=False )
-pwd_p.add_argument( '--password', '-p', metavar='PWD', dest='pwd',
-	help="""Use PWD for the users password. If not given, you will be prompted.""" )
-
-subparsers = parser.add_subparsers( title="Available actions", dest='action',
-	description="""Use '%(prog)s action --help' for more help on each action.""" )
-subparsers.add_parser( 'add', help="Add a new user.", parents=[username_p, pwd_p],
-		      description="Add a new user." )
-subparsers.add_parser( 'list', help="List all users.", description="List all users." )
-subparsers.add_parser( 'verify', help="Verify a users password.", parents=[username_p, pwd_p],
-		      description="Verify the password of a user." ) 
-subparsers.add_parser( 'passwd', help="Set the password of a user.", parents=[username_p, pwd_p],
-		      description="Set the password of a user." )
-subparsers.add_parser( 'rm', help="Remove a user.", parents=[username_p],
-		      description="Remove a user." )
-
-view_p = subparsers.add_parser( 'view', help="View details of a user.", parents=[username_p ] )
-view_p.add_argument( '--service', help="View the information as SERVICE would see it. (optional)." )
-
-args = parser.parse_args()
-
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
-if 'RESTAUTH_PATH' in os.environ:
-	sys.path.append( os.environ['RESTAUTH_PATH'] )
 sys.path.append( os.getcwd() )
 
 try:
 	from RestAuth.Users.models import ServiceUser, user_get, validate_username
 	from RestAuth.Services.models import Service
 	from RestAuth.common import errors
+	from RestAuth.common.cli import user_parser
 	from django.db.utils import IntegrityError
-except ImportError:
+except ImportError, e:
 	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 	sys.exit(1)
+
+# parse arguments	
+args = user_parser.parse_args()
 
 def get_password( options ):
 	if options.pwd:
@@ -106,7 +79,7 @@ elif args.action == 'verify':
 	except ServiceUser.DoesNotExist:
 		print( "Error: %s: User does not exist."%args.username )
 		sys.exit(1)
-elif args.action == 'passwd':
+elif args.action == 'set-password':
 	try:
 		user = user_get( args.username )
 		password = get_password( args )

@@ -19,56 +19,6 @@ import os, sys
 from argparse import ArgumentParser
 from operator import attrgetter
 
-# parse arguments
-desc = """%(prog)s manages groups in RestAuth. Groups can have users and groups as members, handing
-down users to member groups. For a group to be visible to a service, it must be associated with it.
-It is possible for a group to not be associated with any service, which is usefull for e.g. a group
-containing global super-users. Valid actions are help, add, list, view, add-user, add-group, remove,
-remove-user, and remove-group."""
-parser = ArgumentParser( description=desc )
-parser.add_argument( '--service', help="""Act as if %(prog)s was the service named SERVICE. If
-	ommitted, %(prog)s acts on groups that are not associated with any service.""" )
-
-group_p = ArgumentParser(add_help=False)
-group_p.add_argument( 'group', help="The name of the group." )
-
-subparsers = parser.add_subparsers( title="Available actions", dest='action',
-	description="""Use '%(prog)s action --help' for more help on each action.""" )
-subparsers.add_parser( 'add', help="Add a new group.", parents=[group_p],
-	description="Add a new group." )
-subparsers.add_parser( 'list', help="List all groups.", description="List all groups." )
-subparsers.add_parser( 'view', help="View details of a group.", parents=[group_p],
-	description="View details of a group." )
-
-add_user_p = subparsers.add_parser( 'add-user', parents=[group_p], help="Add a user to a group.",
-	description="Add a user to a group." )
-add_user_p.add_argument( 'user', help="The name of the user.")
-
-add_group_p = subparsers.add_parser( 'add-group', parents=[group_p], help="""Make a group a subgroup
-		to another group.""",
-	description="""Make a group a subgroup of another group. The subgroup will inherit all
-		memberships from the parent group.""" )
-add_group_p.add_argument( 'subgroup', help="The name of the subgroup.")
-add_group_p.add_argument( '--child-service', metavar='SERVICE', help="""Assume that the named
-	subgroup is from SERVICE.""")
-
-add_user_p = subparsers.add_parser( 'rm-user', parents=[group_p],
-	help="Remove a user from a group.",
-	description="Remove a user from a group." )
-add_user_p.add_argument( 'user', help="The name of the user.")
-
-add_user_p = subparsers.add_parser( 'rm-group', parents=[group_p], help="""Remove a subgroup from
-		a group.""",
-	description="""Remove a subgroup from a group. The subgroup will no longer inherit all
-		memberships from a parent group.""" )
-add_user_p.add_argument( 'subgroup', help="The name of the subgroup.")
-
-add_user_p = subparsers.add_parser( 'rm', parents=[group_p],
-	help="Remove a group.",
-	description="Remove a group." )
-
-args = parser.parse_args()
-
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
@@ -81,9 +31,13 @@ try:
 	from RestAuth.Groups.models import Group, group_get, group_create
 	from RestAuth.Users.models import ServiceUser, user_get
 	from RestAuth.Services.models import Service
+	from RestAuth.common.cli import group_parser
 except ImportError:
 	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
 	sys.exit(1)
+	
+# parse arguments
+args = group_parser.parse_args()
 
 def print_groups_by_service( groups, indent='' ):
 	servs = {}
