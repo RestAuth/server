@@ -18,7 +18,11 @@ from distutils.core import setup, Command
 from distutils.command.install_data import install_data as _install_data
 from distutils.command.build import build as _build
 from distutils.command.clean import clean as _clean
-import os, time, glob, shutil
+import re, os, sys, time, glob, shutil, argparse
+
+# Setup environment
+if 'DJANGO_SETTINGS_MODULE' not in os.environ:
+	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 
 def get_version():
 	"""
@@ -93,80 +97,34 @@ class version( Command ):
 	def run( self ):
 		print( get_version() )
 
-class build_man( Command ):
+class build_doc( Command ):
 	user_options = []
-	description = "Build man pages"
+	description = "Build documentation"
 	def initialize_options( self ):
 		pass
 	def finalize_options( self ):
 		pass
 
 	def run( self ):
-		dictionary = { 
-			'__SETTINGS_OPTION__': '''\\fB\-\-settings\\fR=\\fISETTINGS\\fR
-.RS 4
-The path to the Django settings module. This is equivalent to setting the
-environment variable \\fBDJANGO_SETTINGS_MODULE\\fR. \\fISETTINGS\\fR should be the
-path to your \\fBsettings.py\\fR. The setting should be in Python path syntax, e.g.
-\\fBRestAuth.settings\\fR. The default is usually fine.
-.sp
-For additinal help, you might want to check out:
-.RS 4
-\\fIhttp://docs.djangoproject.com/en/dev/topics/settings/\\fR
-.sp
-.RE
-.RE
-''' }
-
-		version = get_version()
-		date = time.strftime( '%Y-%m-%d' )
-		in_files = glob.glob( 'man/*.in' )
-		out_files = [ os.path.splitext(e)[0] for e in in_files ]
-		man_names = [ os.path.splitext( os.path.basename( e ) ) for e in out_files ]
-		data = zip( in_files, out_files, man_names )
-		for in_file, out_file, man_name in data:
-			name = man_name[0]
-			others = [ '\\fB%s\\fR(%s)'%(e[0], e[1].strip('.')) for e in man_names if e != man_name ]
-			dictionary['__HEADER__'] = '''.TH %s 8  "%s" "Version %s" "RestAuth Manual"
-'''%(name, date, version)
-			dictionary['__END__'] = '''.SH ENVIRONMENT
-\\fB%s\\fR uses the Django framework and as such is affected by its
-environment variables.
-.sp
-\\fBDJANGO_SETTINGS_MODULE\\fR
-.RS 4
-Setting this environment variable is equivalent to using the \\fB--settings\\fR
-option.
-.SH AUTHORS
-Copyright \(co 2010\-2011 by RestAuth engineers:
-.sp
-.RS 4
-.ie n \{\h'-04'\(bu\h'+03'\c
-.\}
-.el \{.sp -1
-.IP \(bu 2.3
-.\}
-Mathias Ertl <mati@fsinf\&.at>
-.RE
-.sp
-License GPLv3+: GNU GPL version 3 or later.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-.sp
-See http://gnu.org/licenses/gpl.html for more information.
-.SH SEE ALSO
-%s
-.sp
-For more information, see the RestAuth homepage at
-.RS 4
-\\fIhttps://redmine.fsinf.at/projects/restauth-server\\fR
-.RE
-.SH BUGS
-Please submitt bugs to our issue tracker:
-.RS 4
-\\fIhttps://redmine.fsinf.at/projects/restauth-server/issues\\fR
-'''%(name, ', '.join( others ) )
-			process_file( in_file, out_file, dictionary )
+		sys.path.insert( 0, 'bin/' )
+		from RestAuth.common.cli import service_parser, user_parser, group_parser
+		from RestAuth.common.cli import format_man_usage, write_commands, write_usage
+		service_parser.prog = 'restauth-service'
+		user_parser.prog = 'restauth-user'
+		group_parser.prog = 'restauth-group'
+		
+		write_usage( service_parser, 'restauth-service' )
+		write_commands( service_parser, 'restauth-service' )
+		
+		write_usage( user_parser, 'restauth-user' )
+		write_commands( user_parser, 'restauth-user' )
+		
+		write_usage( group_parser, 'restauth-group' )
+		write_commands( group_parser, 'restauth-group' )
+		
+		cmd = [ 'make', '-C', 'doc', 'clean', 'man', 'html' ]
+		p = Popen( cmd )
+		p.communicate()
 
 class build( _build ):
 	def initialize_options( self ):
@@ -177,7 +135,7 @@ class build( _build ):
 		self.prefix = None
 		self.exec_prefix = None
 
-	sub_commands = [('build_man', lambda self: True)] + _build.sub_commands
+	sub_commands = [('build_doc', lambda self: True)] + _build.sub_commands
 	user_options = _build.user_options + added_options
 
 setup(
@@ -195,5 +153,5 @@ setup(
 		],
 	cmdclass={
 		'install_data': install_data, 'build': build, 'version': version,
-		'clean': clean, 'build_man': build_man },
+		'clean': clean, 'build_doc': build_doc },
 )
