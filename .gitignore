@@ -4,3 +4,4 @@
 build/
 RestAuth/djangosettings.py
 man/*.8
+doc/_build
