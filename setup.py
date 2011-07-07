@@ -125,8 +125,8 @@ class build_doc( Command ):
 		
 		if not os.path.exists( 'doc/_static' ):
 			os.mkdir( 'doc/_static' )
-		if not os.path.exists( 'doc/includes' ):
-			os.mkdir( 'doc/includes' )
+		if not os.path.exists( 'doc/gen' ):
+			os.mkdir( 'doc/gen' )
 		os.environ['PYTHONPATH'] = '.'
 		cmd = [ 'make', '-C', 'doc', 'clean', 'man', 'html' ]
 		p = Popen( cmd )
