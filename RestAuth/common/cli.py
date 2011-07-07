@@ -33,8 +33,8 @@ SERVICE. If ommitted, act on groups that are not associated with any service."""
 
 subgroup_parser = ArgumentParser(add_help=False)
 subgroup_parser.add_argument( 'subgroup', help="The name of the subgroup.")
-subgroup_parser.add_argument( '--sub-service', metavar='SERVICE',
-	help="""Assume that the named subgroup is from SERVICE.""")
+subgroup_parser.add_argument( '--sub-service', metavar='SUBSERVICE',
+	help="""Assume that the named subgroup is from SUBSERVICE.""")
 
 ###############################
 ### restauth-service parser ###
