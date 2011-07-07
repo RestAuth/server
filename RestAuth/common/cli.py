@@ -33,7 +33,7 @@ SERVICE. If ommitted, act on groups that are not associated with any service."""
 
 subgroup_parser = ArgumentParser(add_help=False)
 subgroup_parser.add_argument( 'subgroup', help="The name of the subgroup.")
-subgroup_parser.add_argument( '--child-service', metavar='SERVICE',
+subgroup_parser.add_argument( '--sub-service', metavar='SERVICE',
 	help="""Assume that the named subgroup is from SERVICE.""")
 
 ###############################
@@ -264,22 +264,28 @@ def write_commands( parser, cmd ):
 		# TODO: cleanup mess in HTML output
 		subparser = parser._subparsers._actions[1].choices[sub_cmd]
 		subparser.prog = '%s %s'%(cmd, sub_cmd)
-		f.write( '.. only:: html\n\n')
+		
+		f.write( '.. only:: not man\n')
+		f.write( '   \n' )
 		f.write( "   %s\n"%sub_cmd )
 		f.write( '   %s\n\n'%('^'*(len(sub_cmd))) )
-		desc = ' '.join( subparser.description.strip( '.').split() )
-		f.write( '   %s::\n\n'%desc )
-		desc = subparser.format_usage().replace( 'usage: ', '')
-		desc = ' '.join( desc.split() ) 
-		f.write( '       %s\n\n'%desc )
+		f.write( '   \n' )
 		
-		option_lines = []
-		pos_args = []
+		f.write( '.. example:: ')
+		header = '**%s**%s\n'%(sub_cmd, format_man_usage( subparser ) )
+		f.write( header )
+		f.write( '   \n')
+		f.write( '   %s\n'%( ' '.join( subparser.description.split() ) ) )
+		f.write( '   \n')
+		
+		opts = []
+		args = []
+		
 		for action in subparser._positionals._actions:
 			if type( action ) == argparse._HelpAction:
 				continue
 			if not action.option_strings:
-				pos_args.append( action )
+				args.append( action )
 			else:
 				if action.metavar:
 					metavar = action.metavar
@@ -300,51 +306,30 @@ def write_commands( parser, cmd ):
 					
 				
 				help = ' '.join( action.help.split() )%format_dict
-				option_lines.append( (option_string, help ) )
-			
-		if pos_args:
-			f.write( '   This command uses the following arguments:\n\n')
-			col_1_length = len( 'argument')
-			col_2_length = len( 'description' )
-			for arg in pos_args:
-				if len(arg.dest) > col_1_length:
-					col_1_length = len(arg.dest)
-				if len(arg.help) > col_2_length:
-					col_2_length = len( arg.help )
-			f.write( '   %s %s\n'%('='*col_1_length, '='*col_2_length))
-			f.write( '   argument description\n')
-			f.write( '   %s %s\n'%('='*col_1_length, '='*col_2_length))
-			for arg in pos_args:
-				f.write( '   %s'%arg.dest )
-				f.write( ' '*(col_1_length-len(arg.dest)+1 ) )
-				help = ' '.join( arg.help.split() )%format_dict
-				f.write( '%s\n'%(help) )
+				opts.append( (option_string, help ) )
 				
-			f.write( '   %s %s\n'%('='*col_1_length, '='*col_2_length))
-			f.write( '\n\n')
-		if option_lines:
-			f.write( "   Options:\n\n")
-		for option_line, help in option_lines:
-			f.write( '   %s  %s\n'%(option_line, help ) )
+		if opts or args:
+			f.write( '   .. program:: %s-%s\n\n'%(cmd, sub_cmd) ) 
+				
+		for opt_str, opt_desc in opts:
+			f.write( '   .. option:: %s\n'%opt_str.strip() )
+			f.write( '      \n')
+			f.write( '      %s\n'%opt_desc)
+			f.write( '      \n')
 			
-		f.write( '   \n')
-		
-		# write man-page section
-		f.write( '.. only:: man\n\n' )
-		header = '**%s**%s'%(sub_cmd, format_man_usage( subparser ) )
-		
-		f.write( "   %s\n\n"%(header) )
-		desc = ' '.join( subparser.description.split() )
-		f.write( '      %s\n      \n'%desc )
-			
-		
-		for option_line, help in option_lines:
-			f.write( '         %s  %s\n'%(option_line, help ) )
-		f.write( '\n' )
+		for arg in args:
+			arg_str = arg.dest
+			arg_desc = arg.help
+			f.write( '   .. option:: %s\n'%arg.dest )
+			f.write( '      \n')
+			help = ' '.join( arg.help.split() )
+			f.write( '      %s\n'%help)
+			f.write( '      \n')
 		
 	f.close()
 
 def write_usage( parser, cmd ):
 	f = open( 'doc/includes/%s-usage.rst'%cmd, 'w' )
-	f.write( parser.format_usage().replace( 'usage: ', '' ) )
+	usage = parser.format_usage().replace( 'usage: ', '' )
+	f.write( ' '.join( usage.split() ) )
 	f.close()
