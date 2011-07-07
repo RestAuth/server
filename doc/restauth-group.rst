@@ -37,7 +37,7 @@ Usage
 
 .. only:: html
    
-   .. literalinclude:: includes/restauth-group-usage.rst
+   .. literalinclude:: gen/restauth-group-usage.rst
 
 Use one of the commands (either add, add-group, add-user, list, rm, rm-group, rm-user or view) to
 perform the respective operation. Each command usually requires more arguments
@@ -121,7 +121,7 @@ Available commands
 
 The following subsections never document the '-h' parameter for clarity.
 
-.. include:: includes/restauth-group-commands.rst
+.. include:: gen/restauth-group-commands.rst
 
 Influential environment variables
 ---------------------------------

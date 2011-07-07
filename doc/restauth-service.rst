@@ -25,7 +25,7 @@ Usage
 
 .. only:: html
    
-   .. literalinclude:: includes/restauth-service-usage.rst
+   .. literalinclude:: gen/restauth-service-usage.rst
 
 Use one of the commands (either add, view, ls, set-hosts, set-password or rm) to
 perform the respective operation. Each command usually requires more arguments
@@ -98,7 +98,7 @@ Available commands
 
 The following subsections never document the '-h' parameter for clarity.
 
-.. include:: includes/restauth-service-commands.rst
+.. include:: gen/restauth-service-commands.rst
 
 Influential environment variables
 ---------------------------------

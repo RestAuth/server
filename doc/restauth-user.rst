@@ -24,7 +24,7 @@ Usage
 
 .. only:: html
    
-   .. literalinclude:: includes/restauth-user-usage.rst
+   .. literalinclude:: gen/restauth-user-usage.rst
 
 Use one of the commands (either set-password, verify, list, add, rm or view) to
 perform the respective operation. Each command usually requires more arguments
@@ -97,7 +97,7 @@ Available commands
 
 The following subsections never document the '-h' parameter for clarity.
 
-.. include:: includes/restauth-user-commands.rst
+.. include:: gen/restauth-user-commands.rst
 
 Influential environment variables
 ---------------------------------
