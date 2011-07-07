@@ -83,10 +83,11 @@ class clean( _clean ):
 		
 	def run( self ):
 		_clean.run( self )
-
-		# remove generated files
-		for filename in glob.glob( 'man/*.[0-9]' ):
-			os.remove( filename )
+		
+		# clean sphinx documentation:
+		cmd = [ 'make', '-C', 'doc', 'clean' ]
+		p = Popen( cmd )
+		p.communicate()
 
 class version( Command ):
 	user_options = []
@@ -122,6 +123,9 @@ class build_doc( Command ):
 		write_usage( group_parser, 'restauth-group' )
 		write_commands( group_parser, 'restauth-group' )
 		
+		if not os.path.exists( 'doc/_static' ):
+			os.mkdir( 'doc/_static' )
+		os.environ['PYTHONPATH'] = '.'
 		cmd = [ 'make', '-C', 'doc', 'clean', 'man', 'html' ]
 		p = Popen( cmd )
 		p.communicate()
