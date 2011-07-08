@@ -6,10 +6,30 @@
 Welcome to RestAuth!
 ====================
 
-Contents:
+Welcome to **RestAuth**, a lightweight webservice that provides shared authentication, authorization
+and preferences. RestAuth does not attempt to provide "one account for the web" like `OpenId
+<http://en.wikipedia.org/wiki/OpenID>`_ or `OAuth <http://en.wikipedia.org/wiki/OAuth>`_ but instead
+allows multiple systems to directly use the same userbase, much like the way LDAP or Kerberos
+is commonly used.
 
-.. toctree::
-   :maxdepth: 1
+RestAuth focuses on being very easy to setup and maintain. Installation is possible within just a
+few minutes, if you have some system administration experience. RestAuth is also very flexible,
+allowing you to import and use accounts from many other systems. You can also block registrations of
+accounts where the username is not compatible with some systems you use. 
+
+RestAuth is the server-side reference implementation of the `RestAuth protocol
+<http://fs.fsinf.at/wiki/RestAuth/Specification>`_. RestAuth is written in `Python
+<http://www.python.org>`_ and is using the `Django webframework <http://djangoproject.com/>`_. As
+such, it can run on a variety of operating systems, using any webserver and database system
+supported by Django. 
+
+RestAuth is Free Software, licensed unter the `GNU General Public Licence, version 3
+<http://www.gnu.org/licenses/gpl.html>`_. 
+
+
+.. Contents:
+   .. toctree::
+      :maxdepth: 1
 
 Installation
 ============
@@ -31,6 +51,8 @@ Configuration
 
 Commandline scripts
 ===================
+
+RestAuth provides command-line scripts to locally interact with RestAuth.
 
 .. toctree::
    :maxdepth: 1
