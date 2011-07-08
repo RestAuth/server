@@ -3,13 +3,31 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to RestAuth's documentation!
-====================================
+Welcome to RestAuth!
+====================
 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+
+Installation
+============
+
+.. toctree::
+   :maxdepth: 1
+
+   install/from-source
+   install/debian-ubuntu
+
+Configuration
+=============
+
+.. toctree::
+   :maxdepth: 1
+
+   config/webserver
+   config/restauth
 
 Commandline scripts
 ===================
