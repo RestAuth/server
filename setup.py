@@ -83,37 +83,60 @@ class version( Command ):
 	def run( self ):
 		print( get_version() )
 
-class build_doc( Command ):
-	user_options = []
-	description = "Build documentation"
-	def initialize_options( self ):
-		pass
-	def finalize_options( self ):
-		pass
-
-	def run( self ):
-		sys.path.insert( 0, 'bin/' )
-		from RestAuth.common.cli import service_parser, user_parser, group_parser
-		from RestAuth.common.cli import format_man_usage, write_commands, write_usage
-		service_parser.prog = 'restauth-service'
-		user_parser.prog = 'restauth-user'
-		group_parser.prog = 'restauth-group'
+class build_doc_meta( Command ):
+	def __init__(self, *args, **kwargs ):
+		Command.__init__( self, *args, **kwargs )
 		
-		write_usage( service_parser, 'restauth-service' )
-		write_commands( service_parser, 'restauth-service' )
+		# generate files for cli-scripts:
+		from RestAuth.common import cli
+		cli.service_parser.prog = 'restauth-service'
+		cli.user_parser.prog = 'restauth-user'
+		cli.group_parser.prog = 'restauth-group'
 		
-		write_usage( user_parser, 'restauth-user' )
-		write_commands( user_parser, 'restauth-user' )
-		
-		write_usage( group_parser, 'restauth-group' )
-		write_commands( group_parser, 'restauth-group' )
-		
+		# create necesarry folders:
 		if not os.path.exists( 'doc/_static' ):
 			os.mkdir( 'doc/_static' )
 		if not os.path.exists( 'doc/gen' ):
 			os.mkdir( 'doc/gen' )
+
+		for parser, name in [ (cli.service_parser, 'restauth-service'),
+				(cli.user_parser, 'restauth-user'),
+				(cli.group_parser, 'restauth-group') ]:
+			
+			if self.should_generate( cli.__file__, 'doc/gen/%s-usage.rst'%name ):
+				cli.write_usage( parser, 'doc/gen/%s-usage.rst'%name )
+			if self.should_generate( cli.__file__, 'doc/gen/%s-commands.rst'%name ):
+				cli.write_commands( parser, 'doc/gen/%s-commands.rst'%name, name )
+		
 		os.environ['PYTHONPATH'] = '.'
+		
+	def should_generate( self, source, generated ):
+		if not os.path.exists( generated ):
+			return True
+		if os.stat( source ).st_mtime > os.stat( generated ).st_mtime:
+			return True
+		return False
+	
+	def initialize_options( self ):
+		pass
+	def finalize_options( self ):
+		pass
+	user_options = []
+
+class build_doc( build_doc_meta ):
+	user_options = []
+	description = "Build entire documentation"
+
+	def run( self ):		
 		cmd = [ 'make', '-C', 'doc', 'clean', 'man', 'html' ]
+		p = Popen( cmd )
+		p.communicate()
+		
+class build_man( build_doc_meta ):
+	user_options = []
+	description = "Build entire documentation"
+	def run( self ):
+		cmd = [ 'make', '-C', 'doc', 'clean', 'man' ]
 		p = Popen( cmd )
 		p.communicate()
 
@@ -126,7 +149,7 @@ class build( _build ):
 		self.prefix = None
 		self.exec_prefix = None
 
-	sub_commands = [('build_doc', lambda self: True)] + _build.sub_commands
+	sub_commands = [('build_man', lambda self: True)] + _build.sub_commands
 	user_options = _build.user_options + added_options
 
 setup(
@@ -144,5 +167,5 @@ setup(
 		],
 	cmdclass={
 		'install_data': install_data, 'build': build, 'version': version,
-		'clean': clean, 'build_doc': build_doc },
+		'clean': clean, 'build_doc': build_doc, 'build_man': build_man },
 )
