@@ -96,7 +96,7 @@ documentation.
 SQLite
 """"""
 
-If you are using `SQLite <http://www.sqlite.org/>`_, which is not recommended on any production
+If you are using `SQLite <http://www.sqlite.org/>`_, which is **not recommended** on any production
 setup, you do not have to do anything except making sure that the directory named in ``NAME`` is
 writable by the webserver.
 
@@ -113,7 +113,7 @@ command of :command:`manage.py`. If you installed from source, you can simply ru
    
    python manage.py syncdb
    
-If you used any other way of installing RestAuth, the script is most likely called
+If you used any other way of installing RestAuth, the command is most likely called
 :command:`restauth-manage`.
 
 .. _config_restauth_secret_key:
@@ -121,11 +121,77 @@ If you used any other way of installing RestAuth, the script is most likely call
 SECRET_KEY
 ----------
 
+Never forget to set a `SECRET_KEY <https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>`_
+in :file:`localsettings.py`.
+
 SKIP_VALIDATORS
 ---------------
+
+By default, usernames in RestAuth can contain any UTF-8 character except a slash ('/'), a backslash
+('\') and a semicolon (':').
+
+*Validators* are used to restrict usernames further if certain charactes are unavailable in some
+systems that use your RestAuth installation. Consider the following scenario: Your RestAuth server
+provides accounts for a `MediaWiki <http://www.mediawiki.org>`_ (thats also used to register new
+accounts) and an `XMPP server
+<http://en.wikipedia.org/wiki/Extensible_Messaging_and_Presence_Protocol>`_. MediaWiki has no
+problems with usernames containing spaces, but the XMPP protocol forbids that. In this scenario, you
+would want the ``xmpp`` validator to block creating users where the username contains a space.
+
+RestAuth ships with validators named ``xmpp``, ``email``, ``mediawiki``, ``linux`` and ``windows``.
+You can use the ``SKIP_VALIDATORS`` setting to skip any of the aforementioned validators, by default
+``linux``, ``xmpp``, ``email`` and ``windows`` are skipped, because the severely restrict usernames.
+
+.. todo:: Provide an ability to add your own validators.
+
 
 HASH_ALGORITHM
 --------------
 
+The ``HASH_ALGORITHM`` setting configures which algorithm is used for hashing new passwords. If you
+set this to a new algorithm, old password hashes will be updated whenever a user logs in. RestAuth
+supports all algorithms supported by the `hashlib module
+<http://docs.python.org/library/hashlib.html>`_.
+
+In addition, RestAuth supports reading and storing hashes the same way that legacy systems store
+them. *Reading* such hashes has the advantage of being able to import user databases from those
+systems. *Storing* new hashes this way lets you move the password database back to one of those
+systems. Currently the only other supported system is ``mediawiki``. 
+
 LOGGING
 -------
+
+Django has very powerful logging configuration capabilities. The full documentation can be found
+`in the Django documentation <https://docs.djangoproject.com/en/dev/topics/logging/>`_.
+
+For convinience, RestAuth offers a few additional settings that let you configure the most important
+settings and have the rest done by RestAuth. If you are fine with the default, you don't have to do
+anything.
+
+* Set the logging using ``LOG_ERROR`` verbosity. See :file:`localsettings.py` for a list of
+  available values. The default is ``ERROR``.
+* You can define the LoggingHandler (that define where any log messages will go) using
+  ``LOG_HANDLER``. The setting should be a string containing the classname of any available handler.
+  See `logging.handlers <http://docs.python.org/library/logging.handlers.html>` for whats available 
+  (of course nothing stops you from implementing your own handler!). The default is
+  ``logging.STREAM_HANDLER``.
+* You can specify any keyword arguments the LoggingHandler will get using
+  ``LOGGING_HANDLER_KWARGS``. You can specify any argument that the LoggingHandler you configured
+  supports. The format is adictionary where the key is string with the name of the keyword arguments
+  and the respective value is the value of the keyword argument.
+  
+Here is a more complex example:
+
+.. code-block:: python
+
+   # we really want to log everything:
+   LOG_LEVEL = 'DEBUG'
+   # ... and to a socket:
+   LOG_HANDLER = 'logging.SOCKET_HANDLER'
+   LOG_HANDLER_KWARGS = { 'host': 'localhost', 'port': 10000 }
+
+If you absolutely know what you are doing, you can simply set your own ``LOGGING`` config:
+
+.. code-block:: python
+   
+   LOGGING = { ... }
