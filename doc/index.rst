@@ -52,7 +52,9 @@ Configuration
 Commandline scripts
 ===================
 
-RestAuth provides command-line scripts to locally interact with RestAuth.
+RestAuth provides command-line scripts to locally interact with RestAuth. They are required for
+some functionality (managing services and global groups) that is not available via the RestAuth
+protocol.
 
 .. toctree::
    :maxdepth: 1
