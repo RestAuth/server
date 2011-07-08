@@ -81,7 +81,7 @@ SECRET_KEY=''
 #
 # You can use this setting to disable some validators so you can support a wider
 # range of usernames. Valid values are 'xmpp', 'email', 'mediawiki', 'linux' and
-# 'windows'.a
+# 'windows'.
 #SKIP_VALIDATORS = [ 'windows', 'email', 'xmpp', 'linux' ]
 
 # You can override the minimum username and password length:
@@ -141,8 +141,8 @@ SECRET_KEY=''
 # You may also want to define a log handler and keyword arguments for it. Please
 # see the python documentation on what this means:
 # 	http://docs.python.org/library/logging.config.html#configuration-dictionary-schema
-# and possible values:
-#	http://docs.python.org/library/logging.handlers.html#logging.StreamHandler
+# and possible handlers:
+#	http://docs.python.org/library/logging.handlers.html
 #LOG_HANDLER = 'logging.StreamHandler'
 #LOG_HANDLER_KWARGS = {}
 
