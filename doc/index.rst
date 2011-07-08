@@ -38,6 +38,9 @@ Commandline scripts
    restauth-service
    restauth-user
    restauth-group
+   
+Migrating to RestAuth
+=====================
 
 Indices and tables
 ==================
