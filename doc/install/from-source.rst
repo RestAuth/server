@@ -30,9 +30,9 @@ repository to a directory named "RestAuth", simply do:
 
    git clone http://git.fsinf.at/restauth/server.git RestAuth
 
-Older versions are marked as tags. You can view available tags with *git tag -l* use any of those
-versions with *git checkout <tag-name>*. To move back to the newest version, use *git checkout
-master*.
+Older versions are marked as tags. You can view available tags with :command:`git tag -l`. You can
+use any of those versions with :command:`git checkout`, for example :command:`git checkout 1.0`.
+To move back to the newest version, use :command:`git checkout master`.
 
 If you ever want to update the source code, just use:
 
@@ -61,6 +61,9 @@ in the above example) and just run:
 
    python setup.py build
    python setup.py install
+   
+Once you have installed RestAuth, you can go on :doc:`configuring your webserver
+<../config/webserver>` and :doc:`configuring RestAuth <../config/restauth>`.
 
 Run tests
 ---------
