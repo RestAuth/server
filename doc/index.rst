@@ -66,6 +66,14 @@ protocol.
 Migrating to RestAuth
 =====================
 
+If you already have some systems running that should use RestAuth, you have to import their
+user databases. This section documents scripts and notes vor various systems.
+
+.. toctree::
+   :maxdepth: 1
+   
+   migrate/mediawiki
+
 Indices and tables
 ==================
 
