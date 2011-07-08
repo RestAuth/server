@@ -65,5 +65,7 @@ for name, data in records.iteritems():
 		fields = 'username, algorithm, hash, last_login, date_joined'
 		values = "'%s', 'mediawiki', '%s', '%s', '%s'"%(name, hash, touched, created)
 		
-	sql = "INSERT INTO %s ( %s ) VALUES ( %s );"%( table, fields, values )
+	sql = "INSERT IGNORE INTO %s ( %s ) VALUES ( %s );"%( table, fields, values )
 	print( sql )
+
+# TODO: add groups, user properties
