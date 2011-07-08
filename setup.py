@@ -38,21 +38,6 @@ def get_version():
 		version = p.communicate()[0].decode( 'utf-8' )
 	return version.strip()
 
-
-def process_file( in_path, out_path, dictionary ):
-	"""
-	Used to dynamically create files. Reads file at in_path, writes it to
-	out_path and replaces all occurrences of any key of the dictionary with
-	its corresponding value.
-	"""
-	in_file = open( in_path )
-	out_file = open( out_path, 'w' )
-	for line in in_file.readlines():
-		for key in dictionary.keys():
-			if key in line:
-				line = line.replace( key, dictionary[key] )
-		out_file.write( line )
-
 class install_data( _install_data ):
 	"""
 	Improve the install_data command so it can also copy directories
