@@ -256,8 +256,8 @@ def format_man_usage( parser ):
 	
 	return ' %s'%text
 
-def write_commands( parser, cmd ):
-	f = open( 'doc/gen/%s-commands.rst'%cmd, 'w' )
+def write_commands( parser, path, cmd ):
+	f = open( path, 'w' )
 	commands = sorted( parser._subparsers._actions[1].choices )
 	format_dict = { 'prog': parser.prog }
 	for sub_cmd in commands:
@@ -328,8 +328,8 @@ def write_commands( parser, cmd ):
 		
 	f.close()
 
-def write_usage( parser, cmd ):
-	f = open( 'doc/gen/%s-usage.rst'%cmd, 'w' )
+def write_usage( parser, path ):
+	f = open( path, 'w' )
 	usage = parser.format_usage().replace( 'usage: ', '' )
 	f.write( ' '.join( usage.split() ) )
 	f.close()
