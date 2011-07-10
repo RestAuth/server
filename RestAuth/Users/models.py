@@ -14,14 +14,14 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
-from django.contrib.auth.models import User, get_hexdigest
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.utils import IntegrityError
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote
 
-from RestAuth.common import get_hexdigest, get_salt
+from RestAuth.common.password import get_hexdigest, get_salt
 from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, UserExists, PropertyExists
 from RestAuth.Users import validators
 from RestAuthCommon.error import PreconditionFailed
