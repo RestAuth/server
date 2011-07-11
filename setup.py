@@ -163,7 +163,7 @@ setup(
 #	scripts = [ 'bin/restauth-groups.py' ],
 	data_files = [
 		('share/restauth', [ 'wsgi' ] ),
-		('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT', 'doc/migration', 'doc/mod_wsgi'] ),
+		('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT' ] ),
 		],
 	cmdclass={
 		'install_data': install_data, 'build': build, 'version': version,
