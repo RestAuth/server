@@ -127,8 +127,8 @@ class build_doc( build_doc_meta ):
 	user_options = []
 	description = "Build entire documentation"
 
-	def run( self ):		
-		cmd = [ 'make', '-C', 'doc', 'clean', 'man', 'html' ]
+	def run( self ):
+		cmd = [ 'make', '-C', 'doc', 'man', 'html' ]
 		p = Popen( cmd )
 		p.communicate()
 		
@@ -136,7 +136,7 @@ class build_man( build_doc_meta ):
 	user_options = []
 	description = "Build entire documentation"
 	def run( self ):
-		cmd = [ 'make', '-C', 'doc', 'clean', 'man' ]
+		cmd = [ 'make', '-C', 'doc', 'man' ]
 		p = Popen( cmd )
 		p.communicate()
 
