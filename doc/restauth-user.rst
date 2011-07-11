@@ -109,4 +109,4 @@ Influential environment variables
    See Also
    ^^^^^^^^
 
-   **restauth-service**\ (1), **restauth-groups**\ (1)
+   **restauth-service**\ (1), **restauth-group**\ (1)
