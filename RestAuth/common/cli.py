@@ -28,8 +28,8 @@ username_arg_parser.add_argument( 'username', help="The name of the user." )
 
 group_arg_parser = ArgumentParser(add_help=False)
 group_arg_parser.add_argument( 'group', help="The name of the group." )
-group_arg_parser.add_argument( '--service', help="""Act as if %(prog)s was the service named
-SERVICE. If ommitted, act on groups that are not associated with any service.""" )
+group_arg_parser.add_argument( '--service', help="""Act as if %(prog)s was the
+service named SERVICE. If ommitted, act on groups that are not associated with any service.""" )
 
 subgroup_parser = ArgumentParser(add_help=False)
 subgroup_parser.add_argument( 'subgroup', help="The name of the subgroup.")
@@ -54,8 +54,6 @@ service_subparsers.add_parser( 'rm', help="Remove a service.", parents=[service_
 that service.""" )
 service_subparsers.add_parser( 'view', help="View details of a service.", parents=[service_arg_parser],
 	description="View details of a service." )
-service_subparsers.add_parser( 'view', help="View details of a service.", parents=[service_arg_parser],
-	description="View details of a service." )
 service_subparsers.add_parser( 'set-hosts', parents=[service_arg_parser, host_arg_parser],
 	help="Set hosts that a service can connect from.",
 	description="Set hosts that a service can connect from." )
@@ -75,7 +73,7 @@ user_subparsers = user_parser.add_subparsers( title="Available actions", dest='a
 user_subparsers.add_parser( 'add', help="Add a new user.",
 	parents=[username_arg_parser, pwd_parser],
 	description="Add a new user." )
-user_subparsers.add_parser( 'list', help="List all users.", description="List all users." )
+user_subparsers.add_parser( 'ls', help="List all users.", description="List all users." )
 user_subparsers.add_parser( 'verify', help="Verify a users password.",
 	parents=[username_arg_parser, pwd_parser],
 	description="Verify the password of a user." ) 
@@ -103,7 +101,10 @@ group_subparsers = group_parser.add_subparsers( title="Available actions", dest=
 	description="""Use '%(prog)s action --help' for more help on each action.""" )
 group_subparsers.add_parser( 'add', help="Add a new group.", parents=[group_arg_parser],
 	description="Add a new group." )
-group_subparsers.add_parser( 'list', help="List all groups.", description="List all groups." )
+group_ls_parser = group_subparsers.add_parser( 'ls', help="List all groups.",
+	description="List all groups." )
+group_ls_parser.add_argument( '--service', help="""Act as if %(prog)s was the
+service named SERVICE. If ommitted, act on groups that are not associated with any service.""" )
 group_subparsers.add_parser( 'view', help="View details of a group.", parents=[group_arg_parser],
 	description="View details of a group." )
 group_subparsers.add_parser( 'add-user', parents=[group_arg_parser, username_arg_parser],
