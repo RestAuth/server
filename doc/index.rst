@@ -62,6 +62,7 @@ protocol.
    restauth-service
    restauth-user
    restauth-group
+   restauth-import
    
 Migrating to RestAuth
 =====================
@@ -73,6 +74,7 @@ user databases. This section documents scripts and notes vor various systems.
    :maxdepth: 1
    
    migrate/mediawiki
+   migrate/import-format
 
 Indices and tables
 ==================

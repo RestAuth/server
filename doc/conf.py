@@ -217,9 +217,19 @@ man_pages = [
     ('restauth-user', 'restauth-user', u'manage users in RestAuth',
      [u'Mathias Ertl'], 1),
     ('restauth-group', 'restauth-group', u'manage groups in RestAuth',
+     [u'Mathias Ertl'], 1),
+    ('restauth-import', 'restauth-import', u'import data into RestAuth',
      [u'Mathias Ertl'], 1)
 ]
 
-
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
+
+if tags.has( 'man' ):
+  rst_prolog = """
+.. |restauth-import-format| replace:: :manpage:`restauth-import(5)`
+"""
+else:
+  rst_prolog = """
+.. |restauth-import-format| replace:: :doc:`import format <../migrate/import-format>`
+"""
