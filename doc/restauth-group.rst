@@ -133,4 +133,4 @@ Influential environment variables
    See Also
    ^^^^^^^^
 
-   **restauth-service**\ (1), **restauth-user**\ (1)
+   :manpage:`restauth-service(1)`, :manpage:`restauth-user(1)`, :manpage:`restauth-import(1)`

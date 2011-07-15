@@ -109,4 +109,4 @@ Influential environment variables
    See Also
    ^^^^^^^^
 
-   **restauth-service**\ (1), **restauth-group**\ (1)
+   :manpage:`restauth-service(1)`, :manpage:`restauth-group(1)`, :manpage:`restauth-import(1)`
