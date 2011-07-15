@@ -92,6 +92,7 @@ class build_doc_meta( Command ):
 		cli.service_parser.prog = 'restauth-service'
 		cli.user_parser.prog = 'restauth-user'
 		cli.group_parser.prog = 'restauth-group'
+		cli.import_parser.prog = 'restauth-import'
 		
 		# create necesarry folders:
 		if not os.path.exists( 'doc/_static' ):
@@ -101,12 +102,16 @@ class build_doc_meta( Command ):
 
 		for parser, name in [ (cli.service_parser, 'restauth-service'),
 				(cli.user_parser, 'restauth-user'),
-				(cli.group_parser, 'restauth-group') ]:
+				(cli.group_parser, 'restauth-group'),
+				(cli.import_parser, 'restauth-import') ]:
 			
 			if self.should_generate( cli.__file__, 'doc/gen/%s-usage.rst'%name ):
 				cli.write_usage( parser, 'doc/gen/%s-usage.rst'%name )
 			if self.should_generate( cli.__file__, 'doc/gen/%s-commands.rst'%name ):
 				cli.write_commands( parser, 'doc/gen/%s-commands.rst'%name, name )
+			if self.should_generate( cli.__file__, 'doc/gen/%s-parameters.rst'%name ):
+				cli.write_parameters( parser, 'doc/gen/%s-parameters.rst'%name, name )
+				
 		
 		os.environ['PYTHONPATH'] = '.'
 		
