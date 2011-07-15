@@ -1,5 +1,5 @@
 from argparse import ArgumentParser, Action
-import argparse, re
+import argparse, re, sys
 
 class PasswordGenerator( Action ):
 	def __call__( self, parser, namespace, values, option_string ):
@@ -17,10 +17,10 @@ pwd_group.add_argument( '--gen-password', action=PasswordGenerator, nargs=0, des
 ### Various positional arguments ###
 ####################################
 service_arg_parser = ArgumentParser(add_help=False)
-service_arg_parser.add_argument( 'service', help="The name of the service." )
+service_arg_parser.add_argument( 'service', metavar="SERVICE", help="The name of the service." )
 
 host_arg_parser = ArgumentParser( add_help=False )
-host_arg_parser.add_argument( 'hosts', metavar='host', nargs='*', help="""A host that the service is able to
+host_arg_parser.add_argument( 'hosts', metavar='HOST', nargs='*', help="""A host that the service is able to
 	connect from. You can name multiple hosts as additional positional arguments. If ommitted,
 	this service cannot be used from anywhere.""")
 username_arg_parser = ArgumentParser(add_help=False)
@@ -28,7 +28,7 @@ username_arg_parser.add_argument( 'username', help="The name of the user." )
 
 group_arg_parser = ArgumentParser(add_help=False)
 group_arg_parser.add_argument( 'group', help="The name of the group." )
-group_arg_parser.add_argument( '--service', help="""Act as if %(prog)s was the
+group_arg_parser.add_argument( '--service', metavar="SERVICE", help="""Act as if %(prog)s was the
 service named SERVICE. If ommitted, act on groups that are not associated with any service.""" )
 
 subgroup_parser = ArgumentParser(add_help=False)
@@ -122,6 +122,30 @@ group_subparsers.add_parser( 'rm-group', parents=[group_arg_parser, subgroup_par
 group_subparsers.add_parser( 'rm', parents=[group_arg_parser], help="Remove a group.",
 	description="Remove a group." )
 
+##############################
+### restauth-import parser ###
+##############################
+import_desc = "Import user data from another system."
+import_parser = ArgumentParser( description=import_desc )
+
+import_parser.add_argument( '--gen-passwords', action='store_true', default=False,
+	help="Generate passwords where missing in input data and print them to stdout." )
+import_parser.add_argument( '--overwrite-passwords', action='store_true', default=False,
+	help="""Overwrite passwords of already existing services or users if the input data contains
+a password. (default: %(default)s)""" )
+import_parser.add_argument( '--overwrite-properties', action='store_true', default=False,
+	help="""Overwrite already existing properties of users. (default: %(default)s)""" )
+import_parser.add_argument( '--skip-existing-users', action='store_true', default=False, help=
+	"""Skip users completely if they already exist. If not set, passwords and properties are
+overwritten if their respective --overwrite-... argument is given.""" )
+import_parser.add_argument( '--skip-existing-groups', action='store_true', default=False, help=
+	"""Skip groups completely if they already exist. If not set, users and subgroups will be
+added to the list.""" )
+import_parser.add_argument( '--using', default=None, metavar="ALIAS",
+	help="Use different database alias. (UNTESTED!)" )
+
+import_parser.add_argument( 'file', nargs='?', type=argparse.FileType('r'), default=sys.stdin )
+
 ########################
 ### helper functions ###
 ########################
@@ -141,7 +165,7 @@ def _metavar_formatter( action, default_metavar ):
 		    return (result, ) * tuple_size
 	return format
 
-def _format_args( action, default_metavar ):
+def _format_args( action, default_metavar, format=True ):
 	OPTIONAL = '?'
 	ZERO_OR_MORE = '*'
 	ONE_OR_MORE = '+'
@@ -150,13 +174,25 @@ def _format_args( action, default_metavar ):
 	
 	get_metavar = _metavar_formatter(action, default_metavar)
 	if action.nargs is None:
-		result = '*%s*' % get_metavar(1)
+		if format:
+			result = '*%s*' % get_metavar(1)
+		else:
+			result = '%s' % get_metavar(1)
 	elif action.nargs == OPTIONAL:
-		result = '[*%s*]' % get_metavar(1)
+		if format:
+			result = '[*%s*]' % get_metavar(1)
+		else:
+			result = '[*%s*]' % get_metavar(1)
 	elif action.nargs == ZERO_OR_MORE:
-		result = '[*%s* [*%s* ...]]' % get_metavar(2)
+		if format:
+			result = '[*%s* [*%s* ...]]' % get_metavar(2)
+		else:
+			result = '[%s [%s ...]]' % get_metavar(2)
 	elif action.nargs == ONE_OR_MORE:
-		result = '*%s* [*%s* ...]' % get_metavar(2)
+		if format:
+			result = '*%s* [*%s* ...]' % get_metavar(2)
+		else:
+			result = '%s [%s ...]' % get_metavar(2)
 	elif action.nargs == REMAINDER:
 		result = '...'
 	elif action.nargs == PARSER:
@@ -165,6 +201,18 @@ def _format_args( action, default_metavar ):
 		formats = ['%s' for _ in range(action.nargs)]
 		result = ' '.join(formats) % get_metavar(action.nargs)
 	return result
+
+def format_action( action, format=True ):
+	if action.metavar:
+		metavar = _format_args( action, action.metavar, format )
+	else:
+		metavar = _format_args( action, action.dest.upper(), format )
+	
+	if action.option_strings:
+		strings = [ '%s %s'%(name, metavar) for name in action.option_strings ]
+		return ', '.join( strings )
+	else:
+		return metavar
 
 def format_man_usage( parser ):
 	"""
@@ -257,7 +305,41 @@ def format_man_usage( parser ):
 	
 	return ' %s'%text
 
+def split_opts_and_args( parser, format_dict={}, skip_help=False ):
+	opts, args = [], []
+	
+	for action in parser._positionals._actions:
+		if skip_help and type( action ) == argparse._HelpAction:
+			continue
+		
+		if not action.option_strings:
+			args.append( action )
+		else:
+			opts.append( action )
+		
+	return opts, args
+
+def write_parameters( parser, path, cmd ):
+	f = open( path, 'w' )
+	format_dict = { 'prog': parser.prog }
+	opts, args = split_opts_and_args(parser, format_dict, True)
+	
+	if opts:
+		f.write( '.. program:: %s\n\n'%(cmd) ) 
+			
+	for action in opts:
+		if action.default != None:
+			format_dict['default'] = action.default
+		f.write( '.. option:: %s\n'%(format_action( action, False )) )
+		f.write( '   \n')
+		f.write( '   %s\n'%(' '.join( action.help.split() )%format_dict) )
+		f.write( '   \n')
+		format_dict.pop( 'default', None )
+
 def write_commands( parser, path, cmd ):
+	if not parser._subparsers:
+		return
+	
 	f = open( path, 'w' )
 	commands = sorted( parser._subparsers._actions[1].choices )
 	format_dict = { 'prog': parser.prog }
@@ -266,65 +348,35 @@ def write_commands( parser, path, cmd ):
 		subparser = parser._subparsers._actions[1].choices[sub_cmd]
 		subparser.prog = '%s %s'%(cmd, sub_cmd)
 		
+		# add name of command as header everywhere except on man pages
 		f.write( '.. only:: not man\n')
 		f.write( '   \n' )
 		f.write( "   %s\n"%sub_cmd )
 		f.write( '   %s\n\n'%('^'*(len(sub_cmd))) )
 		f.write( '   \n' )
 		
+		# start writing the example:
 		f.write( '.. example:: ')
-		header = '**%s**%s\n'%(sub_cmd, format_man_usage( subparser ) )
-		f.write( header )
+		f.write( '**%s**%s\n'%(sub_cmd, format_man_usage( subparser ) ) )
 		f.write( '   \n')
 		f.write( '   %s\n'%( ' '.join( subparser.description.split() ) ) )
 		f.write( '   \n')
 		
-		opts = []
-		args = []
-		
-		for action in subparser._positionals._actions:
-			if type( action ) == argparse._HelpAction:
-				continue
-			if not action.option_strings:
-				args.append( action )
-			else:
-				if action.metavar:
-					metavar = action.metavar
-				else:
-					metavar = action.dest.upper()
-					
-				if action.nargs is None:
-					strings = [ '%s %s'%(name, metavar) for name in action.option_strings ]
-					option_string = ', '.join( strings )
-				elif action.metavar:
-					strings = [ '%s %s'%(name, action.metavar) for name in action.option_strings ]
-					option_string = ', '.join( strings )
-				elif action.nargs == 0:
-					option_string = ', '.join( action.option_strings )
-				else:
-					strings = [ '%s %s'%(name, action.dest) for name in action.option_strings ]
-					option_string = ', '.join( strings )
-					
-				
-				help = ' '.join( action.help.split() )%format_dict
-				opts.append( (option_string, help ) )
-				
+		# write options and arguments:
+		opts, args = split_opts_and_args(subparser, format_dict, True)
 		if opts or args:
 			f.write( '   .. program:: %s-%s\n\n'%(cmd, sub_cmd) ) 
 				
-		for opt_str, opt_desc in opts:
-			f.write( '   .. option:: %s\n'%opt_str.strip() )
+		for action in opts:
+			f.write( '   .. option:: %s\n'%(format_action( action, False )) )
 			f.write( '      \n')
-			f.write( '      %s\n'%opt_desc)
+			f.write( '      %s\n'%(' '.join( action.help.split() )%format_dict) )
 			f.write( '      \n')
 			
 		for arg in args:
-			arg_str = arg.dest
-			arg_desc = arg.help
-			f.write( '   .. option:: %s\n'%arg.dest )
+			f.write( '   .. option:: %s\n'%format_action( arg, False ) )
 			f.write( '      \n')
-			help = ' '.join( arg.help.split() )
-			f.write( '      %s\n'%help)
+			f.write( '      %s\n'%(' '.join( arg.help.split()) ) )
 			f.write( '      \n')
 		
 	f.close()
