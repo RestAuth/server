@@ -59,8 +59,6 @@ Examples
 Available parameters
 --------------------
 
-The following subsections never document the '-h' parameter for clarity.
-
 .. include:: gen/restauth-import-parameters.rst
 
 Influential environment variables
