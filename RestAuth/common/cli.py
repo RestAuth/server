@@ -322,7 +322,7 @@ def split_opts_and_args( parser, format_dict={}, skip_help=False ):
 def write_parameters( parser, path, cmd ):
 	f = open( path, 'w' )
 	format_dict = { 'prog': parser.prog }
-	opts, args = split_opts_and_args(parser, format_dict, True)
+	opts, args = split_opts_and_args(parser, format_dict)
 	
 	if opts:
 		f.write( '.. program:: %s\n\n'%(cmd) ) 
@@ -384,5 +384,5 @@ def write_commands( parser, path, cmd ):
 def write_usage( parser, path ):
 	f = open( path, 'w' )
 	usage = parser.format_usage().replace( 'usage: ', '' )
-	f.write( ' '.join( usage.split() ) )
+	f.write( usage )	
 	f.close()
