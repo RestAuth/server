@@ -80,7 +80,7 @@ Example::
         }
     }
     
-In this example, only *example.com* is an actually usable (from localhost). The other services may
+In this example, only *example.com* is actually usable (from localhost). The other services may
 still be usable if the service already exists. In the case of *example.org*, for example, the
 two named hostnames would be added to an existing service with the same name.
 
