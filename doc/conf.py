@@ -228,8 +228,10 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 if tags.has( 'man' ):
   rst_prolog = """
 .. |restauth-import-format| replace:: :manpage:`restauth-import(5)`
+.. |restauth-import| replace:: :manpage:`restauth-import(1)`
 """
 else:
   rst_prolog = """
 .. |restauth-import-format| replace:: :doc:`import format <../migrate/import-format>`
+.. |restauth-import| replace:: :doc:`restauth-import <../restauth-import>`
 """
