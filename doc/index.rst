@@ -10,7 +10,7 @@ Welcome to **RestAuth**, a lightweight webservice that provides shared authentic
 and preferences. RestAuth does not attempt to provide "one account for the web" like `OpenId
 <http://en.wikipedia.org/wiki/OpenID>`_ or `OAuth <http://en.wikipedia.org/wiki/OAuth>`_ but instead
 allows multiple systems to directly use the same userbase, much like the way LDAP or Kerberos
-is commonly used.
+is commonly used. Since RestAuth is Free Software, please feel free to :doc:`contribute </contribute>`.
 
 RestAuth focuses on being very easy to setup and maintain. Installation is possible within just a
 few minutes, if you have some system administration experience. RestAuth is also very flexible,
@@ -73,9 +73,10 @@ user databases. This section documents scripts and notes vor various systems.
 .. toctree::
    :maxdepth: 1
    
-   migrate/mediawiki
+   migrate/general
    migrate/import-format
-
+   migrate/mediawiki
+   
 Indices and tables
 ==================
 
