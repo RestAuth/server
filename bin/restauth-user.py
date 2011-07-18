@@ -49,7 +49,7 @@ def get_password( options ):
 		return password
 
 if args.action in ['create', 'add']:
-	username = args.username.decode( 'utf-8')
+	username = args.user.decode( 'utf-8')
 
 	try:
 		validate_username( username )
@@ -58,7 +58,7 @@ if args.action in ['create', 'add']:
 		user.set_password( password )
 		user.save()
 	except IntegrityError as e:
-		print( "Error: %s: User already exists."%args.username )
+		print( "Error: %s: User already exists."%username )
 		sys.exit(1)
 	except errors.PreconditionFailed as e:
 		print( "Error: %s"%e )
@@ -68,7 +68,7 @@ elif args.action in ['ls', 'list']:
 		print( user.encode('utf-8' ) )
 elif args.action == 'verify':
 	try:
-		user = user_get( args.username )
+		user = user_get( args.user )
 		if not args.pwd:
 			args.pwd = getpass.getpass( 'password: ' )
 		if user.check_password( args.pwd ):
@@ -77,23 +77,23 @@ elif args.action == 'verify':
 			print( 'Failed.' )
 			sys.exit(1)
 	except ServiceUser.DoesNotExist:
-		print( "Error: %s: User does not exist."%args.username )
+		print( "Error: %s: User does not exist."%args.user )
 		sys.exit(1)
 elif args.action == 'set-password':
 	try:
-		user = user_get( args.username )
+		user = user_get( args.user )
 		password = get_password( args )
 		user.set_password( password )
 		user.save()
 	except ServiceUser.DoesNotExist:
-		print( "Error: %s: User does not exist."%args.username )
+		print( "Error: %s: User does not exist."%args.user )
 		sys.exit(1)
 	except errors.PasswordInvalid as e:
 		print( "Error: %s"%e )
 		sys.exit(1)
 elif args.action == 'view':
 	try:
-		user = user_get( args.username )
+		user = user_get( args.user )
 		print( 'Joined: %s'%( user.date_joined ) )
 		print( 'Last login: %s'%(user.last_login) )
 		
@@ -122,11 +122,11 @@ elif args.action == 'view':
 		print( "Error: %s: Service does not exist."%args.service )
 		sys.exit(1)
 	except ServiceUser.DoesNotExist:
-		print( "Error: %s: User does not exist."%args.username )
+		print( "Error: %s: User does not exist."%args.user )
 		sys.exit(1)
 elif args.action in [ 'delete', 'rm', 'remove' ]:
 	try:
-		user_get( args.username ).delete()
+		user_get( args.user ).delete()
 	except ServiceUser.DoesNotExist:
-		print( "Error: %s: User does not exist."%args.username )
+		print( "Error: %s: User does not exist."%args.user )
 		sys.exit(1)

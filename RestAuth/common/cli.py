@@ -24,7 +24,7 @@ host_arg_parser.add_argument( 'hosts', metavar='HOST', nargs='*', help="""A host
 	connect from. You can name multiple hosts as additional positional arguments. If ommitted,
 	this service cannot be used from anywhere.""")
 username_arg_parser = ArgumentParser(add_help=False)
-username_arg_parser.add_argument( 'username', help="The name of the user." )
+username_arg_parser.add_argument( 'user', help="The name of the user." )
 
 group_arg_parser = ArgumentParser(add_help=False)
 group_arg_parser.add_argument( 'group', help="The name of the group." )
