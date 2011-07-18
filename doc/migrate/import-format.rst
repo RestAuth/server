@@ -1,19 +1,21 @@
 RestAuth import data format
 ===========================
 
-The *RestAuth import data format* describes how files that should be imported into RestAuth, should
-look like. Such files are typically created by systems from where existing account data should be
-exported and is imported by |restauth-import|.
+The *RestAuth import data format* describes a file format to import data into RestAuth. Such files
+are typically created by systems from where existing account data should be exported and is imported
+by |restauth-import|.
 
-You need this documentation if you want to export data from a system where no exporter exists. If
-you write a new exporter, please feel free to :doc:`contribute </contribute>` it.
+.. NOTE::
+   You only need this documentation if you want to write a new exporter (i.e. for a system for which
+   no such exporter is yet available). If you write a new exporter, please feel free to
+   :doc:`contribute </contribute>` it.
 
 General
 -------
 
-The fileformat uses `JSON <http://www.json.org/>`_ to encode the data that is to be imported. JSON
-is the primary data interchange format used by RestAuth, both encoders and decoders are widely
-available in almost any programming language.
+The fileformat uses `JSON <http://www.json.org/>`_ to encode the data. JSON is the primary data
+interchange format used by RestAuth, both encoders and decoders are widely available in almost any
+programming language.
 
 On the topmost level, an import file must contain a dictionary containing up to three key/value
 pairs, identified by these keys:
