@@ -22,8 +22,6 @@ from operator import attrgetter
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
-if 'RESTAUTH_PATH' in os.environ:
-	sys.path.append( os.environ['RESTAUTH_PATH'] )
 sys.path.append( os.getcwd() )
 
 try:
@@ -32,7 +30,7 @@ try:
 	from RestAuth.Services.models import Service
 	from RestAuth.common.cli import group_parser
 except ImportError:
-	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
+	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
 	sys.exit(1)
 	
 # parse arguments

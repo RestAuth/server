@@ -20,15 +20,13 @@ import os, sys, getpass
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
-if 'RESTAUTH_PATH' in os.environ:
-	sys.path.append( os.environ['RESTAUTH_PATH'] )
 sys.path.append( os.getcwd() )
 
 try:
 	from RestAuth.Services.models import *
 	from RestAuth.common.cli import pwd_parser, service_parser
 except ImportError:
-	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
+	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
 	sys.exit(1)
 
 args = service_parser.parse_args()

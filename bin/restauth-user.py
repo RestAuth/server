@@ -30,7 +30,7 @@ try:
 	from RestAuth.common.cli import user_parser
 	from django.db.utils import IntegrityError
 except ImportError, e:
-	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure your RESTAUTH_PATH environment variable is set correctly.\n' )
+	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
 	sys.exit(1)
 
 # parse arguments	

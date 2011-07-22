@@ -23,17 +23,15 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append( os.getcwd() )
         
 try:
-	from RestAuth.Services.models import *
-	from RestAuth.common.cli import import_parser
+    from RestAuth.Services.models import *
+    from RestAuth.common.cli import import_parser
 
-        from RestAuth.Services import models as service_models
-        from RestAuth.Users import models as user_models
-        from RestAuth.Groups import models as group_models
+    from RestAuth.Services import models as service_models
+    from RestAuth.Users import models as user_models
+    from RestAuth.Groups import models as group_models
 except ImportError, e:
-	sys.stderr.write( '''Error: Cannot import RestAuth. Please make sure that RestAuth is in
-the python import path. If not, you can set the PYTHONPATH environment variable.\n''' )
-        print( e )
-	sys.exit(1)
+    sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
+    sys.exit(1)
 
 args = import_parser.parse_args()
 
