@@ -1,5 +1,5 @@
 from argparse import ArgumentParser, Action
-import argparse, re, sys
+import argparse, re, sys, random, string
 
 class PasswordGenerator( Action ):
 	def __call__( self, parser, namespace, values, option_string ):
