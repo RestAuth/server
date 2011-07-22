@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, getpass, random, string
-from argparse import ArgumentParser, Action
+import os, sys, getpass
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
