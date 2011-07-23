@@ -18,7 +18,7 @@ allowing you to import and use accounts from many other systems. You can also bl
 accounts where the username is not compatible with some systems you use. 
 
 RestAuth is the server-side reference implementation of the `RestAuth protocol
-<http://fs.fsinf.at/wiki/RestAuth/Specification>`_. RestAuth is written in `Python
+<https://restauth.net/Specification>`_. RestAuth is written in `Python
 <http://www.python.org>`_ and is using the `Django webframework <http://djangoproject.com/>`_. As
 such, it can run on a variety of operating systems, using any webserver and database system
 supported by Django. 

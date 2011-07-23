@@ -1,4 +1,6 @@
-# This file is part of RestAuth (http://fs.fsinf.at/wiki/RestAuth).
+# -*- coding: utf-8 -*-
+#
+# This file is part of RestAuth (https://restauth.net).
 #
 # RestAuth is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -77,7 +79,7 @@ SECRET_KEY=''
 # any of the systems, a user with that name cannot be created. RestAuth comes
 # with a variety of validators, which essentially restrict the usernames to
 # ASCII characters (a-z) and digits (0-9). For more information, please see:
-# 	http://fs.fsinf.at/wiki/RestAuth/Usernames
+# 	https://restauth.net/wiki/RestAuth/Usernames
 #
 # You can use this setting to disable some validators so you can support a wider
 # range of usernames. Valid values are 'xmpp', 'email', 'mediawiki', 'linux' and

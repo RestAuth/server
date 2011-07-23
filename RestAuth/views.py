@@ -23,6 +23,6 @@ def index( request ):
 <title>Welcome to RestAuth</title>
 </head>
 <body>
-Welcome to <a href="http://fs.fsinf.at/wiki/RestAuth">RestAuth</a>.
+Welcome to <a href="https://restauth.net">RestAuth</a>.
 </body>
 </html>""" )
