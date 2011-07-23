@@ -1,17 +1,17 @@
-# This file is part of RestAuthClient.py.
+# This file is part of RestAuth (https://restauth.net).
 #
-#    RestAuthClient.py is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#    Foobar is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with RestAuthClient.py.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License
+# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 from subprocess import Popen, PIPE
 from distutils.core import setup, Command
@@ -163,7 +163,7 @@ setup(
 	description='RestAuth web service',
 	author='Mathias Ertl',
 	author_email='mati@fsinf.at',
-	url='http://fs.fsinf.at/wiki/RestAuth/RestAuth',
+	url='https://restauth.net',
 	packages=['RestAuth', 'RestAuth.Services', 'RestAuth.common', 'RestAuth.Groups', 'RestAuth.Users' ],
 #	scripts = [ 'bin/restauth-groups.py' ],
 	data_files = [
