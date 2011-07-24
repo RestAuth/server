@@ -20,5 +20,5 @@ export PYTHONPATH="$PWD"
 
 rm -f ./RestAuth.sqlite3
 python RestAuth/manage.py syncdb --noinput
-bin/restauth-service.py --password=vowi add vowi ::1
+bin/restauth-service.py add --password=vowi vowi ::1
 python RestAuth/manage.py runserver --ipv6
