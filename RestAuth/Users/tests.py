@@ -125,6 +125,25 @@ class AddUserTests( RestAuthTest ): # POST /users/
         self.assertFalse( user.check_password( password1 ) )
         self.assertFalse( user.check_password( password2 ) )
         
+    def test_add_user_with_property( self ):
+        request = self.post( '/users/', { 'user': username1, 'properties': {propkey1: propval1} } )
+        resp = self.make_request( views.index, request )
+        
+        self.assertEquals( resp.status_code, httplib.CREATED )
+        self.assertEquals( self.get_usernames(), [username1] )
+        
+        user = user_get( username1 )
+        self.assertDictEqual( {propkey1: propval1}, user.get_properties() )
+        
+    def test_add_user_with_properties( self ):
+        props = {propkey1: propval1, propkey2: propval2 }
+        request = self.post( '/users/', { 'user': username1, 'properties': props } )
+        resp = self.make_request( views.index, request )
+        self.assertEquals( resp.status_code, httplib.CREATED )
+        
+        user = user_get( username1 )
+        self.assertDictEqual( props, user.get_properties() )
+        
     def test_bad_requests( self ):
         self.assertEquals( self.get_usernames(), [] )
                 

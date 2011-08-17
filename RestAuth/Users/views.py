@@ -39,12 +39,14 @@ def index( request ):
 		return HttpRestAuthResponse( request, list( names ) )
 	elif request.method == 'POST': # create new user:
 		# If BadRequest: 400 Bad Request
-		name, password = get_dict( request, [u'user'], [u'password'] )
+		name, password, props = get_dict( request, [u'user'], [u'password', u'properties'] )
 		
 		# If ResourceExists: 409 Conflict
 		# If UsernameInvalid: 412 Precondition Failed
 		# If PasswordInvalid: 412 Precondition Failed
 		user = user_create( name, password )
+		if props:
+			[ user.set_property( key, value ) for key, value in props.iteritems() ]
 		
 		logger.info( '%s: Created user', name, extra=log_args )
 		return HttpResponseCreated( request, user )
