@@ -27,7 +27,6 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     (r'^/?$', 'RestAuth.views.index' ),
-    (r'^admin/',  include('admin.site.urls')),
     (r'^users/',  include('RestAuth.Users.urls')),
     (r'^groups/', include('RestAuth.Groups.urls')),
 )
