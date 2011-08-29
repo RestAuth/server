@@ -17,17 +17,8 @@
 
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('',
-    # Example:
-    # (r'^RestAuth/', include('RestAuth.foo.urls')),
-
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
-    # to INSTALLED_APPS to enable admin documentation:
-    # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    (r'^/?$', 'RestAuth.views.index' ),
-    (r'^users/',  include('RestAuth.Users.urls')),
-    (r'^groups/', include('RestAuth.Groups.urls')),
-    (r'^test/', include('RestAuth.Test.urls')),
+urlpatterns = patterns( 'RestAuth.Users.views',
+        (r'^test/users$', 'users'),
+	(r'^test/(?P<username>[^/]+)/props$', 'users_user_props' ),
+	(r'^test/groups$', 'groups' ),
 )
