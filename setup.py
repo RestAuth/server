@@ -164,7 +164,7 @@ setup(
 	version=get_version(),
 	description='RestAuth web service',
 	author='Mathias Ertl',
-	author_email='mati@fsinf.at',
+	author_email='mati@restauth.net',
 	url='https://restauth.net',
 	packages=['RestAuth', 'RestAuth.Services', 'RestAuth.common', 'RestAuth.Groups', 'RestAuth.Users' ],
 #	scripts = [ 'bin/restauth-groups.py' ],
