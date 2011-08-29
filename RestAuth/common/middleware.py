@@ -29,30 +29,6 @@ from RestAuthCommon.error import RestAuthException
 from RestAuth.Users.models import ServiceUser, Property
 from RestAuth.Groups.models import Group
 
-class LoggingMiddleware:
-	"""
-	This middleware is responsible for setting up the logging environment.
-	"""
-	def process_request( self, request ):
-		valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
-		if settings.LOG_LEVEL in valid_levels:
-			log_level = getattr( logging, settings.LOG_LEVEL )
-		else:
-			log_level = logging.DEBUG
-
-		kwargs = { 'level': log_level,
-			'format': '%(asctime)s %(levelname)-8s %(message)s',
-			'datefmt': '%a, %d %b %Y %H:%M:%S' }
-
-		if settings.LOG_TARGET == 'stderr':
-			kwargs['handler'] = sys.stderr
-		elif settings.LOG_TARGET == 'stdout':
-			kwargs['handler'] = sys.stdout
-		else:
-			kwargs['filename'] = settings.LOG_TARGET
-
-		logging.basicConfig( **kwargs )
-
 class ExceptionMiddleware:
 	"""
 	Exception to handle RestAuth related exceptions.
