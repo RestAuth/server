@@ -30,7 +30,7 @@ def get_version():
 	"""
 	Dynamically get the current version.
 	"""
-	version = '0.0' # default
+	version = '0.5.0' # default
 	if os.path.exists( '.version' ): # get from file
 		version = open( '.version' ).readlines()[0]
 	elif os.path.exists( '.git' ): # get from git
