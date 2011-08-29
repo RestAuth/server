@@ -176,6 +176,10 @@ class ServiceUser( models.Model ):
 		@raises PropertyExists: If the property already exists.
 		@return: The property that was created
 		"""
+		from RestAuthCommon import resource_validator
+		if not resource_validator( key ):
+			raise PreconditionFailed( "Property contains invalid characters" )
+			
 		try:
 			prop = Property( user=self, key=key, value=value )
 			prop.save()
