@@ -17,8 +17,8 @@
 
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns( 'RestAuth.Users.views',
-        (r'^test/users$', 'users'),
-	(r'^test/(?P<username>[^/]+)/props$', 'users_user_props' ),
-	(r'^test/groups$', 'groups' ),
+urlpatterns = patterns( 'RestAuth.Test.views',
+        (r'^users/$', 'users'),
+	(r'^users/(?P<username>[^/]+)/props/$', 'users_user_props' ),
+	(r'^groups/$', 'groups' ),
 )
