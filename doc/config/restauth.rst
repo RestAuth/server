@@ -23,6 +23,10 @@ This setting is quite flexible, please see the
 to :ref:`create <config_restauth_creating_a_databases>` and
 :ref:`initialize <config_restauth_initializing_the_database>` the database.
 
+.. WARNING:: RestAuth requires a database with transactional support. Most notably, the MyISAM MySQL
+   storage engine (which is the default on many systems, does **not** support transactions. Please
+   use InnoDB instead.
+
 .. _config_restauth_creating_a_databases:
 
 Creating a database
@@ -61,7 +65,10 @@ Please also see the `MySQL notes
 <https://docs.djangoproject.com/en/dev/ref/databases/#mysql-notes>`_ (especially the
 `Creating your database
 <https://docs.djangoproject.com/en/dev/ref/databases/#creating-your-database>`_ chapter) on the
-subject.
+subject. The database tables **must not** use the MyISAM storage engine, please make sure you use
+InnoDB or any other engine that supports transactions. Django provides `some instructions
+<https://docs.djangoproject.com/en/dev/ref/databases/#creating-your-tables>`_ on how to convert a
+database to InnoDB.
 
 PostgreSQL
 """"""""""
