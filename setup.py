@@ -166,7 +166,7 @@ setup(
 	author='Mathias Ertl',
 	author_email='mati@restauth.net',
 	url='https://restauth.net',
-	packages=['RestAuth', 'RestAuth.Services', 'RestAuth.common', 'RestAuth.Groups', 'RestAuth.Users' ],
+	packages=['RestAuth', 'RestAuth.Services', 'RestAuth.common', 'RestAuth.Groups', 'RestAuth.Users', 'RestAuth.Test' ],
 #	scripts = [ 'bin/restauth-groups.py' ],
 	data_files = [
 		('share/restauth', [ 'wsgi' ] ),
