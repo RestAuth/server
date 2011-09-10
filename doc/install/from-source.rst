@@ -8,6 +8,8 @@ RestAuth is written as a *bleeding edge* project and thus requires relatively ne
 
 * `Python 2.6 <http://www.python.org/>`_ or later
 * `Django 1.3 <https://www.djangoproject.com/>`_ - RestAuth is written as a Django project
+* Any database `supported by Django <https://docs.djangoproject.com/en/dev/ref/databases/>`_ that
+  supports transactions
 * `RestAuthCommon <https://redmine.fsinf.at/projects/restauthcommon>`_
 * The `mimeparse <https://code.google.com/p/mimeparse/>`_ module is required by RestAuthCommon
 * The `argparse <http://docs.python.org/library/argparse.html>`_ module ships with Python 2.7 and is
