@@ -156,7 +156,7 @@ class build( _build ):
 		self.prefix = None
 		self.exec_prefix = None
 
-	sub_commands = [('build_man', lambda self: True)] + _build.sub_commands
+	sub_commands = [('build_man', lambda self: True), ('build_man', lambda self: True)] + _build.sub_commands
 	user_options = _build.user_options + added_options
 
 setup(
