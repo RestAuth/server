@@ -120,9 +120,13 @@ command of :command:`manage.py`. If you installed from source, you can simply ru
    
    python manage.py syncdb
    
-If you used any other way of installing RestAuth, the command is most likely called
-:command:`restauth-manage`.
+If you used a distribution-specific way to install RestAuth, the command is most likely called
+:command:`restauth-manage`:
 
+.. code-block:: bash
+   
+   restauth-manage syncdb
+   
 .. _config_restauth_secret_key:
 
 SECRET_KEY
