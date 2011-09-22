@@ -183,7 +183,7 @@ anything.
   available values. The default is ``ERROR``.
 * You can define the LoggingHandler (that define where any log messages will go) using
   ``LOG_HANDLER``. The setting should be a string containing the classname of any available handler.
-  See `logging.handlers <http://docs.python.org/library/logging.handlers.html>` for whats available 
+  See `logging.handlers <http://docs.python.org/library/logging.handlers.html>`_ for whats available 
   (of course nothing stops you from implementing your own handler!). The default is
   ``logging.STREAM_HANDLER``.
 * You can specify any keyword arguments the LoggingHandler will get using
