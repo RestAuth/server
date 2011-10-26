@@ -26,11 +26,13 @@ import re, os, sys, time, glob, shutil, argparse
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 
+LATEST_RELEASE = '0.5.1'
+
 def get_version():
 	"""
 	Dynamically get the current version.
 	"""
-	version = '0.5.0' # default
+	version = LATEST_RELEASE # default
 	if os.path.exists( '.version' ): # get from file
 		version = open( '.version' ).readlines()[0]
 	elif os.path.exists( '.git' ): # get from git
@@ -119,6 +121,7 @@ class build_doc_meta( Command ):
 
 		version = get_version()
 		os.environ['SPHINXOPTS'] = '-D release=%s -D version=%s'%(version, version)
+		os.environ['RESTAUTH_LATEST_RELEASE'] = LATEST_RELEASE
 		
 	def should_generate( self, source, generated ):
 		if not os.path.exists( generated ):
