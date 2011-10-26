@@ -1,11 +1,11 @@
 Running multiple instances
 --------------------------
 
-You might need to run multiple instances of RestAuth on the same host. This would mean that you
-effectively have two RestAuth servers (e.g. :samp:`auth.example.com` and :samp:`auth.example.org`), each with their
-own users, groups and services. You could maintain two completely separate installations (maybe even
-on separate hosts), but that would require twice the maintenance. This page is dedicated to
-documenting (known) configuration tips regarding this problem.
+You might want to run multiple instances of RestAuth on the same host. This would mean that you
+effectively have two RestAuth servers (e.g. :samp:`auth.example.com` and :samp:`auth.example.org`),
+each with their own users, groups and services. You could maintain two completely separate
+installations (maybe even on separate hosts), but that would require twice the maintenance. This
+page is dedicated to documenting (known) configuration tips regarding this problem.
 
 General introduction
 ====================
@@ -19,10 +19,25 @@ requiring a minimum password length of 12 characters, but they make little sense
 such a setup, you can still use any of the following chapters, but examples are based on the
 assumption that you want a different database setup.
 
-.. WARNING:: The following examples assume that both server and client support `Server Name Indication
-   (SNI) <http://en.wikipedia.org/wiki/Server_Name_Indication>`_. On the server side, this is true
-   for most modern systems, but only few client libraries support it. `RestAuthClient
-   <https://python.restauth.net>`_ only supports SNI if run with Python 3.2 or later.
+.. _config_multiple_instances_sni:
+
+Server Name Indication
+++++++++++++++++++++++
+
+All examples below use `Server Name Indication (SNI)
+<http://en.wikipedia.org/wiki/Server_Name_Indication>`_. That means that the web server (in the
+configuration examples, `Apache <http://httpd.apache.org>`_) is able to serve multiple domains on
+the same IP via SSL. If you want to use SNI, both client and server need to support it.
+
+On most modern systems, ``server side`` support is not a problem. See the `appropriate chapter
+<http://en.wikipedia.org/wiki/Server_Name_Indication#Support>`_ on Wikipedia for more information
+on the required software versions. On the client side, the situation is a little more tricky.
+`RestAuthClient <https://python.restauth.net>`_ only supports SNI if run with Python 3.2 or later.
+`php-restauth <https://php.restauth.net>`_ supports SNI if compiled with OpenSSL/GNU TLS and libcurl
+versions that support it.
+
+If using SNI is not an option, the web server can serve different instances on different ports
+and/or different IP addresses.
 
 Settings based on environment variables
 =======================================
@@ -33,7 +48,10 @@ environment variables.
 
 First, you must make sure that some environment variable is different for each RestAuth instance you
 want to maintain. You can set this anywhere you like, please consult the appropriate documentation
-for your webserver. The following example sets environment variables in a mod_wsgi deployment.
+for your web server. The following example sets environment variables in a mod_wsgi deployment.
+
+.. NOTE:: This Apache configuration example uses Server Name Indication. See the :ref:`dedicated
+   chapter <config_multiple_instances_sni>` for more information.
 
 .. code-block:: apache
 
@@ -96,6 +114,10 @@ examples below.
 
 The Apache configuration is similar, only that you use the standard Django environment variable
 :envvar:`DJANGO_SETTINGS_MODULE`:
+
+.. NOTE:: This Apache configuration example uses Server Name Indication. See the :ref:`dedicated
+   chapter <config_multiple_instances_sni>` for more information.
+
 
 .. code-block:: apache
 
