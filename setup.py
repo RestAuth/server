@@ -116,6 +116,9 @@ class build_doc_meta( Command ):
 				
 		
 		os.environ['PYTHONPATH'] = '.'
+
+		version = get_version()
+		os.environ['SPHINXOPTS'] = '-D release=%s -D version=%s'%(version, version)
 		
 	def should_generate( self, source, generated ):
 		if not os.path.exists( generated ):
