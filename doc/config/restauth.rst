@@ -141,9 +141,9 @@ SKIP_VALIDATORS
 By default, usernames in RestAuth can contain any UTF-8 character except a slash ('/'), a backslash
 ('\') and a semicolon (':').
 
-*Validators* are used to restrict usernames further if certain charactes are unavailable in some
+*Validators* are used to restrict usernames further if certain characters are unavailable in some
 systems that use your RestAuth installation. Consider the following scenario: Your RestAuth server
-provides accounts for a `MediaWiki <http://www.mediawiki.org>`_ (thats also used to register new
+provides accounts for a `MediaWiki <http://www.mediawiki.org>`_ (that's also used to register new
 accounts) and an `XMPP server
 <http://en.wikipedia.org/wiki/Extensible_Messaging_and_Presence_Protocol>`_. MediaWiki has no
 problems with usernames containing spaces, but the XMPP protocol forbids that. In this scenario, you
@@ -175,7 +175,7 @@ LOGGING
 Django has very powerful logging configuration capabilities. The full documentation can be found
 `in the Django documentation <https://docs.djangoproject.com/en/dev/topics/logging/>`_.
 
-For convinience, RestAuth offers a few additional settings that let you configure the most important
+For convenience, RestAuth offers a few additional settings that let you configure the most important
 settings and have the rest done by RestAuth. If you are fine with the default, you don't have to do
 anything.
 
@@ -188,7 +188,7 @@ anything.
   ``logging.STREAM_HANDLER``.
 * You can specify any keyword arguments the LoggingHandler will get using
   ``LOGGING_HANDLER_KWARGS``. You can specify any argument that the LoggingHandler you configured
-  supports. The format is adictionary where the key is string with the name of the keyword arguments
+  supports. The format is a dictionary where the key is string with the name of the keyword arguments
   and the respective value is the value of the keyword argument.
   
 Here is a more complex example:
