@@ -48,6 +48,7 @@ Configuration
 
    config/webserver
    config/restauth
+   config/multiple-instances
 
 Commandline scripts
 ===================
