@@ -2,7 +2,9 @@
 #
 
 # You can set these variables from the command line.
+ifndef SPHINXOPTS
 SPHINXOPTS    =
+endif
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = _build
