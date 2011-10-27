@@ -40,6 +40,14 @@ def get_version():
 		cmd = [ 'git', 'describe' ]
 		p = Popen( cmd, stdout=PIPE )
 		version = p.communicate()[0].decode( 'utf-8' )
+	elif os.path.exists( 'debian/changelog' ): # building .deb
+		f = open( 'debian/changelog' )
+		version = re.search( '\((.*)\)', f.readline() ).group(1)
+		f.close()
+		
+		if ':' in line: # strip epoch:
+			version = version.split( ':', 1 )[1]
+		version = version.rsplit( '-', 1 )[0] # strip debian revision
 	return version.strip()
 
 class install_data( _install_data ):
