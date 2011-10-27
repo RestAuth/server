@@ -49,6 +49,7 @@ Configuration
    config/webserver
    config/restauth
    config/multiple-instances
+   config/database-replication
 
 Commandline scripts
 ===================

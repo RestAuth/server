@@ -57,6 +57,11 @@ DATABASES = {
     }
 }
 
+# You may want to configure a database router if you use some sort of database replication. For more
+# information, please see:
+#   https://server.restauth.net/config/database-replication.html
+#DATABASE_ROUTERS = []
+
 # Set your SECRET_KEY to some long random string:
 SECRET_KEY=''
 
@@ -159,4 +164,3 @@ SECRET_KEY=''
 # to True for libraries that require it. Note that this costs considerable
 # performance.
 #ENABLE_SESSIONS=False
-
