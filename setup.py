@@ -45,7 +45,7 @@ def get_version():
 		version = re.search( '\((.*)\)', f.readline() ).group(1)
 		f.close()
 		
-		if ':' in line: # strip epoch:
+		if ':' in version: # strip epoch:
 			version = version.split( ':', 1 )[1]
 		version = version.rsplit( '-', 1 )[0] # strip debian revision
 	return version.strip()
