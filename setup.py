@@ -175,7 +175,7 @@ class build( _build ):
 
 setup(
 	name='RestAuth',
-	version=get_version(),
+	version=str(get_version()),
 	description='RestAuth web service',
 	author='Mathias Ertl',
 	author_email='mati@restauth.net',
