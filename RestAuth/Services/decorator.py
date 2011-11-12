@@ -19,6 +19,13 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 from django.conf import settings
 import logging
+logger = logging.getLogger( 'general' )
+
+
+def get_auth_challenge( realm ):
+	response = HttpResponse( "Please authenticate", status=401 )
+	response['WWW-Authenticate'] = 'Basic realm="%s"'%realm
+	return response
 
 def login_user( view, request, realm, *args, **kwargs ):
 	"""
@@ -34,27 +41,27 @@ def login_user( view, request, realm, *args, **kwargs ):
 	elif 'REMOTE_USER' in request.META:
 		# The web-server already authenticated the remote user:
 		user = authenticate( remote_user=request.META['REMOTE_USER'] )
-	elif hasattr( request, 'user' ) and request.user.is_authenticated():
+	elif hasattr( request, 'user' ) and request.user.is_authenticated(): # pragma: no cover
 		return view(request, *args, **kwargs)
 	else:
-		logging.critical( "Unable to get authentication source." )
+		logger.warn( "Unable to get authentication source." )
+		return get_auth_challenge( realm )
 
 
 	if user:
 		auth_middleware = 'django.contrib.auth.middleware.AuthenticationMiddleware'
 
 		# log the user in:
-		if auth_middleware in settings.MIDDLEWARE_CLASSES:
+		if auth_middleware in settings.MIDDLEWARE_CLASSES: # pragma: no cover
 			login(request, user)
 		else:
 			setattr( request, 'user', user )
 		return view(request, *args, **kwargs)
 	else:
 		# send an authentication challenge:
-		logging.critical( "Client did not authenticate" )
-		response = HttpResponse( "Please authenticate", status=401 )
-		response['WWW-Authenticate'] = 'Basic realm="%s"' % realm
-		return response
+		logger.warn( "Client provided wrong authentication credentials" )
+		return get_auth_challenge( realm )
+		
 
 def login_required( function = None, realm = "" ):
 	"""
