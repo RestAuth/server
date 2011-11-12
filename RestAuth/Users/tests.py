@@ -161,6 +161,14 @@ class AddUserTests( RestAuthTest ): # POST /users/
         resp = self.make_request( views.index, request )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         self.assertEquals( self.get_usernames(), [] )
+        
+    def test_add_user_with_long_username( self ):
+        username = 'abc'*200
+        request = self.post( '/users/', { 'user': username } )
+        resp = self.make_request( views.index, request )
+        self.assertEquals( resp.status_code, httplib.PRECONDITION_FAILED )
+        self.assertEquals( self.get_usernames(), [] )
+        
     
 class UserTests( RestAuthTest ):
     def setUp( self ):
