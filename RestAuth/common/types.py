@@ -17,10 +17,10 @@
 
 import logging
 from RestAuthCommon.error import BadRequest, RestAuthException, UnsupportedMediaType, NotAcceptable
+from RestAuthCommon.handlers import CONTENT_HANDLERS
 
 def get_request_type( request ):
 	import mimeparse
-	from RestAuthCommon.handlers import CONTENT_HANDLERS
 	supported = CONTENT_HANDLERS.keys()
 
 	header = request.META['CONTENT_TYPE']
@@ -66,13 +66,14 @@ def get_dict( request, keys=[], optional=[] ):
 	@raise NotAcceptable: If the ContentType header of the request did not
 		indicate a supported format.
 	"""
-	from RestAuthCommon import unmarshal
 	from RestAuthCommon.error import UnmarshalError
 
 	try:
 		mime_type = get_request_type( request )
 		body = request.raw_post_data
-		data = unmarshal( mime_type, body, dict )
+		
+		handler = CONTENT_HANDLERS[mime_type]()
+		data = handler.unmarshal_dict( body )
 	except UnmarshalError as e:
 		raise BadRequest( e )
 
