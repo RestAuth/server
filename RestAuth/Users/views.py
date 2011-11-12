@@ -50,9 +50,9 @@ def index( request ):
 		
 		logger.info( '%s: Created user', name, extra=log_args )
 		return HttpResponseCreated( request, user )
-	
-	logger.error( 'Method not allowed: %s', request.method, extra=log_args )
-	return HttpResponse( status=405 )
+	else: # pragma: no cover
+		logger.error( 'Method not allowed: %s', request.method, extra=log_args )
+		return HttpResponse( status=405 )
 
 @login_required(realm="/users/<user>/")
 def user_handler( request, username ):
@@ -107,10 +107,9 @@ def user_handler( request, username ):
 
 		logger.info( "Deleted user", extra=log_args )
 		return HttpResponseNoContent()
-	
-	logger.error( 'Method not allowed: %s', request.method, extra=log_args )
-	return HttpResponse( status=405 ) # Method Not Allowed
-
+	else: # pragma: no cover
+		logger.error( 'Method not allowed: %s', request.method, extra=log_args )
+		return HttpResponse( status=405 ) # Method Not Allowed
 
 @login_required(realm="/users/<user>/props/")
 def userprops_index( request, username ):
@@ -136,9 +135,9 @@ def userprops_index( request, username ):
 
 		logger.info( 'Created property "%s" as "%s"', prop, value, extra=log_args )
 		return HttpResponseCreated( request, property )
-	
-	logger.error( 'Method not allowed: %s', request.method, extra=log_args )
-	return HttpResponse( status=405 ) # Method Not Allowed
+	else: # pragma: no cover
+		logger.error( 'Method not allowed: %s', request.method, extra=log_args )
+		return HttpResponse( status=405 ) # Method Not Allowed
 
 @login_required(realm="/users/<user>/props/<prop>/")
 def userprops_prop( request, username, prop ):
@@ -175,6 +174,6 @@ def userprops_prop( request, username, prop ):
 
 		logger.info( 'Delete property', extra=log_args )
 		return HttpResponseNoContent()
-	
-	logger.error( 'Method not allowed: %s', request.method, extra=log_args )
-	return HttpResponse( status=405 ) # Method Not Allowed
+	else: # pragma: no cover
+		logger.error( 'Method not allowed: %s', request.method, extra=log_args )
+		return HttpResponse( status=405 ) # Method Not Allowed

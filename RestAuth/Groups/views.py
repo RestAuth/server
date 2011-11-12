@@ -60,9 +60,9 @@ def index( request ):
 		
 		logger.info( '%s: Created group'%(groupname), extra=log_args )
 		return HttpResponseCreated( request, group ) # Created
-	
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
-	return HttpResponse( status=405 ) # method not allowed
+	else: # pragma: no cover
+		logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+		return HttpResponse( status=405 ) # method not allowed
 
 @login_required( realm='/groups/<group>/' )
 #@sql_profile()
@@ -81,9 +81,9 @@ def group_handler( request, groupname ):
 		group.delete()
 		logger.info( "Deleted group", extra=log_args )
 		return HttpResponseNoContent() # OK
-	
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
-	return HttpResponse( status=405 )
+	else: # pragma: no cover
+		logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+		return HttpResponse( status=405 )
 
 @login_required( realm='/groups/<group>/users/' )
 #@sql_profile()
@@ -112,9 +112,9 @@ def group_users_index_handler( request, groupname ):
 
 		logger.info( 'Add user "%s"'%(username), extra=log_args )
 		return HttpResponseNoContent()
-	
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
-	return HttpResponse( status=405 )
+	else: # pragma: no cover
+		logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+		return HttpResponse( status=405 )
 
 @login_required( realm='/groups/<group>/users/<user>/' )
 #@sql_profile()
@@ -142,9 +142,9 @@ def group_user_handler( request, groupname, username ):
 		group.users.remove( user )
 		logger.info( 'Remove user from group', extra=log_args )
 		return HttpResponseNoContent()
-
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
-	return HttpResponse( status=405 )
+	else: # pragma: no cover
+		logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+		return HttpResponse( status=405 )
 
 @login_required( realm='/groups/<group>/groups/' )
 #@sql_profile()
@@ -171,9 +171,9 @@ def group_groups_index_handler( request, groupname ):
 		group.groups.add( sub_group )
 		logger.info( 'Add subgroup "%s"', sub_groupname, extra=log_args )
 		return HttpResponseNoContent()
-
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
-	return HttpResponse( status=405 )
+	else: # pragma: no cover
+		logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+		return HttpResponse( status=405 )
 
 @login_required( realm='/groups/<meta-group>/groups/<sub-group>/' )
 #@sql_profile()
@@ -194,6 +194,6 @@ def group_groups_handler( request, meta_groupname, sub_groupname ):
 		meta_group.groups.remove( sub_group )
 		logger.info( 'Remove subgroup %s', sub_groupname, extra=log_args )
 		return HttpResponseNoContent()
-	
-	logger.error( '%s: Method not allowed: %s'%(service, request.method) )
-	return HttpResponse( status=405 )
+	else: # pragma: no cover
+		logger.error( '%s: Method not allowed: %s'%(service, request.method) )
+		return HttpResponse( status=405 )
