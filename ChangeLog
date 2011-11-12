@@ -1,12 +1,18 @@
 RestAuth 0.5.2 (XXX)
 
-  * Add 'test' target to setup.py that runs all tests
-  * Fix many spelling mistakes in the documentation
-  * Add documentation on running multiple instances on the same host
-  * Add basic routers (including documentation) for common replication scenarios
+  * Add basic routers for common replication scenarios
   * Adapt to changes in RestAuthCommon (CONTENT_HANDLERS now is in
     RestAuthCommon.handlers)
   * No longer use deprecated functions in RestAuthCommon
+  * Remove some deprecated code
+  
+  Documentation:
+  * Add documentation on running multiple instances on the same host
+  * Fix many spelling mistakes in the documentation
+  
+  Testing:
+  * Add coverage target
+  * Add 'test' target to setup.py that runs all tests
 
 RestAuth 0.5.1 (10 September 2011)
 
