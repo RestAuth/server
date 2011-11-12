@@ -36,7 +36,7 @@ def get_hexdigest( algorithm, salt, secret ):
 	Unlike the django function, this function requires python2.5 or higher.
 	"""
 	salt, secret = smart_str(salt), smart_str(secret)
-	if algorithm == 'mediawiki':
+	if algorithm == 'mediawiki': # pragma: no cover
 		secret_hash = hashlib.md5( secret ).hexdigest()
 		return hashlib.md5( '%s-%s'%(salt, secret_hash ) ).hexdigest()
 	else:
