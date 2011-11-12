@@ -1,5 +1,6 @@
 RestAuth 0.5.2 (XXX)
 
+  * Add 'test' target to setup.py that runs all tests
   * Fix many spelling mistakes in the documentation
   * Add documentation on running multiple instances on the same host
   * Add basic routers (including documentation) for common replication scenarios

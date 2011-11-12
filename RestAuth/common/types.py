@@ -20,7 +20,7 @@ from RestAuthCommon.error import BadRequest, RestAuthException, UnsupportedMedia
 
 def get_request_type( request ):
 	import mimeparse
-	from RestAuthCommon import CONTENT_HANDLERS
+	from RestAuthCommon.handlers import CONTENT_HANDLERS
 	supported = CONTENT_HANDLERS.keys()
 
 	header = request.META['CONTENT_TYPE']
@@ -32,7 +32,7 @@ def get_request_type( request ):
 
 def get_response_type( request ):
 	import mimeparse
-	from RestAuthCommon import CONTENT_HANDLERS
+	from RestAuthCommon.handlers import CONTENT_HANDLERS
 	supported = CONTENT_HANDLERS.keys()
 
 	header = request.META['HTTP_ACCEPT']

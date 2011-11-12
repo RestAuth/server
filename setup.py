@@ -173,6 +173,21 @@ class build( _build ):
 	sub_commands = [('build_man', lambda self: True), ('build_man', lambda self: True)] + _build.sub_commands
 	user_options = _build.user_options + added_options
 
+class test( Command ):
+	user_options = []
+	def initialize_options( self ):
+		pass
+	def finalize_options( self ):
+		pass
+	def run( self ):
+		sys.path.insert( 0, 'RestAuth' )
+		common_path = os.path.join( '..', 'restauth-common', 'python' )
+		if os.path.exists( common_path ):
+			sys.path.insert( 0, common_path )
+			
+		from django.core.management import call_command
+		call_command( 'test', 'Users', 'Groups', 'Test' )
+
 setup(
 	name='RestAuth',
 	version=str(get_version()),
@@ -188,5 +203,5 @@ setup(
 		],
 	cmdclass={
 		'install_data': install_data, 'build': build, 'version': version,
-		'clean': clean, 'build_doc': build_doc, 'build_man': build_man },
+		'clean': clean, 'build_doc': build_doc, 'build_man': build_man, 'test': test },
 )
