@@ -85,6 +85,9 @@ if not LOGGING:
 		'version': 1,
 		'disable_existing_loggers': True,
 		'formatters': {
+			'general': {
+				'format': '%(levelname)s: %(message)s'
+			},
 			'users': {
 				'format': '%(levelname)s %(service)s: %(message)s'
 			},
@@ -114,6 +117,11 @@ if not LOGGING:
 			},
 		},
 		'handlers': {
+			'general':{
+				'level': LOG_LEVEL,
+				'class': LOG_HANDLER,
+				'formatter': 'general'
+			},
 			'users':{
 				'level': LOG_LEVEL,
 				'class': LOG_HANDLER,
@@ -161,6 +169,11 @@ if not LOGGING:
 			}
 		},
 		'loggers': {
+			'general': {
+				'handlers':['general'],
+				'propagate': False,
+				'level': LOG_LEVEL,
+			},
 			'users': {
 				'handlers':['users'],
 				'propagate': False,
