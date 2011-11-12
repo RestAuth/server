@@ -132,25 +132,8 @@ class Group( models.Model ):
 			if parent.is_member( user, True, lvl+1 ):
 				return True
 		return False
-
-	def get_child_groups( self, lvl=0 ):
-		"""
-		Get a set of child groups.
-
-		@param lvl: The recursion level. Used internally.
-		@type  lvl: int
-		@rtype: set
-		@return: All direct and indirect child-groups of this group.
-		"""
-		child_groups = set( self.groups.all() )
-
-		if lvl < 10:
-			for group in self.groups.all():
-				child_groups.union( group.get_child_groups( lvl+1 ) )
-
-		return child_groups
 	
-	def __unicode__( self ):
+	def __unicode__( self ): # pragma: no cover
 		if self.service:
 			return "%s/%s"%( self.name, self.service.username )
 		else:

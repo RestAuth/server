@@ -59,7 +59,8 @@ if args.action in [ 'create', 'add']:
 		sys.exit(1)
 elif args.action in [ 'remove', 'rm', 'del', 'delete' ]:
 	try:
-		service_delete( args.service )
+		service = Service.objects.get( username=args.service )
+		service.delete()
 	except Service.DoesNotExist:
 		print( "Error: %s: Service not found."%args.service )
 		sys.exit(1)

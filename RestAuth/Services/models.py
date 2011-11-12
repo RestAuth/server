@@ -39,20 +39,10 @@ def service_create( name, password, addresses=[] ):
 	if addresses:
 		service.set_hosts( addresses )
 
-def service_exists( name ):
-	if User.objects.filter( username=name ).exists():
-		return True
-	else:
-		return False
-	
-def service_delete( name ):
-	service = Service.objects.get( username=name )
-	service.delete()
-
 class ServiceAddress( models.Model ):
 	address = models.CharField( max_length=39, unique=True )
 
-	def __unicode__( self ):
+	def __unicode__( self ): # pragma: no cover
 		return self.address
 
 class Service( User ):

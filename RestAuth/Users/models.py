@@ -123,7 +123,7 @@ class ServiceUser( models.Model ):
 		
 		digest = get_hexdigest( self.algorithm, self.salt, raw_password )
 		if digest == self.hash: # correct
-			if self.algorithm != settings.HASH_ALGORITHM:
+			if self.algorithm != settings.HASH_ALGORITHM: # pragma: no cover
 				# we do this manually so we avoid any checks.
 				self.algorithm = settings.HASH_ALGORITHM
 				self.salt = get_salt()
@@ -142,7 +142,7 @@ class ServiceUser( models.Model ):
 		"""
 		groups = set( self.group_set.filter( service=service ).only( 'name' ) )
 		
-		if not recursive:
+		if not recursive: # pragma: no cover
 			return groups
 		
 		# import here to avoid circular imports:
@@ -160,13 +160,6 @@ class ServiceUser( models.Model ):
 			if other.is_indirect_member( self ):
 				groups.add( other )
 		return groups
-	
-	
-	def has_property( self, key ):
-		if self.property_set.filter( key=key ).exists():
-			return True
-		else:
-			return False
 
 	def add_property( self, key, value ):
 		"""
@@ -235,7 +228,7 @@ class ServiceUser( models.Model ):
 		else:
 			raise Property.DoesNotExist()
 
-	def __unicode__( self ):
+	def __unicode__( self ): # pragma: no cover
 		return self.username
 
 	def get_absolute_url( self ):
@@ -249,7 +242,7 @@ class Property( models.Model ):
 	class Meta:
 		unique_together = ( 'user', 'key' )
 
-	def __unicode__( self ):
+	def __unicode__( self ): # pragma: no cover
 		return "%s: %s=%s"%(self.user.username, self.key, self.value)
 	
 	def get_absolute_url( self ):
