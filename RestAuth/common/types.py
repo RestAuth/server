@@ -16,7 +16,7 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from RestAuthCommon.error import BadRequest, RestAuthException, UnsupportedMediaType, NotAcceptable
+from RestAuthCommon.error import BadRequest, RestAuthException, UnsupportedMediaType, NotAcceptable, UnmarshalError
 from RestAuthCommon.handlers import CONTENT_HANDLERS
 
 def get_request_type( request ):
@@ -66,8 +66,6 @@ def get_dict( request, keys=[], optional=[] ):
 	@raise NotAcceptable: If the ContentType header of the request did not
 		indicate a supported format.
 	"""
-	from RestAuthCommon.error import UnmarshalError
-
 	try:
 		mime_type = get_request_type( request )
 		body = request.raw_post_data
