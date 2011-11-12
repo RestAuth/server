@@ -186,7 +186,7 @@ class test( Command ):
 			sys.path.insert( 0, common_path )
 			
 		from django.core.management import call_command
-		call_command( 'test', 'Users', 'Groups', 'Test' )
+		call_command( 'test', 'Users', 'Groups', 'Test', 'Services' )
 
 class coverage( Command ):
 	description = "Run test suite and generate code coverage analysis."
@@ -226,7 +226,7 @@ class coverage( Command ):
 		cov.start()
 		
 		from django.core.management import call_command
-		call_command( 'test', 'Users', 'Groups', 'Test' )
+		call_command( 'test', 'Users', 'Groups', 'Test', 'Services' )
 		
 		cov.stop()
 		cov.html_report( directory=self.dir )
