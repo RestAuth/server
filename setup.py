@@ -188,6 +188,50 @@ class test( Command ):
 		from django.core.management import call_command
 		call_command( 'test', 'Users', 'Groups', 'Test' )
 
+class coverage( Command ):
+	description = "Run test suite and generate code coverage analysis."
+	user_options = [
+		( 'output-dir=', 'o', 'Output directory for coverage analysis' ),
+		( 'user=', 'u', 'Username to use vor RestAuth server' ),
+		( 'password=', 'p', 'Password to use vor RestAuth server' ),
+		( 'host=', 'h', 'URL of the RestAuth server (ex: http://auth.example.com)') ]
+	
+
+	def initialize_options( self ): 
+		self.user = 'vowi'
+		self.passwd = 'vowi'
+		self.host = 'http://[::1]:8000'
+		self.dir = 'doc/coverage'
+
+	def finalize_options( self ): pass
+
+
+	def run( self ):
+		sys.path.insert( 0, 'RestAuth' )
+		common_path = os.path.join( '..', 'restauth-common', 'python' )
+		if os.path.exists( common_path ):
+			sys.path.insert( 0, common_path )
+			
+		try:
+			import coverage
+		except ImportError:
+			print( "You need coverage.py installed." )
+			return
+
+		if not os.path.exists( self.dir ):
+			os.makedirs( self.dir )
+
+		cov = coverage.coverage( cover_pylib=False, include='RestAuth/*',
+					omit=['*tests.py', '*testdata.py'] )
+		cov.start()
+		
+		from django.core.management import call_command
+		call_command( 'test', 'Users', 'Groups', 'Test' )
+		
+		cov.stop()
+		cov.html_report( directory=self.dir )
+#		cov.report()
+
 setup(
 	name='RestAuth',
 	version=str(get_version()),
@@ -203,5 +247,6 @@ setup(
 		],
 	cmdclass={
 		'install_data': install_data, 'build': build, 'version': version,
-		'clean': clean, 'build_doc': build_doc, 'build_man': build_man, 'test': test },
+		'clean': clean, 'build_doc': build_doc, 'build_man': build_man, 'test': test,
+		'coverage': coverage },
 )
