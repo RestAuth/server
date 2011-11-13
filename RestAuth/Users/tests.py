@@ -158,6 +158,12 @@ class AddUserTests( RestAuthTest ): # POST /users/
         self.assertEquals( resp.status_code, httplib.PRECONDITION_FAILED )
         self.assertEquals( self.get_usernames(), [] )
         
+    def test_add_user_with_reservered_username( self ):
+        username = 'MediaWiki default'
+        resp = self.post( '/users/', { 'user': username, 'password': password1 } )
+        self.assertEquals( resp.status_code, httplib.PRECONDITION_FAILED )
+        self.assertEquals( self.get_usernames(), [] )
+        
     def test_add_user_with_long_username( self ):
         username = 'abc'*200
         resp = self.post( '/users/', { 'user': username } )
