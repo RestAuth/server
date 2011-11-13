@@ -139,7 +139,7 @@ SKIP_VALIDATORS
 ---------------
 
 By default, usernames in RestAuth can contain any UTF-8 character except a slash ('/'), a backslash
-('\') and a semicolon (':').
+('\\') and a colon (':').
 
 *Validators* are used to restrict usernames further if certain characters are unavailable in some
 systems that use your RestAuth installation. Consider the following scenario: Your RestAuth server
@@ -151,7 +151,7 @@ would want the ``xmpp`` validator to block creating users where the username con
 
 RestAuth ships with validators named ``xmpp``, ``email``, ``mediawiki``, ``linux`` and ``windows``.
 You can use the ``SKIP_VALIDATORS`` setting to skip any of the aforementioned validators, by default
-``linux``, ``xmpp``, ``email`` and ``windows`` are skipped, because the severely restrict usernames.
+``linux``, ``xmpp``, ``email`` and ``windows`` are skipped, because they severely restrict usernames.
 
 .. todo:: Provide an ability to add your own validators.
 

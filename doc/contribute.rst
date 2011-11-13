@@ -7,11 +7,11 @@ RestAuth is Free Software and as such invites everyone to contribute in any way 
   <https://redmine.fsinf.at/projects/restauth-server/issues/new>`_ in our `issue tracker
   <https://redmine.fsinf.at/projects/restauth-server>`_.
 * You can also join our XMPP/Jabber multi user chat at ``rest@conference.jabber.at``. If you don't
-  have an account, you can join it without an account `using speeqe
+  have an account, you can join the channel `using speeqe
   <http://speeqe.com/room/rest@conference.jabber.at/>`_.
-* Our codebase is hosted at https://git.fsinf.at/restauth/server. You can fork our codebase and
-  code your own improvements and do a merge-request to get your changes into the "official"
-  codebase.
+* Our codebase is hosted at `git.fsinf.at/restauth/server <https://git.fsinf.at/restauth/server>`_.
+  You can fork our codebase and code your own improvements and do a merge-request to get your
+  changes into the "official" codebase.
   
   Note that git.fsinf.at already uses a RestAuth installation. Account registration is not possible
   on git.fsinf.at itself, please `register here <https://fsinf.at/user/register>`_.

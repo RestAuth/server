@@ -19,9 +19,10 @@ accounts where the username is not compatible with some systems you use.
 
 RestAuth is the server-side reference implementation of the `RestAuth protocol
 <https://restauth.net/Specification>`_. RestAuth is written in `Python
-<http://www.python.org>`_ and is using the `Django webframework <http://djangoproject.com/>`_. As
+<http://www.python.org>`_ and is uses the `Django webframework <http://djangoproject.com/>`_. As
 such, it can run on a variety of operating systems, using any webserver and database system
-supported by Django. 
+supported by Django (see the `Django installation instructions
+<https://docs.djangoproject.com/en/dev/topics/install/>`_ for a list of supported systems). 
 
 RestAuth is Free Software, licensed unter the `GNU General Public Licence, version 3
 <http://www.gnu.org/licenses/gpl.html>`_. 
