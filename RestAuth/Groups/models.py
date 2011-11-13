@@ -124,12 +124,9 @@ class Group( models.Model ):
 					return True
 		return False
 
-	def is_indirect_member( self, user, excludes=[], lvl=0 ):
-		if lvl >= 10:
-			return False
-		
+	def is_indirect_member( self, user, excludes=[] ):
 		for parent in self.parent_groups.only( 'name' ):
-			if parent.is_member( user, True, lvl+1 ):
+			if parent.is_member( user, True ):
 				return True
 		return False
 	
