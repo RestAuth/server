@@ -186,7 +186,7 @@ class test( Command ):
 			sys.path.insert( 0, common_path )
 			
 		from django.core.management import call_command
-		call_command( 'test', 'Users', 'Groups', 'Test', 'Services' )
+		call_command( 'test', 'Users', 'Groups', 'Test', 'Services', 'common' )
 
 class coverage( Command ):
 	description = "Run test suite and generate code coverage analysis."
@@ -222,11 +222,11 @@ class coverage( Command ):
 			os.makedirs( self.dir )
 
 		cov = coverage.coverage( cover_pylib=False, include='RestAuth/*',
-					omit=['*tests.py', '*testdata.py'] )
+					omit=['*tests.py', '*testdata.py', '*settings.py'] )
 		cov.start()
 		
 		from django.core.management import call_command
-		call_command( 'test', 'Users', 'Groups', 'Test', 'Services' )
+		call_command( 'test', 'Users', 'Groups', 'Test', 'Services', 'common' )
 		
 		cov.stop()
 		cov.html_report( directory=self.dir )
