@@ -30,7 +30,7 @@ class InternalAuthenticationBackend:
 		the header.
 		"""
 		method, data = header.split()
-		if method.lower() != 'basic':
+		if method.lower() != 'basic': # pragma: no cover
 			return None # we only support basic authentication
 
 		name, password = base64.b64decode(data).split(':')
@@ -44,7 +44,7 @@ class InternalAuthenticationBackend:
 			# service does not exist
 			return None
 
-	def get_user( self, user_id ):
+	def get_user( self, user_id ): # pragma: no cover
 		"""
 		Get the user by id. This is used by clients that implement
 		sessions.
