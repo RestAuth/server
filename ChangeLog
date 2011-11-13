@@ -5,14 +5,19 @@ RestAuth 0.5.2 (XXX)
     RestAuthCommon.handlers)
   * No longer use deprecated functions in RestAuthCommon
   * Remove some deprecated code
+  * Fix traceback when deleting hosts in services
+  * Reserved usernames are no really blocked
   
   Documentation:
   * Add documentation on running multiple instances on the same host
   * Fix many spelling mistakes in the documentation
   
   Testing:
-  * Add coverage target
   * Add 'test' target to setup.py that runs all tests
+  * Add 'coverage' target to setup.py that creates test-coverage in
+    doc/coverage/
+  * Many additional tests to improve test-coverage
+  * Optimize Tests to use common methods
 
 RestAuth 0.5.1 (10 September 2011)
 

@@ -48,7 +48,7 @@ class ContentTypeTests( RestAuthTest ):
         content = self.handler.marshal_dict( { 'user': username1 } )
         extra = self.extra
         del extra['content_type']
-        resp = self.c.post( '/users/', content=content, content_type='foo/bar', **extra )
+        resp = self.c.post( '/users/', content, content_type='foo/bar', **extra )
         self.assertEquals( resp.status_code, httplib.UNSUPPORTED_MEDIA_TYPE )
         self.assertItemsEqual( User.objects.all(), [] )
     
@@ -57,4 +57,10 @@ class ContentTypeTests( RestAuthTest ):
         extra['HTTP_ACCEPT'] = 'foo/bar'
         resp = self.c.get( '/users/', **extra )
         self.assertEquals( resp.status_code, httplib.NOT_ACCEPTABLE )
+        self.assertItemsEqual( User.objects.all(), [] )
+        
+    def test_wrong_content( self ):
+        content = 'no_json_at_all}}}'
+        resp = self.c.post( '/users/', content,  **self.extra )
+        self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         self.assertItemsEqual( User.objects.all(), [] )
