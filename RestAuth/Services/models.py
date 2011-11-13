@@ -38,6 +38,8 @@ def service_create( name, password, addresses=[] ):
 
 	if addresses:
 		service.set_hosts( addresses )
+		
+	return service
 
 class ServiceAddress( models.Model ):
 	address = models.CharField( max_length=39, unique=True )

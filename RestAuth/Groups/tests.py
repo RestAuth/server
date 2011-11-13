@@ -712,7 +712,7 @@ class AddSubGroupTests( GroupUserTests ): # POST /groups/<group>/groups/
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEquals( resp['Resource-Type'], 'group' )
         self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
-        self.assertItemsEqual( group_get( groupname5).parent_groups.all(), [] )
+        self.assertItemsEqual( group_get( groupname5, self.fsinf).parent_groups.all(), [] )
 
 class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<subgroup>/
     def test_group_doesnt_exist( self ):
@@ -763,7 +763,7 @@ class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<su
         self.assertItemsEqual( group1.groups.values_list( 'name', flat=True ).all(),
                               [ groupname4, groupname5 ])
         self.assertItemsEqual( group_get( groupname4, self.fsinf ).parent_groups.all(), [ self.group1 ])
-        self.assertItemsEqual( group_get( groupname5 ).parent_groups.all(), [ self.group1 ])
+        self.assertItemsEqual( group_get( groupname5, self.fsinf ).parent_groups.all(), [ self.group1 ])
         
         request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname4) )
         resp = self.make_request( views.group_groups_handler, request, groupname1, groupname4 )
@@ -780,7 +780,7 @@ class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<su
         self.assertItemsEqual( group1.groups.values_list( 'name', flat=True ).all(),
                               [ groupname4, groupname5 ])
         self.assertItemsEqual( group_get( groupname4, self.fsinf ).parent_groups.all(), [ self.group1 ])
-        self.assertItemsEqual( group_get( groupname5 ).parent_groups.all(), [ self.group1 ])
+        self.assertItemsEqual( group_get( groupname5, self.fsinf ).parent_groups.all(), [ self.group1 ])
 
 __test__ = {"doctest": """
 Another way to test that 1 + 1 is equal to 2.
