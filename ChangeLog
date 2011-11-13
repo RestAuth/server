@@ -1,4 +1,4 @@
-RestAuth 0.5.2 (XXX)
+RestAuth 0.5.2 (13 November 2011)
 
   * Add basic routers for common replication scenarios
   * Adapt to changes in RestAuthCommon (CONTENT_HANDLERS now is in
