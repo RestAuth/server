@@ -49,7 +49,7 @@ class ExceptionMiddleware:
 
 		if isinstance( ex, RestAuthException ):
 			return HttpResponse( ex.message, status=ex.response_code )
-		else:
+		else: # pragma: no cover
 			import traceback
 			logging.critical( traceback.format_exc() )
 			return HttpResponseServerError( "Internal Server Error. Please see server log for details.\n" )
@@ -62,5 +62,5 @@ class HeaderMiddleware:
 		if request.method in ['POST', 'PUT'] and 'CONTENT_TYPE' not in request.META:
 			return HttpResponse( 'POST/PUT requests must include a Content-Type header.', status=415 )
 
-		if 'HTTP_ACCEPT' not in request.META:
+		if 'HTTP_ACCEPT' not in request.META: # pragma: no cover
 			logging.warn( 'Accept header is recommended in all requests.' )
