@@ -74,7 +74,7 @@ class Service( User ):
 
 	def del_host( self, address ):
 		try:
-			host = ServiceAddress.objects.get( address=addr )
+			host = ServiceAddress.objects.get( address=address )
 			self.hosts.remove( host )
 		except ServiceAddress.DoesNotExist:
 			pass
