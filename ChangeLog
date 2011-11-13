@@ -4,7 +4,7 @@ RestAuth 0.5.2 (XXX)
   * Adapt to changes in RestAuthCommon (CONTENT_HANDLERS now is in
     RestAuthCommon.handlers)
   * No longer use deprecated functions in RestAuthCommon
-  * Remove some deprecated code
+  * Remove a lot of deprecated code, unused parameters, etc
   * Fix traceback when deleting hosts in services
   * Reserved usernames are no really blocked
   
