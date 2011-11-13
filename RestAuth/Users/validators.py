@@ -17,7 +17,7 @@
 
 import re, stringprep
 
-def xmpp( name ):
+def xmpp( name ): # pragma: no cover
 	"""
 	Check if the given name is a valid XMPP name. This filters unwanted
 	ASCII characters ("&'\/<>@) as well as any space (including unicode ones).
@@ -38,7 +38,7 @@ def xmpp( name ):
 
 	return True
 
-def email( name ):
+def email( name ): # pragma: no cover
 	"""
 	Check if the given name is a valid email adress. Note that email
 	adresses MUST be ASCII characters, so if this validator is used, you can
@@ -64,22 +64,14 @@ def mediawiki( name ):
 	byte length of more than 255 characters, some reserved names and
 	the invalid characters: #<>|[]{}.
 	"""
-	if len( name.encode('utf-8') ) > 255:
+	if len( name.encode('utf-8') ) > 255:  # pragma: no cover
 		# Page titles only up to 255 bytes:
 		return False
 
-	# already filtered by general check:
-	#if name == '.' or name == '..':
-	#	return False
-	#if name.startswith( "./" ) or name.startswith( "../" ):
-	#	return False
-	#if name.endswith( "/." ) or name.startswith( "/.." ):
-	#	return False
-
 	# see http://www.mediawiki.org/wiki/Manual:$wgReservedUsernames
-	reserved_names = [ 'MediaWiki default', 'Conversion script', 
-		'Maintenance script', 'msg:double-redirect-fixer',
-		'Template namespace initialisation script' ]
+	reserved_names = [ 'mediawiki default', 'conversion script', 
+		'maintenance script', 'msg:double-redirect-fixer',
+		'template namespace initialisation script' ]
 	if name in reserved_names:
 		return False
 	
@@ -89,7 +81,7 @@ def mediawiki( name ):
 
 	return True
 
-def linux( name ):
+def linux( name ): # pragma: no cover
 	if name.startswith( '-' ):
 		return False
 	if len( name ) > 32:
@@ -107,7 +99,7 @@ def linux( name ):
 
 	return True
 
-def windows( name ):
+def windows( name ): # pragma: no cover
 	# Reserved names in Windows, see
 	# 	http://support.microsoft.com/kb/909264
 	reserved = [ 'ANONYMOUS', 'AUTHENTICATED USER', 'BATCH', 'BUILTIN',
@@ -118,7 +110,7 @@ def windows( name ):
 		'NULL', 'PROXY', 'REMOTE INTERACTIVE', 'RESTRICTED', 
 		'SCHANNEL AUTH', 'SELF', 'SERVER', 'SERVICE', 'SYSTEM', 
 		'TERMINAL SERVER', 'THIS ORGANIZATION', 'USERS', 'WORLD' ]
-	if name in reserved:
+	if name.upper() in reserved:
 		return False
 	# :/\ are also illegal, but already filtered by the general check
 	illegal = ['"', '[', ']', ';', '|', '=', '+', '*', '?',	'<', '>' ]
