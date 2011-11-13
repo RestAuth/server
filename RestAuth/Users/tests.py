@@ -162,6 +162,19 @@ class AddUserTests( RestAuthTest ): # POST /users/
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         self.assertEquals( self.get_usernames(), [] )
         
+    def test_add_invalid_username( self ):
+        username = 'foo#bar'
+        request = self.post( '/users/', { 'user': username, 'password': password1 } )
+        resp = self.make_request( views.index, request )
+        self.assertEquals( resp.status_code, httplib.PRECONDITION_FAILED )
+        self.assertEquals( self.get_usernames(), [] )
+        
+        username = 'foo[bar'
+        request = self.post( '/users/', { 'user': username, 'password': password1 } )
+        resp = self.make_request( views.index, request )
+        self.assertEquals( resp.status_code, httplib.PRECONDITION_FAILED )
+        self.assertEquals( self.get_usernames(), [] )
+        
     def test_add_user_with_long_username( self ):
         username = 'abc'*200
         request = self.post( '/users/', { 'user': username } )
@@ -450,7 +463,14 @@ class CreatePropertyTests( PropertyTests ): # POST /users/<user>/props/
         self.assertEquals( resp.status_code, httplib.CONFLICT )
         
         self.assertDictEqual( self.user1.get_properties(), {propkey1: propval1} )
-        self.assertDictEqual( self.user2.get_properties(), {} )   
+        self.assertDictEqual( self.user2.get_properties(), {} )
+        
+    def test_create_invalid_property( self ):
+        request = self.post( '/users/%s/props/'%username1, {'prop': "foo:bar", 'value': propval2} )
+        resp = self.make_request( views.userprops_index, request, username1 )
+        self.assertEquals( resp.status_code, httplib.PRECONDITION_FAILED )
+        self.assertDictEqual( self.user1.get_properties(), {} )
+        
 
     def test_bad_requests( self ):
         request = self.post( '/users/%s/props/'%username2, {} )
