@@ -15,10 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import base64, httplib
+import base64, httplib, logging
 
 from django.test import TestCase
 from django.test.client import RequestFactory
+from django.test.client import Client
 from django.conf import settings
 
 import RestAuthCommon
@@ -67,16 +68,24 @@ class RestAuthTest( TestCase ):
         if hasattr( self, 'settings' ): # requires django-1.3.1:
             self.settings( LOGGING_CONFIG=None )
         
+        self.c = Client()
+        self.handler = RestAuthCommon.handlers.json()
+        self.extra = {
+            'HTTP_ACCEPT': self.handler.mime,
+            'REMOTE_USER': 'vowi',
+            'content_type': self.handler.mime,
+        }
+        service_create( 'vowi', 'vowi', [ '127.0.0.1', '::1' ] )
+        
         self.factory = RequestFactory()
         self.content_handler = RestAuthCommon.handlers.json()
         self.authorization = "Basic %s"%(base64.b64encode( "vowi:vowi".encode() ).decode() )
-        
-        service_create( 'vowi', 'vowi', [ '127.0.0.1', '::1' ] )
         
     def tearDown( self ):
         Service.objects.all().delete()
     
     def request( self, method, url, **kwargs ):
+        logging.error( 'This function is deprecated!' )
         request = getattr( self.factory, method )( url, **kwargs )
         request.META['HTTP_AUTHORIZATION'] = self.authorization
         request.META['HTTP_ACCEPT'] = self.content_handler.mime
