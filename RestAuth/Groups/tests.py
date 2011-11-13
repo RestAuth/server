@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.test import TestCase
-
 from RestAuth.Services.models import Service, service_create
 from RestAuth.common.testdata import *
 from RestAuth.Users.models import ServiceUser
@@ -34,25 +32,17 @@ class GroupTests( RestAuthTest ):
         
         self.vowi = Service.objects.get( username='vowi' )
         self.fsinf = service_create( 'fsinf', 'fsinf', [ '127.0.0.1', '::1' ] )
-        
-    def tearDown( self ):
-        RestAuthTest.tearDown( self )
-        
-        ServiceUser.objects.all().delete()
-        Group.objects.all().delete()
 
 class GetGroupsTests( GroupTests ): # GET /groups/
     def test_get_no_groups( self ):
-        request = self.get( '/groups/' )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/' )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertEquals( self.parse( resp, 'list' ), [] )
         
     def test_get_one_group( self ):
         group_create( groupname1, self.vowi )
         
-        request = self.get( '/groups/' )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/' )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertEquals( self.parse( resp, 'list' ), [ groupname1 ] )
         
@@ -60,8 +50,7 @@ class GetGroupsTests( GroupTests ): # GET /groups/
         group_create( groupname1, self.vowi )
         group_create( groupname2, self.vowi )
         
-        request = self.get( '/groups/' )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/' )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ groupname1, groupname2 ] )
         
@@ -70,15 +59,14 @@ class GetGroupsTests( GroupTests ): # GET /groups/
         group_create( groupname4, self.fsinf )
         group_create( groupname5, None )
         
-        request = self.get( '/groups/' )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/' )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ groupname1 ] )
     
 class GetGroupsOfUserTests( GroupTests ): # GET /groups/?user=<user>
     def test_user_doesnt_exist( self ):
-        request = self.get( '/groups/', {'user': username5} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username5} )
+        
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'user' )
         
@@ -86,8 +74,7 @@ class GetGroupsOfUserTests( GroupTests ): # GET /groups/?user=<user>
         # we add a group where user1 is NOT a member:
         group1 = group_create( groupname1, self.vowi )
         
-        request = self.get( '/groups/', {'user': username1} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username1} )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertEquals( self.parse( resp, 'list' ), [] )
         
@@ -95,14 +82,12 @@ class GetGroupsOfUserTests( GroupTests ): # GET /groups/?user=<user>
         group1 = group_create( groupname1, self.vowi )
         group1.users.add( self.user1 )
         
-        request = self.get( '/groups/', {'user': username1} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username1} )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertEquals( self.parse( resp, 'list' ), [ groupname1 ] )
         
         # test that user2 still has no memberships:
-        request = self.get( '/groups/', {'user': username2} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username2} )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertEquals( self.parse( resp, 'list' ), [] )
         
@@ -110,14 +95,12 @@ class GetGroupsOfUserTests( GroupTests ): # GET /groups/?user=<user>
         group1 = group_create( groupname1, self.vowi )
         group1.users.add( self.user1 )
         
-        request = self.get( '/groups/', {'user': username1} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username1} )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ groupname1 ] )
         
         # test that user2 still has no memberships:
-        request = self.get( '/groups/', {'user': username2} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username2} )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertEquals( self.parse( resp, 'list' ), [] )
         
@@ -127,8 +110,7 @@ class GetGroupsOfUserTests( GroupTests ): # GET /groups/?user=<user>
         group1.users.add( self.user1 )
         group1.groups.add( group2 )
         
-        request = self.get( '/groups/', {'user': username1} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username1} )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ groupname1, groupname2 ] )
         
@@ -140,8 +122,7 @@ class GetGroupsOfUserTests( GroupTests ): # GET /groups/?user=<user>
         group1.groups.add( group2 )
         group2.groups.add( group3 )
         
-        request = self.get( '/groups/', {'user': username1} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username1} )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ groupname1, groupname2, groupname3 ] )
         
@@ -153,8 +134,7 @@ class GetGroupsOfUserTests( GroupTests ): # GET /groups/?user=<user>
         group1.groups.add( group2 )
         group2.groups.add( group3 )
         
-        request = self.get( '/groups/', {'user': username1} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username1} )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ groupname3 ] )
         
@@ -167,53 +147,46 @@ class GetGroupsOfUserTests( GroupTests ): # GET /groups/?user=<user>
         group1.groups.add( group2 )
         group2.groups.add( group3 )
         
-        request = self.get( '/groups/', {'user': username1} )
-        resp = self.make_request( views.index, request )
+        resp = self.get( '/groups/', {'user': username1} )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ groupname1, groupname3 ] )
  
 class VerifyGroupExistanceTests( GroupTests ): # GET /groups/<group>/
     def test_does_not_exist( self ):
-        request = self.get( '/groups/%s/'%(groupname1) )
-        resp = self.make_request( views.group_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
     def test_exists( self ):
         group_create( groupname1, self.vowi )
         
-        request = self.get( '/groups/%s/'%(groupname1) )
-        resp = self.make_request( views.group_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
         
     def test_for_leaking_services( self ):
         group_create( groupname1, self.fsinf )
         
-        request = self.get( '/groups/%s/'%(groupname1) )
-        resp = self.make_request( views.group_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
     def test_for_groups_with_no_service( self ):
         group_create( groupname1, None )
         
-        request = self.get( '/groups/%s/'%(groupname1) )
-        resp = self.make_request( views.group_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
                
 class DeleteGroupTests( GroupTests ): # DELETE /groups/<group>/
     def test_does_not_exist( self ):
-        request = self.delete( '/groups/%s/'%(groupname1) )
-        resp = self.make_request( views.group_handler, request, groupname1 )
+        resp = self.delete( '/groups/%s/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
     def test_delete( self ):
         group_create( groupname1, self.vowi )
         
-        request = self.delete( '/groups/%s/'%(groupname1) )
-        resp = self.make_request( views.group_handler, request, groupname1 )
+        resp = self.delete( '/groups/%s/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
         
         self.assertEquals( Group.objects.all().count(), 0 )
@@ -222,13 +195,11 @@ class DeleteGroupTests( GroupTests ): # DELETE /groups/<group>/
         group1 = group_create( groupname1, self.fsinf )
         group2 = group_create( groupname2, None )
         
-        request = self.delete( '/groups/%s/'%(groupname1) )
-        resp = self.make_request( views.group_handler, request, groupname1 )
+        resp = self.delete( '/groups/%s/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
-        request = self.delete( '/groups/%s/'%(groupname2) )
-        resp = self.make_request( views.group_handler, request, groupname2 )
+        resp = self.delete( '/groups/%s/'%(groupname2) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
@@ -244,42 +215,31 @@ class GroupUserTests( GroupTests ):
         self.group3 = group_create( groupname3, self.vowi )
         self.group4 = group_create( groupname4, self.fsinf )
         self.group5 = group_create( groupname5, self.fsinf )
-        
-    def tearDown( self ):
-        RestAuthTest.tearDown( self )
-        
-        ServiceUser.objects.all().delete()
-        Group.objects.all().delete()
 
 class GetUsersInGroupTests( GroupUserTests ): # GET /groups/<group>/users/
     def test_group_does_not_exist( self ):
-        request = self.get( '/groups/%s/users/'%(groupname6) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname6 )
+        resp = self.get( '/groups/%s/users/'%(groupname6) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
     def test_service_isolation( self ):
-        request = self.get( '/groups/%s/users/'%(groupname4) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname4 )
+        resp = self.get( '/groups/%s/users/'%(groupname4) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
-        request = self.get( '/groups/%s/users/'%(groupname5) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname5 )
+        resp = self.get( '/groups/%s/users/'%(groupname5) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
     def test_no_users( self ):
-        request = self.get( '/groups/%s/users/'%(groupname1) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/users/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertEquals( self.parse( resp, 'list' ), [] )
         
     def test_one_user( self ):
         self.group1.users.add( self.user1 )
         
-        request = self.get( '/groups/%s/users/'%(groupname1) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/users/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertEquals( self.parse( resp, 'list' ), [ username1 ] )
     
@@ -288,8 +248,7 @@ class GetUsersInGroupTests( GroupUserTests ): # GET /groups/<group>/users/
         self.group1.users.add( self.user2 )
         self.group2.users.add( self.user3 )
         
-        request = self.get( '/groups/%s/users/'%(groupname1) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/users/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ username1, username2 ] )
         
@@ -299,14 +258,12 @@ class GetUsersInGroupTests( GroupUserTests ): # GET /groups/<group>/users/
         self.group2.users.add( self.user3 )
         self.group1.groups.add( self.group2 )
         
-        request = self.get( '/groups/%s/users/'%(groupname1) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/users/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ username1, username2 ] )
         
         # group3 has users1-3, because of inheritance
-        request = self.get( '/groups/%s/users/'%(groupname2) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname2 )
+        resp = self.get( '/groups/%s/users/'%(groupname2) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ username1, username2, username3 ] )
         
@@ -317,20 +274,17 @@ class GetUsersInGroupTests( GroupUserTests ): # GET /groups/<group>/users/
         self.group1.groups.add( self.group2 )
         self.group2.groups.add( self.group3 )
         
-        request = self.get( '/groups/%s/users/'%(groupname1) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/users/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ username1 ] )
         
         # group2 has users1-2, because of inheritance
-        request = self.get( '/groups/%s/users/'%(groupname2) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname2 )
+        resp = self.get( '/groups/%s/users/'%(groupname2) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ username1, username2 ] )
         
         # similar: gorup 3 has all users:
-        request = self.get( '/groups/%s/users/'%(groupname3) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname3 )
+        resp = self.get( '/groups/%s/users/'%(groupname3) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ username1, username2, username3 ] )
         
@@ -356,33 +310,29 @@ class GetUsersInGroupTests( GroupUserTests ): # GET /groups/<group>/users/
         self.group4.groups.add( self.group2 )
         self.group2.users.add( self.user5 )
         
-        request = self.get( '/groups/%s/users/'%(groupname1) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/users/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ username1, username2, username3 ] )
         
-        request = self.get( '/groups/%s/users/'%(groupname2) )
-        resp = self.make_request( views.group_users_index_handler, request, groupname2 )
+        resp = self.get( '/groups/%s/users/'%(groupname2) )
         self.assertEquals( resp.status_code, httplib.OK )
         self.assertItemsEqual( self.parse( resp, 'list' ), [ username1, username2, username3, username4, username5 ] )
         
 
 class AddUserToGroupTests( GroupUserTests ): # POST /groups/<group>/users/
     def test_group_doesnt_exist( self ):
-        request = self.post( '/groups/%s/users/'%(groupname6), {} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname6 )
+        content = self.handler.marshal_dict( {} )
+        resp = self.post( '/groups/%s/users/'%(groupname6), content )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
     def test_user_doesnt_exist( self ):
-        request = self.post( '/groups/%s/users/'%(groupname1), {'user': username5} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/users/'%(groupname1), {'user': username5} )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'user' )
         
     def test_add_user( self ):
-        request = self.post( '/groups/%s/users/'%(groupname1), {'user': username1} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/users/'%(groupname1), {'user': username1} )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
 
         self.assertItemsEqual( self.group1.users.all(), [self.user1] )
@@ -390,16 +340,14 @@ class AddUserToGroupTests( GroupUserTests ): # POST /groups/<group>/users/
         self.assertItemsEqual( self.group3.users.all(), [] )
         
     def test_add_user_twice( self ):
-        request = self.post( '/groups/%s/users/'%(groupname1), {'user': username1} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/users/'%(groupname1), {'user': username1} )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
 
         self.assertItemsEqual( self.group1.users.all(), [self.user1] )
         self.assertItemsEqual( self.group2.users.all(), [] )
         self.assertItemsEqual( self.group3.users.all(), [] )
         
-        request = self.post( '/groups/%s/users/'%(groupname1), {'user': username1} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/users/'%(groupname1), {'user': username1} )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
         
         self.assertItemsEqual( self.group1.users.all(), [self.user1] )
@@ -407,29 +355,24 @@ class AddUserToGroupTests( GroupUserTests ): # POST /groups/<group>/users/
         self.assertItemsEqual( self.group3.users.all(), [] )
         
     def test_service_isolation( self ):
-        request = self.post( '/groups/%s/users/'%(groupname4), {'user': username1} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname4 )
+        resp = self.post( '/groups/%s/users/'%(groupname4), {'user': username1} )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         self.assertItemsEqual( group_get( groupname4, self.fsinf ).users.all(), [] )
         
-        request = self.post( '/groups/%s/users/'%(groupname5), {'user': username1} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname5 )
+        resp = self.post( '/groups/%s/users/'%(groupname5), {'user': username1} )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         self.assertItemsEqual( group_get( groupname5, self.fsinf ).users.all(), [] )
         
     def test_bad_requests( self ):
-        request = self.post( '/groups/%s/users/'%(groupname1), {} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/users/'%(groupname1), {} )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         
-        request = self.post( '/groups/%s/users/'%(groupname1), {'foo':'bar'} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/users/'%(groupname1), {'foo': 'bar'} )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         
-        request = self.post( '/groups/%s/users/'%(groupname1), {'user': username1, 'foo':'bar'} )
-        resp = self.make_request( views.group_users_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/users/'%(groupname1), {'user': username1, 'foo':'bar'} )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         
 class VerifyUserInGroupTests( GroupUserTests ): # GET /groups/<group>/users/<user>/
@@ -437,8 +380,7 @@ class VerifyUserInGroupTests( GroupUserTests ): # GET /groups/<group>/users/<use
         """
         Test if user is a member. Throws assertion error if the group doesn't exist.
         """
-        request = self.get( '/groups/%s/users/%s/'%(groupname, username) )
-        resp = self.make_request( views.group_user_handler, request, groupname, username )
+        resp = self.get( '/groups/%s/users/%s/'%(groupname, username) )
         if resp.status_code == httplib.NO_CONTENT:
             return True
         else:
@@ -447,27 +389,23 @@ class VerifyUserInGroupTests( GroupUserTests ): # GET /groups/<group>/users/<use
             return False
     
     def test_group_doesnt_exist( self ):
-        request = self.get( '/groups/%s/users/%s/'%(groupname6, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname6, username1 )
+        resp = self.get( '/groups/%s/users/%s/'%(groupname6, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
     def test_service_isolation( self ):
-        request = self.get( '/groups/%s/users/%s/'%(groupname4, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname4, username1 )
+        resp = self.get( '/groups/%s/users/%s/'%(groupname4, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
         self.group4.users.add( self.user1 )
         
-        request = self.get( '/groups/%s/users/%s/'%(groupname4, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname4, username1 )
+        resp = self.get( '/groups/%s/users/%s/'%(groupname4, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
     
     def test_user_doesnt_exist( self ):
-        request = self.get( '/groups/%s/users/%s/'%(groupname1, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname1, username5 )
+        resp = self.get( '/groups/%s/users/%s/'%(groupname1, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'user' )
     
@@ -536,57 +474,49 @@ class VerifyUserInGroupTests( GroupUserTests ): # GET /groups/<group>/users/<use
         
 class DeleteUserFromGroupTests( GroupUserTests ): # DELETE /groups/<group>/users/<user>/
     def test_group_doesnt_exist( self ):
-        request = self.delete( '/groups/%s/users/%s/'%(groupname6, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname6, username1 )
+        resp = self.delete( '/groups/%s/users/%s/'%(groupname6, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
     
     def test_user_doesnt_exist( self ):
-        request = self.delete( '/groups/%s/users/%s/'%(groupname1, username5) )
-        resp = self.make_request( views.group_user_handler, request, groupname1, username5 )
+        resp = self.delete( '/groups/%s/users/%s/'%(groupname1, username5) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'user' )
     
     def test_delete_user( self ):
         self.group1.users.add( self.user1 )
         
-        request = self.delete( '/groups/%s/users/%s/'%(groupname1, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname1, username1 )
+        resp = self.delete( '/groups/%s/users/%s/'%(groupname1, username1) )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
         
     def test_user_not_member( self ):
-        request = self.delete( '/groups/%s/users/%s/'%(groupname1, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname1, username1 )
+        resp = self.delete( '/groups/%s/users/%s/'%(groupname1, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'user' )
     
     def test_service_isolation( self ):
-        request = self.delete( '/groups/%s/users/%s/'%(groupname4, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname4, username1 )
+        resp = self.delete( '/groups/%s/users/%s/'%(groupname4, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         self.assertItemsEqual( self.group4.users.all(), [] )
         
         self.group4.users.add( self.user1 )
         
-        request = self.delete( '/groups/%s/users/%s/'%(groupname4, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname4, username1 )
+        resp = self.delete( '/groups/%s/users/%s/'%(groupname4, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
         self.assertItemsEqual( self.group4.users.all(), [ self.user1 ] )
         
         # same as above except for global group:
-        request = self.delete( '/groups/%s/users/%s/'%(groupname5, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname5, username1 )
+        resp = self.delete( '/groups/%s/users/%s/'%(groupname5, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         self.assertItemsEqual( self.group5.users.all(), [] )
         
         self.group5.users.add( self.user1 )
         
-        request = self.delete( '/groups/%s/users/%s/'%(groupname5, username1) )
-        resp = self.make_request( views.group_user_handler, request, groupname5, username1 )
+        resp = self.delete( '/groups/%s/users/%s/'%(groupname5, username1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
@@ -594,16 +524,14 @@ class DeleteUserFromGroupTests( GroupUserTests ): # DELETE /groups/<group>/users
 
 class GetSubGroupTests( GroupUserTests ): # GET /groups/<group>/groups/
     def test_group_doesnt_exist( self ):
-        request = self.get( '/groups/%s/groups/'%(groupname6) )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname6 )
+        resp = self.get( '/groups/%s/groups/'%(groupname6) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
     
     def test_get_no_subgroups( self ):
         self.group2.groups.add( self.group4 )
         
-        request = self.get( '/groups/%s/groups/'%(groupname1) )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/groups/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         
         self.assertEquals( self.parse( resp, 'list'), [])
@@ -612,8 +540,7 @@ class GetSubGroupTests( GroupUserTests ): # GET /groups/<group>/groups/
         self.group1.groups.add( self.group2 )
         self.group1.groups.add( self.group5 )
         
-        request = self.get( '/groups/%s/groups/'%(groupname1) )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/groups/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         
         self.assertEquals( self.parse( resp, 'list'), [groupname2])
@@ -622,8 +549,7 @@ class GetSubGroupTests( GroupUserTests ): # GET /groups/<group>/groups/
         self.group1.groups.add( self.group2 )
         self.group1.groups.add( self.group3 )
         
-        request = self.get( '/groups/%s/groups/'%(groupname1) )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/groups/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         
         self.assertEquals( self.parse( resp, 'list'), [groupname2, groupname3])
@@ -633,16 +559,14 @@ class GetSubGroupTests( GroupUserTests ): # GET /groups/<group>/groups/
         self.group1.groups.add( self.group4 )
         self.group1.groups.add( self.group5 )
         
-        request = self.get( '/groups/%s/groups/'%(groupname1) )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.get( '/groups/%s/groups/'%(groupname1) )
         self.assertEquals( resp.status_code, httplib.OK )
         
         self.assertEquals( self.parse( resp, 'list'), [groupname2])
 
 class AddSubGroupTests( GroupUserTests ): # POST /groups/<group>/groups/
     def test_group_doesnt_exist( self ):
-        request = self.post( '/groups/%s/groups/'%(groupname6), {'group': groupname1} )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname6 )
+        resp = self.post( '/groups/%s/groups/'%(groupname6), {'group': groupname1} )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
@@ -650,8 +574,7 @@ class AddSubGroupTests( GroupUserTests ): # POST /groups/<group>/groups/
         self.assertEquals( self.group1.parent_groups.all().count(), 0 )
     
     def test_subgroup_doesnt_exist( self ):
-        request = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname6} )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname6 )
+        resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname6} )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
@@ -659,56 +582,48 @@ class AddSubGroupTests( GroupUserTests ): # POST /groups/<group>/groups/
         self.assertEquals( self.group1.groups.all().count(), 0 )
     
     def test_add_subgroup( self ):
-        request = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2} )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2} )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
     
         self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [ self.group2 ] )
         self.assertItemsEqual( self.group2.parent_groups.all(), [ self.group1 ] )
     
     def test_add_subgroup_twice( self ):
-        request = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2} )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2} )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
     
         self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [ self.group2 ] )
         self.assertItemsEqual( self.group2.parent_groups.all(), [ self.group1 ] )
         
-        request = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2} )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2} )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
         
         self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [ self.group2 ] )
         self.assertItemsEqual( self.group2.parent_groups.all(), [ self.group1 ] )
     
     def test_bad_requests( self ):
-        request = self.post( '/groups/%s/groups/'%(groupname1), {} )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/groups/'%(groupname1), {} )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
         
-        request = self.post( '/groups/%s/groups/'%(groupname1), {'foo':'bar'} )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/groups/'%(groupname1), {'foo':'bar'} )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
         
-        request = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2, 'foo':'bar'} )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2, 'foo':'bar'} )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
         self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
     
     def test_service_isolation( self ):
         # we shouldn't be able to add a subgroup:
-        request = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname4 } )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname4 } )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEquals( resp['Resource-Type'], 'group' )
         self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
         self.assertItemsEqual( group_get( groupname4, self.fsinf).parent_groups.all(), [] )
         
         # same with global group:
-        request = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname5 } )
-        resp = self.make_request( views.group_groups_index_handler, request, groupname1 )
+        resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname5 } )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEquals( resp['Resource-Type'], 'group' )
         self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
@@ -716,16 +631,14 @@ class AddSubGroupTests( GroupUserTests ): # POST /groups/<group>/groups/
 
 class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<subgroup>/
     def test_group_doesnt_exist( self ):
-        request = self.delete( '/groups/%s/groups/%s/'%(groupname6, groupname1) )
-        resp = self.make_request( views.group_groups_handler, request, groupname6, groupname1 )
+        resp = self.delete( '/groups/%s/groups/%s/'%(groupname6, groupname1) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
         self.assertFalse( Group.objects.filter( name=groupname6 ).exists() )
     
     def test_subgroup_doesnt_exist( self ):
-        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname6) )
-        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname6 )
+        resp = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname6) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
@@ -736,8 +649,7 @@ class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<su
         self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [ self.group2 ])
         self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [ self.group1 ])
         
-        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname2) )
-        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname2 )
+        resp = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname2) )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
         
         self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [])
@@ -748,8 +660,7 @@ class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<su
         self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [])
         self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [])
         
-        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname2) )
-        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname2 )
+        resp = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname2) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
@@ -765,13 +676,11 @@ class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<su
         self.assertItemsEqual( group_get( groupname4, self.fsinf ).parent_groups.all(), [ self.group1 ])
         self.assertItemsEqual( group_get( groupname5, self.fsinf ).parent_groups.all(), [ self.group1 ])
         
-        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname4) )
-        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname4 )
+        resp = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname4) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
-        request = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname5) )
-        resp = self.make_request( views.group_groups_handler, request, groupname1, groupname5 )
+        resp = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname5) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
@@ -781,11 +690,3 @@ class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<su
                               [ groupname4, groupname5 ])
         self.assertItemsEqual( group_get( groupname4, self.fsinf ).parent_groups.all(), [ self.group1 ])
         self.assertItemsEqual( group_get( groupname5, self.fsinf ).parent_groups.all(), [ self.group1 ])
-
-__test__ = {"doctest": """
-Another way to test that 1 + 1 is equal to 2.
-
->>> 1 + 1 == 2
-True
-"""}
-

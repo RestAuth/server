@@ -11,8 +11,6 @@ from django.utils.unittest import TestCase
 
 class HeaderMiddlewareTests( TestCase ):
     def setUp( self ):
-        self.service = Service.objects.get_or_create( username='vowi' )[0]
-        self.c = Client()
         self.handler = RestAuthCommon.handlers.json()
         self.extra = {
             'HTTP_ACCEPT': self.handler.mime,
