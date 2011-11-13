@@ -5,6 +5,7 @@ from RestAuth.Users import views
 from RestAuth.common.testdata import RestAuthTest, username1, password1
 from RestAuth.common.middleware import HeaderMiddleware
 import RestAuthCommon
+from RestAuthCommon.error import UnsupportedMediaType, NotAcceptable
 
 from django.test.client import Client, RequestFactory
 from django.utils.unittest import TestCase
@@ -37,3 +38,23 @@ class HeaderMiddlewareTests( TestCase ):
         del request.META['CONTENT_TYPE']
         resp = self.mw.process_request(request)
         self.assertEquals( resp.status_code, httplib.UNSUPPORTED_MEDIA_TYPE )
+        
+class ContentTypeTests( RestAuthTest ):
+    def setUp( self ):
+        RestAuthTest.setUp( self )
+        self.factory = RequestFactory()
+        
+    def test_wrong_content_type_header( self ):
+        content = self.handler.marshal_dict( { 'user': username1 } )
+        extra = self.extra
+        del extra['content_type']
+        resp = self.c.post( '/users/', content=content, content_type='foo/bar', **extra )
+        self.assertEquals( resp.status_code, httplib.UNSUPPORTED_MEDIA_TYPE )
+        self.assertItemsEqual( User.objects.all(), [] )
+    
+    def test_wrong_accept_header( self ):
+        extra = self.extra
+        extra['HTTP_ACCEPT'] = 'foo/bar'
+        resp = self.c.get( '/users/', **extra )
+        self.assertEquals( resp.status_code, httplib.NOT_ACCEPTABLE )
+        self.assertItemsEqual( User.objects.all(), [] )
