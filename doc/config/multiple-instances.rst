@@ -42,7 +42,7 @@ and/or different IP addresses.
 Settings based on environment variables
 =======================================
 
-Since :file:`localsettings.py` is just a normal python file, you can use any python code you want
+Since :file:`localsettings.py` is just a normal Python file, you can use any Python code you want
 in it. The best way of getting multiple instances with the least configuration overhead is by using
 environment variables.
 

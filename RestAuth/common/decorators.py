@@ -20,8 +20,6 @@ from django.http import HttpResponse
 def sql_profiler( view, request, *args, **kwargs ): # pragma: no cover
 	"""
 	Wrapper-function for the sql_profile decorator.
-
-	@todo: use logging infrastructure so we use log-file instead of stdout.
 	"""
 	from django.db import connection
 	connection.queries = []

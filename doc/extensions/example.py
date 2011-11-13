@@ -83,5 +83,11 @@ def setup(app):
     app.add_node(example,
                  html=(visit_html_node, depart_html_node),
                  man=(visit_man_node, depart_man_node) )
+    
+    app.add_crossref_type(
+        directivename = "setting",
+        rolename      = "setting",
+        indextemplate = "pair: %s; setting",
+    )
 
     app.add_directive('example', ExampleDirective)
