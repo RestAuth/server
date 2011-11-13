@@ -15,7 +15,7 @@ The only thing that really needs to differ from instance is the database.
 If two instances access
 the same database, they effectively become the same instance. You could imagine different scenarios,
 like one instance requiring a minimum password length of 10 characters and another instance
-requiring a minimum password length of 12 characters, but they make little sense. If you desire
+requiring a minimum password length of 12 characters, but that makes little sense. If you desire
 such a setup, you can still use any of the following chapters, but examples are based on the
 assumption that you want a different database setup.
 
@@ -30,7 +30,7 @@ configuration examples, `Apache <http://httpd.apache.org>`_) is able to serve mu
 the same IP via SSL. If you want to use SNI, both client and server need to support it.
 
 On most modern systems, ``server side`` support is not a problem. See the `appropriate chapter
-<http://en.wikipedia.org/wiki/Server_Name_Indication#Support>`_ on Wikipedia for more information
+<http://en.wikipedia.org/wiki/Server_Name_Indication#Support>`_ on WikiPedia for more information
 on the required software versions. On the client side, the situation is a little more tricky.
 `RestAuthClient <https://python.restauth.net>`_ only supports SNI if run with Python 3.2 or later.
 `php-restauth <https://php.restauth.net>`_ supports SNI if compiled with OpenSSL/GNU TLS and libcurl

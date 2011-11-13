@@ -185,7 +185,7 @@ restricts the minimum length even further.
 .. setting:: SECRET_KEY
 
 SECRET_KEY
-----------
+==========
 
 Never forget to set a `SECRET_KEY <https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>`_
 in :file:`localsettings.py`.
