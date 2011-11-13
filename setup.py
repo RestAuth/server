@@ -26,7 +26,7 @@ import re, os, sys, time, glob, shutil, argparse
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 
-LATEST_RELEASE = '0.5.1'
+LATEST_RELEASE = '0.5.2'
 
 def get_version():
 	"""
