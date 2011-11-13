@@ -1,5 +1,5 @@
-Settings
---------
+Settings reference
+------------------
 
 Since RestAuth is implemented as a Django project, RestAuth not only uses all `settings available in
 Django <https://docs.djangoproject.com/en/dev/ref/settings/>`_, but also features a few additional
