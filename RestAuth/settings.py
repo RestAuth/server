@@ -57,6 +57,7 @@ INSTALLED_APPS = (
 	'RestAuth.Users',
 	'RestAuth.Groups',
 	'RestAuth.Test',
+	'RestAuth.common',
 )
 
 AUTHENTICATION_BACKENDS = (
