@@ -8,3 +8,4 @@ doc/_build
 doc/gen
 MANIFEST
 dist/
+doc/coverage
