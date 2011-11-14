@@ -36,21 +36,22 @@ considerable performance penalty.
 If a client still uses HTTP sessions, you can set this configuarion variable to ``True``. This has
 the effect of adding the appropriate middleware classes to :setting:`MIDDLEWARE_CLASSES`.
 
-.. setting:: FILTER_LINUX_USERNAME_NOT_RECOMMENDED
+.. setting:: RELAXED_LINUX_CHECKS
 
-FILTER_LINUX_USERNAME_NOT_RECOMMENDED
-=====================================
+RELAXED_LINUX_CHECKS
+====================
 
-Default: ``True``
+Default: ``False``
 
-Linux allows virtually any username, but does not recommend usernames that:
+By default, the ``linux`` validator ensures that a username consists only of ASCII characters, is no
+longer than 32 characters, starts with a lowercase letter or underscore ('_') and contains only
+lowercase letters, digits, underscores ('_') and dashes ('-').
 
-* do not start with a lowercase letter or an underscore ('_')
-* consist only of lowercase letters, digits, underscores ('_') or dashes ('-')
+When this variable is set to ``True``, the validator will apply a more relaxed check:
 
-Setting this variable to False causes the ``linux`` validator (see :setting:`SKIP_VALIDATORS`) to
-only apply a more relaxed check. Even when set to ``False``, usernames can only be 32 characters
-long, may not start with a dash ('-') and may not contain any whitespace character.
+* usernames may only be up to 32 characters long
+* usernames must not start with a dash ('-')
+* usernames may contain ASCII characters except whitespace characters
 
 .. setting:: HASH_ALGORITHM
 
@@ -201,14 +202,21 @@ What :ref:`validators <config_validators>` to skip to relax the minimum requirem
 
 The currently available validators are:
 
-============= ============
-validator     restrictions
-============= ============
-``email``     todo
-``linux``     todo
-``mediawiki`` todo
-``windows``   todo
-``xmpp``      todo
-============= ============
+============= ======================================================================================
+validator     restrictions (that is, what is **not** allowed)
+============= ======================================================================================
+``email``     No UTF-8 characters and the ASCII characters '(', ')', ',', ';', '<', '>', '@', '['
+	      and ']'.
+``linux``     Usernames must start with a lowercase letter or an underscore ('_') and consist only
+              of lowercase letters, digits, underscores and dashes ('-'). Maximum username length is
+	      32 characters. Also see the :setting:`RELAXED_LINUX_CHECKS` setting.
+``mediawiki`` The ASCII characters '#', '<', '>', ']', '|', '[', '{' and '}', maximum username
+              length is 255 characters. Also filters `reserved usernames
+	      <http://www.mediawiki.org/wiki/Manual:$wgReservedUsernames>`_.
+``windows``   The ASCII characters '"', '[', ']', ';', '|', '=', '+', '*', '?',	'<' and '>', some
+              `reserved usernames <http://support.microsoft.com/kb/909264>`_.
+``xmpp``      Any whitespace character (space, tab, ...) and their UTF-8 equivalents, the ASCII
+              characters '"', '&', '\'', '/', '<', '>', '@'.
+============= ======================================================================================
 
 .. todo:: Provide an ability to add your own validators.

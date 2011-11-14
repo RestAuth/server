@@ -17,6 +17,8 @@
 
 import re, stringprep
 
+from django.conf import settings
+
 def xmpp( name ): # pragma: no cover
 	"""
 	Check if the given name is a valid XMPP name. This filters unwanted
@@ -89,12 +91,9 @@ def linux( name ): # pragma: no cover
 
 	if re.search( '\s', name ):
 		return False
-
-	from django.conf import settings
-	filter_not_recommended = settings.FILTER_LINUX_USERNAME_NOT_RECOMMENDED
 	
 	# filter names that are not recommended:
-	if filter_not_recommended and not re.match( '[a-z_][a-z0-9_-]*[$]?', name ):
+	if not settings.RELAXED_LINUX_CHECKS and not re.match( '[a-z_][a-z0-9_-]*[$]?', name ):
 		return False
 
 	return True

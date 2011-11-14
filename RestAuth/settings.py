@@ -69,7 +69,7 @@ AUTHENTICATION_BACKENDS = (
 ### Defaults for the standard settings.py ###
 #############################################
 SKIP_VALIDATORS = [ 'linux', 'windows', 'email', 'xmpp' ]
-FILTER_LINUX_USERNAME_NOT_RECOMMENDED = True
+RELAXED_LINUX_CHECKS = False
 MIN_USERNAME_LENGTH = 3
 MAX_USERNAME_LENGTH = 255
 MIN_PASSWORD_LENGTH = 6
