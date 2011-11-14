@@ -49,8 +49,8 @@ def email( name ): # pragma: no cover
 	Invalid characters in this filter are: (),;<>@[] and any space
 	"""
 	try:
-		name.encode( 'ascii' )
-	except UnicodeEncodeError:
+		name.decode( 'ascii' )
+	except UnicodeDecodeError:
 		return False
 
 	# :\ are also illegal, but already filtered by the general check
@@ -88,6 +88,10 @@ def linux( name ): # pragma: no cover
 		return False
 	if len( name ) > 32:
 		return False
+	try:
+		name.decode( 'ascii' )
+	except UnicodeDecodeError:
+		return False
 
 	if re.search( '\s', name ):
 		return False
@@ -111,6 +115,11 @@ def windows( name ): # pragma: no cover
 		'TERMINAL SERVER', 'THIS ORGANIZATION', 'USERS', 'WORLD' ]
 	if name.upper() in reserved:
 		return False
+	try:
+		name.decode( 'ascii' )
+	except UnicodeDecodeError:
+		return False
+	
 	# :/\ are also illegal, but already filtered by the general check
 	illegal = ['"', '[', ']', ';', '|', '=', '+', '*', '?',	'<', '>' ]
 	for char in illegal:
