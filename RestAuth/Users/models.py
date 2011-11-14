@@ -15,13 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import datetime
+import re, datetime, stringprep
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core import exceptions
 from django.db import models
 from django.db.utils import IntegrityError
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote
+from django.utils.importlib import import_module
 
 from RestAuth.common.password import get_hexdigest, get_salt
 from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, UserExists, PropertyExists
@@ -58,6 +60,75 @@ def user_create( name, password ):
 	except IntegrityError:
 		raise UserExists( "A user with the given name already exists." )
 
+def validate_username_new( username ):
+	if len( username ) < settings.MIN_USERNAME_LENGTH:
+		raise UsernameInvalid( "Username too short" )
+	if len( username ) > settings.MAX_USERNAME_LENGTH:
+		raise UsernameInvalid( "Username too long" )
+		
+	illegal_chars = set()
+	reserved = set()
+	force_ascii = False
+	allow_whitespace = True
+	validators = []
+	
+	for validator_path in settings.VALIDATORS:
+		# import validator:
+		try:
+			modname, classname = validator_path.rsplit('.', 1)
+		except ValueError:
+			raise exceptions.ImproperlyConfigured(
+				'%s isn\'t a middleware module' % validator_path )
+		
+		try:
+			mod = import_module( modname )
+		except ImportError as e:
+			raise exceptions.ImproperlyConfigured(
+				'Error importing middleware %s: "%s"' % (modname, e))
+		try:
+			validator = getattr( mod, classname )
+		except AttributeError:
+			raise exceptions.ImproperlyConfigured(
+				'Middleware module "%s" does not define a "%s" class' % (modname, classname))
+		
+		if hasattr( validator, 'check' ):
+			validators.append( validator )
+		
+		illegal_chars |= validator.ILLEGAL_CHARACTERS
+		reserved |= validator.RESERVED
+		if validator.FORCE_ASCII:
+			force_ascii = True
+		if not validator.ALLOW_WHITESPACE:
+			allow_whitespace = False
+	
+	# check for illegal characters:
+	for char in illegal_chars:
+		if char in username:
+			raise UsernameInvalid( "Username must not contain character '%s'"%char )
+
+	# reserved names
+	if username in reserved:
+		raise UsernameInvalid( "Username is reserved" )
+	
+	# force ascii if necessary
+	if force_ascii:
+		try:
+			username.decode( 'ascii' )
+		except UnicodeDecodeError:
+			raise UsernameInvalid( "Username must only contain ASCII characters" )
+	
+	# check for whitespace
+	if not allow_whitespace:
+		if force_ascii:
+			whitespace_regex = re.compile( '\s' )
+		else:
+			whitespace_regex = re.compile( '\s', re.UNICODE )
+		if whitespace_regex.search( username ):
+			raise UsernameInvalid( "Username must not contain any whitespace" )
+
+	for validator in validators:
+		validator.check( username )
+
 def validate_username( username ):
 	min_length = settings.MIN_USERNAME_LENGTH
 	max_length = settings.MAX_USERNAME_LENGTH
@@ -74,7 +145,7 @@ def validate_username( username ):
 		func = getattr( validators, val )
 		if not callable( func ):
 			continue
-
+		
 		if not func( username ):
 			raise UsernameInvalid( 'Username is not valid on %s'%(val) )
 

@@ -164,3 +164,20 @@ SECRET_KEY=''
 # to True for libraries that require it. Note that this costs considerable
 # performance.
 #ENABLE_SESSIONS=False
+
+RELAXED_LINUX_CHECKS = True
+SKIP_VALIDATORS = [ 'xmpp_new', 'email_new', 'mediawiki_new', 'linux_new', 'windows_new', 'validator' ]
+
+from RestAuth.Users import validators
+VALIDATORS = [
+#    validators.xmpp_new,
+#    validators.email_new,
+#    validators.mediawiki_new,
+#    validators.linux_new,
+#    validators.windows_new,
+    'RestAuth.Users.validators.xmpp_new',
+    'RestAuth.Users.validators.email_new',
+    'RestAuth.Users.validators.mediawiki_new',
+    'RestAuth.Users.validators.linux_new',
+    'RestAuth.Users.validators.windows_new',
+]
