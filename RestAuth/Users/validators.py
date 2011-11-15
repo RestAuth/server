@@ -22,20 +22,77 @@ from django.conf import settings
 
 class validator(object):
 	ILLEGAL_CHARACTERS = set()
+	"""A set of characters that are forbidden on this system. By default, no characters are
+	forbidden."""
+	
 	ALLOW_WHITESPACE = True
+	"""If this system allows whitespace. The default is ``True``."""
+	
 	FORCE_ASCII = False
+	"""If this system requires usernames to contain only ASCII characters. The default is
+	``False``."""
+	
 	RESERVED = set()
+	"""A set of reserved usernames. By default, no usernames are reserved."""
 
-class xmpp_new(validator):
+class xmpp(validator):
+	"""
+	This validator ensures that usernames are valid username-parts for Jabber/XMPP accounts. You
+	can use this validator if you want to provide XMPP-addresses of the form
+	``<username>@example.com``.
+	
+	This validator applies the following restrictions:
+	
+	* It does not allow any whitespace characters (i.e. space, tab, etc.)
+	* The following characters are forbidden: ``"``, ``&`, ``\'``, ``<``, ``>`` and ``@``
+	"""
 	ILLEGAL_CHARACTERS = set(['"', '&', '\'', '<', '>', '@'])
 	ALLOW_WHITESPACE = False
 	
-class email_new(validator):
+class email(validator):
+	"""
+	This validator ensures that usernames are valid username-parts of email-addresses. You can
+	use this validator if you want to provide email-addresses of the form
+	``<username>@example.com``.
+	
+	This validator applies the following restrictions:
+	
+	* All characters must be ASCII characters.
+	* The following ASCII characters are forbidden: ``(``, ``)``, ``,``, ``;``, ``<``, ``>``,
+	  ``@``, ``[`` and ``]``
+	* No spaces are allowed
+	* Usernames must not be longer than 64 characters.
+	
+	A good reference for valid email addresses is
+	`WikiPedia <http://en.wikipedia.org/wiki/Email_address#Syntax>`_.
+	"""
 	ILLEGAL_CHARACTERS = set( ['(', ')', ',', ';', '<', '>', '@', '[', ']' ] )
 	ALLOWS_WHITESPACE = False
 	FORCE_ASCII = True
 	
-class mediawiki_new( validator ):
+	@classmethod
+	def check( cls, name ):
+		if len( name ) > 64:
+			raise UsernameInvalid( "Username must be no longer than 64 characters.")
+	
+class mediawiki( validator ):
+	"""
+	This validator ensures that usernames are compatible with
+	`MediaWiki <http://www.mediawiki.org>`_.
+	
+	This validator applies the following restrictions:
+	
+	* Usernames must not be longer than 255 **bytes**. An UTF-8 character may have more than one
+	  byte, so the maximum username length is dependent on the characters used.
+	* The following ASCII characters are forbidden: ``#``, ``<``, ``>``, ``|``, ``[``, ``]``,
+	  and ``{}``
+	* The following usernames are reserved by MediaWiki and are thus blocked:
+	  ``mediawiki default``, ``conversion script``, ``maintenance script``,
+	  ``msg:double-redirect-fixer`` and ``template namespace initialisation script``
+	  
+	See also: `Manual:$wgReservedUsernames
+	<http://www.mediawiki.org/wiki/Manual:$wgReservedUsernames>`_
+	"""
 	ILLEGAL_CHARACTERS = set( ['#', '<', '>', ']', '|', '[', '{', '}'] )
 	RESERVED = set( [ 'mediawiki default', 'conversion script', 'maintenance script',
 		'msg:double-redirect-fixer', 'template namespace initialisation script' ] )
@@ -47,7 +104,23 @@ class mediawiki_new( validator ):
 			raise UsernameInvalid( "Username must not be longer than 255 characters" )
 		
 	
-class linux_new( validator ):
+class linux( validator ):
+	"""
+	This validator ensures that usernames are Linux system users.
+	
+	This validator applies the following restrictions:
+	
+	* All characters must be ASCII characters
+	* Usernames must not be longer than 32 characters
+	* Usernames must not start with a dash (``-``)
+	
+	Unless you set :setting:`RELAXED_LINUX_CHECKS` to ``True``, the following additional
+	restrictions apply:
+	
+	* Usernames must start with a letter or an underscore (``_``)
+	* Usernames may consist only of letters, digits, underscores (``_``) and dashes (``-``)
+	"""
+	
 	FORCE_ASCII = True
 	ALLOW_WHITESPACE = False
 
@@ -60,7 +133,31 @@ class linux_new( validator ):
 		if not settings.RELAXED_LINUX_CHECKS and not re.match( '[a-z_][a-z0-9_-]*[$]?', name ):
 			raise UsernameInvalid( '%s: Username must match regex "[a-z_][a-z0-9_-]*[$]?"'%name )
 
-class windows_new( validator ):
+class windows( validator ):
+	"""
+	This validator ensures that usernames are valid Windows system users.
+	
+	.. WARNING:: This validator is completely untested as now Windows systems are available.
+	   This means that this validator is likely not allow some accounts that are in fact not
+	   valid. If you can, please consider to :ref:`contributing <contribute-validators>`.
+	   
+	This validator applies the following restrictions:
+	
+	* All characters must be ASCII characters
+	* The following characters are forbidden: ``"``, ``[``, ``]``, ``;``, ``|``, ``=``, ``+``,
+	  ``*``, ``?``, ``<`` and ``>``
+	* The following usernames are reserved and thus blocked:
+	  ``anonymous``, ``authenticated user``, ``batch``, ``builtin``, ``creator group``,
+	  ``creator group server``, ``creator owner``, ``creator owner server``, ``dialup``,
+	  ``digest auth``, ``interactive``, ``internet``, ``local``, ``local system``, ``network``,
+	  ``network service``, ``nt authority``, ``nt domain``, ``ntlm auth``, ``null``, ``proxy``,
+	  ``remote interactive``, ``restricted``, ``schannel auth``, ``self``, ``server``,
+	  ``service``, ``system``, ``terminal server``, ``this organization``, ``users`` and
+	  ``world``
+	
+	For a list of reserved windows usernames, see `this KnowledgeBase article
+	<http://support.microsoft.com/kb/909264>`_.
+	"""
 	ILLEGAL_CHARACTERS = set( ['"', '[', ']', ';', '|', '=', '+', '*', '?', '<', '>' ] )
 	FORCE_ASCII = True
 	RESERVED = set( ['anonymous', 'authenticated user', 'batch', 'builtin', 'creator group',
@@ -69,111 +166,3 @@ class windows_new( validator ):
 		    'network service', 'nt authority', 'nt domain', 'ntlm auth', 'null', 'proxy',
 		    'remote interactive', 'restricted', 'schannel auth', 'self', 'server',
 		    'service', 'system', 'terminal server', 'this organization', 'users', 'world'] )
-
-def xmpp( name ): # pragma: no cover
-	"""
-	Check if the given name is a valid XMPP name. This filters unwanted
-	ASCII characters ("&'\/<>@) as well as any space (including unicode ones).
-	"""
-
-	# :/\ are also illegal, but already filtered by the general check
-	illegal_ascii = ['"', '&', '\'', '/', '<', '>', '@' ]
-	for char in illegal_ascii:
-		if char in name:
-			return False
-
-	# filter unallowed utf-8 characters:
-	for char in name:
-		enc_char = char.decode( 'utf-8' )
-		if stringprep.in_table_c11_c12( enc_char ):
-			# various whitespace characters
-			return False
-
-	return True
-
-def email( name ): # pragma: no cover
-	"""
-	Check if the given name is a valid email adress. Note that email
-	adresses MUST be ASCII characters, so if this validator is used, you can
-	only use ASCII names.
-
-	Invalid characters in this filter are: (),;<>@[] and any space
-	"""
-	try:
-		name.decode( 'ascii' )
-	except UnicodeDecodeError:
-		return False
-
-	# :\ are also illegal, but already filtered by the general check
-	regex = '[\\s(),;<>@\\[\\]]'
-	if re.search( regex, name ):
-		return False
-
-	return True
-
-def mediawiki( name ):
-	"""
-	Filter invalid MediaWiki usernames. This filters names with a
-	byte length of more than 255 characters, some reserved names and
-	the invalid characters: #<>|[]{}.
-	"""
-	if len( name.encode('utf-8') ) > 255:  # pragma: no cover
-		# Page titles only up to 255 bytes:
-		return False
-
-	# see http://www.mediawiki.org/wiki/Manual:$wgReservedUsernames
-	reserved_names = [ 'mediawiki default', 'conversion script', 
-		'maintenance script', 'msg:double-redirect-fixer',
-		'template namespace initialisation script' ]
-	if name in reserved_names:
-		return False
-	
-	regex = '[#<>\\]\\|\\[{}]'
-	if re.search( regex, name ):
-		return False
-
-	return True
-
-def linux( name ): # pragma: no cover
-	if name.startswith( '-' ):
-		return False
-	if len( name ) > 32:
-		return False
-	try:
-		name.decode( 'ascii' )
-	except UnicodeDecodeError:
-		return False
-
-	if re.search( '\s', name ):
-		return False
-	
-	# filter names that are not recommended:
-	if not settings.RELAXED_LINUX_CHECKS and not re.match( '[a-z_][a-z0-9_-]*[$]?', name ):
-		return False
-
-	return True
-
-def windows( name ): # pragma: no cover
-	# Reserved names in Windows, see
-	# 	http://support.microsoft.com/kb/909264
-	reserved = [ 'ANONYMOUS', 'AUTHENTICATED USER', 'BATCH', 'BUILTIN',
-		'CREATOR GROUP', 'CREATOR GROUP SERVER', 'CREATOR OWNER', 
-		'CREATOR OWNER SERVER', 'DIALUP', 'DIGEST AUTH', 'INTERACTIVE', 
-		'INTERNET', 'LOCAL', 'LOCAL SYSTEM', 'NETWORK', 
-		'NETWORK SERVICE', 'NT AUTHORITY', 'NT DOMAIN', 'NTLM AUTH',
-		'NULL', 'PROXY', 'REMOTE INTERACTIVE', 'RESTRICTED', 
-		'SCHANNEL AUTH', 'SELF', 'SERVER', 'SERVICE', 'SYSTEM', 
-		'TERMINAL SERVER', 'THIS ORGANIZATION', 'USERS', 'WORLD' ]
-	if name.upper() in reserved:
-		return False
-	try:
-		name.decode( 'ascii' )
-	except UnicodeDecodeError:
-		return False
-	
-	# :/\ are also illegal, but already filtered by the general check
-	illegal = ['"', '[', ']', ';', '|', '=', '+', '*', '?',	'<', '>' ]
-	for char in illegal:
-		if char in name:
-			return False
-	return True

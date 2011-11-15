@@ -60,7 +60,7 @@ def user_create( name, password ):
 	except IntegrityError:
 		raise UserExists( "A user with the given name already exists." )
 
-def validate_username_new( username ):
+def validate_username( username ):
 	if len( username ) < settings.MIN_USERNAME_LENGTH:
 		raise UsernameInvalid( "Username too short" )
 	if len( username ) > settings.MAX_USERNAME_LENGTH:
@@ -128,26 +128,6 @@ def validate_username_new( username ):
 
 	for validator in validators:
 		validator.check( username )
-
-def validate_username( username ):
-	min_length = settings.MIN_USERNAME_LENGTH
-	max_length = settings.MAX_USERNAME_LENGTH
-	if len( username ) < min_length:
-		raise UsernameInvalid( "Username too short" )
-	if len( username ) > max_length:
-		raise UsernameInvalid( "Username too long" )
-
-	skip_validators = settings.SKIP_VALIDATORS
-	for val in [ f for f in dir( validators ) ]:
-		if val in skip_validators:
-			continue
-
-		func = getattr( validators, val )
-		if not callable( func ):
-			continue
-		
-		if not func( username ):
-			raise UsernameInvalid( 'Username is not valid on %s'%(val) )
 
 class ServiceUser( models.Model ):
 	username = models.CharField(_('username'), max_length=60, unique=True, help_text=_("Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters") )

@@ -59,7 +59,7 @@ DATABASES = {
 
 # You may want to configure a database router if you use some sort of database replication. For more
 # information, please see:
-#   https://server.restauth.net/config/database-replication.html
+#       https://server.restauth.net/config/database-replication.html
 #DATABASE_ROUTERS = []
 
 # Set your SECRET_KEY to some long random string:
@@ -77,22 +77,20 @@ SECRET_KEY=''
 #################
 ### USERNAMES ###
 #################
-# A tricky problem for a shared authentication service is what characters are
-# legal for a username. For example, 'Mathias Ertl' is a valid MediaWiki
-# username, but it is not a valid XMPP username. When creating a new user, the
-# username must pass tests for various systems. If the username is invalid in
-# any of the systems, a user with that name cannot be created. RestAuth comes
-# with a variety of validators, which essentially restrict the usernames to
-# ASCII characters (a-z) and digits (0-9). For more information, please see:
-# 	https://restauth.net/wiki/RestAuth/Usernames
+# By default usernames can contain any UTF-8 character except for a colon (':'), a slash ('/') or a
+# backslash ('\'). You can add validators to restrict usernames further to ensure compatibility with
+# systems you use. For futher information please see:
+#       https://server.restauth.net/config/username-validation.html
 #
-# You can use this setting to disable some validators so you can support a wider
-# range of usernames. Valid values are 'xmpp', 'email', 'mediawiki', 'linux' and
-# 'windows'.
-#SKIP_VALIDATORS = [ 'windows', 'email', 'xmpp', 'linux' ]
+#VALIDATORS = [
+#    'RestAuth.common.validators.xmpp',
+#    'RestAuth.common.validators.mediawiki',
+#]
 
-# You can override the minimum username and password length:
+# You can override the minimum and maximum username length. Note that this might be restricted even
+# further if you add validators (see above).
 #MIN_USERNAME_LENGTH = 3
+#MAX_USERNAME_LENGTH = 255
 
 #################
 ### PASSWORDS ###
@@ -134,7 +132,8 @@ SECRET_KEY=''
 #	https://docs.djangoproject.com/en/dev/topics/logging/
 # RestAuth uses a few settings that lets you have a good logging configuration
 # with very few simple settings. If you want to, you can also define your very
-# own logging config (see below).
+# own logging config (see below). More information is also available in the settings reference:
+#       https://restauth.net/config/all-config-values.html
 
 # You can define the LogLevel for RestAuth. There are several possible values:
 # * CRITICAL: Only log errors due to an internal malfunction.
@@ -164,20 +163,3 @@ SECRET_KEY=''
 # to True for libraries that require it. Note that this costs considerable
 # performance.
 #ENABLE_SESSIONS=False
-
-RELAXED_LINUX_CHECKS = True
-SKIP_VALIDATORS = [ 'xmpp_new', 'email_new', 'mediawiki_new', 'linux_new', 'windows_new', 'validator' ]
-
-from RestAuth.Users import validators
-VALIDATORS = [
-#    validators.xmpp_new,
-#    validators.email_new,
-#    validators.mediawiki_new,
-#    validators.linux_new,
-#    validators.windows_new,
-    'RestAuth.Users.validators.xmpp_new',
-    'RestAuth.Users.validators.email_new',
-    'RestAuth.Users.validators.mediawiki_new',
-    'RestAuth.Users.validators.linux_new',
-    'RestAuth.Users.validators.windows_new',
-]

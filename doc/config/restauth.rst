@@ -123,21 +123,3 @@ If you used a distribution-specific way to install RestAuth, the command is most
 .. code-block:: bash
    
    restauth-manage syncdb
-
-.. _config_validators:
-
-Validators
-----------
-
-By default, usernames in RestAuth can contain any UTF-8 character except a slash ('/'), a backslash
-('\\') and a colon (':').
-
-*Validators* are used to restrict usernames further if certain characters are unavailable in some
-systems that use your RestAuth installation. Consider the following scenario: Your RestAuth server
-provides accounts for a `MediaWiki <http://www.mediawiki.org>`_ (that's also used to register new
-accounts) and an `XMPP server
-<http://en.wikipedia.org/wiki/Extensible_Messaging_and_Presence_Protocol>`_. MediaWiki has no
-problems with usernames containing spaces, but the XMPP protocol forbids that. In this scenario, you
-would want the ``xmpp`` validator to block creating users where the username contains a space.
-
-Please see :setting:`SKIP_VALIDATORS` for a list of available validators.

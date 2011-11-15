@@ -191,32 +191,30 @@ SECRET_KEY
 Never forget to set a `SECRET_KEY <https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>`_
 in :file:`localsettings.py`.
 
-.. setting:: SKIP_VALIDATORS
+.. setting:: VALIDATORS
 
-SKIP_VALIDATORS
-===============
+VALIDATORS
+==========
 
-Default: ``[ 'linux', 'windows', 'email', 'xmpp' ]``
+Default: ``[]``
 
-What :ref:`validators <config_validators>` to skip to relax the minimum requirements on usernames.
+By default, usernames in RestAuth can contain any UTF-8 character except a slash ('/'), a backslash
+('\\') and a colon (':'). You can add additional validators to restrict usernames further to ensure
+that new usernames are compatible with all systems you use.
 
-The currently available validators are:
+.. NOTE:: Validators are only used when creating new accounts. This way existing users can still
+   login to existing systems if you enable additional validators later on, even if their username
+   is illegal in a new system.
 
-============= ======================================================================================
-validator     restrictions (that is, what is **not** allowed)
-============= ======================================================================================
-``email``     No UTF-8 characters and the ASCII characters '(', ')', ',', ';', '<', '>', '@', '['
-	      and ']'.
-``linux``     Usernames must start with a lowercase letter or an underscore ('_') and consist only
-              of lowercase letters, digits, underscores and dashes ('-'). Maximum username length is
-	      32 characters. Also see the :setting:`RELAXED_LINUX_CHECKS` setting.
-``mediawiki`` The ASCII characters '#', '<', '>', ']', '|', '[', '{' and '}', maximum username
-              length is 255 characters. Also filters `reserved usernames
-	      <http://www.mediawiki.org/wiki/Manual:$wgReservedUsernames>`_.
-``windows``   The ASCII characters '"', '[', ']', ';', '|', '=', '+', '*', '?',	'<' and '>', some
-              `reserved usernames <http://support.microsoft.com/kb/909264>`_.
-``xmpp``      Any whitespace character (space, tab, ...) and their UTF-8 equivalents, the ASCII
-              characters '"', '&', '\'', '/', '<', '>', '@'.
-============= ======================================================================================
+Example configuration for disabling the registration of accounts incompatible with either MediaWiki
+or XMPP:
 
-.. todo:: Provide an ability to add your own validators.
+.. code-block:: python
+   
+   VALIDATORS = [
+       'RestAuth.Users.validators.mediawiki',
+       'RestAuth.Users.validators.xmpp',
+   ]
+
+Please see :doc:`/config/username-validation` for information on what validators exist and how to
+write your own validators.

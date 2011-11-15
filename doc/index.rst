@@ -50,6 +50,7 @@ Configuration
    config/webserver
    config/restauth
    config/all-config-values
+   config/username-validation
    config/multiple-instances
    config/database-replication
 

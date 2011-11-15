@@ -1,3 +1,9 @@
+RestAuth 0.5.3 (XX XX 20XX)
+
+  * Massively rewrote the validator system. It is now way faster and more
+    powerull. Please see the documentation for details on how the new system
+    works.
+
 RestAuth 0.5.2 (13 November 2011)
 
   * Add basic routers for common replication scenarios

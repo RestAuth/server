@@ -231,6 +231,10 @@ if not LOGGING:
 	if LOG_HANDLER_KWARGS:
 		for handler in LOGGING['handlers'].values():
 			handler.update( LOG_HANDLER_KWARGS )
+			
+VALIDATORS = [
+    'RestAuth.Users.validators.mediawiki',
+]
 	
 if ENABLE_SESSIONS:
 	index = MIDDLEWARE_CLASSES.index( 'django.middleware.common.CommonMiddleware' ) + 1
