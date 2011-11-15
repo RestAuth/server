@@ -28,6 +28,18 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 
 LATEST_RELEASE = '0.5.2'
 
+if os.path.exists( 'RestAuth' ):
+	sys.path.insert( 0, 'RestAuth' )
+	
+common_path = os.path.join( '..', 'restauth-common', 'python' )
+if os.path.exists( common_path ):
+	sys.path.insert( 0, common_path )
+	pythonpath = os.environ.get( 'PYTHONPATH' )
+	if pythonpath:
+		os.environ['PYTHONPATH'] += ':%s'%common_path
+	else:
+		os.environ['PYTHONPATH'] = common_path
+
 def get_version():
 	"""
 	Dynamically get the current version.
@@ -124,8 +136,17 @@ class build_doc_meta( Command ):
 			if self.should_generate( cli.__file__, 'doc/gen/%s-parameters.rst'%name ):
 				cli.write_parameters( parser, 'doc/gen/%s-parameters.rst'%name, name )
 				
+		pythonpath = os.environ.get('PYTHONPATH')
+		print( os.environ['PYTHONPATH'] )
+		if pythonpath:
+			os.environ['PYTHONPATH'] += ':.'
+		else:
+			os.environ['PYTHONPATH'] = '.'
+		common_path = os.path.join( '..', 'restauth-common', 'python' )
+		if os.path.exists( common_path ):
+			os.environ['PYTHONPATH'] += ':%s'%(os.path.join('..', common_path))
 		
-		os.environ['PYTHONPATH'] = '.'
+		print( os.environ['PYTHONPATH'])
 
 		version = get_version()
 		os.environ['SPHINXOPTS'] = '-D release=%s -D version=%s'%(version, version)
@@ -180,11 +201,6 @@ class test( Command ):
 	def finalize_options( self ):
 		pass
 	def run( self ):
-		sys.path.insert( 0, 'RestAuth' )
-		common_path = os.path.join( '..', 'restauth-common', 'python' )
-		if os.path.exists( common_path ):
-			sys.path.insert( 0, common_path )
-			
 		from django.core.management import call_command
 		call_command( 'test', 'Users', 'Groups', 'Test', 'Services', 'common' )
 
@@ -206,12 +222,7 @@ class coverage( Command ):
 	def finalize_options( self ): pass
 
 
-	def run( self ):
-		sys.path.insert( 0, 'RestAuth' )
-		common_path = os.path.join( '..', 'restauth-common', 'python' )
-		if os.path.exists( common_path ):
-			sys.path.insert( 0, common_path )
-			
+	def run( self ):	
 		try:
 			import coverage
 		except ImportError:
