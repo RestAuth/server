@@ -43,15 +43,8 @@ RELAXED_LINUX_CHECKS
 
 Default: ``False``
 
-By default, the ``linux`` validator ensures that a username consists only of ASCII characters, is no
-longer than 32 characters, starts with a lowercase letter or underscore ('_') and contains only
-lowercase letters, digits, underscores ('_') and dashes ('-').
-
-When this variable is set to ``True``, the validator will apply a more relaxed check:
-
-* usernames may only be up to 32 characters long
-* usernames must not start with a dash ('-')
-* usernames may contain ASCII characters except whitespace characters
+When this variable is set to ``True``, the validator will apply a more relaxed check. Please see
+the :py:class:`linux validator <.linux>` for more information.
 
 .. setting:: HASH_ALGORITHM
 

@@ -41,14 +41,22 @@ Installation
    install/from-source
    install/debian-ubuntu
 
-Configuration
-=============
+Getting started
+===============
 
 .. toctree::
    :maxdepth: 1
 
-   config/webserver
    config/restauth
+   config/webserver
+   config/database
+
+Advanced configuration
+======================
+
+.. toctree::
+   :maxdepth: 1
+   
    config/all-config-values
    config/username-validation
    config/multiple-instances
