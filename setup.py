@@ -137,7 +137,6 @@ class build_doc_meta( Command ):
 				cli.write_parameters( parser, 'doc/gen/%s-parameters.rst'%name, name )
 				
 		pythonpath = os.environ.get('PYTHONPATH')
-		print( os.environ['PYTHONPATH'] )
 		if pythonpath:
 			os.environ['PYTHONPATH'] += ':.'
 		else:
@@ -146,8 +145,6 @@ class build_doc_meta( Command ):
 		if os.path.exists( common_path ):
 			os.environ['PYTHONPATH'] += ':%s'%(os.path.join('..', common_path))
 		
-		print( os.environ['PYTHONPATH'])
-
 		version = get_version()
 		os.environ['SPHINXOPTS'] = '-D release=%s -D version=%s'%(version, version)
 		os.environ['RESTAUTH_LATEST_RELEASE'] = LATEST_RELEASE
