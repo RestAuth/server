@@ -1,6 +1,13 @@
 RestAuth 0.5.3 (XX XX 20XX)
 
-  * Improved documentation in lots of places
+  Passwords:
+  * Support empty salts (some legacy systems to not use a salt)
+  * Support two new algorithms:
+    * 'crypt': Store passwords using the systems 'crypt' routine
+    * 'apr1': Store passwords using the apache modified version of MD5
+      commonly used in .htpasswd files
+  
+  Validators:
   * Massively rewrote the validator system. It is now way faster and more
     powerull:
     * deprecated SKIP_VALIDATORS setting
@@ -8,6 +15,9 @@ RestAuth 0.5.3 (XX XX 20XX)
       former)
     * validators are now classes instead of functions
     * rewritten and optimized the validation function
+
+  Documentation:
+  * Improved documentation in lots of places
 
 RestAuth 0.5.2 (13 November 2011)
 
