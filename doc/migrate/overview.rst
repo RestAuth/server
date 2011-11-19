@@ -2,8 +2,9 @@ Overview of migration solutions
 -------------------------------
 
 This page collects scripts/plugins/etc. that can export data of an existing service into the
-`import data format </migrate/import-format>`_. This list is not complete, but if you know of
-additional solutions, just `contact </contribute>`_ us.
+:doc:`import data format </migrate/import-format>`. This list is not intended to be complete, but if
+you know of additional solutions, just :doc:`contact </contribute>` us and we will add it to the
+list.
 
 htpasswd files
 ==============
@@ -12,8 +13,8 @@ htpasswd files
 and are used for basic access authentication.
 
 The script found in the ``htpasswd`` directory of the :ref:`migration_repository` converts such
-files into the `import data format </migrate/import-format>`_. It supports passwords encrypted by the
-crypt, md5 and sha1 algorithms as well plain-text passwords.
+files into the :doc:`import data format </migrate/import-format>`. It supports passwords encrypted
+with the crypt, md5 and sha1 algorithms as well plain-text passwords.
 
 Linux systems
 =============
