@@ -104,7 +104,7 @@ try:
                     user.set_password( pwd ) # if this is an empty string --> unusable password
                 elif type( pwd ) == dict:
                     user.algorithm = pwd['algorithm']
-                    user.salt = pwd['salt']
+                    user.salt = pwd.get('salt', None)
                     user.hash = pwd['hash']
                 print( '* %s: Set password from input data.'%username)
             elif created and args.gen_passwords: # password not in data
@@ -194,7 +194,7 @@ try:
         
 except Exception as e:
     print( "An error occured, rolling back transaction:")
-    print( e )
+    print( "%s: %s"%(type(e), e) )
     transaction.rollback()
 else:
     transaction.commit()
