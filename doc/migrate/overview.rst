@@ -14,12 +14,35 @@ and are used for basic access authentication.
 
 The script found in the ``htpasswd`` directory of the :ref:`migration_repository` converts such
 files into the :doc:`import data format </migrate/import-format>`. It supports passwords encrypted
-with the crypt, md5 and sha1 algorithms as well plain-text passwords.
+with the crypt, md5 and sha1 algorithms as well plain-text passwords. Please try:
+
+.. code-block:: bash
+
+   python htpasswd-export.py --help
+   
+... for usage information.
 
 Linux systems
 =============
 
-None yet.
+The script found in the ``linux`` directory of the :ref:`migration_repository` converts Linux system
+accounts into the :doc:`import data format </migrate/import-format>`. The script automatically
+uses encrypted passwords from ``/etc/shadow`` if available, optionally stores the users login shell
+and home directory as properties and optionally adds user groups. By default, system users and
+system groups are skipped.
+
+Please try:
+
+.. code-block:: bash
+
+   python linux-export.py --help
+   
+... for usage information.
+
+.. NOTE:: The script does not touch the hashes found in either ``/etc/passwd`` or ``/etc/shadow``
+   and assumes that RestAuth will be able to decrypt them using the :py:func:`~crypt.crypt`
+   function. Thus, authentication might not work if :py:func:`~crypt.crypt` on the RestAuth server does not
+   support the same hashing algorithms.
 
 MediaWiki
 =========
