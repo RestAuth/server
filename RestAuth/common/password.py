@@ -19,6 +19,13 @@ from django.utils.encoding import smart_str
 import hashlib, crypt
 
 def crypt_apr1_md5( plainpasswd, salt ):
+	"""
+	This function creates an md5 hash that is identical to one that would be created by
+	:py:cmd:`htpasswd -m`.
+	
+	Algorithm shamelessly copied from here:
+		http://www.php.net/manual/de/function.crypt.php#73619
+	"""
 	import struct, base64, string
 	def pack( val ):
 		md5 = hashlib.md5( val ).hexdigest()
