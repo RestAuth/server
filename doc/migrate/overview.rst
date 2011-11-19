@@ -18,8 +18,12 @@ crypt, md5 and sha1 algorithms as well plain-text passwords.
 Linux systems
 =============
 
+None yet.
+
 MediaWiki
 =========
+
+None yet.
 
 Drupal
 ======
