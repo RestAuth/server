@@ -1,11 +1,16 @@
 Creating and configuring a database
 -----------------------------------
 
-The `DATABASES <https://docs.djangoproject.com/en/dev/ref/settings/#databases>`_ setting is quite
-flexible. Please also consult the `database specific notes
-<https://docs.djangoproject.com/en/dev/ref/databases/>`_ for any particularities of your Database
-system. You have to create and :ref:`initialize <config_restauth_initializing_the_database>`
-the database.
+RestAuth uses a relational database to store its data. You can use any database `supported by Django
+<https://docs.djangoproject.com/en/dev/topics/install/?from=olddocs#get-your-database-running>`_.
+
+For RestAuth to use the database, you have to :ref:`create it <database_create>`, :ref:`configure it
+<database_configure>` and :ref:`initialize it <config_restauth_initializing_the_database>`.
+
+.. _database_create:
+
+Creating a database
+===================
 
 .. NOTE:: Exhaustive documentation on how to create a database is outside the scope of this
    document. If in doubt, always consult the official documentation of your database system.
@@ -14,8 +19,8 @@ the database.
    storage engine (which is the default on many systems, does **not** support transactions. Please
    use InnoDB instead.
 
-Create a MySQL database
-"""""""""""""""""""""""
+MySQL
+"""""
 
 Here is an example shell session for creating a `MySQL <http://www.mysql.com>`_ database:
 
@@ -49,8 +54,8 @@ InnoDB or any other engine that supports transactions. Django provides `some ins
 <https://docs.djangoproject.com/en/dev/ref/databases/#creating-your-tables>`_ on how to convert a
 database to InnoDB.
 
-Create a PostgreSQL database
-""""""""""""""""""""""""""""
+PostgreSQL
+""""""""""
 
 If you choose to use `PostgreSQL <http://www.postgresql.org>`_, you can create a database like this,
 assuming you are already the user ``postgres``:
@@ -86,14 +91,27 @@ If you are using `SQLite <http://www.sqlite.org/>`_, which is **not recommended*
 setup, you do not have to do anything except making sure that the directory named in ``NAME`` is
 writable by the webserver.
 
+.. _database_configure:
+
+Configuring the database
+========================
+
+RestAuth uses the standard `DATABASES setting
+<https://docs.djangoproject.com/en/dev/ref/settings/#databases>`_ of Django. Please also see the
+`notes for specific database systems <https://docs.djangoproject.com/en/dev/ref/databases/>`_.
+
+To configure your database, just open :file:`localsettings.py` and edit the DATABASES section near
+the top of that file.
+
 .. _config_restauth_initializing_the_database:
 
-Initializing the database
-+++++++++++++++++++++++++
+Initialization
+""""""""""""""
 
-Once you have created your database, you can easily create the necessary tables using the ``syncdb``
-command of :command:`manage.py`. If you installed from source, you can simply run this inside the
-:file:`RestAuth/` directory found in the source code:
+Once you have created your database and configured it in :file:`localsettings.py`, you can easily
+create the necessary tables using the ``syncdb`` command of :command:`manage.py`. If you installed
+from source, you can simply run this inside the :file:`RestAuth/` directory found in the source
+code:
 
 .. code-block:: bash
    

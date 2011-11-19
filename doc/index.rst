@@ -32,6 +32,8 @@ RestAuth is Free Software, licensed unter the `GNU General Public Licence, versi
    .. toctree::
       :maxdepth: 1
 
+.. _index_installation:
+
 Installation
 ============
 
@@ -50,6 +52,7 @@ Getting started
    config/restauth
    config/webserver
    config/database
+   config/manage
 
 Advanced configuration
 ======================
@@ -61,34 +64,18 @@ Advanced configuration
    config/username-validation
    config/multiple-instances
    config/database-replication
-
-Commandline scripts
-===================
-
-RestAuth provides command-line scripts to locally interact with RestAuth. They are required for
-some functionality (managing services and global groups) that is not available via the RestAuth
-protocol.
-
-.. toctree::
-   :maxdepth: 1
-   
-   restauth-service
-   restauth-user
-   restauth-group
-   restauth-import
    
 Migrating to RestAuth
 =====================
 
-If you already have some systems running that should use RestAuth, you have to import their
+If you already have some systems running that should use RestAuth, you might want to import their
 user databases. This section documents scripts and notes vor various systems.
 
 .. toctree::
    :maxdepth: 1
    
-   migrate/general
    migrate/import-format
-   migrate/mediawiki
+   migrate/overview
    
 Indices and tables
 ==================

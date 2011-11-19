@@ -1,8 +1,13 @@
 RestAuth 0.5.3 (XX XX 20XX)
 
+  * Improved documentation in lots of places
   * Massively rewrote the validator system. It is now way faster and more
-    powerull. Please see the documentation for details on how the new system
-    works.
+    powerull:
+    * deprecated SKIP_VALIDATORS setting
+    * introduced the new VALIDATORS setting (essentially the inverse to the
+      former)
+    * validators are now classes instead of functions
+    * rewritten and optimized the validation function
 
 RestAuth 0.5.2 (13 November 2011)
 
