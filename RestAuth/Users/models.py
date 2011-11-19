@@ -169,7 +169,7 @@ class ServiceUser( models.Model ):
 		of the same type as the current settings.HASH_ALGORITHM, the
 		hash is updated but *not* saved.
 		"""
-		if not (self.algorithm and self.hash and self.salt):
+		if not (self.algorithm and self.hash):
 			return False
 		
 		digest = get_hexdigest( self.algorithm, self.salt, raw_password )
