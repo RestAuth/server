@@ -55,13 +55,24 @@ Default: ``sha512``
 
 The :setting:`HASH_ALGORITHM` setting configures which algorithm is used for hashing new passwords.
 If you set this to a new algorithm, old password hashes will be updated whenever a user logs in.
-RestAuth supports all algorithms supported by the `hashlib module
-<http://docs.python.org/library/hashlib.html>`_.
+
 
 RestAuth also supports reading and storing hashes the same way that legacy systems store
 them. *Reading* such hashes has the advantage of being able to import user databases from those
 systems. *Storing* new hashes this way lets you move the password database back to one of those
-systems. Currently the only other supported system is ``mediawiki``. 
+systems.
+
+RestAuth supports all algorithms supported by the `hashlib module
+<http://docs.python.org/library/hashlib.html>`_ or one of the following:
+
+============= ==============================================
+algorithm     description
+============= ==============================================
+``mediawiki`` Hashes as stored by MediaWiki
+``crypt``     Hashes stored using the systems crypt routine
+``apr1``      Hashes stored using the apache version of the
+              md5 algorithm commonly used in htpasswd files.
+============= ==============================================
 
 .. setting:: LOGGING
 

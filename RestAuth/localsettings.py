@@ -107,8 +107,8 @@ SECRET_KEY=''
 # 
 # You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha512' is the
 # default and recommended. Additionally, RestAuth supports using hashes
-# compatible with other systems. Currectly 'mediawiki' creates hashes compatible
-# with a MediaWiki database.
+# compatible with other systems, please see:
+#       https://server.restauth.net/config/all-config-values.html
 #HASH_ALGORITHM = 'sha512'
 
 ###############
