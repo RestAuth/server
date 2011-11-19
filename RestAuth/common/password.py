@@ -107,7 +107,10 @@ def get_hexdigest( algorithm, salt, secret ):
 		secret_hash = hashlib.md5( secret ).hexdigest()
 		return hashlib.md5( '%s-%s'%(salt, secret_hash ) ).hexdigest()
 	elif algorithm == 'crypt':
-		return crypt.crypt( secret, salt )[2:]
+		if '$' in salt:
+			return crypt.crypt( secret, salt ).rsplit('$', 1)[1]
+		else:
+			return crypt.crypt( secret, salt )[2:]
 	elif algorithm == 'apr1':
 		return crypt_apr1_md5( secret, salt ).encode( 'utf-8' )
 	else:
