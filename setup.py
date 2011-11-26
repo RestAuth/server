@@ -97,6 +97,9 @@ class clean( _clean ):
 		cmd = [ 'make', '-C', 'doc', 'clean' ]
 		p = Popen( cmd )
 		p.communicate()
+		
+		if os.path.exists(os.path.join( 'doc', 'coverage')):
+			shutil.rmtree(os.path.join('doc', 'coverage'))
 
 class version( Command ):
 	user_options = []
