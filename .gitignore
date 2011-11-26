@@ -9,3 +9,4 @@ doc/gen
 MANIFEST
 dist/
 doc/coverage
+Makefile.local
