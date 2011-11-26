@@ -68,12 +68,12 @@ AUTHENTICATION_BACKENDS = (
 #############################################
 ### Defaults for the standard settings.py ###
 #############################################
-SKIP_VALIDATORS = [ 'linux', 'windows', 'email', 'xmpp' ]
 RELAXED_LINUX_CHECKS = False
 MIN_USERNAME_LENGTH = 3
 MAX_USERNAME_LENGTH = 255
 MIN_PASSWORD_LENGTH = 6
 HASH_ALGORITHM = 'sha512'
+VALIDATORS = []
 
 
 try:
@@ -231,10 +231,6 @@ if not LOGGING:
 	if LOG_HANDLER_KWARGS:
 		for handler in LOGGING['handlers'].values():
 			handler.update( LOG_HANDLER_KWARGS )
-			
-VALIDATORS = [
-    'RestAuth.Users.validators.mediawiki',
-]
 	
 if ENABLE_SESSIONS:
 	index = MIDDLEWARE_CLASSES.index( 'django.middleware.common.CommonMiddleware' ) + 1
