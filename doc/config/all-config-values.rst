@@ -36,16 +36,6 @@ considerable performance penalty.
 If a client still uses HTTP sessions, you can set this configuarion variable to ``True``. This has
 the effect of adding the appropriate middleware classes to :setting:`MIDDLEWARE_CLASSES`.
 
-.. setting:: RELAXED_LINUX_CHECKS
-
-RELAXED_LINUX_CHECKS
-====================
-
-Default: ``False``
-
-When this variable is set to ``True``, the validator will apply a more relaxed check. Please see
-the :py:class:`linux validator <.linux>` for more information.
-
 .. setting:: HASH_ALGORITHM
 
 HASH_ALGORITHM
@@ -56,23 +46,32 @@ Default: ``sha512``
 The :setting:`HASH_ALGORITHM` setting configures which algorithm is used for hashing new passwords.
 If you set this to a new algorithm, old password hashes will be updated whenever a user logs in.
 
-
-RestAuth also supports reading and storing hashes the same way that legacy systems store
-them. *Reading* such hashes has the advantage of being able to import user databases from those
-systems. *Storing* new hashes this way lets you move the password database back to one of those
-systems.
-
 RestAuth supports all algorithms supported by the `hashlib module
-<http://docs.python.org/library/hashlib.html>`_ or one of the following:
+<http://docs.python.org/library/hashlib.html>`_. Additionally, you can add more algorithms using
+:setting:`HASH_FUNCTIONS`.
 
-============= ==============================================
-algorithm     description
-============= ==============================================
-``mediawiki`` Hashes as stored by MediaWiki
-``crypt``     Hashes stored using the systems crypt routine
-``apr1``      Hashes stored using the apache version of the
-              md5 algorithm commonly used in htpasswd files.
-============= ==============================================
+.. setting:: HASH_FUNCTIONS
+
+HASH_FUNCTIONS
+==============
+
+Default::
+
+   [
+       'RestAuth.Users.hashes.mediawiki',
+       'RestAuth.Users.hashes.crypt',
+       'RestAuth.Users.hashes.apr1',
+   ]
+
+RestAuth can understand custom hashing algorithms. This is useful if you want to import userdata
+from a different system that stores passwords using an unusual hashing algorithm. RestAuth
+:ref:`ships with a few hash functions <available-hash-functions>` used by common systems, all are
+enabled by default.
+
+You can :ref:`implement your own hashing algorithm <own-hash-functions>` if you intend to import
+data from a system not supported by RestAuth. If you set :setting:`HASH_ALGORITHM` to one of the
+algorithms you add to this setting, RestAuth will also store hashes using this algorithm. This is
+useful if you plan to later export data to such a system.
 
 .. setting:: LOGGING
 
@@ -186,6 +185,16 @@ Default: ``3``
 
 The minimum length of new usernames. Note that this setting might have any effect if a validator
 restricts the minimum length even further.
+
+.. setting:: RELAXED_LINUX_CHECKS
+
+RELAXED_LINUX_CHECKS
+====================
+
+Default: ``False``
+
+When this variable is set to ``True``, the validator will apply a more relaxed check. Please see
+the :py:class:`linux validator <.linux>` for more information.
 
 .. setting:: SECRET_KEY
 

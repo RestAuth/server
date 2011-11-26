@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import re, datetime, stringprep
+import re, datetime, stringprep, hashlib
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import exceptions
@@ -24,8 +24,8 @@ from django.db.utils import IntegrityError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote
 from django.utils.importlib import import_module
+from django.utils.encoding import smart_str
 
-from RestAuth.common.password import get_hexdigest, get_salt
 from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, UserExists, PropertyExists
 from RestAuth.Users import validators
 from RestAuthCommon.error import PreconditionFailed
@@ -128,6 +128,56 @@ def validate_username( username ):
 
 	for validator in validators:
 		validator.check( username )
+		
+def get_salt():
+    """
+    Get a very random salt. The salt is the first eight characters of a
+    sha512 hash of 5 random numbers concatenated.
+    """
+    from random import random
+    random_string = ','.join( map( lambda a: str(random()), range(5) ) )
+    return hashlib.sha512( random_string ).hexdigest()[:8]
+
+def get_hexdigest( algorithm, salt, secret ):
+	"""
+	This method overrides the standard get_hexdigest method for service
+	users. It adds support for for the 'mediawiki' hash-type and any
+	crypto-algorithm included in the hashlib module.
+	"""
+	secret = smart_str(secret)
+	if salt:
+		    salt = smart_str(salt)
+	
+	try:
+	        func = getattr( hashlib, algorithm )
+	        if salt:
+	            return func( salt + secret ).hexdigest()
+	        else: # pragma: no cover
+	            return func( secret ).hexdigest()
+	except AttributeError: # custom hashing algorithm
+		for path in settings.HASH_FUNCTIONS:
+			# import validator:
+			try:
+				modname, funcname = path.rsplit('.', 1)
+			except ValueError: # pragma: no cover
+				raise exceptions.ImproperlyConfigured('%s isn\'t a python path' % path)
+			
+			# skip if funcname is not the desired algorithm:
+			if algorithm != funcname:
+				continue
+			
+			try:
+				mod = import_module( modname )
+			except ImportError as e: # pragma: no cover
+				raise exceptions.ImproperlyConfigured(
+					'Error importing module %s: "%s"' % (modname, e))
+			try:
+				func = getattr( mod, funcname )
+			except AttributeError: # pragma: no cover
+				raise exceptions.ImproperlyConfigured(
+					'Module "%s" does not define a "%s" function' % (modname, funcname))
+			
+			return func(secret, salt)
 
 class ServiceUser( models.Model ):
 	username = models.CharField(_('username'), max_length=60, unique=True, help_text=_("Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters") )

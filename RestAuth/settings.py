@@ -73,8 +73,12 @@ MIN_USERNAME_LENGTH = 3
 MAX_USERNAME_LENGTH = 255
 MIN_PASSWORD_LENGTH = 6
 HASH_ALGORITHM = 'sha512'
+HASH_FUNCTIONS = [
+	'RestAuth.Users.hashes.mediawiki',
+	'RestAuth.Users.hashes.crypt',
+	'RestAuth.Users.hashes.apr1',
+]
 VALIDATORS = []
-
 
 try:
 	from localsettings import *

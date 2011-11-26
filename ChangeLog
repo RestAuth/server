@@ -2,6 +2,8 @@ RestAuth 0.5.3 (XX XX 20XX)
 
   Passwords:
   * Support empty salts (some legacy systems to not use a salt)
+  * You can now implement support for a custom hash and add it to RestAuth
+    using the HASH_FUNCTIONS setting
   * Support two new algorithms:
     * 'crypt': Store passwords using the systems 'crypt' routine
     * 'apr1': Store passwords using the apache modified version of MD5
