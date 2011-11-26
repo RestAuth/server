@@ -8,7 +8,8 @@ RestAuth 0.5.3 (XX XX 20XX)
     * 'crypt': Store passwords using the systems 'crypt' routine
     * 'apr1': Store passwords using the apache modified version of MD5
       commonly used in .htpasswd files
-  
+  * Added test-functions for custom hashing algorithms
+
   Validators:
   * Massively rewrote the validator system. It is now way faster and more
     powerull:
