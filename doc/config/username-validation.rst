@@ -31,7 +31,7 @@ available, but are of course in no way guaranteed to really catch all illegal us
 find inconsistencies, please consider to :ref:`contribute <contribute-validators>`.
 
 .. automodule:: RestAuth.Users.validators
-   :members: email, mediawiki, linux, windows, xmpp
+   :members: email, mediawiki, linux, windows, xmpp, drupal
 
 Implement your own validators
 =============================

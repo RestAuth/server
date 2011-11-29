@@ -166,3 +166,44 @@ class windows( validator ):
 		    'network service', 'nt authority', 'nt domain', 'ntlm auth', 'null', 'proxy',
 		    'remote interactive', 'restricted', 'schannel auth', 'self', 'server',
 		    'service', 'system', 'terminal server', 'this organization', 'users', 'world'] )
+	
+class drupal(validator):
+	"""
+	This validator ensures that usernames are valid `Drupal <https://drupal.or>`_ usernames.
+	
+	This validator applies the following restrictions:
+	
+	* Usernames must not start or end with a space or contain multiple spaces in a row
+	* Various special characters (see Warning)
+	
+	.. WARNING:: The function is more or less a direct copy of `user_validate_name
+	   <http://api.drupal.org/api/drupal/modules--user--user.module/function/user_validate_name/7>`_.
+	   Unlike the Drupal function, the regular expressions actually work and filter a wide range
+	   of weird characters. For example, 'ä' and 'ö' are allowed, while 'ü' is not. It is thus
+	   not advisable to use this validator at this moment.
+	"""
+	@classmethod
+	def check(cls, name):
+		if name[0] == ' ':
+			raise UsernameInvalid("Username cannot start with a space")
+		if name[-1] == ' ':
+			raise UsernameInvalid("Username cannot end with a space")
+		if '  ' in name:
+			raise UsernameInvalid('Username cannot contain multiple spaces in a row')
+		
+		if re.match(u'[^\u0080-\u00F7 a-z0-9@_.\'-]', name, re.IGNORECASE):
+			raise UsernameInvalid("Username contains an illegal character")
+		if re.match(u'[%s%s%s%s%s%s%s%s%s]' % (
+			    u'\u0080-\u00A0', 	# \x{80}-\x{A0}     // Non-printable ISO-8859-1 + NBSP
+			    u'\u00AD',		# \x{AD}            // Soft-hyphen
+			    u'\u2000-\u200F',	# \x{2000}-\x{200F} // Various space characters
+			    u'\u2028-\u202F',	# \x{2028}-\x{202F} // Bidirectional text overrides
+			    u'\u205F-\u206F',	# \x{205F}-\x{206F} // Various text hinting characters
+			    u'\uFEFF',		# \x{FEFF}          // Byte order mark
+			    u'\uFF01-\uFF60',	# \x{FF01}-\x{FF60} // Full-width latin
+			    u'\uFFF9-\uFFFD',	# \x{FFF9}-\x{FFFD} // Replacement characters
+			    u'\u0000-\u001f'),	# \x{0}-\x{1F}]  // NULL byte and control characters
+			    name, re.UNICODE): 
+			raise UsernameInvalid("Username contains an illegal character")
+		
+		# we do not enforce a maximum length, since this is configurable in drupal
