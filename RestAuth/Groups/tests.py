@@ -32,6 +32,9 @@ class GroupTests( RestAuthTest ):
         
         self.vowi = Service.objects.get( username='vowi' )
         self.fsinf = service_create( 'fsinf', 'fsinf', [ '127.0.0.1', '::1' ] )
+        
+    def get_grp(self, name, service=None):
+        return Group.objects.get(name=name, service=service)
 
 class GetGroupsTests( GroupTests ): # GET /groups/
     def test_get_no_groups( self ):
@@ -358,12 +361,12 @@ class AddUserToGroupTests( GroupUserTests ): # POST /groups/<group>/users/
         resp = self.post( '/groups/%s/users/'%(groupname4), {'user': username1} )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
-        self.assertItemsEqual( group_get( groupname4, self.fsinf ).users.all(), [] )
+        self.assertItemsEqual(self.get_grp(groupname4, self.fsinf).users.all(), [])
         
         resp = self.post( '/groups/%s/users/'%(groupname5), {'user': username1} )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
-        self.assertItemsEqual( group_get( groupname5, self.fsinf ).users.all(), [] )
+        self.assertItemsEqual(self.get_grp(groupname5, self.fsinf).users.all(), [])
         
     def test_bad_requests( self ):
         resp = self.post( '/groups/%s/users/'%(groupname1), {} )
@@ -585,49 +588,49 @@ class AddSubGroupTests( GroupUserTests ): # POST /groups/<group>/groups/
         resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2} )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
     
-        self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [ self.group2 ] )
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi).groups.all(), [self.group2])
         self.assertItemsEqual( self.group2.parent_groups.all(), [ self.group1 ] )
     
     def test_add_subgroup_twice( self ):
         resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2} )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
     
-        self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [ self.group2 ] )
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi).groups.all(), [ self.group2 ])
         self.assertItemsEqual( self.group2.parent_groups.all(), [ self.group1 ] )
         
         resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2} )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
         
-        self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [ self.group2 ] )
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi).groups.all(), [ self.group2 ])
         self.assertItemsEqual( self.group2.parent_groups.all(), [ self.group1 ] )
     
     def test_bad_requests( self ):
         resp = self.post( '/groups/%s/groups/'%(groupname1), {} )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
-        self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi).groups.all(), [])
         
         resp = self.post( '/groups/%s/groups/'%(groupname1), {'foo':'bar'} )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
-        self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi).groups.all(), [])
         
         resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname2, 'foo':'bar'} )
         self.assertEquals( resp.status_code, httplib.BAD_REQUEST )
-        self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi).groups.all(), [])
     
     def test_service_isolation( self ):
         # we shouldn't be able to add a subgroup:
         resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname4 } )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEquals( resp['Resource-Type'], 'group' )
-        self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
-        self.assertItemsEqual( group_get( groupname4, self.fsinf).parent_groups.all(), [] )
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi).groups.all(), [])
+        self.assertItemsEqual(self.get_grp(groupname4, self.fsinf).parent_groups.all(), [])
         
         # same with global group:
         resp = self.post( '/groups/%s/groups/'%(groupname1), {'group': groupname5 } )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEquals( resp['Resource-Type'], 'group' )
-        self.assertItemsEqual( group_get( groupname1, self.vowi).groups.all(), [] )
-        self.assertItemsEqual( group_get( groupname5, self.fsinf).parent_groups.all(), [] )
+        self.assertItemsEqual(self.get_grp( groupname1, self.vowi).groups.all(), [])
+        self.assertItemsEqual(self.get_grp( groupname5, self.fsinf).parent_groups.all(), [])
 
 class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<subgroup>/
     def test_group_doesnt_exist( self ):
@@ -646,35 +649,35 @@ class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<su
     
     def test_remove_subgroup( self ):
         self.group1.groups.add( self.group2 )
-        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [ self.group2 ])
-        self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [ self.group1 ])
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi).groups.all(), [self.group2])
+        self.assertItemsEqual(self.get_grp(groupname2, self.vowi).parent_groups.all(), [self.group1])
         
         resp = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname2) )
         self.assertEquals( resp.status_code, httplib.NO_CONTENT )
         
-        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [])
-        self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [])
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi).groups.all(), [])
+        self.assertItemsEqual(self.get_grp( groupname2, self.vowi).parent_groups.all(), [])
     
     def test_remove_invalid_subgroup( self ):
         # try to remove subgroup thats not really a subgroup
-        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [])
-        self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [])
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi ).groups.all(), [])
+        self.assertItemsEqual(self.get_grp(groupname2, self.vowi ).parent_groups.all(), [])
         
         resp = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname2) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
         self.assertEqual( resp['Resource-Type'], 'group' )
         
-        self.assertItemsEqual( group_get( groupname1, self.vowi ).groups.all(), [])
-        self.assertItemsEqual( group_get( groupname2, self.vowi ).parent_groups.all(), [])
+        self.assertItemsEqual(self.get_grp(groupname1, self.vowi ).groups.all(), [])
+        self.assertItemsEqual(self.get_grp(groupname2, self.vowi ).parent_groups.all(), [])
     
     def test_service_isolation( self ):
         self.group1.groups.add( self.group4 )
         self.group1.groups.add( self.group5 )
-        group1 = group_get( groupname1, self.vowi )
+        group1 = self.get_grp(groupname1, self.vowi)
         self.assertItemsEqual( group1.groups.values_list( 'name', flat=True ).all(),
                               [ groupname4, groupname5 ])
-        self.assertItemsEqual( group_get( groupname4, self.fsinf ).parent_groups.all(), [ self.group1 ])
-        self.assertItemsEqual( group_get( groupname5, self.fsinf ).parent_groups.all(), [ self.group1 ])
+        self.assertItemsEqual(self.get_grp(groupname4, self.fsinf).parent_groups.all(), [self.group1])
+        self.assertItemsEqual(self.get_grp(groupname5, self.fsinf).parent_groups.all(), [self.group1])
         
         resp = self.delete( '/groups/%s/groups/%s/'%(groupname1, groupname4) )
         self.assertEquals( resp.status_code, httplib.NOT_FOUND )
@@ -685,8 +688,8 @@ class RemoveSubGroupTests( GroupUserTests ): # DELETE /groups/<group>/groups/<su
         self.assertEqual( resp['Resource-Type'], 'group' )
         
         # nothing has changed!?
-        group1 = group_get( groupname1, self.vowi )
+        group1 = self.get_grp(groupname1, self.vowi)
         self.assertItemsEqual( group1.groups.values_list( 'name', flat=True ).all(),
                               [ groupname4, groupname5 ])
-        self.assertItemsEqual( group_get( groupname4, self.fsinf ).parent_groups.all(), [ self.group1 ])
-        self.assertItemsEqual( group_get( groupname5, self.fsinf ).parent_groups.all(), [ self.group1 ])
+        self.assertItemsEqual(self.get_grp(groupname4, self.fsinf).parent_groups.all(), [self.group1])
+        self.assertItemsEqual(self.get_grp(groupname5, self.fsinf).parent_groups.all(), [self.group1])
