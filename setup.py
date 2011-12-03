@@ -173,10 +173,18 @@ class build_doc( build_doc_meta ):
 		cmd = [ 'make', '-C', 'doc', 'man', 'html' ]
 		p = Popen( cmd )
 		p.communicate()
+
+class build_html( build_doc_meta ):
+	user_options = []
+	description = "Build HTML documentation"
+	def run( self ):
+		cmd = [ 'make', '-C', 'doc', 'html' ]
+		p = Popen( cmd )
+		p.communicate()
 		
 class build_man( build_doc_meta ):
 	user_options = []
-	description = "Build entire documentation"
+	description = "Build man-pages"
 	def run( self ):
 		cmd = [ 'make', '-C', 'doc', 'man' ]
 		p = Popen( cmd )
@@ -257,7 +265,7 @@ setup(
 		('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT' ] ),
 		],
 	cmdclass={
-		'install_data': install_data, 'build': build, 'version': version,
-		'clean': clean, 'build_doc': build_doc, 'build_man': build_man, 'test': test,
-		'coverage': coverage },
+		'install_data': install_data, 'version': version, 'clean': clean,
+		'build': build, 'build_doc': build_doc, 'build_man': build_man, 'build_html': build_html,
+		'test': test, 'coverage': coverage },
 )
