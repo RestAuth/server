@@ -109,6 +109,15 @@ class Group( models.Model ):
 				return True
 		return False
 	
+	def save(self, *args, **kwargs):
+		if self.service == None:
+			conflict = Group.objects.filter(name=self.name, service=None)
+			if self.id:
+				conflict.exclude(pk=self.id)
+			if conflict.exists():
+				raise IntegrityError("columns name, service_id are not unique")
+		super(Group, self).save(*args, **kwargs)
+	
 	def __unicode__( self ): # pragma: no cover
 		if self.service:
 			return "%s/%s"%( self.name, self.service.username )
