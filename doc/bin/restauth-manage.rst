@@ -28,3 +28,16 @@ restauth-manage
       https://docs.djangoproject.com/en/dev/ref/django-admin/
       
    for more information.
+   
+Influential environment variables
+---------------------------------
+
+.. include:: /includes/env-variables.rst
+
+.. only:: man
+
+   See Also
+   ^^^^^^^^
+
+   :manpage:`restauth-service(1)`, :manpage:`restauth-user(1)`, :manpage:`restauth-group(1)`,
+   :manpage:`restauth-import(1)`
