@@ -233,7 +233,7 @@ class ServiceUser( models.Model ):
 		else: # password not correct
 			return False
 
-	def get_groups( self, service, recursive=True ):
+	def get_groups(self, service):
 		"""
 		Get a list of groups that this user is a member of.
 
@@ -242,9 +242,6 @@ class ServiceUser( models.Model ):
 		@type  service: service
 		"""
 		groups = set( self.group_set.filter( service=service ).only( 'name' ) )
-		
-		if not recursive: # pragma: no cover
-			return groups
 		
 		# import here to avoid circular imports:
 		from RestAuth.Groups.models import Group
