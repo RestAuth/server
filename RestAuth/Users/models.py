@@ -245,11 +245,6 @@ class ServiceUser( models.Model ):
 		
 		# import here to avoid circular imports:
 		from RestAuth.Groups.models import Group
-		
-		# next we get memberships derived from direct memberships:
-		for group in groups.copy():
-			inherited = group.get_inherited_memberships( service, groups )
-			groups.update( inherited )
 			
 		# any remaining candidates
 		exclude_ids = [ group.id for group in groups ]
