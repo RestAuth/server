@@ -25,7 +25,7 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append( os.getcwd() )
 
 try:
-	from RestAuth.Groups.models import Group, group_get, group_create
+	from RestAuth.Groups.models import Group, group_create
 	from RestAuth.Users.models import ServiceUser, user_get
 	from RestAuth.Services.models import Service
 	from RestAuth.common.cli import group_parser
@@ -57,12 +57,15 @@ def print_groups_by_service( groups, indent='' ):
 		names.sort()
 		print( '%s%s: %s'%(indent, name, ', '.join(names) ) )
 
+if args.service:
+	service = Service.objects.get( username=args.service )
+else:
+	service = None
+
+# Actions that do not act on an existing group:
 if args.action in [ 'create', 'add' ]:
-	if args.service:
-		service = Service.objects.get( username=args.service )
-		group_create( args.group.decode( 'utf-8' ), service )
-	else:
-		group_create( args.group.decode( 'utf-8' ) )
+	group_create( args.group.decode( 'utf-8' ), service )
+	sys.exit()
 elif args.action in [ 'list', 'ls' ]:
 	qs = Group.objects.values_list( 'name', flat=True ).order_by( 'name' )
 	if args.service:
@@ -71,16 +74,16 @@ elif args.action in [ 'list', 'ls' ]:
 		groups = qs.filter( service=None )
 	for group in groups:
 		print( group.encode( 'utf-8' ) )
-elif args.action == 'view':
-	try:
-		if args.service:
-			group = group_get( args.group, Service.objects.get( username=args.service ) )
-		else:
-			group = group_get( args.group )
-	except Group.DoesNotExist:
-		print( 'Error: %s: Group does not exist'%args.group )
-		sys.exit( 1 )
+	sys.exit()
 
+try:
+	group = Group.objects.get(name=args.group, service=service)
+except Group.DoesNotExist:
+	print('Error: %s: Group does not exist' % args.group)
+	sys.exit(1)	
+
+# Actions that act on an existing group:
+if args.action == 'view':
 	explicit_users = group.get_members( False )
 	effective_users = group.get_members()
 	parent_groups = list( group.parent_groups.all() )
@@ -104,77 +107,33 @@ elif args.action == 'view':
 	else:
 		print( '* No subgroups' )
 elif args.action == 'add-user':
-	try:
-		if args.service:
-			group = group_get( args.group, Service.objects.get( username=args.service ) )
-		else:
-			group = group_get( args.group )
-	except Group.DoesNotExist:
-		print( 'Error: %s: Group does not exist'%args.group )
-		sys.exit( 1 )
-
 	user = user_get( args.user )
 	
 	group.users.add( user )
 	group.save()
 elif args.action == 'add-group':
-	try:
-		if args.service:
-			group = group_get( args.group, Service.objects.get( username=args.service ) )
-		else:
-			group = group_get( args.group )
-	except Group.DoesNotExist:
-		print( 'Error: %s: Group does not exist'%args.group )
-		sys.exit( 1 )
 	if args.sub_service:
 		sub_service = Service.objects.get( username=args.sub_service )
-		sub_group = group_get( args.subgroup, sub_service )
 	else:
-		sub_group = group_get( args.subgroup )
-
+		sub_service = None
+	sub_group = Group.objects.get(name=args.subgroup, service=sub_service)
+	
 	group.groups.add( sub_group )
 	group.save()
 elif args.action in [ 'delete', 'del', 'rm' ]:
-	try:
-		if args.service:
-			group = group_get( args.group, Service.objects.get( username=args.service ) )
-		else:
-			group = group_get( args.group )
-	except Group.DoesNotExist:
-		print( 'Error: %s: Group does not exist'%args.group )
-		sys.exit( 1 )
-
 	group.delete()
 elif args.action in [ 'remove-user', 'rm-user', 'del-user' ]:
-	try:
-		if args.service:
-			group = group_get( args.group, Service.objects.get( username=args.service ) )
-		else:
-			group = group_get( args.group )
-	except Group.DoesNotExist:
-		print( 'Error: %s: Group does not exist'%args.group )
-		sys.exit( 1 )
-
 	user = user_get( args.user )
 	if user in group.users.all():
 		group.users.remove( user )
 		group.save()
 elif args.action in [ 'remove-group', 'rm-group', 'del-group' ]:
 	try:
-		if args.service:
-			group = group_get( args.group, Service.objects.get( username=args.service ) )
-		else:
-			group = group_get( args.group )
-	except Group.DoesNotExist:
-		print( 'Error: %s: Group does not exist'%args.group )
-		sys.exit( 1 )
-	
-	try:
 		if args.sub_service:
 			sub_service = Service.objects.get( username=args.sub_service )
-			sub_group = group_get( args.subgroup, sub_service )
+			sub_group = Group.objects.get(name=args.subgroup, service=sub_service)
 		else:
-			sub_group = group_get( args.subgroup )
+			sub_group = Group.objects.get(name=args.subgroup, service=None)
 	except Group.DoesNotExist:
 		print( 'Error: %s: Does not exist'%args.subgroup )
 		sys.exit( 1 )
