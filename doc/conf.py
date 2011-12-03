@@ -220,6 +220,8 @@ man_pages = [
     ('restauth-group', 'restauth-group', u'manage groups in RestAuth',
      [u'Mathias Ertl'], 1),
     ('restauth-import', 'restauth-import', u'import data into RestAuth',
+     [u'Mathias Ertl'], 1),
+    ('bin/restauth-manage', 'restauth-manage', u'advanced RestAuth management',
      [u'Mathias Ertl'], 1)
 ]
 
