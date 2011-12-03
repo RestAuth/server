@@ -22,6 +22,10 @@ RestAuth 0.5.3 (XX XX 20XX)
     documentation). This validator is much more restrictive than drupal
     at this moment.
 
+  Groups:
+  * Speed up group creation
+  * some code-cleanup (remove one-line functions, etc.)
+
   Documentation:
   * Improved documentation in lots of places
 
