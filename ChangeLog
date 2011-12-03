@@ -3,7 +3,6 @@ RestAuth 0.5.3 (XX XX 20XX)
   General:
   * There were some schema updates. Please read:
     	https://server.restauth.net/install/upgrade.html
-  * setup.py includes the new target build_html
 
   Users:
   * Add database index for the username.
@@ -39,6 +38,8 @@ RestAuth 0.5.3 (XX XX 20XX)
   * Improve speed of getting groups of a user
   * Improved documentation in lots of places
   * Add upgrade notes
+  * setup.py includes the new target build_html
+  * Add minimal manpage for restauth-manage
 
 RestAuth 0.5.2 (13 November 2011)
 
