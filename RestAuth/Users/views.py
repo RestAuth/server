@@ -22,8 +22,6 @@ from RestAuth.Users.models import *
 from RestAuth.common.types import get_dict
 from RestAuth.common.responses import *
 
-from django.http import HttpResponse
-
 from RestAuth.common.decorators import sql_profile
 
 @login_required(realm="/users/")
