@@ -7,6 +7,8 @@ In version 0.5.3, a new UNIQUE constraint was added for groups: A group cannot h
 AND service as any other group. This was previously ensured only in software. Use
 ``restauth-manage sql`` to get an SQL-shell of your RestAuth installation.
 
+Additionally, some additional indexes where added.
+
 SQLite
 ++++++
 
@@ -23,11 +25,13 @@ to dump existing data, recreate the database, and reload that data.
 
 MySQL
 +++++
-Use the following SQL command:
+Use the following SQL commands:
 
 .. code-block:: sql
 
    ALTER TABLE Groups_group ADD UNIQUE (name, service_id);
+   
+After that, run the ``syncdb`` command of :doc:`/bin/restauth-manage` to create the new indices.
 
 PostgreSQL
 ++++++++++
@@ -35,3 +39,5 @@ PostgreSQL
 .. code-block:: sql
    
    ALTER TABLE Groups_group ADD CONSTRAINT service_id_name_key UNIQUE (name, service_id);
+
+After that, run the ``syncdb`` command of :doc:`/bin/restauth-manage` to create the new indices.

@@ -45,9 +45,9 @@ def group_create( name, service=None ):
 class Group( models.Model ):
 	service = models.ForeignKey( Service, null=True,
 		help_text=_("Service that is associated with this group.") )
-	name = models.CharField(_('name'), max_length=30, 
+	name = models.CharField(_('name'), max_length=30, db_index=True, 
 		help_text=_("Required. Name of the group."))
-	users = models.ManyToManyField( User )
+	users = models.ManyToManyField(User)
 	groups = models.ManyToManyField( 'self', symmetrical=False, related_name='parent_groups' )
 	
 	class Meta:
