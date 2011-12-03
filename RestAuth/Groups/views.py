@@ -18,6 +18,7 @@
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
+from RestAuth.common.errors import GroupExists
 from RestAuth.common.types import get_dict
 from RestAuth.common.responses import *
 from django.http import HttpResponse
@@ -56,7 +57,7 @@ def index( request ):
 		groupname = get_dict( request, [ u'group' ] )
 
 		# If ResourceExists: 409 Conflict
-		group = group_create( groupname, service )
+		group = group_create(groupname, service)
 		
 		logger.info( '%s: Created group'%(groupname), extra=log_args )
 		return HttpResponseCreated( request, group ) # Created
