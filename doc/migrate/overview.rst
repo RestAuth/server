@@ -47,7 +47,9 @@ Please try:
 MediaWiki
 =========
 
-None yet.
+An extension exporting all relevant data into the restauth import data format is available in the
+migration repository. Please see `the extension documentation
+<https://restauth.net/wiki/MediaWiki#Migrating_Wikis>`_ for more information.
 
 Drupal
 ======
