@@ -26,30 +26,6 @@ from RestAuth.Users.models import ServiceUser as User
 from RestAuth.common.errors import GroupExists
 from RestAuthCommon.error import PreconditionFailed
 
-def group_get( name, service=None ):
-	"""
-	Get a group object from the name and service.
-
-	@param name: Name of the new group
-	@type  name: str
-	@param service: The service this group should be associated to. If
-		ommitted, the group will not be associated with any service.
-	@type service: service
-	"""
-	return Group.objects.get( name=name, service=service )
-
-def group_exists( name, service=None ):
-	"""
-	Check if a given service already exists.
-	
-	@param name: Name of the new group
-	@type  name: str
-	@param service: The service this group should be associated to. If
-		ommitted, the group will not be associated with any service.
-	@type service: service
-	"""
-	return Group.objects.filter( service=service, name=name ).exists()
-
 def group_create( name, service=None ):
 	"""
 	Create a new group.
