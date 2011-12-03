@@ -63,7 +63,12 @@ Advanced management
 
 RestAuth is set up as a Django project. As such, it also features a `manage.py
 <https://docs.djangoproject.com/en/dev/ref/django-admin/>`_. The source installation installs the
-script together with the source code. Most distributions install the script as ``restauth-manage``.
+script together with the source code. Most distributions install the script as
+
+.. toctree::
+   :maxdepth: 1
+   
+   /bin/restauth-manage
 
 Migrating data from existing services
 -------------------------------------

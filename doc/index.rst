@@ -42,6 +42,7 @@ Installation
 
    install/from-source
    install/debian-ubuntu
+   install/upgrade
 
 Getting started
 ===============

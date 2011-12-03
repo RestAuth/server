@@ -1,0 +1,9 @@
+Please see the sphinx generated documentation for upgrade notes. You can
+generate the most recent version of the upgrade notes if you run:
+
+	python setup.py build_doc
+
+and point your browser to doc/_build/html/index.html in your local filesystem
+hierarchy. There also is an online version available here:
+
+	https://server.restauth.net/install/upgrade.html
