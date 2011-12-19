@@ -32,10 +32,10 @@ RestAuth 0.5.3 (XX XX 20XX)
   Groups:
   * Speed up group creation
   * some code-cleanup (remove one-line functions, etc.)
-
-  Documentation:
   * Add database index for the groupname
   * Improve speed of getting groups of a user
+
+  Documentation:
   * Improved documentation in lots of places
   * Add upgrade notes
   * setup.py includes the new target build_html
