@@ -100,6 +100,8 @@ class clean( _clean ):
 		
 		if os.path.exists(os.path.join( 'doc', 'coverage')):
 			shutil.rmtree(os.path.join('doc', 'coverage'))
+		if os.path.exists('MANIFEST'):
+			os.remove('MANIFEST')
 
 class version( Command ):
 	user_options = []
