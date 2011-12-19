@@ -56,13 +56,12 @@ In version 0.5.2 and earlier, RestAuth only supports hash algorithms supported b
 module <http://docs.python.org/library/hashlib.html>`_ and the special value ``mediawiki`` to use
 MediaWiki style MD5 hashes.
 
-From version 0.5.3 on, it is possible to :ref:`implement your own hash functions
-<own-hash-functions>`. The :setting:`HASH_ALGORITHM` setting still configures the default hash
-function used, but additional supported hash functions can be added using :setting:`HASH_FUNCTIONS`.
-The ``mediawiki`` hash function is also implemented in this way.
+In version 0.5.3 and later, it is possible to :ref:`implement your own hash functions
+<own-hash-functions>` and add them using the :setting:`HASH_FUNCTIONS` setting. The ``mediawiki``
+hash function is also implemented in this way.
 
 The default already enables the mediawiki hash function (as well as the new support for .htaccess
-files), so there is no need to configure anything here.
+files), so there is no need for any configuration change.
 
 
 VALIDATORS vs. SKIP_VALIDATORS
