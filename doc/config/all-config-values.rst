@@ -55,6 +55,8 @@ RestAuth supports all algorithms supported by the `hashlib module
 HASH_FUNCTIONS
 ==============
 
+.. versionadded:: 0.5.3
+
 Default::
 
    [
@@ -208,6 +210,10 @@ in :file:`localsettings.py`.
 
 VALIDATORS
 ==========
+
+.. versionadded:: 0.5.3
+   In version 0.5.2 and earlier ``SKIP_VALIDATORS`` configured roughly the inverse. Please see the
+   :ref:`upgrade notes <upgrade_0.5.2_settings>` if you still use the old setting.
 
 Default: ``[]``
 

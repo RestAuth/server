@@ -1,6 +1,8 @@
 Upgrade notes
 -------------
 
+.. _upgrade_0.5.2:
+
 from version 0.5.2
 ==================
 In version 0.5.3, a new UNIQUE constraint was added for groups: A group cannot have the same name
@@ -41,3 +43,36 @@ PostgreSQL
    ALTER TABLE Groups_group ADD CONSTRAINT service_id_name_key UNIQUE (name, service_id);
 
 After that, run the ``syncdb`` command of :doc:`/bin/restauth-manage` to create the new indices.
+
+.. _upgrade_0.5.2_settings:
+
+Settings
+++++++++
+
+HASH_FUNCTIONS and HASH_ALGORITHM
+_________________________________
+
+In version 0.5.2 and earlier, RestAuth only supports hash algorithms supported by the `hashlib
+module <http://docs.python.org/library/hashlib.html>`_ and the special value ``mediawiki`` to use
+MediaWiki style MD5 hashes.
+
+From version 0.5.3 on, it is possible to :ref:`implement your own hash functions
+<own-hash-functions>`. The :setting:`HASH_ALGORITHM` setting still configures the default hash
+function used, but additional supported hash functions can be added using :setting:`HASH_FUNCTIONS`.
+The ``mediawiki`` hash function is also implemented in this way.
+
+The default already enables the mediawiki hash function (as well as the new support for .htaccess
+files), so there is no need to configure anything here.
+
+
+VALIDATORS vs. SKIP_VALIDATORS
+______________________________
+
+In version 0.5.2 and earlier, only a pre-defined set of validators was supported and most validators
+were enabled by default. It was only possible to skip some of the pre-defined validators with the
+``SKIP_VALIDATORS`` setting.
+
+In version 0.5.3 and later, no validators are enabled by default and you have to explicitly enable
+validators using the :setting`VALIDATORS` setting, please see the documentation for an example on
+how to enable validators. Our page on :doc:`/config/username-validation` has a list of validators
+shipping with RestAuth as well as documentation on how to implement your own validators.
