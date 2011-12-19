@@ -19,7 +19,7 @@ RestAuth 0.5.3 (XX XX 20XX)
 
   Validators:
   * Massively rewrote the validator system. It is now way faster and more
-    powerull:
+    powerul:
     * deprecated SKIP_VALIDATORS setting
     * introduced the new VALIDATORS setting (essentially the inverse to the
       former)
