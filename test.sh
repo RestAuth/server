@@ -18,7 +18,4 @@
 export PYTHONPATH="$PWD"
 [ -d ../restauth-common/python ] && export PYTHONPATH="../restauth-common/python:$PYTHONPATH"
 
-rm -f ./RestAuth.sqlite3
-python RestAuth/manage.py syncdb --noinput
-bin/restauth-service.py add --password=vowi vowi ::1
-python RestAuth/manage.py runserver --ipv6
+python RestAuth/manage.py testserver --ipv6 RestAuth/fixtures/testserver.json
