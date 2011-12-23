@@ -79,6 +79,14 @@ user databases. This section documents scripts and notes vor various systems.
    migrate/import-format
    migrate/overview
    
+Developers
+==========
+
+.. toctree::
+   :maxdepth: 1
+   
+   developer/testserver
+   
 Indices and tables
 ==================
 

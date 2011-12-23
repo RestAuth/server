@@ -9,7 +9,7 @@ RestAuth 0.5.3 (XX XX 20XX)
   * Add a test fixture that can be used by the manage.py testserver. setup.py
     now includes a 'testserver' command that automatically loads that fixture.
     Libraries that require a testserver for testing should run
-    'setup.py testerver' instead of the now deprecated test.sh script.
+    'setup.py testserver' instead of the now deprecated test.sh script.
 
   Users:
   * Add database index for the username.
@@ -47,6 +47,7 @@ RestAuth 0.5.3 (XX XX 20XX)
   * Add upgrade notes
   * setup.py includes the new target build_html
   * Add minimal manpage for restauth-manage
+  * Add developer/testserver documenting how to run a testserver for library testing
 
 RestAuth 0.5.2 (13 November 2011)
 
