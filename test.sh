@@ -15,6 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+echo "WARNING: THIS SCRIPT IS DEPRECATED. PLEASE USE
+	python setup.py testserver
+INSTEAD.
+
+
+
+"
+
 export PYTHONPATH="$PWD"
 [ -d ../restauth-common/python ] && export PYTHONPATH="../restauth-common/python:$PYTHONPATH"
 

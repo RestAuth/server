@@ -253,6 +253,17 @@ class coverage( Command ):
 		cov.html_report( directory=self.dir )
 #		cov.report()
 
+class testserver(Command):
+	user_options = []
+	
+	def initialize_options(self): pass
+	def finalize_options(self): pass
+	
+	def run(self):
+		from django.core.management import call_command
+		call_command('testserver', 'RestAuth/fixtures/testserver.json', use_ipv6=True)
+		
+
 setup(
 	name='RestAuth',
 	version=str(get_version()),
@@ -269,5 +280,6 @@ setup(
 	cmdclass={
 		'install_data': install_data, 'version': version, 'clean': clean,
 		'build': build, 'build_doc': build_doc, 'build_man': build_man, 'build_html': build_html,
-		'test': test, 'coverage': coverage },
+		'test': test, 'coverage': coverage,
+		'testserver': testserver},
 )
