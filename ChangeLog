@@ -48,6 +48,7 @@ RestAuth 0.5.3 (XX XX 20XX)
   * setup.py includes the new target build_html
   * Add minimal manpage for restauth-manage
   * Add developer/testserver documenting how to run a testserver for library testing
+  * Add installation instructions for RHEL and Fedora
 
 RestAuth 0.5.2 (13 November 2011)
 
