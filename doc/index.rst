@@ -79,7 +79,7 @@ user databases. This section documents scripts and notes vor various systems.
    
    migrate/import-format
    migrate/overview
-   bin/restauth-import
+   restauth-import
    
 Developers
 ==========
