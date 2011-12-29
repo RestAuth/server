@@ -79,6 +79,7 @@ user databases. This section documents scripts and notes vor various systems.
    
    migrate/import-format
    migrate/overview
+   bin/restauth-import
    
 Developers
 ==========
@@ -86,6 +87,7 @@ Developers
 .. toctree::
    :maxdepth: 1
    
+   contribute
    developer/testserver
    
 Indices and tables
