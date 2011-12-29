@@ -11,20 +11,6 @@ AND service as any other group. This was previously ensured only in software. Us
 
 Additionally, some additional indexes where added.
 
-SQLite
-++++++
-
-SQLite does not support adding UNIQUE constraints to existing tables. Please use :doc:`/bin/restauth-manage`
-to dump existing data, recreate the database, and reload that data.
-
-.. code-block:: bash
-
-   user@host:~ $ restauth-manage dumpdata > dump.json
-   user@host:~ $ rm <path-to-sqlite-db>
-   user@host:~ $ restauth-manage syncdb --noinput
-   user@host:~ $ restauth-manage loaddata dump
-   user@host:~ $ rm dump.json
-
 MySQL
 +++++
 Use the following SQL commands:
@@ -43,6 +29,22 @@ PostgreSQL
    ALTER TABLE Groups_group ADD CONSTRAINT service_id_name_key UNIQUE (name, service_id);
 
 After that, run the ``syncdb`` command of :doc:`/bin/restauth-manage` to create the new indices.
+
+SQLite
+++++++
+
+SQLite does not support adding UNIQUE constraints to existing tables. Please use :doc:`/bin/restauth-manage`
+to dump existing data, recreate the database, and reload that data.
+
+.. code-block:: bash
+
+   user@host:~ $ restauth-manage dumpdata > dump.json
+   user@host:~ $ rm <path-to-sqlite-db>
+   user@host:~ $ restauth-manage syncdb --noinput
+   user@host:~ $ restauth-manage loaddata dump
+   user@host:~ $ rm dump.json
+   
+.. NOTE:: Running RestAuth using SQLite is still not recommended.
 
 .. _upgrade_0.5.2_settings:
 
@@ -72,6 +74,16 @@ were enabled by default. It was only possible to skip some of the pre-defined va
 ``SKIP_VALIDATORS`` setting.
 
 In version 0.5.3 and later, no validators are enabled by default and you have to explicitly enable
-validators using the :setting`VALIDATORS` setting, please see the documentation for an example on
+validators using the :setting:`VALIDATORS` setting, please see the documentation for an example on
 how to enable validators. Our page on :doc:`/config/username-validation` has a list of validators
 shipping with RestAuth as well as documentation on how to implement your own validators.
+
+To just restore the previous behaviour, add this to :file:`localsettings.py`:
+
+.. code-block:: python
+
+   VALIDATORS = [
+       'RestAuth.Users.validators.mediawiki',
+   ]
+   
+... and remove the ``SKIP_VALIDATORS`` setting.
