@@ -99,5 +99,5 @@ to contribute to RestAuth. You do not even have to provide an implementation, yo
 great help if you just collect all the information necessary to implement a validator for the given
 system.
 
-Please feel free to get in touch with us (see :doc:`contribute </contribute>`) if you need RestAuth
-to provide a validator for an additional system.
+Please feel free to get in touch with us (see :doc:`contribute </developer/contribute>`) if you need
+RestAuth to provide a validator for an additional system.

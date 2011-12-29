@@ -3,8 +3,8 @@ Overview of migration solutions
 
 This page collects scripts/plugins/etc. that can export data of an existing service into the
 :doc:`import data format </migrate/import-format>`. This list is not intended to be complete, but if
-you know of additional solutions, just :doc:`contact </contribute>` us and we will add it to the
-list.
+you know of additional solutions, just :doc:`contact </developer/contribute>` us and we will add it
+to the list.
 
 htpasswd files
 ==============

@@ -10,7 +10,8 @@ Welcome to **RestAuth**, a lightweight webservice that provides shared authentic
 and preferences. RestAuth does not attempt to provide "one account for the web" like `OpenId
 <http://en.wikipedia.org/wiki/OpenID>`_ or `OAuth <http://en.wikipedia.org/wiki/OAuth>`_ but instead
 allows multiple systems to directly use the same userbase, much like the way LDAP or Kerberos
-is commonly used. Since RestAuth is Free Software, please feel free to :doc:`contribute </contribute>`.
+is commonly used. Since RestAuth is Free Software, please feel free to :doc:`contribute
+</developer/contribute>`.
 
 RestAuth focuses on being very easy to setup and maintain. Installation is possible within just a
 few minutes, if you have some system administration experience. RestAuth is also very flexible,
@@ -87,7 +88,7 @@ Developers
 .. toctree::
    :maxdepth: 1
    
-   contribute
+   developer/contribute
    developer/testserver
    
 Indices and tables
