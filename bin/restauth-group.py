@@ -118,8 +118,7 @@ elif args.action == 'add-group':
 		sub_service = None
 	sub_group = Group.objects.get(name=args.subgroup, service=sub_service)
 	
-	group.groups.add( sub_group )
-	group.save()
+	sub_group.parent_groups.add(group)
 elif args.action in [ 'delete', 'del', 'rm' ]:
 	group.delete()
 elif args.action in [ 'remove-user', 'rm-user', 'del-user' ]:
@@ -139,5 +138,4 @@ elif args.action in [ 'remove-group', 'rm-group', 'del-group' ]:
 		sys.exit( 1 )
 
 	if sub_group in group.groups.all():
-		group.groups.remove( sub_group )
-		group.save()
+		sub_group.parent_groups.remove(group)
