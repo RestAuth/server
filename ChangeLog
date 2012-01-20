@@ -10,6 +10,9 @@ RestAuth 0.5.3 (XX XX 20XX)
     now includes a 'testserver' command that automatically loads that fixture.
     Libraries that require a testserver for testing should run
     'setup.py testserver' instead of the now deprecated test.sh script.
+  * The WSGI script now passes the RESTAUTH_HOST environment variable.
+    doc/config/multiple-instances.rst suggests using this variable, but WSGI applications never
+    receive this variable otherwise. Likewise, the DJANGO_SETTINGS_MODULE is passed through if set.
 
   Users:
   * Add database index for the username.

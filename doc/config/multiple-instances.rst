@@ -53,6 +53,14 @@ for your web server. The following example sets environment variables in a mod_w
 .. NOTE:: This Apache configuration example uses Server Name Indication. See the :ref:`dedicated
    chapter <config_multiple_instances_sni>` for more information.
 
+.. NOTE:: Many server setups, including WSGI applications, do not pass environment variables set
+   in the apache configuration to the python interpreter. Please consult your webserver
+   documentation if you have trouble retrieving the right environment variables.
+   
+   The WSGI script that ships with RestAuth specifically passes :envvar:`RESTAUTH_HOST` and
+   :envvar:`DJANGO_SETTINGS_MODULE` if present. Other environment variables are filtered, if you
+   need additional environment variables, you need to modify the WSGI script.
+
 .. code-block:: apache
 
    <VirtualHost *:443>
@@ -118,6 +126,13 @@ The Apache configuration is similar, only that you use the standard Django envir
 .. NOTE:: This Apache configuration example uses Server Name Indication. See the :ref:`dedicated
    chapter <config_multiple_instances_sni>` for more information.
 
+.. NOTE:: Many server setups, including WSGI applications, do not pass environment variables set
+   in the apache configuration to the python interpreter. Please consult your webserver
+   documentation if you have trouble retrieving the right environment variables.
+   
+   The WSGI script that ships with RestAuth specifically passes :envvar:`RESTAUTH_HOST` and
+   :envvar:`DJANGO_SETTINGS_MODULE` if present. Other environment variables are filtered, if you
+   need additional environment variables, you need to modify the WSGI script.
 
 .. code-block:: apache
 
