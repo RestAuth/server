@@ -9,7 +9,7 @@ def application(environ, start_response):
     if 'DJANGO_SETTINGS_MODULE' in environ:
         os.environ['DJANGO_SETTINGS_MODULE'] = environ['DJANGO_SETTINGS_MODULE']
     else:
-        os.environ['DJANGO_SETTINGS_MODULE'] = os.environ['DJANGO_SETTINGS_MODULE']
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
         
     return _application(environ, start_response)
 
