@@ -20,7 +20,12 @@ import argparse, re, sys, random, string
 
 class PasswordGenerator( Action ):
 	def __call__( self, parser, namespace, values, option_string ):
-		passwd = ''.join( random.choice( string.printable ) for x in range(30) )
+		chars = string.digits + string.letters + string.punctuation
+		chars = chars.translate(None, '\\\'"')
+		if 'restauth-service' in parser.prog:
+			chars.replace(':', '')
+			
+		passwd = ''.join( random.choice( chars ) for x in range(30) )
 		print( passwd )
 		setattr( namespace, self.dest, passwd )
 
