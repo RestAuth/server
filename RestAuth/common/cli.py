@@ -22,8 +22,6 @@ class PasswordGenerator( Action ):
 	def __call__( self, parser, namespace, values, option_string ):
 		chars = string.digits + string.letters + string.punctuation
 		chars = chars.translate(None, '\\\'"')
-		if 'restauth-service' in parser.prog:
-			chars.replace(':', '')
 			
 		passwd = ''.join( random.choice( chars ) for x in range(30) )
 		print( passwd )

@@ -33,7 +33,7 @@ class InternalAuthenticationBackend:
 		if method.lower() != 'basic': # pragma: no cover
 			return None # we only support basic authentication
 
-		name, password = base64.b64decode(data).split(':')
+		name, password = base64.b64decode(data).split(':', 1)
 
 		try:
 			serv = Service.objects.get( username=name )
