@@ -660,15 +660,15 @@ class HashTest( RestAuthTest ):
             
     def test_mediawiki( self ):
         testdata = {
-            "1":{"algorithm":"mediawiki","salt":"4891a58e","hash":"222ecf008e098295058d0c9a77e19d16"},
-            "10":{"algorithm":"mediawiki","salt":"02828b87","hash":"555f6f62e646afc840b1995d0467ef06"},
-            "3":{"algorithm":"mediawiki","salt":"7bb9c41a","hash":"f72fbb4126a0002d88cb4afc62980d49"},
-            "4":{"algorithm":"mediawiki","salt":"e4121fde","hash":"2de7c06ecfee2468cc0f6cf345632d29"},
-            "5":{"algorithm":"mediawiki","salt":"99739c15","hash":"5c1ddaa0fa981ac651c6bac72f640e44"},
-            "6":{"algorithm":"mediawiki","salt":"9650ce2d","hash":"2ad8888099fe7ce36d84c1046638f261"},
-            "7":{"algorithm":"mediawiki","salt":"d0027595","hash":"49a25052a0690e607c1f7d103c2b51b9"},
-            "8":{"algorithm":"mediawiki","salt":"eec0c833","hash":"971a19cefb858a481e7b0e36137774da"},
-            "9":{"algorithm":"mediawiki","salt":"fb74cdba","hash":"9e562f64b90a6445de607f30dc745c7d"},
+            "user 1":{"algorithm":"mediawiki","salt":"4891a58e","hash":"222ecf008e098295058d0c9a77e19d16"},
+            "user 10":{"algorithm":"mediawiki","salt":"02828b87","hash":"555f6f62e646afc840b1995d0467ef06"},
+            "user 3":{"algorithm":"mediawiki","salt":"7bb9c41a","hash":"f72fbb4126a0002d88cb4afc62980d49"},
+            "user 4":{"algorithm":"mediawiki","salt":"e4121fde","hash":"2de7c06ecfee2468cc0f6cf345632d29"},
+            "user 5":{"algorithm":"mediawiki","salt":"99739c15","hash":"5c1ddaa0fa981ac651c6bac72f640e44"},
+            "user 6":{"algorithm":"mediawiki","salt":"9650ce2d","hash":"2ad8888099fe7ce36d84c1046638f261"},
+            "user 7":{"algorithm":"mediawiki","salt":"d0027595","hash":"49a25052a0690e607c1f7d103c2b51b9"},
+            "user 8":{"algorithm":"mediawiki","salt":"eec0c833","hash":"971a19cefb858a481e7b0e36137774da"},
+            "user 9":{"algorithm":"mediawiki","salt":"fb74cdba","hash":"9e562f64b90a6445de607f30dc745c7d"},
         }
         
         for username, pwd_data in testdata.items():
@@ -678,7 +678,7 @@ class HashTest( RestAuthTest ):
             u.hash = pwd_data['hash']
             u.save()
             
-            password = '0123456789'[0:int(username)]
+            password = '0123456789'[0:int(username[5:])]
             
             self.assertTrue(u.check_password(password))
             
