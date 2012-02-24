@@ -60,10 +60,11 @@ def user_handler( request, username ):
 	log_args = { 'service': service, 'username': username }
 
 	if request.method == 'GET': # Verify that a user exists:
-		# If User.DoesNotExist: 404 Not Found
-		user = ServiceUser.objects.only( 'username' ).get( username=username )
-		logger.debug( "Check if user exists", extra=log_args )
-		return HttpResponseNoContent() # OK
+		logger.debug("Check if user exists", extra=log_args)
+		if ServiceUser.objects.filter(username=username).exists():
+			return HttpResponseNoContent() # OK
+		else:
+			raise ServiceUser.DoesNotExist()
 	elif request.method == 'POST': # verify password
 		# If BadRequest: 400 Bad Request
 		password = get_dict( request, [ u'password' ] )
