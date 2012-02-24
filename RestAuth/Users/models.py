@@ -29,6 +29,7 @@ from django.utils.encoding import smart_str
 from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, UserExists, PropertyExists
 from RestAuth.Users import validators
 from RestAuthCommon.error import PreconditionFailed
+from RestAuthCommon import resource_validator
 
 
 def user_get( name ):
@@ -180,7 +181,7 @@ def get_hexdigest( algorithm, salt, secret ):
 			return func(secret, salt)
 
 class ServiceUser( models.Model ):
-	username = models.CharField('username', max_length=60, unique=True, db_index=True,)
+	username = models.CharField('username', max_length=60, unique=True, db_index=True)
 	algorithm = models.CharField('algorithm', max_length=20, blank=True, null=True )
 	salt = models.CharField('salt', max_length=16, blank=True, null=True )
 	hash = models.CharField('hash', max_length=128, blank=True, null=True )
@@ -189,9 +190,8 @@ class ServiceUser( models.Model ):
 
 	def __init__( self, *args, **kwargs ):
 		models.Model.__init__( self, *args, **kwargs )
-		from RestAuthCommon import resource_validator
-
-		if self.username and not resource_validator( self.username ):
+		
+		if self.username and not resource_validator(self.username ):
 			raise PreconditionFailed( "Username contains invalid characters" )
 
 	def set_password( self, raw_password ):
