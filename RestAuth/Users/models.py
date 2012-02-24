@@ -180,13 +180,12 @@ def get_hexdigest( algorithm, salt, secret ):
 			return func(secret, salt)
 
 class ServiceUser( models.Model ):
-	username = models.CharField(_('username'), max_length=60, unique=True, db_index=True,
-		help_text=_("Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters") )
-	algorithm = models.CharField( _('algorithm'), max_length=20, help_text=_("The algorithm used to hash passwords"), blank=True, null=True )
-	salt = models.CharField( _('salt'), max_length=16, help_text=_("salt for the hash"), blank=True, null=True )
-	hash = models.CharField( _('hash'), max_length=128, help_text=_("actual hash of the password"), blank=True, null=True )
-	last_login = models.DateTimeField(_('last login'), default=datetime.datetime.now, auto_now=True)
-	date_joined = models.DateTimeField(_('date joined'), default=datetime.datetime.now)
+	username = models.CharField('username', max_length=60, unique=True, db_index=True,)
+	algorithm = models.CharField('algorithm', max_length=20, blank=True, null=True )
+	salt = models.CharField('salt', max_length=16, blank=True, null=True )
+	hash = models.CharField('hash', max_length=128, blank=True, null=True )
+	last_login = models.DateTimeField('last login', auto_now=True, auto_now_add=True)
+	date_joined = models.DateTimeField('date joined', auto_now_add=True)
 
 	def __init__( self, *args, **kwargs ):
 		models.Model.__init__( self, *args, **kwargs )
