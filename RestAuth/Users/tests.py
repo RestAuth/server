@@ -519,9 +519,14 @@ class DeletePropertyTests( PropertyTests ): # DELETE /users/<user>/props/<prop>/
         
 class HashTest( RestAuthTest ):
     def test_crypt( self ):
+        """
+        .. todo:: Django 1.4: enable one and two-letter test cases and set MIN_USERNAME_LENGTH to 1.
+           see: https://docs.djangoproject.com/en/dev/topics/testing/#overriding-settings
+        """
+        
         testdata = {
-            "f": {"password": {"hash": "zByHy85N5JE", "salt": "LG", "algorithm": "crypt"}},
-            "fo": {"password": {"hash": "Lb4p57NVOh6", "salt": "qO", "algorithm": "crypt"}},
+            #"f": {"password": {"hash": "zByHy85N5JE", "salt": "LG", "algorithm": "crypt"}},
+            #"fo": {"password": {"hash": "Lb4p57NVOh6", "salt": "qO", "algorithm": "crypt"}},
             "foo": {"password": {"hash": "SOM3CYj26Xk", "salt": "L/", "algorithm": "crypt"}},
             "foob": {"password": {"hash": "6J6SsDmmvPE", "salt": "fq", "algorithm": "crypt"}},
             "fooba": {"password": {"hash": "45YY/lBbQL.", "salt": "EG", "algorithm": "crypt"}},
@@ -576,9 +581,14 @@ class HashTest( RestAuthTest ):
             u.delete()
             
     def test_apr1( self ):
+        """
+        .. todo:: Django 1.4: enable one and two-letter test cases and set MIN_USERNAME_LENGTH to 1.
+           see: https://docs.djangoproject.com/en/dev/topics/testing/#overriding-settings
+        """
+        
         testdata = {
-            "f": {"hash": "wencZ6WkOMvuOANC/A8LZ0", "salt": "nErdosRy", "algorithm": "apr1"},
-            "fo": {"hash": "Vyc4Thuvc/YAbWYb1nVI70", "salt": "1aigqzQz", "algorithm": "apr1"},
+            #"f": {"hash": "wencZ6WkOMvuOANC/A8LZ0", "salt": "nErdosRy", "algorithm": "apr1"},
+            #"fo": {"hash": "Vyc4Thuvc/YAbWYb1nVI70", "salt": "1aigqzQz", "algorithm": "apr1"},
             "foo": {"hash": "cXr93EItT.sxzwewzWX4p.", "salt": "c.aI4ooC", "algorithm": "apr1"},
             "foob": {"hash": "jN4YoWkxbtBI8D8d/Xoo3.", "salt": "wcPr1Vxv", "algorithm": "apr1"},
             "fooba": {"hash": "Tn2C7XgOdv6v45XbC8TNn/", "salt": "nQp8UKRJ", "algorithm": "apr1"},
