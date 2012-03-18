@@ -262,7 +262,21 @@ class testserver(Command):
 	def run(self):
 		from django.core.management import call_command
 		call_command('testserver', 'RestAuth/fixtures/testserver.json', use_ipv6=True)
+
+class prepare_debian_changelog(Command):
+	description = "prepare debian/changelog file"
+	user_options = []
+	
+	def initialize_options( self ): pass
+	def finalize_options( self ): pass
+	def run(self):
+		if not os.path.exists('debian/changelog'):
+			sys.exit(0)
 		
+		version = get_version()
+		cmd = ['sed', '-i', '1s/(.*)/(%s-1)/' % version, 'debian/changelog']
+		p = Popen(cmd)
+		p.communicate()		
 
 setup(
 	name='RestAuth',
@@ -281,5 +295,7 @@ setup(
 		'install_data': install_data, 'version': version, 'clean': clean,
 		'build': build, 'build_doc': build_doc, 'build_man': build_man, 'build_html': build_html,
 		'test': test, 'coverage': coverage,
-		'testserver': testserver},
+		'testserver': testserver,
+		'prepare_debian_changelog': prepare_debian_changelog,
+		},
 )

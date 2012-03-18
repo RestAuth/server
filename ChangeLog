@@ -15,6 +15,10 @@ RestAuth 0.5.3 (XX XX 20XX)
     receive this variable otherwise. Likewise, the DJANGO_SETTINGS_MODULE is passed through if set.
   * Generated passwords no longer contain whitespace, a backslash, single or double quotes.
   * Fix a bug that broke Service passwords with a colon (':')
+  
+  build-related:
+  * The 'debian' branch now includes a ready-to-use debian package.
+  * The new command 'prepare_debian_changelog' updates debian/changelog to the newest version
 
   Users:
   * Add database index for the username.
