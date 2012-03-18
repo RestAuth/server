@@ -49,7 +49,7 @@ def get_version():
 		version = open( '.version' ).readlines()[0]
 	elif os.path.exists( '.git' ): # get from git
 		date = time.strftime( '%Y.%m.%d' )
-		cmd = [ 'git', 'describe' ]
+		cmd = [ 'git', 'describe', 'master' ]
 		p = Popen( cmd, stdout=PIPE )
 		version = p.communicate()[0].decode( 'utf-8' )
 	elif os.path.exists( 'debian/changelog' ): # building .deb
