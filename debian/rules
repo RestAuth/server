@@ -1,0 +1,50 @@
+#!/usr/bin/make -f
+
+include /usr/share/restauth-common/python-restauth.mk
+
+# override PYVERS, we don't want python3:
+PYVERS=$(shell pyversions -vr 2> /dev/null)
+DH_ARGS:=$(subst --with python3,,${DH_ARGS})
+
+build_doc:
+
+override_dh_auto_build: $(PYVERS:%=build-python%)
+	dh_auto_build
+	python setup.py build_doc
+	rm doc/_build/html/_static/jquery.js
+
+override_dh_compress:
+	# exclude .js and .css files
+	dh_compress -X.js -X.css
+
+override_dh_installchangelogs:
+	dh_installchangelogs ChangeLog
+
+override_dh_fixperms:
+	dh_fixperms --exclude manage.py
+	find debian/restauth/usr/ -type f -name manage.py | tee | xargs chmod a+rx
+
+#override_dh_auto_install:
+override_dh_auto_install: ${PYVERS:%=install-python%}
+	mkdir -p $(CURDIR)/debian/tmp/usr/share/doc/restauth
+	cp -a doc/_build/html $(CURDIR)/debian/tmp/usr/share/doc/restauth
+
+	dh_auto_install ${DH_ARGS}
+
+	debian/dh_localsettings
+	
+	cp bin/restauth-service.py debian/restauth/usr/bin/restauth-service
+	cp bin/restauth-user.py debian/restauth/usr/bin/restauth-user
+	cp bin/restauth-group.py debian/restauth/usr/bin/restauth-group
+	cp bin/restauth-import.py debian/restauth/usr/bin/restauth-import
+	rm debian/tmp/usr/share/doc/restauth/COPYING
+
+test-python%:
+	python$* setup.py test
+
+ifeq (,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
+override_dh_auto_test: ${PYVERS:%=test-python%}
+endif
+	
+%:
+	dh ${DH_ARGS} $@

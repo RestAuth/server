@@ -1,0 +1,2 @@
+/usr/share/pyshared/RestAuth/manage.py /usr/bin/restauth-manage
+/etc/restauth/localsettings.py /usr/share/pyshared/RestAuth/localsettings.py

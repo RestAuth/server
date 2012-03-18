@@ -1,0 +1,3 @@
+usr/share/restauth/wsgi
+usr/lib/python*/dist-packages
+munin/* usr/share/munin/plugins/

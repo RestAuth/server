@@ -1,0 +1,11 @@
+restauth (0.5.2-64-ge477615-1) unstable; urgency=low
+
+  * bump from upstream
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 10 Sep 2011 19:27:36 +0200
+
+restauth (0.5.0-1) wheezy; urgency=low
+
+  * Initial version
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Fri, 02 Sep 2011 11:40:45 +0200
