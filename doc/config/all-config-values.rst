@@ -65,7 +65,8 @@ Default::
        'RestAuth.Users.hashes.apr1',
    ]
 
-RestAuth can understand custom hashing algorithms. This is useful if you want to import userdata
+RestAuth can understand custom hashing algorithms in addition to those provided by the hashlib
+module shipping with your Python version. This is useful if you want to import userdata
 from a different system that stores passwords using an unusual hashing algorithm. RestAuth
 :ref:`ships with a few hash functions <available-hash-functions>` used by common systems, all are
 enabled by default.
@@ -74,6 +75,10 @@ You can :ref:`implement your own hashing algorithm <own-hash-functions>` if you 
 data from a system not supported by RestAuth. If you set :setting:`HASH_ALGORITHM` to one of the
 algorithms you add to this setting, RestAuth will also store hashes using this algorithm. This is
 useful if you plan to later export data to such a system.
+
+.. NOTE:: If all password hashes use the hash-functions included in the hashlib module, this setting
+   is effectively not used at all. If you however have some custom hashes, it is recommended to
+   include only those validators that actually occur in your database to improve performance.
 
 .. setting:: LOGGING
 
