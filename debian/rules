@@ -45,7 +45,7 @@ override_dh_auto_install: ${PYVERS:%=install-python%}
 
 override_dh_python2:
 	dh_python2
-	mv ${BINPKGDIR}usr/share/pyshared/RestAuth/localsettings.py ${BINPKGDIR}etc/restauth/
+	mv ${BINPKGDIR}usr/share/pyshared/RestAuth/localsettings.py ${BINPKGDIR}etc/restauth/settings.py
 
 test-python%:
 	python$* setup.py test
