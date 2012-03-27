@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-PYVERS=$(shell pyversions -sv)
+PYVERS=$(shell pyversions -srv)
 PKGDIR=debian/tmp/
 BINPKGDIR=debian/restauth/
 DOCPKGDIR=debian/restauth-doc/
