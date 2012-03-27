@@ -3,12 +3,23 @@
 set -e
 set -x
 
-if [ "$1" = "configure" ]; then
-	[ -e "/etc/restauth/settings.py" ] || exit 0
-	[ $(grep -c __SECRET_KEY__ /etc/restauth/settings.py) -gt 0 ] || exit 0
+USERNAME=restauth
+
+case "$1" in
+	configure)
+
+	# add system user:
+	adduser --quiet --system --group --no-create-home --disabled-login $USERNAME
+
+	# replace __SECRET_KEY__ with randomly generated string:
+	[ -e "/etc/restauth/settings.py" ] || break
+	[ $(grep -c __SECRET_KEY__ /etc/restauth/settings.py) -gt 0 ] || break
 	
 	key=$(cat /dev/urandom | base64 | head -n 1 | sed 's/\//\\\//g')
 	sed -i "s/__SECRET_KEY__/$key/" /etc/restauth/settings.py
+	;;
+esac
+if [ "$1" = "configure" ]; then
 fi
 
 #DEBHELPER#
