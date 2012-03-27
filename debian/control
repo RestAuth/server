@@ -2,7 +2,7 @@ Source: restauth
 Section: misc
 Priority: extra
 Maintainer: Mathias Ertl <apt-repository@fsinf.at>
-Build-Depends: debhelper (>= 7.0.50), python (>= 2.6), git-core, python-central, python-support, python-restauth-common | restauth-common (>= 0.5.1), python-sphinx, python-argparse, python-django, python-mimeparse
+Build-Depends: debhelper (>= 8), python-all (>= 2.6), git-core, python-central, python-support, python-restauth-common | restauth-common (>= 0.5.1), python-sphinx, python-argparse, python-django, python-mimeparse
 Standards-Version: 3.9.2
 XS-Python-Version: >= 2.6
 Homepage: https://restauth.net
@@ -10,7 +10,9 @@ Homepage: https://restauth.net
 Package: restauth
 Architecture: all
 Section: web
-Depends: python-django (>= 1.3), python (>= 2.6), ${python:Depends}, ${misc:Depends}, python-restauth-common | restauth-common (>= 0.5.1), python-mimeparse, python-argparse, adduser
+Depends: python-django (>= 1.3), python (>= 2.6), ${python:Depends}, ${misc:Depends}, 
+ python-restauth-common | restauth-common (>= 0.5.1), python-mimeparse, python-argparse, adduser,
+ libjs-jquery, libjs-underscore
 XB-Python-Version: 2.6
 Description: service for managing shared authentication, authorization and preferences
  A RestAuth service can manage shared user authentication, authorization and
