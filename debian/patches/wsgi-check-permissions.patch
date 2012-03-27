@@ -1,0 +1,20 @@
+Index: restauth/wsgi/restauth
+===================================================================
+--- restauth.orig/wsgi/restauth	2012-03-27 12:22:22.207625404 +0200
++++ restauth/wsgi/restauth	2012-03-27 12:25:12.255625407 +0200
+@@ -1,9 +1,14 @@
+-import os
++import os, stat
+ 
+ import django.core.handlers.wsgi
+ _application = django.core.handlers.wsgi.WSGIHandler()
+ 
+ def application(environ, start_response):
++    # check permissions of config-file
++    if os.stat('/etc/restauth/settings.py').st_mode & stat.S_IROTH != 0:
++        sys.sterr.write("WARNING: /etc/restauth/settings.py is world readable!\n")
++        sys.sterr.flush()
++
+     if 'RESTAUTH_HOST' in environ:
+         os.environ['RESTAUTH_HOST'] = environ['RESTAUTH_HOST']
+     if 'DJANGO_SETTINGS_MODULE' in environ:

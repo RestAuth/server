@@ -1,1 +1,2 @@
 #paths.patch
+wsgi-check-permissions.patch
