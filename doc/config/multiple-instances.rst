@@ -66,12 +66,22 @@ for your web server. The following example sets environment variables in a mod_w
    <VirtualHost *:443>
        ServerName auth.example.com
        # ...
+       
+       # if you want to run WSGI processes as their own user:
+       WSGIProcessGroup restauth-com
+       WSGIDaemonProcess restauth-com user=restauth group=restauth processes=1 threads=10
+       
        SetEnv RESTAUTH_HOST auth.example.com
    </VirtualHost>
 
    <VirtualHost *:443>
        ServerName auth.example.org
        # ...
+       
+       # if you want to run WSGI processes as their own user:
+       WSGIProcessGroup restauth-org
+       WSGIDaemonProcess restauth-org user=restauth group=restauth processes=1 threads=10
+       
        SetEnv RESTAUTH_HOST auth.example.org
    </VirtualHost>
 
