@@ -21,7 +21,7 @@ directory. If you installed via our :doc:`APT repositories <../install/debian-ub
 Debian/Ubuntu, the file can be found at :file:`/usr/share/doc/restauth/wsgi/restauth`. You can also
 fetch it `directly from git <https://git.fsinf.at/restauth/server/blobs/raw/master/wsgi/restauth>`_.
 
-Configuring Apache is very simple, two configuration directives are enough:
+Configuring Apache is very simple, only the basic WSGI configuration directives are needed:
 
 .. code-block:: apache
 
@@ -33,10 +33,22 @@ Configuring Apache is very simple, two configuration directives are enough:
        # basic django configuration:
        WSGIScriptAlias / /path/to/your/wsgi-script/restauth
        WSGIPassAuthorization on
+       
+       # if you want to run WSGI processes as their own user:
+       WSGIProcessGroup restauth
+       WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
    </VirtualHost>
 
-The HTTP Basic authentication is already taken care of by RestAuth itself, you do not have to do
-anything to enforce it.
+The HTTP Basic Authentication is already taken care of by RestAuth itself as long as you set
+``WSGIPassAuthorization on`` in the Apache configuration.
+
+.. NOTE:: It is recommended to run the RestAuth WSGI application as its own user. The Debian
+   packages already add a user called ``restauth``. If you install from source, you can create a
+   user using:
+   
+   .. code-block:: bash
+   
+      user@host:~ $ adduser --system --group --no-create-home --disabled-login restauth
 
 Alternatively, the wsgi script (and thus the webserver) can also perform authentication for the
 application. This has the advantage that the webserver takes care of service authentication and it
@@ -53,16 +65,20 @@ are unsupported and if enabled, cost considerable performance without being usef
        # basic django configuration:
        WSGIScriptAlias / /path/to/your/wsgi-script/restauth
        # WSGIPassAuthorization on
+       
+       # if you want to run WSGI processes as their own user:
+       WSGIProcessGroup restauth
+       WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
+       
        <Location />
            AuthType Basic
            AuthName "RestAuth authentication service"
            AuthBasicProvider wsgi
            Require valid-user
 
-           WSGIAuthUserScript /usr/share/restauth/wsgi/restauth
+           WSGIAuthUserScript /path/to/your/wsgi-script/restauth
       </Location>
    </VirtualHost>
-
 
 For further reading, please also consult `Integration with Django
 <http://code.google.com/p/modwsgi/wiki/IntegrationWithDjango>`_ from the mod_wsgi project itself.
