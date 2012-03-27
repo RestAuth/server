@@ -2,7 +2,7 @@ restauth (0.5.2-72-g6d327bb-1) unstable; urgency=low
 
   * bump from upstream
 
- -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 10 Sep 2011 19:27:36 +0200
+ -- Mathias Ertl <apt-repository@fsinf.at>  Tue, 27 Mar 2012 17:20:31 +0200
 
 restauth (0.5.0-1) wheezy; urgency=low
 
