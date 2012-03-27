@@ -16,8 +16,8 @@ Using database routers
 
 To use a database router (you can either :ref:`write your own <config-db-replication-existing>` or
 :ref:`use an existing one <config-db-replication-existing>`), simply add it to the
-``DATABASE_ROUTERS`` setting in :file:`localsettings.py`. For example, if you want to use our
-:py:class:`MasterSlave` router, simply add:
+``DATABASE_ROUTERS`` setting in :file:`localsettings.py` (or file:`/etc/restauth/settings.py` on
+Debian/Ubuntu). For example, if you want to use our :py:class:`MasterSlave` router, simply add:
 
 .. code-block:: python
    

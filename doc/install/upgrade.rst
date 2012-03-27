@@ -78,7 +78,8 @@ validators using the :setting:`VALIDATORS` setting, please see the documentation
 how to enable validators. Our page on :doc:`/config/username-validation` has a list of validators
 shipping with RestAuth as well as documentation on how to implement your own validators.
 
-To just restore the previous behaviour, add this to :file:`localsettings.py`:
+To just restore the previous behaviour, add this to :file:`localsettings.py` (or
+:file:`/etc/restauth/settings.py` if you installed using our Debian/Ubuntu packages):
 
 .. code-block:: python
 
