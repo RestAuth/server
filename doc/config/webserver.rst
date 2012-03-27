@@ -48,7 +48,7 @@ The HTTP Basic Authentication is already taken care of by RestAuth itself as lon
    
    .. code-block:: bash
    
-      user@host:~ $ adduser --system --group --no-create-home --disabled-login restauth
+      user@host:~ $ adduser --system --group --home /path/to/sources --no-create-home --disabled-login restauth
 
 Alternatively, the wsgi script (and thus the webserver) can also perform authentication for the
 application. This has the advantage that the webserver takes care of service authentication and it
