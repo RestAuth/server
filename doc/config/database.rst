@@ -100,7 +100,8 @@ RestAuth uses the standard `DATABASES setting
 <https://docs.djangoproject.com/en/dev/ref/settings/#databases>`_ of Django. Please also see the
 `notes for specific database systems <https://docs.djangoproject.com/en/dev/ref/databases/>`_.
 
-To configure your database, just open :file:`localsettings.py` and edit the DATABASES section near
+To configure your database, just open :file:`localsettings.py` (or file:`/etc/restauth/settings.py`
+if you installed using our Debian/Ubuntu packages) and edit the DATABASES section near
 the top of that file.
 
 .. _config_restauth_initializing_the_database:

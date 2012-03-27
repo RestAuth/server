@@ -7,6 +7,9 @@ settings that ease administration and configure RestAuth. This document is a com
 settings that are either specific to RestAuth or are normal Django settings that RestAuth handles
 in a different way.
 
+The config-file you should edit is actually called :file:`localsettings.py`. If you used our
+Debian/Ubuntu packages for installation, the file is called :file:`/etc/restauth/settings.py`.
+
 .. setting:: CACHES
 
 CACHES

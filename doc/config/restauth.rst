@@ -17,11 +17,13 @@ all that is left is to configure the services themself.
 RestAuth configuration and management
 -------------------------------------
 
-RestAuth is configured in the file :file:`localsettings.py`. The file shipping with RestAuth already
-includes all variables and documentation for what you will likely want to change. Please also
-consult :doc:`the settings reference</config/all-config-values>` on noteworthy configuration
-variables. By default, you have to do very few modifications to :file:`localsettings.py`, the only
-thing you really have to do is :doc:`configure a database </config/database>`.
+RestAuth is configured in the file :file:`localsettings.py` (if you installed using our
+Debian/Ubuntu packages, this file is called :file:`/etc/restauth/settings.py`). The file shipping
+with RestAuth already includes all variables and documentation for what you will likely want to
+change. Please also consult :doc:`the settings reference</config/all-config-values>` on noteworthy
+configuration variables. By default, you have to do very few modifications to
+:file:`localsettings.py`, the only thing you really have to do is
+:doc:`configure a database </config/database>`.
 
 .. NOTE:: For Django experts
 
