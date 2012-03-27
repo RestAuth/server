@@ -4,12 +4,13 @@ set -e
 
 USERNAME=restauth
 SETTINGS=/etc/restauth/settings.py
+HOMEDIR=/usr/share/pyshared/RestAuth
 
 case "$1" in
 	configure)
 
 	# add system user:
-	adduser --quiet --system --group --no-create-home --disabled-login $USERNAME
+	adduser --quiet --system --group --home $HOMEDIR --no-create-home --disabled-login $USERNAME
 	
 	chown root:$USERNAME $SETTINGS
 	chmod o-rwx $SETTINGS
