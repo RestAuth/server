@@ -1,25 +1,27 @@
 #!/bin/sh
 
 set -e
-set -x
 
 USERNAME=restauth
+SETTINGS=/etc/restauth/settings.py
 
 case "$1" in
 	configure)
 
 	# add system user:
 	adduser --quiet --system --group --no-create-home --disabled-login $USERNAME
+	
+	chown root:$USERNAME $SETTINGS
+	chmod o-rwx $SETTINGS
+	chmod o-wx $SETTINGS
 
 	# replace __SECRET_KEY__ with randomly generated string:
-	[ -e "/etc/restauth/settings.py" ] || break
-	[ $(grep -c __SECRET_KEY__ /etc/restauth/settings.py) -gt 0 ] || break
+	[ -e "$SETTINGS" ] || break
+	[ $(grep -c __SECRET_KEY__ $SETTINGS) -gt 0 ] || break
 	
 	key=$(cat /dev/urandom | base64 | head -n 1 | sed 's/\//\\\//g')
-	sed -i "s/__SECRET_KEY__/$key/" /etc/restauth/settings.py
+	sed -i "s/__SECRET_KEY__/$key/" $SETTINGS
 	;;
 esac
-if [ "$1" = "configure" ]; then
-fi
 
 #DEBHELPER#
