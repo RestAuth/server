@@ -40,7 +40,9 @@ service_arg_parser = ArgumentParser(add_help=False)
 service_arg_parser.add_argument('service', metavar="SERVICE", help="The name of the service.")
 
 permission_arg_parser = ArgumentParser(add_help=False)
-permission_arg_parser.add_argument('--permissions', metavar='PERM', nargs='*', help="foo")
+permission_arg_parser.add_argument('--permissions', metavar='PERM', nargs='*',
+    help="""Add permissions to this service. If no permissions are defined, this service will not be
+        able to perform any request. Possible permissions are: TODO.""")
 
 host_arg_parser = ArgumentParser(add_help=False)
 host_arg_parser.add_argument('hosts', metavar='HOST', nargs='*', help="""A host that the service is able to
@@ -82,6 +84,15 @@ service_subparsers.add_parser('set-hosts', parents=[service_arg_parser, host_arg
     description="Set hosts that a service can connect from.")
 service_subparsers.add_parser('set-password', parents=[service_arg_parser, pwd_parser],
     help="Set the password for a service.", description="Set the password for a service.")
+subparser = service_subparsers.add_parser('add-permissions', parents=[service_arg_parser])
+subparser.add_argument('permissions', metavar='PERM', nargs='+',
+    help="Permissions to add to the specified service. Possible permissions are: TODO")
+subparser = service_subparsers.add_parser('rm-permissions', parents=[service_arg_parser])
+subparser.add_argument('permissions', metavar='PERM', nargs='+',
+    help="Permissions to remove from the specified service. Possible permissions are: TODO")
+subparser = service_subparsers.add_parser('set-permissions', parents=[service_arg_parser])
+subparser.add_argument('permissions', metavar='PERM', nargs='*',
+    help="Set the permissions of the specified service. Possible permissions are: TODO")
 
 
 ############################
