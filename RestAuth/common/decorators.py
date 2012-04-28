@@ -17,27 +17,27 @@
 
 from django.http import HttpResponse
 
-def sql_profiler( view, request, *args, **kwargs ): # pragma: no cover
-	"""
-	Wrapper-function for the sql_profile decorator.
-	"""
-	from django.db import connection
-	connection.queries = []
+def sql_profiler(view, request, *args, **kwargs): # pragma: no cover
+    """
+    Wrapper-function for the sql_profile decorator.
+    """
+    from django.db import connection
+    connection.queries = []
 
-	try:
-		return view( request, *args, **kwargs )
-	finally:
-		print( '%s queries:'%(len( connection.queries )) )
-		for query in connection.queries:
-			print( '%s; (%s secs)'%(query['sql'], query['time']) )
+    try:
+        return view(request, *args, **kwargs)
+    finally:
+        print('%s queries:'%(len(connection.queries)))
+        for query in connection.queries:
+            print('%s; (%s secs)'%(query['sql'], query['time']))
 
-def sql_profile( function = None ): # pragma: no cover
-	"""
-	Decorator that lets you profile the sql queries made by a request. This
-	isn't used anywhere by default, it is mainly used for debugging.
-	"""
-	def view_decorator(func):
-		def wrapper(request, *args, **kwargs):
-			return sql_profiler(func, request, *args, **kwargs)
-		return wrapper
-	return view_decorator
+def sql_profile(function = None): # pragma: no cover
+    """
+    Decorator that lets you profile the sql queries made by a request. This
+    isn't used anywhere by default, it is mainly used for debugging.
+    """
+    def view_decorator(func):
+        def wrapper(request, *args, **kwargs):
+            return sql_profiler(func, request, *args, **kwargs)
+        return wrapper
+    return view_decorator

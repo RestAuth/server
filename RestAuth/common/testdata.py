@@ -118,5 +118,5 @@ class RestAuthTest(TransactionTestCase):
     
     def parse(self, response, typ):
         body = response.content.decode('utf-8')
-        func = getattr(self.handler, 'unmarshal_%s'%typ)
+        func = getattr(self.handler, 'unmarshal_%s' % typ)
         return func(body)
