@@ -17,6 +17,8 @@
 
 import base64, httplib, logging
 
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.test import TransactionTestCase
 from django.test.client import Client
 from django.conf import settings
@@ -64,7 +66,7 @@ propval5 = u"propval \u6155"
 
 class RestAuthTest( TransactionTestCase ):
     def setUp(self):
-        if hasattr( self, 'settings' ): # requires django-1.3.1:
+        if hasattr( self, 'settings' ): # requires django-1.4:
             self.settings( LOGGING_CONFIG=None )
         
         self.c = Client()
@@ -75,6 +77,53 @@ class RestAuthTest( TransactionTestCase ):
             'content_type': self.handler.mime,
         }
         self.service = service_create( 'vowi', 'vowi', [ '127.0.0.1', '::1' ] )
+        
+        # add permissions:
+        u_ct = ContentType.objects.get(app_label="Users", model="serviceuser")
+        p_ct = ContentType.objects.get(app_label="Users", model="property")
+        g_ct = ContentType.objects.get(app_label="Groups", model="group")
+        
+        # add user-permissions:
+        for codename, name in (
+                ('users_list', 'List all users'),
+                ('user_create', 'Create a new user'),
+                ('user_exists', 'Check if a user exists'),
+                ('user_delete', 'Delete a user'),
+                ('user_verify_password', 'Verify a users password'),
+                ('user_change_password', 'Change a users password'),
+                ('user_delete_password', 'Delete a user'),):
+            p, c = Permission.objects.get_or_create(codename=codename, content_type=u_ct,
+                                                    defaults={'name': name})
+            self.service.user_permissions.add(p)
+            
+        for codename, name in (
+                ('props_list', 'List all properties of a user'),
+                ('prop_create', 'Create a new property'),
+                ('prop_get', 'Get value of a property'),
+                ('prop_set', 'Set or create a property'),
+                ('prop_delete', 'Delete a property'),):
+            p, c = Permission.objects.get_or_create(codename=codename, content_type=p_ct,
+                                                    defaults={'name': name})
+            self.service.user_permissions.add(p)
+            
+        for codename, name in (
+                ('groups_for_user', 'List groups for a user'),
+                ('groups_list', 'List all groups'),
+                ('group_create', 'Create a new group'),
+                ('group_exists', 'Verify that a group exists'),
+                ('group_delete', 'Delete a group'),
+                ('group_users', 'List users in a group'),
+                ('group_add_user', 'Add a user to a group'),
+                ('group_user_in_group', 'Verify that a user is in a group'),
+                ('group_remove_user', 'Remove a user from a group'),
+                ('group_groups_list', 'List subgroups of a group'),
+                ('group_add_group', 'Add a subgroup to a group'),
+                ('group_remove_group', 'Remove a subgroup from a group'),):
+            
+            p, c = Permission.objects.get_or_create(codename=codename, content_type=g_ct,
+                                                    defaults={'name': name})
+            self.service.user_permissions.add(p)
+        
    
     def get( self, url, data={} ):
         return self.c.get( url, data, **self.extra)
