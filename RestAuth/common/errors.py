@@ -17,17 +17,17 @@
 
 from RestAuthCommon.error import PreconditionFailed, ResourceConflict
 
-class PasswordInvalid( PreconditionFailed ):
-	pass
+class PasswordInvalid(PreconditionFailed):
+    pass
 
-class UsernameInvalid( PreconditionFailed ):
-	pass
+class UsernameInvalid(PreconditionFailed):
+    pass
 
-class UserExists( ResourceConflict ):
-	pass
+class UserExists(ResourceConflict):
+    pass
 
-class PropertyExists( ResourceConflict ):
-	pass
+class PropertyExists(ResourceConflict):
+    pass
 
-class GroupExists( ResourceConflict ):
-	pass
+class GroupExists(ResourceConflict):
+    pass

@@ -30,37 +30,37 @@ from RestAuth.Users.models import ServiceUser, Property
 from RestAuth.Groups.models import Group
 
 class ExceptionMiddleware:
-	"""
-	Exception to handle RestAuth related exceptions.
-	"""
-	def process_exception( self, request, ex ):
-		if isinstance( ex, ServiceUser.DoesNotExist ):
-			resp = HttpResponse( ex, status=404 )
-			resp['Resource-Type'] = 'user'
-			return resp
-		if isinstance( ex, Group.DoesNotExist ):
-			resp = HttpResponse( ex, status=404 )
-			resp['Resource-Type'] = 'group'
-			return resp
-		if isinstance( ex, Property.DoesNotExist ):
-			resp = HttpResponse( ex, status=404 )
-			resp['Resource-Type'] = 'property'
-			return resp
+    """
+    Exception to handle RestAuth related exceptions.
+    """
+    def process_exception(self, request, ex):
+        if isinstance(ex, ServiceUser.DoesNotExist):
+            resp = HttpResponse(ex, status=404)
+            resp['Resource-Type'] = 'user'
+            return resp
+        if isinstance(ex, Group.DoesNotExist):
+            resp = HttpResponse(ex, status=404)
+            resp['Resource-Type'] = 'group'
+            return resp
+        if isinstance(ex, Property.DoesNotExist):
+            resp = HttpResponse(ex, status=404)
+            resp['Resource-Type'] = 'property'
+            return resp
 
-		if isinstance( ex, RestAuthException ):
-			return HttpResponse( ex.message, status=ex.response_code )
-		else: # pragma: no cover
-			import traceback
-			logging.critical( traceback.format_exc() )
-			return HttpResponseServerError( "Internal Server Error. Please see server log for details.\n" )
+        if isinstance(ex, RestAuthException):
+            return HttpResponse(ex.message, status=ex.response_code)
+        else: # pragma: no cover
+            import traceback
+            logging.critical(traceback.format_exc())
+            return HttpResponseServerError("Internal Server Error. Please see server log for details.\n")
 
 class HeaderMiddleware:
-	"""
-	Middleware to ensure required headers are present.
-	"""
-	def process_request( self, request ):
-		if request.method in ['POST', 'PUT'] and 'CONTENT_TYPE' not in request.META:
-			return HttpResponse( 'POST/PUT requests must include a Content-Type header.', status=415 )
+    """
+    Middleware to ensure required headers are present.
+    """
+    def process_request(self, request):
+        if request.method in ['POST', 'PUT'] and 'CONTENT_TYPE' not in request.META:
+            return HttpResponse('POST/PUT requests must include a Content-Type header.', status=415)
 
-		if 'HTTP_ACCEPT' not in request.META: # pragma: no cover
-			logging.warn( 'Accept header is recommended in all requests.' )
+        if 'HTTP_ACCEPT' not in request.META: # pragma: no cover
+            logging.warn('Accept header is recommended in all requests.')
