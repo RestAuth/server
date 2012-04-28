@@ -19,77 +19,77 @@ import os, sys, getpass
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
-	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
-sys.path.append( os.getcwd() )
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
+sys.path.append(os.getcwd())
 
 try:
-	from RestAuth.Services.models import *
-	from RestAuth.common.cli import pwd_parser, service_parser
-except ImportError:
-	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
-	sys.exit(1)
+    from RestAuth.Services.models import *
+    from RestAuth.common.cli import pwd_parser, service_parser
+except ImportError, e:
+    sys.stderr.write('Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
+    sys.exit(1)
 
 args = service_parser.parse_args()
 
-def get_password( args ):
-	if args.pwd:
-		return args.pwd
+def get_password(args):
+    if args.pwd:
+        return args.pwd
 
-	password = getpass.getpass( 'password: ' )
-	confirm = getpass.getpass( 'confirm: ' )
-	if password != confirm:
-		print( "Passwords do not match, please try again." )
-		return get_password( args )
-	else:
-		return password
+    password = getpass.getpass('password: ')
+    confirm = getpass.getpass('confirm: ')
+    if password != confirm:
+        print("Passwords do not match, please try again.")
+        return get_password(args)
+    else:
+        return password
 
-if args.action in [ 'create', 'add']:
-	try:
-		check_service_username( args.service )
-		service = Service( username=args.service )
-		service.save()
-		service.set_password( get_password( args ) )
-		service.set_hosts( args.hosts )
-		service.save()
-	except IntegrityError as e:
-		print( "Error: %s: Service already exists."%args.service )
-		sys.exit(1)
-	except ServiceUsernameNotValid as e:
-		print( e )
-		sys.exit(1)
+if args.action in ['create', 'add']:
+    try:
+        check_service_username(args.service)
+        service = Service(username=args.service)
+        service.save()
+        service.set_password(get_password(args))
+        service.set_hosts(args.hosts)
+        service.save()
+    except IntegrityError as e:
+        print("Error: %s: Service already exists."%args.service)
+        sys.exit(1)
+    except ServiceUsernameNotValid as e:
+        print(e)
+        sys.exit(1)
 elif args.action in [ 'remove', 'rm', 'del', 'delete' ]:
-	try:
-		service = Service.objects.get( username=args.service )
-		service.delete()
-	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args.service )
-		sys.exit(1)
+    try:
+        service = Service.objects.get(username=args.service)
+        service.delete()
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1)
 elif args.action in [ 'list', 'ls' ]:
-	for service in Service.objects.all():
-		hosts = [ str(host.address) for host in service.hosts.all() ]
-		print( '%s: %s'%(service.username, ', '.join(hosts)) )
+    for service in Service.objects.all():
+        hosts = [ str(host.address) for host in service.hosts.all() ]
+        print('%s: %s'%(service.username, ', '.join(hosts)))
 elif args.action == 'view':
-	try:
-		service = Service.objects.get( username=args.service )
-		print( service.username )
-		print( 'Last used: %s'%(service.last_login) )
-		hosts = [ str(host.address) for host in service.hosts.all() ]
-		print( 'Hosts: %s'%(', '.join( hosts )) )
-	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args.service )
-		sys.exit(1) 
+    try:
+        service = Service.objects.get(username=args.service)
+        print(service.username)
+        print('Last used: %s'%(service.last_login))
+        hosts = [ str(host.address) for host in service.hosts.all() ]
+        print('Hosts: %s'%(', '.join(hosts)))
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1) 
 elif args.action == 'set-hosts':
-	try:
-		service = Service.objects.get( username=args.service )
-		service.set_hosts( args.hosts )
-	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args.service )
-		sys.exit(1)
+    try:
+        service = Service.objects.get(username=args.service)
+        service.set_hosts(args.hosts)
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1)
 elif args.action == 'set-password':
-	try:
-		service = Service.objects.get( username=args.service )
-		service.set_password( get_password( args ) )
-		service.save()
-	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args.service )
-		sys.exit(1) 
+    try:
+        service = Service.objects.get(username=args.service)
+        service.set_password(get_password(args))
+        service.save()
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1) 
