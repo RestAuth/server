@@ -39,6 +39,9 @@ pwd_group.add_argument('--gen-password', action=PasswordGenerator, nargs=0, dest
 service_arg_parser = ArgumentParser(add_help=False)
 service_arg_parser.add_argument('service', metavar="SERVICE", help="The name of the service.")
 
+permission_arg_parser = ArgumentParser(add_help=False)
+permission_arg_parser.add_argument('--permissions', metavar='PERM', nargs='*', help="foo")
+
 host_arg_parser = ArgumentParser(add_help=False)
 host_arg_parser.add_argument('hosts', metavar='HOST', nargs='*', help="""A host that the service is able to
     connect from. You can name multiple hosts as additional positional arguments. If ommitted,
@@ -66,7 +69,7 @@ service_parser = ArgumentParser(description=service_desc)
 service_subparsers = service_parser.add_subparsers(title="Available actions", dest='action',
     description="""Use '%(prog)s action --help' for more help on each action.""")
 service_subparsers.add_parser('add', help="Add a new service.",  description="Add a new service.",
-    parents=[service_arg_parser, host_arg_parser, pwd_parser])
+    parents=[service_arg_parser, host_arg_parser, pwd_parser, permission_arg_parser])
 service_subparsers.add_parser('ls', help="List all services.",
     description="""List all available services.""")
 service_subparsers.add_parser('rm', help="Remove a service.", parents=[service_arg_parser],
