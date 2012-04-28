@@ -15,10 +15,11 @@ restauth-service
 service is a system that wants to use RestAuth to store users, preferences and
 groups.
 
-RestAuth stores a name (which may not include a ':') and a password that
-identify the service. A service additionally has zero or more IPv4 or IPv6
-addresses associated with it, a service can only authenticate from the given
-adresses. 
+RestAuth stores a name (which may not include a ':') and a password that identify the service. A
+service has zero or more IPv4 or IPv6 addresses associated with it, a service can only authenticate
+from the given adresses, use the ``*-hosts`` subcommands to manage hosts of a given service. A
+service must have permissions to perform the respective actions, use the ``*-permissions``
+subcommands to manage permissions for services.
 
 Usage
 -----
@@ -27,10 +28,9 @@ Usage
    
    .. literalinclude:: gen/restauth-service-usage.rst
 
-Use one of the commands (either add, view, ls, set-hosts, set-password or rm) to
-perform the respective operation. Each command usually requires more arguments
-to it, see the respective section for arguments (and possible options) for each
-command.
+Use one of the commands (i.e. add, view, ls, ...) to perform the respective operation. Each command
+usually requires more arguments to it, see the respective section for arguments (and possible
+options) for each command.
 
 .. only:: html
 
@@ -91,6 +91,15 @@ Examples
    Remove the service *example.com* from RestAuth. This will also remove any
    groups defined for the service, see **restauth-groups**\ (1).
 
+A typical workflow for adding a service is::
+
+   restauth-service add example.net
+   restauth-service set-hosts 127.0.0.1 ::1
+   restauth-service set-permissions user_verify_password user_change_password
+   
+Please see the :ref:`available permissions <service-available-permissions>` below for a full
+reference.
+
 .. _service-available-commands:
 
 Available commands
@@ -99,6 +108,26 @@ Available commands
 The following subsections never document the '-h' parameter for clarity.
 
 .. include:: gen/restauth-service-commands.rst
+
+.. _service-available-permissions:
+
+Available permissions
+---------------------
+
+Handling users
+^^^^^^^^^^^^^^
+
+.. include:: gen/restauth-service-permissions-users.rst
+
+Handling properties
+^^^^^^^^^^^^^^^^^^^
+
+.. include:: gen/restauth-service-permissions-properties.rst
+
+Handling groups
+^^^^^^^^^^^^^^^
+
+.. include:: gen/restauth-service-permissions-groups.rst
 
 Influential environment variables
 ---------------------------------

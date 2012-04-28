@@ -31,6 +31,22 @@ from RestAuth.Users import validators
 from RestAuthCommon.error import PreconditionFailed
 from RestAuthCommon import resource_validator
 
+user_permissions = (
+    ('users_list', 'List all users'),
+    ('user_create', 'Create a new user'),
+    ('user_exists', 'Check if a user exists'),
+    ('user_delete', 'Delete a user'),
+    ('user_verify_password', 'Verify a users password'),
+    ('user_change_password', 'Change a users password'),
+    ('user_delete_password', 'Delete a user'),
+)
+prop_permissions = (
+    ('props_list', 'List all properties of a user'),
+    ('prop_create', 'Create a new property'),
+    ('prop_get', 'Get value of a property'),
+    ('prop_set', 'Set or create a property'),
+    ('prop_delete', 'Delete a property'),
+)
 
 def user_get( name ):
 	"""
@@ -136,208 +152,214 @@ def get_salt():
     sha512 hash of 5 random numbers concatenated.
     """
     from random import random
-    random_string = ','.join( map( lambda a: str(random()), range(5) ) )
-    return hashlib.sha512( random_string ).hexdigest()[:8]
+    random_string = ','.join(map(lambda a: str(random()), range(5)))
+    return hashlib.sha512(random_string).hexdigest()[:8]
 
-def get_hexdigest( algorithm, salt, secret ):
-	"""
-	This method overrides the standard get_hexdigest method for service
-	users. It adds support for for the 'mediawiki' hash-type and any
-	crypto-algorithm included in the hashlib module.
-	"""
-	secret = smart_str(secret)
-	if salt:
-		    salt = smart_str(salt)
-	
-	try:
-	        func = getattr( hashlib, algorithm )
-	        if salt:
-	            return func( salt + secret ).hexdigest()
-	        else: # pragma: no cover
-	            return func( secret ).hexdigest()
-	except AttributeError: # custom hashing algorithm
-		for path in settings.HASH_FUNCTIONS:
-			# import validator:
-			try:
-				modname, funcname = path.rsplit('.', 1)
-			except ValueError: # pragma: no cover
-				raise exceptions.ImproperlyConfigured('%s isn\'t a python path' % path)
-			
-			# skip if funcname is not the desired algorithm:
-			if algorithm != funcname:
-				continue
-			
-			try:
-				mod = import_module( modname )
-			except ImportError as e: # pragma: no cover
-				raise exceptions.ImproperlyConfigured(
-					'Error importing module %s: "%s"' % (modname, e))
-			try:
-				func = getattr( mod, funcname )
-			except AttributeError: # pragma: no cover
-				raise exceptions.ImproperlyConfigured(
-					'Module "%s" does not define a "%s" function' % (modname, funcname))
-			
-			return func(secret, salt)
+def get_hexdigest(algorithm, salt, secret):
+    """
+    This method overrides the standard get_hexdigest method for service
+    users. It adds support for for the 'mediawiki' hash-type and any
+    crypto-algorithm included in the hashlib module.
+    """
+    secret = smart_str(secret)
+    if salt:
+            salt = smart_str(salt)
+    
+    try:
+            func = getattr(hashlib, algorithm)
+            if salt:
+                return func(salt + secret).hexdigest()
+            else: # pragma: no cover
+                return func(secret).hexdigest()
+    except AttributeError: # custom hashing algorithm
+        for path in settings.HASH_FUNCTIONS:
+            # import validator:
+            try:
+                modname, funcname = path.rsplit('.', 1)
+            except ValueError: # pragma: no cover
+                raise exceptions.ImproperlyConfigured('%s isn\'t a python path' % path)
+            
+            # skip if funcname is not the desired algorithm:
+            if algorithm != funcname:
+                continue
+            
+            try:
+                mod = import_module(modname)
+            except ImportError as e: # pragma: no cover
+                raise exceptions.ImproperlyConfigured(
+                    'Error importing module %s: "%s"' % (modname, e))
+            try:
+                func = getattr(mod, funcname)
+            except AttributeError: # pragma: no cover
+                raise exceptions.ImproperlyConfigured(
+                    'Module "%s" does not define a "%s" function' % (modname, funcname))
+            
+            return func(secret, salt)
 
-class ServiceUser( models.Model ):
-	username = models.CharField('username', max_length=60, unique=True, db_index=True)
-	algorithm = models.CharField('algorithm', max_length=20, blank=True, null=True )
-	salt = models.CharField('salt', max_length=16, blank=True, null=True )
-	hash = models.CharField('hash', max_length=128, blank=True, null=True )
-	last_login = models.DateTimeField('last login', auto_now=True, auto_now_add=True)
-	date_joined = models.DateTimeField('date joined', auto_now_add=True)
+class ServiceUser(models.Model):
+    username = models.CharField('username', max_length=60, unique=True, db_index=True)
+    algorithm = models.CharField('algorithm', max_length=20, blank=True, null=True)
+    salt = models.CharField('salt', max_length=16, blank=True, null=True)
+    hash = models.CharField('hash', max_length=128, blank=True, null=True)
+    last_login = models.DateTimeField('last login', auto_now=True, auto_now_add=True)
+    date_joined = models.DateTimeField('date joined', auto_now_add=True)
 
-	def __init__( self, *args, **kwargs ):
-		models.Model.__init__( self, *args, **kwargs )
-		
-		if self.username and not resource_validator(self.username ):
-			raise PreconditionFailed( "Username contains invalid characters" )
 
-	def set_password( self, raw_password ):
-		"""
-		Set the password to the given value. Throws PasswordInvalid if
-		the password is shorter than settings.MIN_PASSWORD_LENGTH.
+    class Meta:
+        permissions = user_permissions
+        
 
-		@raise PasswordInvalid: When the password is too short.
-		"""
-		if len( raw_password ) < settings.MIN_PASSWORD_LENGTH:
-			raise PasswordInvalid( "Password too short" )
+    def __init__(self, *args, **kwargs):
+        models.Model.__init__(self, *args, **kwargs)
+        
+        if self.username and not resource_validator(self.username):
+            raise PreconditionFailed("Username contains invalid characters")
 
-		self.algorithm = settings.HASH_ALGORITHM
-		self.salt = get_salt()
-		self.hash = get_hexdigest( self.algorithm, self.salt, raw_password )
+    def set_password(self, raw_password):
+        """
+        Set the password to the given value. Throws PasswordInvalid if
+        the password is shorter than settings.MIN_PASSWORD_LENGTH.
 
-	def set_unusable_password( self ):
-		self.hash = None
-		self.salt = None
-		self.algorithm = None
+        @raise PasswordInvalid: When the password is too short.
+        """
+        if len(raw_password) < settings.MIN_PASSWORD_LENGTH:
+            raise PasswordInvalid("Password too short")
 
-	def check_password( self, raw_password ):
-		"""
-		Check the users password. If the current password hash is not
-		of the same type as the current settings.HASH_ALGORITHM, the
-		hash is updated but *not* saved.
-		"""
-		if not (self.algorithm and self.hash):
-			return False
-		
-		digest = get_hexdigest( self.algorithm, self.salt, raw_password )
-		if digest == self.hash: # correct
-			if self.algorithm != settings.HASH_ALGORITHM: # pragma: no cover
-				# we do this manually so we avoid any checks.
-				self.algorithm = settings.HASH_ALGORITHM
-				self.salt = get_salt()
-				self.hash = get_hexdigest( self.algorithm, self.salt, raw_password )
-			return True
-		else: # password not correct
-			return False
+        self.algorithm = settings.HASH_ALGORITHM
+        self.salt = get_salt()
+        self.hash = get_hexdigest(self.algorithm, self.salt, raw_password)
 
-	def get_groups(self, service):
-		"""
-		Get a list of groups that this user is a member of.
+    def set_unusable_password(self):
+        self.hash = None
+        self.salt = None
+        self.algorithm = None
 
-		@param service: Limit the list of groups to those defined by the
-			given service.
-		@type  service: service
-		"""
-		groups = set( self.group_set.filter( service=service ).only( 'name' ) )
-		
-		# import here to avoid circular imports:
-		from RestAuth.Groups.models import Group
-			
-		# any remaining candidates
-		exclude_ids = [ group.id for group in groups ]
-		others = Group.objects.filter( service=service ).exclude( id__in=exclude_ids ).only( 'name' )
-		for other in others:
-			if other.is_indirect_member( self ):
-				groups.add( other )
-		return groups
+    def check_password(self, raw_password):
+        """
+        Check the users password. If the current password hash is not
+        of the same type as the current settings.HASH_ALGORITHM, the
+        hash is updated but *not* saved.
+        """
+        if not (self.algorithm and self.hash):
+            return False
+        
+        digest = get_hexdigest(self.algorithm, self.salt, raw_password)
+        if digest == self.hash: # correct
+            if self.algorithm != settings.HASH_ALGORITHM: # pragma: no cover
+                # we do this manually so we avoid any checks.
+                self.algorithm = settings.HASH_ALGORITHM
+                self.salt = get_salt()
+                self.hash = get_hexdigest(self.algorithm, self.salt, raw_password)
+            return True
+        else: # password not correct
+            return False
 
-	def add_property( self, key, value ):
-		"""
-		Add a new property to this user. It is an error if this property
-		already exists.
+    def get_groups(self, service):
+        """
+        Get a list of groups that this user is a member of.
 
-		@raises PropertyExists: If the property already exists.
-		@return: The property that was created
-		"""
-		from RestAuthCommon import resource_validator
-		if not resource_validator( key ):
-			raise PreconditionFailed( "Property contains invalid characters" )
-			
-		try:
-			prop = Property( user=self, key=key, value=value )
-			prop.save()
-			return prop
-		except IntegrityError:
-			raise PropertyExists( key )		
+        @param service: Limit the list of groups to those defined by the
+            given service.
+        @type  service: service
+        """
+        groups = set(self.group_set.filter(service=service).only('name'))
+        
+        # import here to avoid circular imports:
+        from RestAuth.Groups.models import Group
+            
+        # any remaining candidates
+        exclude_ids = [ group.id for group in groups ]
+        others = Group.objects.filter(service=service).exclude(id__in=exclude_ids).only('name')
+        for other in others:
+            if other.is_indirect_member(self):
+                groups.add(other)
+        return groups
 
-	def get_properties( self ):
-		dictionary = {}
+    def add_property(self, key, value):
+        """
+        Add a new property to this user. It is an error if this property
+        already exists.
 
-		props = self.property_set.values_list( 'key', 'value' ).all()
-		for key, value in props:
-			dictionary[key] = value
-		return dictionary
+        @raises PropertyExists: If the property already exists.
+        @return: The property that was created
+        """
+        from RestAuthCommon import resource_validator
+        if not resource_validator(key):
+            raise PreconditionFailed("Property contains invalid characters")
+            
+        try:
+            prop = Property(user=self, key=key, value=value)
+            prop.save()
+            return prop
+        except IntegrityError:
+            raise PropertyExists(key)        
 
-	def set_property( self, key, value ):
-		"""
-		Set the property identified by I{key} to I{value}. If the
-		property already exists, it is overwritten.
+    def get_properties(self):
+        dictionary = {}
 
-		@return: Returns a tuple. The first value represents the 
-			L{Property} acted upon and the second value is a string
-			with the previous value or None if this was a new
-			property.
-		"""
-		try:
-			return self.add_property( key, value ), None
-		except PropertyExists:
-			# only update the right key.
-			prop = self.property_set.get( key=key )
-			old_value = prop.value
-			prop.value = value
-			prop.save()
-			return prop, old_value
+        props = self.property_set.values_list('key', 'value').all()
+        for key, value in props:
+            dictionary[key] = value
+        return dictionary
 
-	def get_property( self, key ):
-		"""
-		Get value of a specific property.
+    def set_property(self, key, value):
+        """
+        Set the property identified by I{key} to I{value}. If the
+        property already exists, it is overwritten.
 
-		@raises Property.DoesNotExist: When the property does not exist.
-		"""
-		# exactly one SELECT statement
-		return self.property_set.get( key=key )
-	
-	def del_property( self, key ):
-		"""
-		Delete a property.
+        @return: Returns a tuple. The first value represents the 
+            L{Property} acted upon and the second value is a string
+            with the previous value or None if this was a new
+            property.
+        """
+        try:
+            return self.add_property(key, value), None
+        except PropertyExists:
+            # only update the right key.
+            prop = self.property_set.get(key=key)
+            old_value = prop.value
+            prop.value = value
+            prop.save()
+            return prop, old_value
 
-		@raises Property.DoesNotExist: When the property does not exist.
-		"""
-		if self.property_set.filter( key=key ).exists():	
-			self.property_set.filter( key=key ).delete()
-		else:
-			raise Property.DoesNotExist()
+    def get_property(self, key):
+        """
+        Get value of a specific property.
 
-	def __unicode__( self ): # pragma: no cover
-		return self.username
+        @raises Property.DoesNotExist: When the property does not exist.
+        """
+        # exactly one SELECT statement
+        return self.property_set.get(key=key)
+    
+    def del_property(self, key):
+        """
+        Delete a property.
 
-	def get_absolute_url( self ):
-		return '/users/%s/'% urlquote( self.username )
+        @raises Property.DoesNotExist: When the property does not exist.
+        """
+        if self.property_set.filter(key=key).exists():    
+            self.property_set.filter(key=key).delete()
+        else:
+            raise Property.DoesNotExist()
 
-class Property( models.Model ):
-	user = models.ForeignKey( ServiceUser )
-	key = models.CharField( max_length=128, db_index=True )
-	value = models.TextField()
+    def __unicode__(self): # pragma: no cover
+        return self.username
 
-	class Meta:
-		unique_together = ( 'user', 'key' )
+    def get_absolute_url(self):
+        return '/users/%s/'% urlquote(self.username)
 
-	def __unicode__( self ): # pragma: no cover
-		return "%s: %s=%s"%(self.user.username, self.key, self.value)
-	
-	def get_absolute_url( self ):
-		userpath = self.user.get_absolute_url()
-		return '%sprops/%s/'%(userpath, urlquote( self.key ) )
+class Property(models.Model):
+    user = models.ForeignKey(ServiceUser)
+    key = models.CharField(max_length=128, db_index=True)
+    value = models.TextField()
+
+    class Meta:
+        unique_together = ('user', 'key')
+        permissions = prop_permissions
+
+    def __unicode__(self): # pragma: no cover
+        return "%s: %s=%s"%(self.user.username, self.key, self.value)
+    
+    def get_absolute_url(self):
+        userpath = self.user.get_absolute_url()
+        return '%sprops/%s/'%(userpath, urlquote(self.key))

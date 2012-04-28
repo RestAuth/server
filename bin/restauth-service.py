@@ -19,77 +19,154 @@ import os, sys, getpass
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
-	os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
-sys.path.append( os.getcwd() )
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
+sys.path.append(os.getcwd())
 
 try:
-	from RestAuth.Services.models import *
-	from RestAuth.common.cli import pwd_parser, service_parser
-except ImportError:
-	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
-	sys.exit(1)
+    from RestAuth.Services.models import *
+    from RestAuth.common.cli import pwd_parser, service_parser
+    
+    from RestAuth.Users.models import user_permissions, prop_permissions
+    from RestAuth.Groups.models import group_permissions
+except ImportError, e:
+    print(e)
+    sys.stderr.write('Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
+    sys.exit(1)
 
 args = service_parser.parse_args()
 
-def get_password( args ):
-	if args.pwd:
-		return args.pwd
+def get_password(args):
+    if args.pwd:
+        return args.pwd
 
-	password = getpass.getpass( 'password: ' )
-	confirm = getpass.getpass( 'confirm: ' )
-	if password != confirm:
-		print( "Passwords do not match, please try again." )
-		return get_password( args )
-	else:
-		return password
+    password = getpass.getpass('password: ')
+    confirm = getpass.getpass('confirm: ')
+    if password != confirm:
+        print("Passwords do not match, please try again.")
+        return get_password(args)
+    else:
+        return password
 
-if args.action in [ 'create', 'add']:
-	try:
-		check_service_username( args.service )
-		service = Service( username=args.service )
-		service.save()
-		service.set_password( get_password( args ) )
-		service.set_hosts( args.hosts )
-		service.save()
-	except IntegrityError as e:
-		print( "Error: %s: Service already exists."%args.service )
-		sys.exit(1)
-	except ServiceUsernameNotValid as e:
-		print( e )
-		sys.exit(1)
+def parse_permissions(raw_permissions):
+    user_ct = ContentType.objects.get(app_label='Users', model='serviceuser')
+    prop_ct = ContentType.objects.get(app_label='Users', model='property')
+    group_ct = ContentType.objects.get(app_label='Groups', model='group')
+    
+    user_permissions_dict = dict(user_permissions)
+    prop_permissions_dict = dict(prop_permissions)
+    group_permissions_dict = dict(group_permissions)
+    
+    permissions = []
+    for raw_permission in raw_permissions:
+        if raw_permission in user_permissions_dict:
+            perm, c = Permission.objects.get_or_create(
+                content_type=user_ct, codename=raw_permission,
+                defaults={'name': user_permissions_dict[raw_permission]}
+            )
+        elif raw_permission in prop_permissions_dict:
+            perm, c = Permission.objects.get_or_create(
+                content_type=prop_ct, codename=raw_permission,
+                defaults={'name': prop_permissions_dict[raw_permission]}
+            )
+        elif raw_permission in group_permissions_dict:
+            perm, c = Permission.objects.get_or_create(
+                content_type=group_ct, codename=raw_permission,
+                defaults={'name': group_permissions_dict[raw_permission]}
+            )
+        else:
+            raise RuntimeError('Unknown permission.')
+        permissions.append(perm)
+    return permissions
+
+if args.action in ['create', 'add']:
+    try:
+        check_service_username(args.service)
+        service = Service(username=args.service)
+        service.save()
+        service.set_password(get_password(args))
+        service.save()
+    except IntegrityError as e:
+        print("Error: %s: Service already exists."%args.service)
+        sys.exit(1)
+    except ServiceUsernameNotValid as e:
+        print(e)
+        sys.exit(1)
 elif args.action in [ 'remove', 'rm', 'del', 'delete' ]:
-	try:
-		service = Service.objects.get( username=args.service )
-		service.delete()
-	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args.service )
-		sys.exit(1)
+    try:
+        service = Service.objects.get(username=args.service)
+        service.delete()
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1)
 elif args.action in [ 'list', 'ls' ]:
-	for service in Service.objects.all():
-		hosts = [ str(host.address) for host in service.hosts.all() ]
-		print( '%s: %s'%(service.username, ', '.join(hosts)) )
+    for service in Service.objects.all():
+        hosts = [ str(host.address) for host in service.hosts.all() ]
+        print('%s: %s'%(service.username, ', '.join(hosts)))
 elif args.action == 'view':
-	try:
-		service = Service.objects.get( username=args.service )
-		print( service.username )
-		print( 'Last used: %s'%(service.last_login) )
-		hosts = [ str(host.address) for host in service.hosts.all() ]
-		print( 'Hosts: %s'%(', '.join( hosts )) )
-	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args.service )
-		sys.exit(1) 
+    try:
+        service = Service.objects.get(username=args.service)
+        print(service.username)
+        print('Last used: %s' % (service.last_login))
+        hosts = [ str(host.address) for host in service.hosts.all()]
+        print('Hosts: %s' % (', '.join(hosts)))
+        perms = [p.codename for p in service.user_permissions.all()]
+        print('Permissions: %s' % (', '.join(perms)))
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1) 
 elif args.action == 'set-hosts':
-	try:
-		service = Service.objects.get( username=args.service )
-		service.set_hosts( args.hosts )
-	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args.service )
-		sys.exit(1)
+    try:
+        service = Service.objects.get(username=args.service)
+        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in args.hosts]
+        service.set_hosts(hosts)
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1)
+elif args.action == 'add-hosts':
+    try:
+        service = Service.objects.get(username=args.service)
+        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in args.hosts]
+        service.add_hosts(hosts)
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1)
+elif args.action == 'rm-hosts':
+    try:
+        service = Service.objects.get(username=args.service)
+        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in args.hosts]
+        service.del_hosts(hosts)
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1)
 elif args.action == 'set-password':
-	try:
-		service = Service.objects.get( username=args.service )
-		service.set_password( get_password( args ) )
-		service.save()
-	except Service.DoesNotExist:
-		print( "Error: %s: Service not found."%args.service )
-		sys.exit(1) 
+    try:
+        service = Service.objects.get(username=args.service)
+        service.set_password(get_password(args))
+        service.save()
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found."%args.service)
+        sys.exit(1)
+elif args.action == 'set-permissions':
+    try:
+        service = Service.objects.get(username=args.service)
+        perms = parse_permissions(args.permissions)
+        service.set_permissions(perms)
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found." % args.service)
+        sys.exit(1)
+elif args.action == 'add-permissions':
+    try:
+        service = Service.objects.get(username=args.service)
+        perms = parse_permissions(args.permissions)
+        service.set_permissions(perms)
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found." % args.service)
+        sys.exit(1)
+elif args.action == 'rm-permissions':
+    try:
+        service = Service.objects.get(username=args.service)
+        perms = parse_permissions(args.permissions)
+        service.rm_permissions(perms)
+    except Service.DoesNotExist:
+        print("Error: %s: Service not found." % args.service)
+        sys.exit(1)

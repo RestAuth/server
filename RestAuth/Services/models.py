@@ -17,65 +17,68 @@
 
 from django.db import models
 from django.db.utils import IntegrityError
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 
-class ServiceUsernameNotValid( BaseException ):
-	pass
+class ServiceUsernameNotValid(BaseException):
+    pass
 
-def check_service_username( name ):
-	if ':' in name:
-		raise ServiceUsernameNotValid( "Service name must not contain a ':'" )
+def check_service_username(name):
+    if ':' in name:
+        raise ServiceUsernameNotValid("Service name must not contain a ':'")
 
-def service_create( name, password, addresses=[] ):
-	"""
-	@raises IntegrityError: If the service already exists.
-	"""
-	check_service_username( name )
-	
-	service = Service( username=name )
-	service.set_password( password )
-	service.save()
+def service_create(name, password, addresses=[]):
+    """
+    @raises IntegrityError: If the service already exists.
+    """
+    check_service_username(name)
+    
+    service = Service(username=name)
+    service.set_password(password)
+    service.save()
 
-	if addresses:
-		service.set_hosts( addresses )
-		
-	return service
+    hosts = [ServiceAddress.objects.get_or_create(address=address)[0] for address in addresses]
+    service.set_hosts(hosts)
+        
+    return service
 
-class ServiceAddress( models.Model ):
-	address = models.CharField( max_length=39, unique=True )
+class ServiceAddress(models.Model):
+    address = models.CharField(max_length=39, unique=True)
 
-	def __unicode__( self ): # pragma: no cover
-		return self.address
+    def __unicode__(self): # pragma: no cover
+        return self.address
 
-class Service( User ):
-	hosts = models.ManyToManyField( ServiceAddress )
-	
-	def verify( self, password, host ):
-		if self.check_password( password ) and self.verify_host( host ):
-			return True
-		else:
-			return False
+class Service(User):
+    hosts = models.ManyToManyField(ServiceAddress)
+    
+    def verify(self, password, host):
+        if self.check_password(password) and self.verify_host(host):
+            return True
+        else:
+            return False
 
-	def verify_host( self, host ):
-		if self.hosts.filter( address=host ).exists():
-			return True
-		else: 
-			return False
+    def verify_host(self, host):
+        if self.hosts.filter(address=host).exists():
+            return True
+        else: 
+            return False
 
-	def set_hosts( self, addresses=[] ):
-		self.hosts.clear()
+    def set_hosts(self, hosts):
+        self.hosts.clear()
+        self.hosts.add(*hosts)
 
-		for addr in addresses:
-			self.add_host( addr )
+    def add_hosts(self, hosts):
+        self.hosts.add(*hosts)
 
-	def add_host( self, address ):
-		addr = ServiceAddress.objects.get_or_create( address=address )[0]
-		self.hosts.add( addr )
+    def del_hosts(self, hosts):
+        self.hosts.remove(*hosts)
 
-	def del_host( self, address ):
-		try:
-			host = ServiceAddress.objects.get( address=address )
-			self.hosts.remove( host )
-		except ServiceAddress.DoesNotExist:
-			pass
-
+    def add_permissions(self, permissions):
+        self.user_permissions.add(*permissions)
+    
+    def rm_permissions(self, permissions):
+        self.user_permissions.remove(*permissions)
+    
+    def set_permissions(self, permissions):
+        self.user_permissions.clear()
+        self.user_permissions.add(*permissions)

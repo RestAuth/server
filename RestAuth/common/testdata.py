@@ -17,15 +17,19 @@
 
 import base64, httplib, logging
 
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.test import TransactionTestCase
 from django.test.client import Client
 from django.conf import settings
 
 import RestAuthCommon
 
-from RestAuth.Services.models import Service, service_create
-from RestAuth.Users.models import ServiceUser, user_create
-from RestAuth.common.middleware import ExceptionMiddleware
+from Services.models import Service, service_create
+from Users.models import ServiceUser, user_create, user_permissions, prop_permissions
+from Groups.models import group_permissions
+
+from middleware import ExceptionMiddleware
 
 username1 = u"mati \u6111"
 username2 = u"mati \u6112"
@@ -64,7 +68,7 @@ propval5 = u"propval \u6155"
 
 class RestAuthTest( TransactionTestCase ):
     def setUp(self):
-        if hasattr( self, 'settings' ): # requires django-1.3.1:
+        if hasattr( self, 'settings' ): # requires django-1.4:
             self.settings( LOGGING_CONFIG=None )
         
         self.c = Client()
@@ -75,6 +79,28 @@ class RestAuthTest( TransactionTestCase ):
             'content_type': self.handler.mime,
         }
         self.service = service_create( 'vowi', 'vowi', [ '127.0.0.1', '::1' ] )
+        
+        # add permissions:
+        u_ct = ContentType.objects.get(app_label="Users", model="serviceuser")
+        p_ct = ContentType.objects.get(app_label="Users", model="property")
+        g_ct = ContentType.objects.get(app_label="Groups", model="group")
+        
+        # add user-permissions:
+        for codename, name in user_permissions:
+            p, c = Permission.objects.get_or_create(codename=codename, content_type=u_ct,
+                                                    defaults={'name': name})
+            self.service.user_permissions.add(p)
+            
+        for codename, name in prop_permissions:
+            p, c = Permission.objects.get_or_create(codename=codename, content_type=p_ct,
+                                                    defaults={'name': name})
+            self.service.user_permissions.add(p)
+            
+        for codename, name in group_permissions:
+            p, c = Permission.objects.get_or_create(codename=codename, content_type=g_ct,
+                                                    defaults={'name': name})
+            self.service.user_permissions.add(p)
+        
    
     def get( self, url, data={} ):
         return self.c.get( url, data, **self.extra)

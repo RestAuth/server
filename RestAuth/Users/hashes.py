@@ -18,7 +18,7 @@
 from django.conf import settings
 import hashlib, crypt as cryptlib
 
-def crypt_apr1_md5( plainpasswd, salt ):
+def crypt_apr1_md5(plainpasswd, salt):
     """
     This function creates an md5 hash that is identical to one that would be created by
     :py:cmd:`htpasswd -m`.
@@ -27,23 +27,23 @@ def crypt_apr1_md5( plainpasswd, salt ):
         http://www.php.net/manual/de/function.crypt.php#73619
     """
     import struct, base64, string
-    def pack( val ):
-        md5 = hashlib.md5( val ).hexdigest()
+    def pack(val):
+        md5 = hashlib.md5(val).hexdigest()
         return struct.pack('16B', *[int(c, 16) for c in (md5[i:i+2] for i in xrange(0, len(md5), 2))])
     
-    length = len( plainpasswd )
+    length = len(plainpasswd)
     text = "%s$apr1$%s"%(plainpasswd, salt)
-    md5 = hashlib.md5( "%s%s%s"%(plainpasswd, salt, plainpasswd) ).hexdigest()
-    bin = pack( "%s%s%s"%(plainpasswd, salt, plainpasswd) )
+    md5 = hashlib.md5("%s%s%s"%(plainpasswd, salt, plainpasswd)).hexdigest()
+    bin = pack("%s%s%s"%(plainpasswd, salt, plainpasswd))
     
     # first loop
-    i = len( plainpasswd )
+    i = len(plainpasswd)
     while i > 0:
         text += bin[0:min(16,i)]
         i -= 16
             
     # second loop
-    i = len( plainpasswd )
+    i = len(plainpasswd)
     while i > 0:
         if i & 1:
             text += chr(0)
@@ -54,7 +54,7 @@ def crypt_apr1_md5( plainpasswd, salt ):
         i >>= 1
     
     # 1000er loop
-    bin = pack( text )
+    bin = pack(text)
     for i in range(0, 1000):
         if i & 1:
             new = plainpasswd
@@ -71,7 +71,7 @@ def crypt_apr1_md5( plainpasswd, salt ):
         else:
             new += plainpasswd
 
-        bin = pack( new )
+        bin = pack(new)
 
     tmp = ''
     for i in range(0, 5):
@@ -86,10 +86,10 @@ def crypt_apr1_md5( plainpasswd, salt ):
     
     frm = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
     to = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    trans = string.maketrans( frm, to )
-    return base64.b64encode( tmp )[2:][::-1].translate( trans )
+    trans = string.maketrans(frm, to)
+    return base64.b64encode(tmp)[2:][::-1].translate(trans)
             
-def mediawiki( secret, salt=None ):
+def mediawiki(secret, salt=None):
     """
     Returns hashes as stored in a `MediaWiki <https://www.mediawiki.org>`_ user database. If salt is
     a string, the hash returned is the md5 hash of a concatenation of the salt, a dash ("-"), and
@@ -99,12 +99,12 @@ def mediawiki( secret, salt=None ):
     <http://www.mediawiki.org/wiki/Manual:User_table#user_password>`_ for exact details. 
     """
     if salt:
-        secret_hash = hashlib.md5( secret ).hexdigest()
+        secret_hash = hashlib.md5(secret).hexdigest()
         return hashlib.md5('%s-%s'%(salt, secret_hash)).hexdigest()
     else: # pragma: no cover
         return hashlib.md5(hash).hexdigest()
         
-def crypt( secret, salt=None ):
+def crypt(secret, salt=None):
     """
     Returns hashes as generated using the systems `crypt(3)` routine. Hashes like this are used
     by linux system accounts and the ``htpasswd`` tool of the Apache webserver if you used the
@@ -121,7 +121,7 @@ def crypt( secret, salt=None ):
     else:
         return cryptlib.crypt(secret, salt)[2:]
 
-def apr1( secret, salt=None ):
+def apr1(secret, salt=None):
     """
     Returns hashes using a modified md5 algorithm used by the Apache webserver to store passwords.
     Hashes generated using this function are identical to the ones generated with ``htpasswd -m``.
