@@ -44,6 +44,7 @@ Installation
    install/from-source
    install/debian-ubuntu
    install/redhat-fedora
+   install/archlinux
    install/upgrade
 
 Getting started
