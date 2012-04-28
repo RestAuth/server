@@ -44,6 +44,7 @@ Installation
    install/from-source
    install/debian-ubuntu
    install/redhat-fedora
+   install/archlinux
    install/upgrade
 
 Getting started
@@ -52,6 +53,7 @@ Getting started
 .. toctree::
    :maxdepth: 1
 
+   config/quickstart
    config/restauth
    config/webserver
    config/database
