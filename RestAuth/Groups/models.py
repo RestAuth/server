@@ -52,6 +52,20 @@ class Group(models.Model):
     
     class Meta:
         unique_together = ('name', 'service')
+        permissions = (
+            ('groups_for_user', 'List groups for a user'),
+            ('groups_list', 'List all groups'),
+            ('group_create', 'Create a new group'),
+            ('group_exists', 'Verify that a group exists'),
+            ('group_delete', 'Delete a group'),
+            ('group_users', 'List users in a group'),
+            ('group_add_user', 'Add a user to a group'),
+            ('group_user_in_group', 'Verify that a user is in a group'),
+            ('group_remove_user', 'Remove a user from a group'),
+            ('group_groups_list', 'List subgroups of a group'),
+            ('group_add_group', 'Add a subgroup to a group'),
+            ('group_remove_group', 'Remove a subgroup from a group'),
+        )
     
     def __init__(self, *args, **kwargs):
         models.Model.__init__(self, *args, **kwargs)

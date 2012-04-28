@@ -1,6 +1,8 @@
 import base64, httplib
 
 from django.conf import settings
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.test.client import RequestFactory, Client
 from django.test import TestCase
 
@@ -33,7 +35,12 @@ class BasicAuthTests( RestAuthTest ): # GET /users/
 		Service.objects.all().delete()
 	
 	def test_good_credentials( self ):
-		service_create( 'vowi', 'vowi', [ '127.0.0.1', '::1' ] )
+		self.service = service_create( 'vowi', 'vowi', [ '127.0.0.1', '::1' ] )
+		u_ct = ContentType.objects.get(app_label="Users", model="serviceuser")
+		p, c = Permission.objects.get_or_create(codename='users_list', content_type=u_ct,
+                        defaults={'name': 'List all users'})
+		self.service.user_permissions.add(p)
+		
 		self.set_auth( 'vowi', 'vowi' )
 		
 		resp = self.get( '/users/' )

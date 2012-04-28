@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
+import logging, httplib
+
+from django.http import HttpResponseForbidden
 
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
@@ -31,11 +33,17 @@ def index( request ):
 	log_args = {'service': service}
 
 	if request.method == "GET": # get list of users:
+		if not request.user.has_perm('Users.users_list'):
+			return HttpResponseForbidden('a')
+		
 		names = ServiceUser.objects.values_list( 'username', flat=True )
 		
 		logger.debug( "Got list of users", extra=log_args )
 		return HttpRestAuthResponse( request, list( names ) )
 	elif request.method == 'POST': # create new user:
+		if not request.user.has_perm('Users.user_create'):
+			return HttpResponseForbidden('b')
+			
 		# If BadRequest: 400 Bad Request
 		name, password, props = get_dict( request, [u'user'], [u'password', u'properties'] )
 		
@@ -60,12 +68,18 @@ def user_handler( request, username ):
 	log_args = { 'service': service, 'username': username }
 
 	if request.method == 'GET': # Verify that a user exists:
+		if not request.user.has_perm('Users.user_exists'):
+			return HttpResponseForbidden()
+			
 		logger.debug("Check if user exists", extra=log_args)
 		if ServiceUser.objects.filter(username=username).exists():
 			return HttpResponseNoContent() # OK
 		else:
 			raise ServiceUser.DoesNotExist()
 	elif request.method == 'POST': # verify password
+		if not request.user.has_perm('Users.user_verify_password'):
+			return HttpResponseForbidden()
+			
 		# If BadRequest: 400 Bad Request
 		password = get_dict( request, [ u'password' ] )
 		
@@ -82,6 +96,9 @@ def user_handler( request, username ):
 		logger.debug( "Checked password (ok)", extra=log_args )
 		return HttpResponseNoContent() # Ok
 	elif request.method == 'PUT': # Change password
+		if not request.user.has_perm('Users.user_change_password'):
+			return HttpResponseForbidden()
+			
 		# If BadRequest: 400 Bad Request
 		password, = get_dict( request, optional=[ u'password' ] )
 		
@@ -99,6 +116,9 @@ def user_handler( request, username ):
 		logger.info( "Updated password", extra=log_args )
 		return HttpResponseNoContent()
 	elif request.method == 'DELETE': # delete a user:
+		if not request.user.has_perm('Users.user_delete'):
+			return HttpResponseForbidden()
+			
 		# If User.DoesNotExist: 404 Not Found
 		user = ServiceUser.objects.only( 'username' ).get( username=username )
 		
@@ -121,11 +141,17 @@ def userprops_index( request, username ):
 	log_args = { 'service': service, 'username': username}
 	
 	if request.method == 'GET': # get all properties
+		if not request.user.has_perm('Users.props_list'):
+			return HttpResponseForbidden()
+			
 		props = user.get_properties()
 		
 		logger.debug( "Got properties", extra=log_args )
 		return HttpRestAuthResponse( request, props )
 	elif request.method == 'POST': # create property
+		if not request.user.has_perm('Users.prop_create'):
+			return HttpResponseForbidden()
+		
 		# If BadRequest: 400 Bad Request
 		prop, value = get_dict( request, [ u'prop', u'value' ] )
 
@@ -149,6 +175,9 @@ def userprops_prop( request, username, prop ):
 	log_args = { 'service': service, 'username': username, 'prop': prop }
 	
 	if request.method == 'GET': # get value of a property
+		if not request.user.has_perm('Users.prop_get'):
+			return HttpResponseForbidden()
+		
 		# If Property.DoesNotExist: 404 Not Found
 		prop = user.get_property( prop )
 
@@ -156,6 +185,9 @@ def userprops_prop( request, username, prop ):
 		return HttpRestAuthResponse( request, prop.value )
 
 	elif request.method == 'PUT': # Set property
+		if not request.user.has_perm('Users.prop_set'):
+			return HttpResponseForbidden()
+		
 		# If BadRequest: 400 Bad Request
 		value = get_dict( request, [ u'value' ] )
 
@@ -168,6 +200,9 @@ def userprops_prop( request, username, prop ):
 			return HttpResponseCreated( request, prop )
 
 	elif request.method == 'DELETE': # Delete property:
+		if not request.user.has_perm('Users.prop_delete'):
+			return HttpResponseForbidden()
+		
 		# If Property.DoesNotExist: 404 Not Found
 		user.del_property( prop )
 

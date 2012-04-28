@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
+from django.http import HttpResponse, HttpResponseForbidden
+
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.Groups.models import *
 from RestAuth.common.errors import GroupExists
 from RestAuth.common.types import get_dict
 from RestAuth.common.responses import *
-from django.http import HttpResponse
-import logging
-
-from RestAuth.common.decorators import sql_profile
 
 @login_required(realm='/groups/')
 #@sql_profile()
@@ -34,6 +34,9 @@ def index(request):
     log_args = { 'service': service }
 
     if request.method == 'GET' and 'user' in request.GET:
+        if not request.user.has_perm('Groups.groups_for_user'):
+            return HttpResponseForbidden()
+            
         # Get all groups of a user
         username = request.GET['user'].lower()
             
@@ -46,6 +49,9 @@ def index(request):
         logger.debug('Get groups for user %s'%(username), extra=log_args)
         return HttpRestAuthResponse(request, names) # Ok
     elif request.method == 'GET': # Get a list of groups:
+        if not request.user.has_perm('Groups.groups_list'):
+            return HttpResponseForbidden()
+            
         # get all groups for this service
         groups = Group.objects.filter(service=service)
         groups = list(groups.values_list('name', flat=True))
@@ -53,6 +59,9 @@ def index(request):
         logger.debug('Get all groups', extra=log_args)
         return HttpRestAuthResponse(request, groups) # Ok
     elif request.method == 'POST': # Create a group
+        if not request.user.has_perm('Groups.group_create'):
+            return HttpResponseForbidden()
+            
         # If BadRequest: 400 Bad Request
         groupname = get_dict(request, [ u'group' ])
 
@@ -76,9 +85,15 @@ def group_handler(request, groupname):
     group = Group.objects.only('name').get(name=groupname, service=service)
     
     if request.method == 'GET': # Verify that a group exists:
+        if not request.user.has_perm('Groups.group_exists'):
+            return HttpResponseForbidden()
+            
         logger.debug("Check if group exists", extra=log_args)
         return HttpResponseNoContent()
     if request.method == 'DELETE': # Delete group
+        if not request.user.has_perm('Groups.group_delete'):
+            return HttpResponseForbidden()
+            
         group.delete()
         logger.info("Deleted group", extra=log_args)
         return HttpResponseNoContent() # OK
@@ -97,12 +112,18 @@ def group_users_index_handler(request, groupname):
     group = Group.objects.only('name').get(name=groupname, service=service)
 
     if request.method == 'GET': # Get all users in a group
+        if not request.user.has_perm('Groups.group_users'):
+            return HttpResponseForbidden()
+            
         users = group.get_members()
         
         # If MarshalError: 500 Internal Server Error
         logger.debug("Get users in group", extra=log_args)
         return HttpRestAuthResponse(request, list(users))
     elif request.method == 'POST': # Add a user to a group
+        if not request.user.has_perm('Groups.group_add_user'):
+            return HttpResponseForbidden()
+            
         # If BadRequest: 400 Bad Request
         username = get_dict(request, [ u'user' ])
         
@@ -131,12 +152,18 @@ def group_user_handler(request, groupname, username):
     user = ServiceUser.objects.only('username').get(username=username)
     
     if request.method == 'GET': # Verify that a user is in a group
+        if not request.user.has_perm('Groups.group_user_in_group'):
+            return HttpResponseForbidden()
+            
         logger.debug('Check if user is in group', extra=log_args)
         if group.is_member(user):
             return HttpResponseNoContent()
         else:
             raise ServiceUser.DoesNotExist() # 404 Not Found
     elif request.method == 'DELETE': # Remove user from a group
+        if not request.user.has_perm('Groups.group_remove_user'):
+            return HttpResponseForbidden()
+            
         if not group.is_member(user, False):
             raise User.DoesNotExist() # 404 Not Found
 
@@ -157,12 +184,18 @@ def group_groups_index_handler(request, groupname):
     # If Group.DoesNotExist: 404 Not Found
     group = Group.objects.only('name').get(name=groupname, service=service)
     if request.method == 'GET': # get a list of sub-groups
+        if not request.user.has_perm('Groups.group_groups_list'):
+            return HttpResponseForbidden()
+            
         groups = group.groups.filter(service=service).values_list('name', flat=True)
 
         # If MarshalError: 500 Internal Server Error
         logger.debug('Get subgroups', extra=log_args)
         return HttpRestAuthResponse(request, list(groups))
     elif request.method == 'POST': # Add a sub-group:
+        if not request.user.has_perm('Groups.group_add_group'):
+            return HttpResponseForbidden()
+            
         # If BadRequest: 400 Bad Request
         sub_groupname = get_dict(request, [ u'group' ])
         
@@ -189,6 +222,9 @@ def group_groups_handler(request, meta_groupname, sub_groupname):
     sub_group = Group.objects.only('name').get(name=sub_groupname, service=service)
 
     if request.method == 'DELETE': # Remove group from a group
+        if not request.user.has_perm('Groups.group_remove_group'):
+            return HttpResponseForbidden()
+            
         if not meta_group.groups.filter(name=sub_groupname, service=service).exists():
             raise Group.DoesNotExist()
 

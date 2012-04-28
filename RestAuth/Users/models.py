@@ -194,6 +194,7 @@ class ServiceUser(models.Model):
             ('users_list', 'List all users'),
             ('user_create', 'Create a new user'),
             ('user_exists', 'Check if a user exists'),
+            ('user_delete', 'Delete a user'),
             ('user_verify_password', 'Verify a users password'),
             ('user_change_password', 'Change a users password'),
             ('user_delete_password', 'Delete a user'),
