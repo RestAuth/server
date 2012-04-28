@@ -8,9 +8,9 @@ Installing from the AUR website
 -------------------------------
 The RestAuth-Server has the following AUR dependencies
 
-* `python-mimeparse <http://aur.archlinux.org/python-mimeparse>`_
-* `restauth-common-git <http://aur.archlinux.org/restauth-common-git>`_
-* `restauth-server-git <http://aur.archlinux.org/restauth-server-git>`_
+* `python-mimeparse <https://aur.archlinux.org/packages.php?ID=43681>`_
+* `restauth-common-git <https://aur.archlinux.org/packages.php?ID=58846>`_
+* `restauth-server-git <https://aur.archlinux.org/packages.php?ID=58847>`_
 
 To install each of these, follow this guide:
 `AUR | ArchWiki <https://wiki.archlinux.org/index.php/AUR#Installing_packages>`_
