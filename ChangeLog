@@ -16,9 +16,22 @@ RestAuth 0.5.3 (XX XX 20XX)
   * Generated passwords no longer contain whitespace, a backslash, single or double quotes.
   * Fix a bug that broke Service passwords with a colon (':')
   * Most of the code now adheres to python coding standards.
+  * restauth-service now has set-hosts, add-hosts and rm-hosts, which is in line with the new
+    permission system. The 'add' command can no longer add hosts in one step, since the command
+    would be too overloaded.
+  
+  Permissions:
+  * RestAuth now offers a brand-new permission system. Services can only perform the operations they
+    are explicitly configured for. This improves security, because leaked service credentials limit
+    the potential damage an attacker can do.
+  * The permissions are managed with restauth-service. The new commands are set-permissions,
+    add-permissions and rm-permissions.
+  * The available permissions are documented in the man-page for restauth-service and here:
+      https://server.restauth.net/restauth-service.html
   
   build-related:
-  * The 'debian' branch now includes a ready-to-use debian package.
+  * The 'debian' branch now includes a ready-to-use debian package. Several distro-specific
+    branches include packages for older distributions.
   * The new command 'prepare_debian_changelog' updates debian/changelog to the newest version
 
   Users:
