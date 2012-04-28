@@ -31,6 +31,22 @@ from RestAuth.Users import validators
 from RestAuthCommon.error import PreconditionFailed
 from RestAuthCommon import resource_validator
 
+user_permissions = (
+    ('users_list', 'List all users'),
+    ('user_create', 'Create a new user'),
+    ('user_exists', 'Check if a user exists'),
+    ('user_delete', 'Delete a user'),
+    ('user_verify_password', 'Verify a users password'),
+    ('user_change_password', 'Change a users password'),
+    ('user_delete_password', 'Delete a user'),
+)
+prop_permissions = (
+    ('props_list', 'List all properties of a user'),
+    ('prop_create', 'Create a new property'),
+    ('prop_get', 'Get value of a property'),
+    ('prop_set', 'Set or create a property'),
+    ('prop_delete', 'Delete a property'),
+)
 
 def user_get( name ):
 	"""
@@ -190,15 +206,7 @@ class ServiceUser(models.Model):
 
 
     class Meta:
-        permissions = (
-            ('users_list', 'List all users'),
-            ('user_create', 'Create a new user'),
-            ('user_exists', 'Check if a user exists'),
-            ('user_delete', 'Delete a user'),
-            ('user_verify_password', 'Verify a users password'),
-            ('user_change_password', 'Change a users password'),
-            ('user_delete_password', 'Delete a user'),
-        )
+        permissions = user_permissions
         
 
     def __init__(self, *args, **kwargs):
@@ -347,13 +355,7 @@ class Property(models.Model):
 
     class Meta:
         unique_together = ('user', 'key')
-        permissions = (
-            ('props_list', 'List all properties of a user'),
-            ('prop_create', 'Create a new property'),
-            ('prop_get', 'Get value of a property'),
-            ('prop_set', 'Set or create a property'),
-            ('prop_delete', 'Delete a property'),
-        )
+        permissions = prop_permissions
 
     def __unicode__(self): # pragma: no cover
         return "%s: %s=%s"%(self.user.username, self.key, self.value)
