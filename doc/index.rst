@@ -53,6 +53,7 @@ Getting started
 .. toctree::
    :maxdepth: 1
 
+   config/quickstart
    config/restauth
    config/webserver
    config/database
