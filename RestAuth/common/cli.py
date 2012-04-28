@@ -45,10 +45,10 @@ perms = ', '.join(permission_list)
 ### Various positional arguments ###
 ####################################
 service_arg_parser = ArgumentParser(add_help=False)
-service_arg_parser.add_argument('service', metavar="SERVICE", help="The name of the service.")
+service_arg_parser.add_argument('service', metavar="SERVICE", help="The name of the service.", nargs=1)
 
 permission_arg_parser = ArgumentParser(add_help=False)
-permission_arg_parser.add_argument('--permissions', metavar='PERM', nargs='*',
+permission_arg_parser.add_argument('permissions', metavar='PERM', nargs='*',
     help="""Add permissions to this service. If no permissions are defined, this service will not be
         able to perform any request. Possible permissions are: %s""" % perms)
 
@@ -79,7 +79,7 @@ service_parser = ArgumentParser(description=service_desc)
 service_subparsers = service_parser.add_subparsers(title="Available actions", dest='action',
     description="""Use '%(prog)s action --help' for more help on each action.""")
 service_subparsers.add_parser('add', help="Add a new service.",  description="Add a new service.",
-    parents=[service_arg_parser, host_arg_parser, pwd_parser, permission_arg_parser])
+    parents=[pwd_parser, service_arg_parser])
 service_subparsers.add_parser('ls', help="List all services.",
     description="""List all available services.""")
 service_subparsers.add_parser('rm', help="Remove a service.", parents=[service_arg_parser],
@@ -87,19 +87,41 @@ service_subparsers.add_parser('rm', help="Remove a service.", parents=[service_a
 that service.""")
 service_subparsers.add_parser('view', help="View details of a service.", parents=[service_arg_parser],
     description="View details of a service.")
-service_subparsers.add_parser('set-hosts', parents=[service_arg_parser, host_arg_parser],
-    help="Set hosts that a service can connect from.",
+
+subparser = service_subparsers.add_parser('set-hosts', parents=[service_arg_parser],
+    help="Set hosts that a service can connect from, removes any previous hosts.",
     description="Set hosts that a service can connect from.")
+subparser.add_argument('hosts', metavar='HOST', nargs='*',
+    help='''Hosts that this service is able to connect from.
+        Note: This must be an IPv4 or IPv6 address, NOT a hostname.''')
+subparser = service_subparsers.add_parser('add-hosts', parents=[service_arg_parser],
+    help="Add hosts that a service can connect from.",
+    description="Add hosts that a service can connect from.")
+subparser.add_argument('hosts', metavar='HOST', nargs='+',
+    help='''Add hosts that this service is able to connect from.
+        Note: This must be an IPv4 or IPv6 address, NOT a hostname.''')
+subparser = service_subparsers.add_parser('rm-hosts', parents=[service_arg_parser],
+    help="Remove hosts that a service can connect from.",
+    description="Set hosts that a service can connect from.")
+subparser.add_argument('hosts', metavar='HOST', nargs='+',
+    help='''Remove hosts that this service is able to connect from.
+        Note: This must be an IPv4 or IPv6 address, NOT a hostname.''')
+
 service_subparsers.add_parser('set-password', parents=[service_arg_parser, pwd_parser],
     help="Set the password for a service.", description="Set the password for a service.")
-subparser = service_subparsers.add_parser('add-permissions', parents=[service_arg_parser])
+subparser = service_subparsers.add_parser('add-permissions', parents=[service_arg_parser],
+    help="Add permissions to a service.",
+    description="Add permissions to a service.")
 subparser.add_argument('permissions', metavar='PERM', nargs='+',
     help="Permissions to add to the specified service. Possible permissions are: %s" % perms)
-subparser = service_subparsers.add_parser('rm-permissions', parents=[service_arg_parser])
+subparser = service_subparsers.add_parser('rm-permissions', parents=[service_arg_parser],
+    help="Remove permissions from a service.",
+    description="Remove permissions from a service.")
 subparser.add_argument('permissions', metavar='PERM', nargs='+',
     help="Permissions to remove from the specified service. Possible permissions are: %s" % perms)
 subparser = service_subparsers.add_parser('set-permissions', parents=[service_arg_parser],
-    epilog='foo.\n\nfoobar.')
+    help="Set permissions of a service, removes any previous permissions.",
+    description="Set permissions of a service, removes any previous permissions.")
 subparser.add_argument('permissions', metavar='PERM', nargs='*',
     help="Set the permissions of the specified service. Possible permissions are: %s" % perms)
 
