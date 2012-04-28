@@ -31,7 +31,7 @@ from RestAuth.common.responses import *
 def index(request):
     service = request.user
     logger = logging.getLogger('groups')
-    log_args = { 'service': service }
+    log_args = {'service': service}
 
     if request.method == 'GET' and 'user' in request.GET:
         if not request.user.has_perm('Groups.groups_for_user'):

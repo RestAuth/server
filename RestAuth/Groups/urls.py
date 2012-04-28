@@ -17,11 +17,11 @@
 
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns( 'RestAuth.Groups.views',
-        (r'^$', 'index'),
-	(r'^(?P<groupname>[^/]+)/$', 'group_handler' ),
-	(r'^(?P<groupname>[^/]+)/users/$', 'group_users_index_handler' ),
-	(r'^(?P<groupname>[^/]+)/users/(?P<username>[^/]+)/$', 'group_user_handler' ),
-	(r'^(?P<groupname>[^/]+)/groups/$', 'group_groups_index_handler' ),
-	(r'^(?P<meta_groupname>[^/]+)/groups/(?P<sub_groupname>[^/]+)/$', 'group_groups_handler' ),
+urlpatterns = patterns('RestAuth.Groups.views',
+    (r'^$', 'index'),
+    (r'^(?P<groupname>[^/]+)/$', 'group_handler' ),
+    (r'^(?P<groupname>[^/]+)/users/$', 'group_users_index_handler' ),
+    (r'^(?P<groupname>[^/]+)/users/(?P<username>[^/]+)/$', 'group_user_handler' ),
+    (r'^(?P<groupname>[^/]+)/groups/$', 'group_groups_index_handler' ),
+    (r'^(?P<meta_groupname>[^/]+)/groups/(?P<sub_groupname>[^/]+)/$', 'group_groups_handler' ),
 )
