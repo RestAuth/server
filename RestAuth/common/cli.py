@@ -18,6 +18,9 @@
 from argparse import ArgumentParser, Action
 import argparse, re, sys, random, string
 
+from RestAuth.Users.models import user_permissions, prop_permissions
+from RestAuth.Groups.models import group_permissions
+
 class PasswordGenerator(Action):
     def __call__(self, parser, namespace, values, option_string):
         chars = string.digits + string.letters + string.punctuation
@@ -33,6 +36,11 @@ pwd_group.add_argument('--password', dest='pwd', metavar='PWD', help="The passwo
 pwd_group.add_argument('--gen-password', action=PasswordGenerator, nargs=0, dest='pwd',
     help="Generate a password and print it to stdout.")
 
+permission_list = [p[0] for p in user_permissions] +\
+    [p[0] for p in prop_permissions] +\
+    [p[0] for p in group_permissions]
+perms = ', '.join(permission_list)
+
 ####################################
 ### Various positional arguments ###
 ####################################
@@ -42,7 +50,7 @@ service_arg_parser.add_argument('service', metavar="SERVICE", help="The name of 
 permission_arg_parser = ArgumentParser(add_help=False)
 permission_arg_parser.add_argument('--permissions', metavar='PERM', nargs='*',
     help="""Add permissions to this service. If no permissions are defined, this service will not be
-        able to perform any request. Possible permissions are: TODO.""")
+        able to perform any request. Possible permissions are: %s""" % perms)
 
 host_arg_parser = ArgumentParser(add_help=False)
 host_arg_parser.add_argument('hosts', metavar='HOST', nargs='*', help="""A host that the service is able to
@@ -86,13 +94,14 @@ service_subparsers.add_parser('set-password', parents=[service_arg_parser, pwd_p
     help="Set the password for a service.", description="Set the password for a service.")
 subparser = service_subparsers.add_parser('add-permissions', parents=[service_arg_parser])
 subparser.add_argument('permissions', metavar='PERM', nargs='+',
-    help="Permissions to add to the specified service. Possible permissions are: TODO")
+    help="Permissions to add to the specified service. Possible permissions are: %s" % perms)
 subparser = service_subparsers.add_parser('rm-permissions', parents=[service_arg_parser])
 subparser.add_argument('permissions', metavar='PERM', nargs='+',
-    help="Permissions to remove from the specified service. Possible permissions are: TODO")
-subparser = service_subparsers.add_parser('set-permissions', parents=[service_arg_parser])
+    help="Permissions to remove from the specified service. Possible permissions are: %s" % perms)
+subparser = service_subparsers.add_parser('set-permissions', parents=[service_arg_parser],
+    epilog='foo.\n\nfoobar.')
 subparser.add_argument('permissions', metavar='PERM', nargs='*',
-    help="Set the permissions of the specified service. Possible permissions are: TODO")
+    help="Set the permissions of the specified service. Possible permissions are: %s" % perms)
 
 
 ############################
