@@ -110,7 +110,8 @@ class ServiceHostTests(TestCase):
         hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in addresses]
         self.assertIsNone(self.service.set_hosts(hosts))
         # Warning: using assertItemsEqual fails in python2.6 in the next line
-        self.assertEqual(sorted(self.get_service().hosts.all()), sorted(hosts))
+        self.assertEqual(sorted(self.get_service().hosts.values_list('address', flat=True)),
+                         sorted(addresses))
     
     def test_verify_host(self):
         hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in ['127.0.0.1', '::1']]
