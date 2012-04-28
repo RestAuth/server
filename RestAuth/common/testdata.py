@@ -66,10 +66,10 @@ propval4 = u"propval \u6154"
 propval5 = u"propval \u6155"
 
 
-class RestAuthTest( TransactionTestCase ):
+class RestAuthTest(TransactionTestCase):
     def setUp(self):
-        if hasattr( self, 'settings' ): # requires django-1.4:
-            self.settings( LOGGING_CONFIG=None )
+        if hasattr(self, 'settings'): # requires django-1.4:
+            self.settings(LOGGING_CONFIG=None)
         
         self.c = Client()
         self.handler = RestAuthCommon.handlers.json()
@@ -78,7 +78,7 @@ class RestAuthTest( TransactionTestCase ):
             'REMOTE_USER': 'vowi',
             'content_type': self.handler.mime,
         }
-        self.service = service_create( 'vowi', 'vowi', [ '127.0.0.1', '::1' ] )
+        self.service = service_create('vowi', 'vowi', [ '127.0.0.1', '::1' ])
         
         # add permissions:
         u_ct = ContentType.objects.get(app_label="Users", model="serviceuser")
@@ -102,21 +102,21 @@ class RestAuthTest( TransactionTestCase ):
             self.service.user_permissions.add(p)
         
    
-    def get( self, url, data={} ):
-        return self.c.get( url, data, **self.extra)
+    def get(self, url, data={}):
+        return self.c.get(url, data, **self.extra)
     
-    def post( self, url, data ):
-        post_data = self.handler.marshal_dict( data )
-        return self.c.post( url, post_data, **self.extra )
+    def post(self, url, data):
+        post_data = self.handler.marshal_dict(data)
+        return self.c.post(url, post_data, **self.extra)
     
-    def put( self, url, data ):
-        data = self.handler.marshal_dict( data )
-        return self.c.put( url, data, **self.extra )
+    def put(self, url, data):
+        data = self.handler.marshal_dict(data)
+        return self.c.put(url, data, **self.extra)
     
-    def delete( self, url ):
-        return self.c.delete( url, **self.extra )
+    def delete(self, url):
+        return self.c.delete(url, **self.extra)
     
-    def parse( self, response, typ ):
-        body = response.content.decode( 'utf-8' )
-        func = getattr( self.handler, 'unmarshal_%s'%typ )
-        return func( body )
+    def parse(self, response, typ):
+        body = response.content.decode('utf-8')
+        func = getattr(self.handler, 'unmarshal_%s'%typ)
+        return func(body)
