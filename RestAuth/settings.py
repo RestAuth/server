@@ -42,27 +42,27 @@ LOG_HANDLER_KWARGS = {}
 LOG_LEVEL = 'ERROR'
 
 MIDDLEWARE_CLASSES = [
-	'django.middleware.common.CommonMiddleware',
-	'RestAuth.common.middleware.ExceptionMiddleware',
-	'RestAuth.common.middleware.HeaderMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'RestAuth.common.middleware.ExceptionMiddleware',
+    'RestAuth.common.middleware.HeaderMiddleware',
 ]
 
 CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = 'restauth'
 
 INSTALLED_APPS = (
-	'django.contrib.auth',
-	'django.contrib.contenttypes',
-	'RestAuth.Services',
-	'RestAuth.Users',
-	'RestAuth.Groups',
-	'RestAuth.Test',
-	'RestAuth.common',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'RestAuth.Services',
+    'RestAuth.Users',
+    'RestAuth.Groups',
+    'RestAuth.Test',
+    'RestAuth.common',
 )
 
 AUTHENTICATION_BACKENDS = (
-	'django.contrib.auth.backends.RemoteUserBackend',
-	'RestAuth.Services.backend.InternalAuthenticationBackend',
+    'django.contrib.auth.backends.RemoteUserBackend',
+    'RestAuth.Services.backend.InternalAuthenticationBackend',
 )
 
 #############################################
@@ -74,175 +74,175 @@ MAX_USERNAME_LENGTH = 255
 MIN_PASSWORD_LENGTH = 6
 HASH_ALGORITHM = 'sha512'
 HASH_FUNCTIONS = [
-	'RestAuth.Users.hashes.mediawiki',
-	'RestAuth.Users.hashes.crypt',
-	'RestAuth.Users.hashes.apr1',
+    'RestAuth.Users.hashes.mediawiki',
+    'RestAuth.Users.hashes.crypt',
+    'RestAuth.Users.hashes.apr1',
 ]
 VALIDATORS = []
 
 try:
-	from localsettings import *
+    from localsettings import *
 except ImportError:
-	pass
+    pass
 
 if not LOGGING:
-	LOGGING = {
-		'version': 1,
-		'disable_existing_loggers': True,
-		'formatters': {
-			'general': {
-				'format': '%(levelname)s: %(message)s'
-			},
-			'users': {
-				'format': '%(levelname)s %(service)s: %(message)s'
-			},
-			'users.user': { 
-				'format': '%(levelname)s %(service)s: %(username)s: %(message)s'
-			},
-			'users.user.props.prop': { 
-				'format': '%(levelname)s %(service)s: %(username)s: %(prop)s: %(message)s'
-			},
-			'groups': {
-				'format': '%(levelname)s %(service)s: %(message)s'
-			},
-			'groups.group' : {
-				'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
-			},
-			'groups.group.users' : {
-				'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
-			},
-			'groups.group.users.user' : {
-				'format': '%(levelname)s %(service)s: %(group)s: %(user)s: %(message)s'
-			},
-			'groups.group.groups' : {
-				'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
-			},
-			'groups.group.groups.subgroup' : {
-				'format': '%(levelname)s %(service)s: %(group)s: %(subgroup)s: %(message)s'
-			},
-		},
-		'handlers': {
-			'general':{
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'general'
-			},
-			'users':{
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'users'
-			},
-			'users.user':{
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'users.user'
-			},
-			'users.user.props.prop':{
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'users.user.props.prop'
-			},
-			'groups':{
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'groups'
-			},
-			'groups.group': {
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'groups.group'
-			},
-			'groups.group.users': {
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'groups.group.users'
-			},
-			'groups.group.users.user': {
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'groups.group.users.user'
-			},
-			'groups.group.groups': {
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'groups.group.groups'
-			},
-			'groups.group.groups.subgroup': {
-				'level': LOG_LEVEL,
-				'class': LOG_HANDLER,
-				'formatter': 'groups.group.groups.subgroup'
-			}
-		},
-		'loggers': {
-			'general': {
-				'handlers':['general'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			},
-			'users': {
-				'handlers':['users'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			},
-			'users.user': {
-				'handlers':['users.user'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			},
-			'users.user.props': { # we have no additional info here!
-				'handlers':['users.user'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			},
-			'users.user.props.prop': {
-				'handlers':['users.user.props.prop'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			},
-			'groups': {
-				'handlers':['groups'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			},
-			'groups.group': {
-				'handlers':['groups.group'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			},
-			'groups.group.users': {
-				'handlers':['groups.group.users'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			},
-			'groups.group.users.user': {
-				'handlers':['groups.group.users.user'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			},
-			'groups.group.groups': {
-				'handlers':['groups.group.groups'],
-				'propagate': False,
-			'level': LOG_LEVEL,
-			},
-			'groups.group.groups.subgroup': {
-				'handlers':['groups.group.groups.subgroup'],
-				'propagate': False,
-				'level': LOG_LEVEL,
-			}
-		}
-	}
-	
-	if LOG_HANDLER_KWARGS:
-		for handler in LOGGING['handlers'].values():
-			handler.update( LOG_HANDLER_KWARGS )
-	
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': True,
+        'formatters': {
+            'general': {
+                'format': '%(levelname)s: %(message)s'
+            },
+            'users': {
+                'format': '%(levelname)s %(service)s: %(message)s'
+            },
+            'users.user': { 
+                'format': '%(levelname)s %(service)s: %(username)s: %(message)s'
+            },
+            'users.user.props.prop': { 
+                'format': '%(levelname)s %(service)s: %(username)s: %(prop)s: %(message)s'
+            },
+            'groups': {
+                'format': '%(levelname)s %(service)s: %(message)s'
+            },
+            'groups.group' : {
+                'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+            },
+            'groups.group.users' : {
+                'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+            },
+            'groups.group.users.user' : {
+                'format': '%(levelname)s %(service)s: %(group)s: %(user)s: %(message)s'
+            },
+            'groups.group.groups' : {
+                'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+            },
+            'groups.group.groups.subgroup' : {
+                'format': '%(levelname)s %(service)s: %(group)s: %(subgroup)s: %(message)s'
+            },
+        },
+        'handlers': {
+            'general':{
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'general'
+            },
+            'users':{
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'users'
+            },
+            'users.user':{
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'users.user'
+            },
+            'users.user.props.prop':{
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'users.user.props.prop'
+            },
+            'groups':{
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'groups'
+            },
+            'groups.group': {
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'groups.group'
+            },
+            'groups.group.users': {
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'groups.group.users'
+            },
+            'groups.group.users.user': {
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'groups.group.users.user'
+            },
+            'groups.group.groups': {
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'groups.group.groups'
+            },
+            'groups.group.groups.subgroup': {
+                'level': LOG_LEVEL,
+                'class': LOG_HANDLER,
+                'formatter': 'groups.group.groups.subgroup'
+            }
+        },
+        'loggers': {
+            'general': {
+                'handlers':['general'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            },
+            'users': {
+                'handlers':['users'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            },
+            'users.user': {
+                'handlers':['users.user'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            },
+            'users.user.props': { # we have no additional info here!
+                'handlers':['users.user'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            },
+            'users.user.props.prop': {
+                'handlers':['users.user.props.prop'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            },
+            'groups': {
+                'handlers':['groups'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            },
+            'groups.group': {
+                'handlers':['groups.group'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            },
+            'groups.group.users': {
+                'handlers':['groups.group.users'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            },
+            'groups.group.users.user': {
+                'handlers':['groups.group.users.user'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            },
+            'groups.group.groups': {
+                'handlers':['groups.group.groups'],
+                'propagate': False,
+            'level': LOG_LEVEL,
+            },
+            'groups.group.groups.subgroup': {
+                'handlers':['groups.group.groups.subgroup'],
+                'propagate': False,
+                'level': LOG_LEVEL,
+            }
+        }
+    }
+    
+    if LOG_HANDLER_KWARGS:
+        for handler in LOGGING['handlers'].values():
+            handler.update( LOG_HANDLER_KWARGS )
+    
 if ENABLE_SESSIONS:
-	index = MIDDLEWARE_CLASSES.index( 'django.middleware.common.CommonMiddleware' ) + 1
-	MIDDLEWARE_CLASSES.insert( index,
-		'django.contrib.auth.middleware.AuthenticationMiddleware' )
-	MIDDLEWARE_CLASSES.insert( index,
-		'django.contrib.sessions.middleware.SessionMiddleware' )
+    index = MIDDLEWARE_CLASSES.index( 'django.middleware.common.CommonMiddleware' ) + 1
+    MIDDLEWARE_CLASSES.insert( index,
+        'django.contrib.auth.middleware.AuthenticationMiddleware' )
+    MIDDLEWARE_CLASSES.insert( index,
+        'django.contrib.sessions.middleware.SessionMiddleware' )
 
 if CACHES:
-	MIDDLEWARE_CLASSES.insert( 0, 'django.middleware.cache.UpdateCacheMiddleware' )
-	MIDDLEWARE_CLASSES.append( 'django.middleware.cache.FetchFromCacheMiddleware' )
+    MIDDLEWARE_CLASSES.insert( 0, 'django.middleware.cache.UpdateCacheMiddleware' )
+    MIDDLEWARE_CLASSES.append( 'django.middleware.cache.FetchFromCacheMiddleware' )
