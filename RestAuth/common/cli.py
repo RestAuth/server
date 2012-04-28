@@ -45,7 +45,7 @@ perms = ', '.join(permission_list)
 ### Various positional arguments ###
 ####################################
 service_arg_parser = ArgumentParser(add_help=False)
-service_arg_parser.add_argument('service', metavar="SERVICE", help="The name of the service.", nargs=1)
+service_arg_parser.add_argument('service', metavar="SERVICE", help="The name of the service.")
 
 permission_arg_parser = ArgumentParser(add_help=False)
 permission_arg_parser.add_argument('permissions', metavar='PERM', nargs='*',

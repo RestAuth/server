@@ -17,7 +17,8 @@
 
 from django.db import models
 from django.db.utils import IntegrityError
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 
 class ServiceUsernameNotValid(BaseException):
     pass
@@ -36,8 +37,8 @@ def service_create(name, password, addresses=[]):
     service.set_password(password)
     service.save()
 
-    if addresses:
-        service.set_hosts(addresses)
+    hosts = [ServiceAddress.objects.get_or_create(address=address)[0] for address in addresses]
+    service.set_hosts(hosts)
         
     return service
 
@@ -62,20 +63,22 @@ class Service(User):
         else: 
             return False
 
-    def set_hosts(self, addresses=[]):
+    def set_hosts(self, hosts):
         self.hosts.clear()
+        self.hosts.add(*hosts)
 
-        for addr in addresses:
-            self.add_host(addr)
+    def add_hosts(self, hosts):
+        self.hosts.add(*hosts)
 
-    def add_host(self, address):
-        addr = ServiceAddress.objects.get_or_create(address=address)[0]
-        self.hosts.add(addr)
+    def del_hosts(self, hosts):
+        self.hosts.remove(*hosts)
 
-    def del_host(self, address):
-        try:
-            host = ServiceAddress.objects.get(address=address)
-            self.hosts.remove(host)
-        except ServiceAddress.DoesNotExist:
-            pass
-
+    def add_permissions(self, permissions):
+        self.user_permissions.add(*permissions)
+    
+    def rm_permissions(self, permissions):
+        self.user_permissions.remove(*permissions)
+    
+    def set_permissions(self, permissions):
+        self.user_permissions.clear()
+        self.user_permissions.add(*permissions)
