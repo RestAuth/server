@@ -13,7 +13,7 @@ Package: restauth
 Architecture: all
 Section: web
 Depends: python-django (>= 1.3), python (>= 2.6), ${python:Depends}, ${misc:Depends}, 
- python-restauth-common | restauth-common (>= 0.5.1), python-mimeparse, python-argparse, adduser,
+ python-restauth-common, python-mimeparse, python-argparse, adduser,
  libjs-jquery, libjs-underscore
 Description: service for managing shared authentication, authorization and preferences
  A RestAuth service can manage shared user authentication, authorization and
