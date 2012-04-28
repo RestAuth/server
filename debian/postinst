@@ -22,6 +22,9 @@ case "$1" in
 	
 	key=$(cat /dev/urandom | base64 | head -n 1 | sed 's/\//\\\//g')
 	sed -i "s/__SECRET_KEY__/$key/" $SETTINGS
+
+	# touch wsgi script to cause reloading of webserver:
+	touch /usr/share/restauth/wsgi/restauth
 	;;
 esac
 
