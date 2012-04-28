@@ -25,6 +25,10 @@ import re, os, sys, time, glob, shutil, argparse
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
+    
+from RestAuth.common import cli
+from RestAuth.Users.models import user_permissions, prop_permissions
+from RestAuth.Groups.models import group_permissions
 
 LATEST_RELEASE = '0.5.2'
 
@@ -117,7 +121,6 @@ class build_doc_meta(Command):
         Command.__init__(self, *args, **kwargs)
         
         # generate files for cli-scripts:
-        from RestAuth.common import cli
         cli.service_parser.prog = 'restauth-service'
         cli.user_parser.prog = 'restauth-user'
         cli.group_parser.prog = 'restauth-group'
@@ -140,6 +143,11 @@ class build_doc_meta(Command):
                 cli.write_commands(parser, 'doc/gen/%s-commands.rst'%name, name)
             if self.should_generate(cli.__file__, 'doc/gen/%s-parameters.rst'%name):
                 cli.write_parameters(parser, 'doc/gen/%s-parameters.rst'%name, name)
+        
+        # generate permissions:
+        self.write_perm_table('users', user_permissions)
+        self.write_perm_table('properties', prop_permissions)
+        self.write_perm_table('groups', group_permissions)
                 
         pythonpath = os.environ.get('PYTHONPATH')
         if pythonpath:
@@ -153,6 +161,27 @@ class build_doc_meta(Command):
         version = get_version()
         os.environ['SPHINXOPTS'] = '-D release=%s -D version=%s'%(version, version)
         os.environ['RESTAUTH_LATEST_RELEASE'] = LATEST_RELEASE
+        
+    def write_perm_table(self, suffix, perms):
+        f = open('doc/gen/restauth-service-permissions-%s.rst' % suffix, 'w')
+        
+        col_1_header = 'permission'
+        col_2_header = 'description'
+        
+        col_1_length = max([len(x) for x, y in perms] + [len(col_1_header)])
+        col_2_length = max([len(y) for x, y in perms] + [len(col_2_header)])
+        f.write('%s %s\n' % ('=' * col_1_length, '=' * col_2_length))
+        f.write('%s ' % col_1_header.ljust(col_1_length, ' '))
+        f.write('%s\n' % col_2_header.ljust(col_2_length, ' '))
+        f.write('%s %s\n' % ('=' * col_1_length, '=' * col_2_length))
+        
+        for codename, name in perms:
+            f.write('%s ' % codename.ljust(col_1_length, ' '))
+            f.write('%s\n' % name.ljust(col_2_length, ' '))
+            
+        f.write('%s %s\n' % ('=' * col_1_length, '=' * col_2_length))
+        
+        f.close()
         
     def should_generate(self, source, generated):
         if not os.path.exists(generated):
