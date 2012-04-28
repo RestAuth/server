@@ -114,6 +114,10 @@ The following subsections never document the '-h' parameter for clarity.
 Available permissions
 ---------------------
 
+A service can have zero or more permissions. There is a permission available for each operation
+available via the RestAuth protocol. If a service has now permissions, you will not be able to
+perform any operations.
+
 Handling users
 ^^^^^^^^^^^^^^
 
