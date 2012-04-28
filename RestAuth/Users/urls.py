@@ -18,8 +18,8 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns( 'RestAuth.Users.views',
-        (r'^$', 'index'),
-	(r'^(?P<username>[^/]+)/$', 'user_handler' ),
-	(r'^(?P<username>[^/]+)/props/$', 'userprops_index' ),
-	(r'^(?P<username>[^/]+)/props/(?P<prop>.+)/$', 'userprops_prop' ),
+    (r'^$', 'index'),
+    (r'^(?P<username>[^/]+)/$', 'user_handler' ),
+    (r'^(?P<username>[^/]+)/props/$', 'userprops_index' ),
+    (r'^(?P<username>[^/]+)/props/(?P<prop>.+)/$', 'userprops_prop' ),
 )
