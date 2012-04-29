@@ -62,11 +62,9 @@ Examples
    Add the service *example.com* and prompt for a password.
 
    
-.. example:: **restauth-service add -**\ **-gen-password** *example.com* *127.0.0.1* *::1*
+.. example:: **restauth-service add -**\ **-gen-password** *example.com*
 
-   Add the service *example.com* and associate *127.0.0.1* and *::1* with it.
-   Also generate a password and print it to stdout, so it can be used for
-   configuration of the actual service
+   Add the service *example.com* and print a generated password to stdout.
 
 .. example:: **restauth-service ls**
 
@@ -85,6 +83,14 @@ Examples
 
    Enable the service *example.com* for the hosts *192.168.0.1* *192.168.0.2*.
    Note that this removes any previously configured hosts.
+   
+.. example:: **restauth-service set-permissions** *example.com* *user\**
+
+   Specify that the service *example.com* is allowed to perform all user operations.
+   
+.. example:: **restauth-service rm-permissions** *example.com* *user_delete*
+
+   Specify that the service *example.com* is **not** allowed to delete users.
 
 .. example:: **restauth-service remove** *example.com*
 
@@ -98,7 +104,7 @@ A typical workflow for adding a service is::
    restauth-service set-permissions user_verify_password user_change_password
    
 Please see the :ref:`available permissions <service-available-permissions>` below for a full
-reference.
+reference on what permissions can be configured.
 
 .. _service-available-commands:
 
@@ -115,7 +121,7 @@ Available permissions
 ---------------------
 
 A service can have zero or more permissions. There is a permission available for each operation
-available via the RestAuth protocol. If a service has now permissions, you will not be able to
+available via the RestAuth protocol. If a service has no permissions, you will not be able to
 perform any operations.
 
 Handling users

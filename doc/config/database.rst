@@ -16,7 +16,7 @@ Creating a database
    document. If in doubt, always consult the official documentation of your database system.
 
 .. WARNING:: RestAuth requires a database with transactional support. Most notably, the MyISAM MySQL
-   storage engine (which is the default on many systems, does **not** support transactions. Please
+   storage engine (which is the default on many systems), does **not** support transactions. Please
    use InnoDB instead.
 
 MySQL
