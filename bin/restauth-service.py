@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, getpass
+import os, sys, getpass, fnmatch
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -58,24 +58,27 @@ def parse_permissions(raw_permissions):
     
     permissions = []
     for raw_permission in raw_permissions:
-        if raw_permission in user_permissions_dict:
+        for codename in fnmatch.filter(user_permissions_dict.keys(), raw_permission):
             perm, c = Permission.objects.get_or_create(
-                content_type=user_ct, codename=raw_permission,
-                defaults={'name': user_permissions_dict[raw_permission]}
+                content_type=user_ct, codename=codename,
+                defaults={'name': user_permissions_dict[codename]}
             )
-        elif raw_permission in prop_permissions_dict:
+            permissions.append(perm)
+            
+        for codename in fnmatch.filter(prop_permissions_dict.keys(), raw_permission):
             perm, c = Permission.objects.get_or_create(
-                content_type=prop_ct, codename=raw_permission,
-                defaults={'name': prop_permissions_dict[raw_permission]}
+                content_type=prop_ct, codename=codename,
+                defaults={'name': prop_permissions_dict[codename]}
             )
-        elif raw_permission in group_permissions_dict:
+            permissions.append(perm)
+        
+        for codename in fnmatch.filter(group_permissions_dict.keys(), raw_permission):
             perm, c = Permission.objects.get_or_create(
-                content_type=group_ct, codename=raw_permission,
-                defaults={'name': group_permissions_dict[raw_permission]}
+                content_type=group_ct, codename=codename,
+                defaults={'name': group_permissions_dict[codename]}
             )
-        else:
-            raise RuntimeError('Unknown permission.')
-        permissions.append(perm)
+            permissions.append(perm)
+        
     return permissions
 
 if args.action in ['create', 'add']:
@@ -158,7 +161,7 @@ elif args.action == 'add-permissions':
     try:
         service = Service.objects.get(username=args.service)
         perms = parse_permissions(args.permissions)
-        service.set_permissions(perms)
+        service.add_permissions(perms)
     except Service.DoesNotExist:
         print("Error: %s: Service not found." % args.service)
         sys.exit(1)
