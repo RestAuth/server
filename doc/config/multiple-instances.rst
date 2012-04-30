@@ -10,14 +10,14 @@ page is dedicated to documenting (known) configuration tips regarding this probl
 General introduction
 ====================
 
-The only thing that really needs to differ from instance is the database.
+The only thing that really needs to differ from instance to instance is the database.
 
-If two instances access
-the same database, they effectively become the same instance. You could imagine different scenarios,
-like one instance requiring a minimum password length of 10 characters and another instance
-requiring a minimum password length of 12 characters, but that makes little sense. If you desire
-such a setup, you can still use any of the following chapters, but examples are based on the
-assumption that you want a different database setup.
+If two instances access the same database, they effectively become the same instance with possibly
+different configuration. You could imagine exotic different scenarios, like one instance requiring a
+minimum password length of 10 characters and another instance requiring a minimum password length of
+12 characters, but they makes little sense. If you desire such a setup, you can still use any of the
+following chapters, but examples are based on the assumption that you want a different database
+setup.
 
 .. _config_multiple_instances_sni:
 
@@ -106,7 +106,7 @@ host that the client accesses. To configure different databases, the file might 
                DATABASE_PORT = '',
            }
        }
-   elif RESTAUTH_HOST == 'auth.example.org':
+   else: # auth.example.org is the default
        DATABASES = {
            'default': {
                'ENGINE': 'mysql',
@@ -117,8 +117,6 @@ host that the client accesses. To configure different databases, the file might 
                'PORT': '',
            }
        }
-   else:
-       raise RuntimeError( 'Unknown RESTAUTH_HOST configured' )
        
 In this example, :samp:`auth.example.org` uses a PostgreSQL database and :samp:`auth.example.com`
 uses a MySQL database. You can use this setup to set **any other setting** based on the hostname.
@@ -181,3 +179,22 @@ location as :file:`settings.py`. Each file might look like this:
 
 You can now configure each instance separately. The file :file:`localsettings.py` is still included
 in :file:`settings.py`, so you can use it to share settings for every instance.
+
+Access different hosts via command line
+=======================================
+
+To access the different RestAuth instances via our command-line tools (:doc:`/restauth-service`,
+:doc:`/restauth-user`, :doc:`/restauth-group` and :doc:`/restauth-import`), you simply have to set
+the correct environment variables on the command line first:
+
+.. code-block:: bash
+
+    user@host ~ $ restauth-service ls # will access auth.example.org
+    user@host ~ $ export RESTAUTH_HOST=auth.example.com
+    user@host ~ $ restauth-service ls # will access auth.example.com
+
+... of course, you can still configure this on a per-command basis:
+
+.. code-block:: bash
+
+    user@host ~ $ RESTAUTH_HOST=auth.example.com restauth-service ls
