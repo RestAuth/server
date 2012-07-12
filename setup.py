@@ -25,6 +25,8 @@ import re, os, sys, time, glob, shutil, argparse
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
+
+from django.core.management import call_command
     
 from RestAuth.common import cli
 from RestAuth.Users.models import user_permissions, prop_permissions
@@ -240,7 +242,6 @@ class test(Command):
     def finalize_options(self):
         pass
     def run(self):
-        from django.core.management import call_command
         call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common')
 
 class coverage(Command):
@@ -275,7 +276,6 @@ class coverage(Command):
                     omit=['*tests.py', '*testdata.py', '*settings.py'])
         cov.start()
         
-        from django.core.management import call_command
         call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common')
         
         cov.stop()
@@ -289,7 +289,6 @@ class testserver(Command):
     def finalize_options(self): pass
     
     def run(self):
-        from django.core.management import call_command
         call_command('testserver', 'RestAuth/fixtures/testserver.json', use_ipv6=True)
 
 class prepare_debian_changelog(Command):
