@@ -26,7 +26,11 @@ import re, os, sys, time, glob, shutil, argparse
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 
-from django.core.management import call_command
+try:
+    from django.core.management import call_command
+except ImportError:
+    print('Error: Could not import django')
+    sys.exit(1)
     
 from RestAuth.common import cli
 from RestAuth.Users.models import user_permissions, prop_permissions
@@ -289,7 +293,21 @@ class testserver(Command):
     def finalize_options(self): pass
     
     def run(self):
-        call_command('testserver', 'RestAuth/fixtures/testserver.json', use_ipv6=True)
+        import django
+        if django.VERSION[:3] == (1, 4, 0):
+            # see https://github.com/django/django/commit/bb4452f212e211bca7b6b57904d59270ffd7a503
+            from django.db import connection
+
+            print('1.4.0...')
+            use_threading = connection.features.test_db_allows_multiple_connections
+            call_command('runserver',
+                shutdown_message='Testserver stopped.',
+                use_reloader=False,
+                use_ipv6=True,
+                use_threading=use_threading
+            )
+        else:
+            call_command('testserver', 'RestAuth/fixtures/testserver.json', use_ipv6=True)
 
 class prepare_debian_changelog(Command):
     description = "prepare debian/changelog file"
