@@ -298,7 +298,6 @@ class testserver(Command):
             # see https://github.com/django/django/commit/bb4452f212e211bca7b6b57904d59270ffd7a503
             from django.db import connection
 
-            print('1.4.0...')
             use_threading = connection.features.test_db_allows_multiple_connections
             call_command('runserver',
                 shutdown_message='Testserver stopped.',

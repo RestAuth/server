@@ -20,6 +20,11 @@ RestAuth 0.5.3 (XX XX 20XX)
     permission system. The 'add' command can no longer add hosts in one step, since the command
     would be too overloaded.
   
+  Django 1.4.0 compatibility fixes:
+  * 'setup.py testserver' now works different for 1.4.0, because 'manage.py
+    testserver' is broken in 1.4.0. See: 
+	https://code.djangoproject.com/ticket/18019
+  
   Permissions:
   * RestAuth now offers a brand-new permission system. Services can only perform the operations they
     are explicitly configured for. This improves security, because leaked service credentials limit
