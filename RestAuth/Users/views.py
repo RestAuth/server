@@ -19,6 +19,7 @@ import logging, httplib
 
 from django.http import HttpResponseForbidden
 
+from RestAuthCommon.error import BadRequest
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.common.types import get_dict
@@ -52,6 +53,8 @@ def index(request):
         # If PasswordInvalid: 412 Precondition Failed
         user = user_create(name, password)
         if props:
+            if props.__class__ != dict:
+                raise BadRequest('Properties not a dictionary!')
             [ user.set_property(key, value) for key, value in props.iteritems() ]
         
         logger.info('%s: Created user', name, extra=log_args)
