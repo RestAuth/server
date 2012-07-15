@@ -35,7 +35,7 @@ class BasicAuthTests(RestAuthTest): # GET /users/
         Service.objects.all().delete()
     
     def test_good_credentials(self):
-        self.service = service_create('vowi', 'vowi', ['127.0.0.1', '::1'])
+        self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
         u_ct = ContentType.objects.get(app_label="Users", model="serviceuser")
         p, c = Permission.objects.get_or_create(codename='users_list', content_type=u_ct,
                         defaults={'name': 'List all users'})
@@ -48,7 +48,7 @@ class BasicAuthTests(RestAuthTest): # GET /users/
         self.assertItemsEqual(self.parse(resp, 'list'), [])
         
     def test_wrong_user(self):
-        service_create('vowi', 'vowi', ['127.0.0.1', '::1'])
+        service_create('vowi', 'vowi', '127.0.0.1', '::1')
         self.set_auth('fsinf', 'vowi')
         
         resp = self.get('/users/')
@@ -62,7 +62,7 @@ class BasicAuthTests(RestAuthTest): # GET /users/
         self.assertEquals(resp.status_code, httplib.UNAUTHORIZED)
         
     def test_wrong_host(self):
-        service = service_create('vowi', 'vowi', [])
+        service = service_create('vowi', 'vowi')
         self.set_auth('vowi', 'vowi')
         
         resp = self.get('/users/')
@@ -76,7 +76,7 @@ class BasicAuthTests(RestAuthTest): # GET /users/
         self.assertEquals(resp.status_code, httplib.UNAUTHORIZED)
         
     def test_no_credentials(self):
-        service_create('vowi', 'vowi', ['127.0.0.1', '::1'])
+        service_create('vowi', 'vowi', '127.0.0.1', '::1')
         self.set_auth('', '')
         
         resp = self.get('/users/')
@@ -92,30 +92,31 @@ class ServiceHostTests(TestCase):
     the API.
     """
     def setUp(self):
-        self.service = service_create('vowi', 'vowi', [])
+        self.service = service_create('vowi', 'vowi')
     
     def tearDown(self):
         Service.objects.all().delete()
         
     def get_service(self):
         return Service.objects.get(username='vowi')
+
+    def get_hosts(self):
+        return self.get_service().hosts.values_list('address', flat=True)
     
     def test_add_host(self):
-        hosts = [ServiceAddress.objects.get_or_create(address='127.0.0.1')[0]]
-        self.assertIsNone(self.service.add_hosts(hosts))
-        self.assertItemsEqual(self.get_service().hosts.all(), hosts)
+        hosts = ['127.0.0.1']
+        self.assertIsNone(self.service.add_hosts(*hosts))
+        self.assertItemsEqual(self.get_hosts(), hosts)
         
     def test_set_hosts(self):
-        addresses = ['127.0.0.1', '::1']
-        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in addresses]
-        self.assertIsNone(self.service.set_hosts(hosts))
+        hosts = ['127.0.0.1', '::1']
+        self.assertIsNone(self.service.set_hosts(*hosts))
         # Warning: using assertItemsEqual fails in python2.6 in the next line
-        self.assertEqual(sorted(self.get_service().hosts.values_list('address', flat=True)),
-                         sorted(addresses))
+        self.assertItemsEqual(self.get_hosts(), hosts)
     
     def test_verify_host(self):
-        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in ['127.0.0.1', '::1']]
-        self.assertIsNone(self.service.set_hosts(hosts))
+        hosts = ['127.0.0.1', '::1']
+        self.assertIsNone(self.service.set_hosts(*hosts))
         self.assertTrue(self.service.verify_host('127.0.0.1'))
         self.assertTrue(self.service.verify_host('::1'))
         
@@ -123,8 +124,8 @@ class ServiceHostTests(TestCase):
         self.assertFalse(self.service.verify_host('::2'))
         
     def test_verify(self):
-        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in ['127.0.0.1', '::1']]
-        self.assertIsNone(self.service.set_hosts(hosts))
+        hosts = ['127.0.0.1', '::1']
+        self.assertIsNone(self.service.set_hosts(*hosts))
         
         self.assertTrue(self.service.verify('vowi', '127.0.0.1'))
         self.assertTrue(self.service.verify('vowi', '::1'))
@@ -136,22 +137,21 @@ class ServiceHostTests(TestCase):
         self.assertFalse(self.service.verify('vowi', '::2'))
     
     def test_del_hosts(self):
-        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in ['127.0.0.1']]
-        self.service.add_hosts(hosts)
-        self.assertItemsEqual(self.get_service().hosts.all(), hosts)
+        hosts = ['127.0.0.1']
+        self.service.add_hosts(*hosts)
+        self.assertItemsEqual(self.get_hosts(), hosts)
         
-        self.assertIsNone(self.service.del_hosts(hosts))
+        self.assertIsNone(self.service.del_hosts(*hosts))
         self.assertItemsEqual(self.get_service().hosts.all(), [])
         
     def test_del_hosts_gone(self):
         self.assertItemsEqual(self.get_service().hosts.all(), [])
-        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in ['127.0.0.1']]
-        self.assertIsNone(self.service.del_hosts(hosts))
+        self.assertIsNone(self.service.del_hosts(*['127.0.0.1']))
         self.assertItemsEqual(self.get_service().hosts.all(), [])
         
     def test_create_invalid_host(self):
         try:
-            service_create('fs:inf', 'foobar', [])
+            service_create('fs:inf', 'foobar')
             self.fail()
         except ServiceUsernameNotValid:
             self.assertItemsEqual(Service.objects.all(), [self.service])
