@@ -23,7 +23,7 @@
             "is_active": true,
             "is_superuser": false,
             "is_staff": false,
-            "last_login": "2012-07-12T20:19:47.395",
+            "last_login": "2012-07-15T13:06:33.454",
             "groups": [],
             "user_permissions": [
                 [
@@ -147,9 +147,9 @@
                     "serviceuser"
                 ]
             ],
-            "password": "pbkdf2_sha256$10000$V3NdyUdFrVR9$rjt/7fQMToVCAlzyRTrH4TZcsO03xMfEsUtlvrKUYNc=",
+            "password": "pbkdf2_sha256$10000$7K5i1XVLg5N2$YiHNtNEhKx1RU4CEtoPewARv8SDkCvNY0I/UJBugv4o=",
             "email": "",
-            "date_joined": "2012-07-12T20:19:47.395"
+            "date_joined": "2012-07-15T13:06:33.454"
         }
     },
     {
