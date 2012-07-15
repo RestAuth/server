@@ -120,24 +120,21 @@ elif args.action == 'view':
 elif args.action == 'set-hosts':
     try:
         service = Service.objects.get(username=args.service)
-        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in args.hosts]
-        service.set_hosts(hosts)
+        service.set_hosts(*args.hosts)
     except Service.DoesNotExist:
         print("Error: %s: Service not found."%args.service)
         sys.exit(1)
 elif args.action == 'add-hosts':
     try:
         service = Service.objects.get(username=args.service)
-        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in args.hosts]
-        service.add_hosts(hosts)
+        service.add_hosts(*args.hosts)
     except Service.DoesNotExist:
         print("Error: %s: Service not found."%args.service)
         sys.exit(1)
 elif args.action == 'rm-hosts':
     try:
         service = Service.objects.get(username=args.service)
-        hosts = [ServiceAddress.objects.get_or_create(address=a)[0] for a in args.hosts]
-        service.del_hosts(hosts)
+        service.del_hosts(*args.hosts)
     except Service.DoesNotExist:
         print("Error: %s: Service not found."%args.service)
         sys.exit(1)
