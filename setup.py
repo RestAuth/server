@@ -297,6 +297,12 @@ class testserver(Command):
         if django.VERSION[:3] == (1, 4, 0):
             # see https://github.com/django/django/commit/bb4452f212e211bca7b6b57904d59270ffd7a503
             from django.db import connection
+            
+            # Create a test database.
+            db_name = connection.creation.create_test_db()
+            
+            # Import the fixture data into the test database.
+            call_command('loaddata', *['RestAuth/fixtures/testserver.json'])
 
             use_threading = connection.features.test_db_allows_multiple_connections
             call_command('runserver',
