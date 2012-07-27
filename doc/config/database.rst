@@ -28,7 +28,7 @@ Here is an example shell session for creating a `MySQL <http://www.mysql.com>`_ 
    
    mysql -uroot -pYOUR_PASSWORD -e "CREATE DATABASE restauth CHARACTER SET utf8;"
    mysql -uroot -pYOUR_PASSWORD -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost'
-       IDENTIFIED BY 'MYSQL_PASSWORD'"
+       IDENTIFIED BY 'MYSQL_PASSWORD';"
 
 The correct ``DATABASES`` setting then would be:
 
@@ -36,7 +36,7 @@ The correct ``DATABASES`` setting then would be:
    
    DATABASES = {
        'default': {
-           'ENGINE': 'mysql',
+           'ENGINE': 'django.db.backends.mysql',
            'NAME': 'restauth',
            'USER': 'restauth',
            'PASSWORD': 'MYSQL_PASSWORD', # you really should change this!
@@ -71,7 +71,7 @@ The correct ``DATABASES`` setting then would be:
    
    DATABASES = {
        'default': {
-           DATABASE_ENGINE = 'postgresql_psycopg2',
+           DATABASE_ENGINE = 'django.db.backends.postgresql_psycopg2',
            DATABASE_NAME = 'restauth',
            DATABASE_USER = 'restauth',
            DATABASE_PASSWORD = 'POSTGRES_PASSWORD', # you really should change this!
