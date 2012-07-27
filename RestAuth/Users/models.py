@@ -197,7 +197,7 @@ def get_hexdigest(algorithm, salt, secret):
             return func(secret, salt)
 
 class ServiceUser(models.Model):
-    username = models.CharField('username', max_length=60, unique=True, db_index=True)
+    username = models.CharField('username', max_length=60, unique=True)
     algorithm = models.CharField('algorithm', max_length=20, blank=True, null=True)
     salt = models.CharField('salt', max_length=16, blank=True, null=True)
     hash = models.CharField('hash', max_length=128, blank=True, null=True)
