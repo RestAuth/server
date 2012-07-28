@@ -131,10 +131,10 @@ class build_doc_meta(Command):
         Command.__init__(self, *args, **kwargs)
         
         # generate files for cli-scripts:
-        cli.service_parser.prog = 'restauth-service'
-        cli.user_parser.prog = 'restauth-user'
+        cli.service_parser.prog = '|bin-restauth-service|'
+        cli.user_parser.prog = '|bin-restauth-user|'
         cli.group_parser.prog = '|bin-restauth-group|'
-        cli.import_parser.prog = 'restauth-import'
+        cli.import_parser.prog = '|bin-restauth-import|'
         
         # create necesarry folders:
         if not os.path.exists('doc/_static'):
