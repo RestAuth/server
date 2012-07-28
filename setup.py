@@ -108,9 +108,17 @@ class clean(_clean):
         p = Popen(cmd)
         p.communicate()
         
-        if os.path.exists(os.path.join('doc', 'coverage')):
+        coverage = os.path.join('doc', 'coverage')
+        generated = os.path.join('doc', 'gen')
+
+        if os.path.exists(coverage):
+            print('rm -r %s' % coverage)
             shutil.rmtree(os.path.join('doc', 'coverage'))
+        if os.path.exists(generated):
+            print('rm -r %s' % generated)
+            shutil.rmtree(generated)
         if os.path.exists('MANIFEST'):
+            print('rm MANIFEST')
             os.remove('MANIFEST')
 
 class version(Command):
@@ -194,6 +202,9 @@ class build_doc_meta(Command):
         f.close()
         
     def should_generate(self, source, generated):
+        if not os.path.exists(os.path.dirname(generated)):
+            os.mkdirs(os.path.dirname(generated))
+            return True
         if not os.path.exists(generated):
             return True
         if os.stat(source).st_mtime > os.stat(generated).st_mtime:
