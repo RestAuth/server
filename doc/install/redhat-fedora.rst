@@ -1,5 +1,5 @@
-Installation on Red Hat Enterprise Linux
-----------------------------------------
+Installation on Red Hat Enterprise Linux (RHEL)
+-----------------------------------------------
 
 RestAuth is not included in Red Hat Enterprise Linux. The current version does not ship with a
 Python interpreter that works with it, so it is hardly possible to install RestAuth on the current
