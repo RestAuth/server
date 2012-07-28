@@ -230,8 +230,8 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 
 
 substitutions = {
-    'restauth-import-format': ':doc:`import format <../migrate/import-format>`',
-    'restauth-import': ':doc:`restauth-import <../restauth-import>`',
+    'restauth-import-format': ':doc:`import format </migrate/import-format>`',
+    'restauth-import': ':doc:`restauth-import </restauth-import>`',
     'latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE'),
 
     'bin-restauth-manage': 'RestAuth/manage.py',
@@ -249,7 +249,7 @@ if tags.has('man'):
 
 if tags.has('debian'):
     substitutions['bin-restauth-manage'] = 'restauth-manage'
-    substitutions['bin-restauth-service'] = 'restauth-'
+    substitutions['bin-restauth-service'] = 'restauth-service'
     substitutions['bin-restauth-user'] = 'restauth-user'
     substitutions['bin-restauth-group'] = 'restauth-group'
     substitutions['bin-restauth-import'] = 'restauth-import'
@@ -260,6 +260,16 @@ elif tags.has('fedora') or tags.has('redhat'):
     substitutions[''] = ''
 elif tags.has('arch'):
     pass
+elif tags.has('homepage'):
+    substitutions['bin-restauth-manage'] = 'restauth-manage'
+    substitutions['bin-restauth-service'] = 'restauth-service'
+    substitutions['bin-restauth-user'] = 'restauth-user'
+    substitutions['bin-restauth-group'] = 'restauth-group'
+    substitutions['bin-restauth-import'] = 'restauth-import'
+
+    
+    substitutions['file-settings'] = 'localsettings.py'
+
 elif tags.has('bogus-platform'):
     for key, value in substitutions.iteritems():
         substitutions[key] = 'REPLACED-%s-REPLACED' % key
@@ -268,9 +278,43 @@ rst_prolog = ""
 
 for key, value in substitutions.iteritems():
     rst_prolog += ".. |%s| replace:: %s\n" % (key, value)
-    rst_prolog += ".. |%s-bold| replace:: **%s**\n" % (key, value)
+
+    if key.startswith('bin-') or key.startswith('file-'):
+        rst_prolog += ".. |%s-bold| replace:: **%s**\n" % (key, value)
+
+    if tags.has('homepage'):
+        if key.startswith('bin-'):
+            rst_prolog += ".. |%s-link-hp| replace:: :command:`%s`\n" % (key, value)
+            rst_prolog += ".. |%s-link| replace:: |%s-link-hp|_\n" % (key, key)
+        elif key.startswith('file-'):
+            rst_prolog += ".. |%s-link-hp| replace:: :file:`%s`\n" % (key, value)
+            rst_prolog += ".. |%s-link| replace:: |%s-link-hp|_\n" % (key, key)
+        else:
+            rst_prolog += ".. |%s-link| replace:: %s\n" % (key, value)
+
+    else:
+        if key.startswith('bin-'):
+            rst_prolog += ".. |%s-link| replace:: :command:`%s`\n" % (key, value)
+        elif key.startswith('file-'):
+            rst_prolog += ".. |%s-link| replace:: :file:`%s`\n" % (key, value)
+        else:
+            rst_prolog += ".. |%s-link| replace:: %s\n" % (key, value)
 
     if key.startswith('bin-'):
         rst_prolog += ".. |%s-as-cmd| replace:: :file:`%s`\n" % (key, value)
     if key.startswith('file-'):
         rst_prolog += ".. |%s-as-file| replace:: :file:`%s`\n" % (key, value)
+
+if tags.has('homepage'):
+    dist_conf_targets = {
+        'file-settings': '/config/all-config-values.html',
+        'bin-restauth-manage': '/todo',
+        'bin-restauth-service': '/todo',
+        'bin-restauth-user': '/todo',
+        'bin-restauth-group': '/todo',
+        'bin-restauth-import': '/todo',
+    }
+    for key, value in dist_conf_targets.iteritems():
+        rst_prolog += ".. _%s-link-hp: %s\n" % (key, value)
+
+print(rst_prolog)
