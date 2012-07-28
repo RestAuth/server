@@ -23,3 +23,17 @@ run the following:
 .. code-block:: bash
    
    yaourt -S restauth-server-git
+
+.. _arch-update:
+
+Updating the source
+-------------------
+
+You can update the source code with the regular process:
+
+.. code-block:: bash
+
+   yaourt -Syu
+
+After you updated the source, don't forget to :ref:`update your database schema <update-database>`
+and :ref:`check for new settings <update-settings>`.

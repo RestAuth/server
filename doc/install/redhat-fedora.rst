@@ -19,3 +19,17 @@ RestAuth is included in Fedora 16 or later. To install RestAuth, just do:
    
 Once you have installed RestAuth, you can go on :doc:`configuring your webserver
 </config/webserver>` and :doc:`configuring RestAuth </config/restauth>`.
+
+.. _fedora-update:
+
+Updating the source
+===================
+
+You can update the source code with the regular process:
+
+.. code-block:: bash
+
+   yum update restauth
+
+After you updated the source, don't forget to :ref:`update your database schema <update-database>`
+and :ref:`check for new settings <update-settings>`.

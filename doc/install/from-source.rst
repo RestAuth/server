@@ -89,3 +89,18 @@ reading), just run:
 .. code-block:: bash
 
    python setup.py build_doc
+
+.. _source-update:
+
+Updating the source
+-------------------
+
+To update the source code, just run:
+
+.. code-block:: bash
+
+   python setup.py clean
+   git pull
+
+After you updated the source, don't forget to :ref:`update your database schema <update-database>`
+and :ref:`check for new settings <update-settings>`.

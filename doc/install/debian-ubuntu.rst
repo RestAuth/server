@@ -66,5 +66,5 @@ You can update the source code with the regular process:
    apt-get update
    apt-get install restauth
 
-After you upgraded, don't forget to :ref:`update your database schema <update-database>` and 
-:ref:`check for new settings <update-settings>`.
+After you updated the source, don't forget to :ref:`update your database schema <update-database>`
+and :ref:`check for new settings <update-settings>`.
