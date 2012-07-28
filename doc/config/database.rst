@@ -30,7 +30,7 @@ Here is an example shell session for creating a `MySQL <http://www.mysql.com>`_ 
    mysql -uroot -pYOUR_PASSWORD -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost'
        IDENTIFIED BY 'MYSQL_PASSWORD';"
 
-The correct ``DATABASES`` setting then would be:
+The correct ``DATABASES`` setting in |file-settings-as-file| then would be:
 
 .. code-block:: python
    
@@ -65,7 +65,7 @@ assuming you are already the user ``postgres``:
    createuser -P restauth
    psql template1 CREATE DATABASE restauth OWNER restauth ENCODING ‘UTF8’;
    
-The correct ``DATABASES`` setting then would be:
+The correct ``DATABASES`` setting in |file-settings-as-file| then would be:
 
 .. code-block:: python
    
@@ -109,14 +109,12 @@ the top of that file.
 Initialization
 """"""""""""""
 
-Once you have created your database and configured it in :file:`localsettings.py`, you can easily
-create the necessary tables using the ``syncdb`` command of :command:`manage.py`. If you installed
+Once you have created your database and configured it in |file-settings-as-file|, you can easily
+create the necessary tables using the ``syncdb`` command of |bin-restauth-manage-as-cmd|. If you installed
 from source, you can simply run this inside the :file:`RestAuth/` directory found in the source
 code:
 
-.. code-block:: bash
-   
-   python manage.py syncdb
+.. parsed-literal:: |bin-restauth-manage| syncdb
    
 If you used a distribution-specific way to install RestAuth, the command is most likely called
 :command:`restauth-manage`:

@@ -230,15 +230,17 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 
 
 substitutions = {
-    'restauth-manage': 'python manage.py',
     'restauth-import-format': ':doc:`import format <../migrate/import-format>`',
     'restauth-import': ':doc:`restauth-import <../restauth-import>`',
     'latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE'),
 
+    'bin-restauth-manage': 'RestAuth/manage.py',
     'bin-restauth-service': 'bin/restauth-service.py',
     'bin-restauth-user': 'bin/restauth-user.py',
     'bin-restauth-group': 'bin/restauth-group.py',
     'bin-restauth-import': 'bin/restauth-import.py',
+
+    'file-settings': 'RestAuth/localsettings.py'
 }
 
 if tags.has('man'):
@@ -246,11 +248,14 @@ if tags.has('man'):
     substitutions['restauth-import'] = ':manpage:`restauth-import(1)`'
 
 if tags.has('debian'):
-    substitutions['restauth-manage'] = 'restauth-manage'
+    substitutions['bin-restauth-manage'] = 'restauth-manage'
     substitutions['bin-restauth-service'] = 'restauth-'
     substitutions['bin-restauth-user'] = 'restauth-user'
     substitutions['bin-restauth-group'] = 'restauth-group'
     substitutions['bin-restauth-import'] = 'restauth-import'
+
+    substitutions['file-settings'] = '/etc/restauth/settings.py'
+
 elif tags.has('fedora') or tags.has('redhat'):
     substitutions[''] = ''
 elif tags.has('arch'):
@@ -261,6 +266,11 @@ elif tags.has('bogus-platform'):
 
 rst_prolog = ""
 
-for item in substitutions.iteritems():
-    rst_prolog += ".. |%s| replace:: %s\n" % item
-    rst_prolog += ".. |%s-bold| replace:: **%s**\n" % item
+for key, value in substitutions.iteritems():
+    rst_prolog += ".. |%s| replace:: %s\n" % (key, value)
+    rst_prolog += ".. |%s-bold| replace:: **%s**\n" % (key, value)
+
+    if key.startswith('bin-'):
+        rst_prolog += ".. |%s-as-cmd| replace:: :file:`%s`\n" % (key, value)
+    if key.startswith('file-'):
+        rst_prolog += ".. |%s-as-file| replace:: :file:`%s`\n" % (key, value)
