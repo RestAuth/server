@@ -26,7 +26,7 @@ Usage
 
 .. only:: html
    
-   .. literalinclude:: gen/restauth-service-usage.rst
+   .. include:: gen/restauth-service-usage.rst
 
 Use one of the commands (i.e. add, view, ls, ...) to perform the respective operation. Each command
 usually requires more arguments to it, see the respective section for arguments (and possible

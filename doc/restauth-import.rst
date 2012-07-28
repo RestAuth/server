@@ -21,7 +21,7 @@ Usage
 
 .. only:: html
    
-   .. literalinclude:: gen/restauth-import-usage.rst
+   .. include:: gen/restauth-import-usage.rst
 
 **restauth-import** by default imports the data as is and does not overwrite any already existing
 data. Various options allow you to configure if specific kinds input data should take precedence

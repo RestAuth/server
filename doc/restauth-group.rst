@@ -37,7 +37,7 @@ Usage
 
 .. only:: html
    
-   .. literalinclude:: gen/restauth-group-usage.rst
+   .. include:: gen/restauth-group-usage.rst
 
 Use one of the commands (either add, add-group, add-user, list, rm, rm-group, rm-user or view) to
 perform the respective operation. Each command usually requires more arguments

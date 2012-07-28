@@ -442,5 +442,7 @@ def write_commands(parser, path, cmd):
 def write_usage(parser, path):
     f = open(path, 'w')
     usage = parser.format_usage().replace('usage: ', '')
-    f.write(usage)    
+    usage = usage.replace("\n", '')
+    usage = re.sub('\s{2,}', ' ', usage)
+    f.write('.. parsed-literal:: %s' % usage)
     f.close()
