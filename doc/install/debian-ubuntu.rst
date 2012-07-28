@@ -12,8 +12,8 @@ To add the repositories, simply add this line to your :file:`/etc/apt/sources.li
    deb http://apt.fsinf.at <dist> restauth
    
 ... where :samp:`{<dist>}` is any of the supported distributions. At the time of writing, possible
-values are ``lucid``, ``maverick``, ``natty``, ``oneiric``, ``squeeze`` or ``wheezy``. Please see
-the WikiPedia pages for `Ubuntu
+values are ``lucid``, ``maverick``, ``natty``, ``oneiric``, ``precise``, ``squeeze`` or ``wheezy``.
+Please see the WikiPedia pages for `Ubuntu
 <http://en.wikipedia.org/wiki/List_of_Ubuntu_releases#Table_of_versions>`_ and `Debian
 <http://en.wikipedia.org/wiki/Debian#Release_history>`_ to see how they map to your installation.
 You can also check the `APT repository itself <http://apt.fsinf.at/dists>`_ for a list of available
@@ -34,6 +34,7 @@ or download and add the key directly using:
 .. code-block:: bash
 
    wget -O - http://packages.spectrum.im/keys/apt-repository@fsinf.at | apt-key add -
+   apt-get update
 
 Install RestAuth
 ----------------
@@ -43,6 +44,27 @@ Once you have added the repositories, installing RestAuth is as simple as
 .. code-block:: bash
 
    apt-get install restauth
-   
-Once you have installed RestAuth, you can go on :doc:`configuring your webserver
-<../config/webserver>` and :doc:`configuring RestAuth <../config/restauth>`.
+ 
+Next steps
+----------
+Now that you have installed RestAuth, you still need to
+
+#. :doc:`configure your webserver <../config/webserver>`
+#. :doc:`setup your database <../config/database>`
+#. :doc:`configure RestAuth <../config/restauth>`
+
+
+.. _debian-update:
+
+Updating the source
+-------------------
+
+You can update the source code with the regular process:
+
+.. code-block:: bash
+
+   apt-get update
+   apt-get install restauth
+
+After you upgraded, don't forget to :ref:`update your database schema <update-database>` and 
+:ref:`check for new settings <update-settings>`.
