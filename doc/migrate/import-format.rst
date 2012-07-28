@@ -6,9 +6,10 @@ are typically created by systems from where existing account data should be expo
 by |restauth-import|.
 
 .. NOTE::
+   
    You only need this documentation if you want to write a new exporter (i.e. for a system for which
-   no such exporter is yet available). If you write a new exporter, please feel free to
-   :doc:`contribute </developer/contribute>` it.
+   no such exporter is yet available). If you write a new exporter, please feel free
+   to :doc:`contribute </developer/contribute>` it.
 
 General
 -------
