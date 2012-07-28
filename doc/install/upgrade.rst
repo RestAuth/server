@@ -1,55 +1,65 @@
-Upgrade notes
--------------
+Upgrade instructions
+--------------------
 
-.. _upgrade_0.5.2:
+Updating RestAuth consists of three steps: First you have to update the source code and database
+schema. You should also check for new available settings when a new version becomes available.
 
-from version 0.5.2
-==================
-In version 0.5.3, a new UNIQUE constraint was added for groups: A group cannot have the same name
-AND service as any other group. This was previously ensured only in software. Use
-``restauth-manage sql`` to get an SQL-shell of your RestAuth installation.
+Update source
+=============
 
-Additionally, some additional indexes where added.
+The specific installation instructions for your platform provide documentation on how to upgrade
+your source code:
 
-MySQL
-+++++
-Use the following SQL commands:
+* :ref:`from source <source-update>`
+* :ref:`Debian/Ubuntu <debian-update>`
+* :ref:`Fedora <fedora-update>`
+* :ref:`Arch Linux <arch-update>`
 
-.. code-block:: sql
+.. _update-database:
 
-   ALTER TABLE Groups_group ADD UNIQUE (name, service_id);
-   
-After that, run the ``syncdb`` command of :doc:`/bin/restauth-manage` to create the new indices.
+Update database schema
+======================
 
-PostgreSQL
-++++++++++
-
-.. code-block:: sql
-   
-   ALTER TABLE Groups_group ADD CONSTRAINT service_id_name_key UNIQUE (name, service_id);
-
-After that, run the ``syncdb`` command of :doc:`/bin/restauth-manage` to create the new indices.
-
-SQLite
-++++++
-
-SQLite does not support adding UNIQUE constraints to existing tables. Please use :doc:`/bin/restauth-manage`
-to dump existing data, recreate the database, and reload that data.
+Starting from version 0.5.3, we use `Django South
+<http://south.readthedocs.org/en/latest/index.html>`_ to handle schema migrations. If you installed
+from source, simply go to your installation directory and do:
 
 .. code-block:: bash
 
-   user@host:~ $ restauth-manage dumpdata > dump.json
-   user@host:~ $ rm <path-to-sqlite-db>
-   user@host:~ $ restauth-manage syncdb --noinput
-   user@host:~ $ restauth-manage loaddata dump
-   user@host:~ $ rm dump.json
+   python manage.py migrate
+
+Update from 0.5.2 or earlier
+++++++++++++++++++++++++++++
+
+If you update from 0.5.2, the process is a bit different:
+
+.. code-block:: bash
+
+   python manage.py syncdb
    
-.. NOTE:: Running RestAuth using SQLite is still not recommended.
+   python manage.py migrate Services 0001 --fake
+   python manage.py migrate Users 0001 --fake
+   python manage.py migrate Groups 0001 --fake
+   
+   python manage.py migrate
 
-.. _upgrade_0.5.2_settings:
+.. WARNING:: The process of introducing Django-South is a bit fragile. ALWAYS backup your database
+   before doing this. If all fails, please :doc:`contact us </developer/contribute>`.
 
-Settings
-++++++++
+Update from earlier versions
+++++++++++++++++++++++++++++
+
+There are no schema changes in earlier releases.
+
+.. _update-settings:
+
+Use new settings
+================
+
+.. _update_settings_0.5.3:
+
+New Settings in  0.5.3
+++++++++++++++++++++++
 
 HASH_FUNCTIONS and HASH_ALGORITHM
 _________________________________
