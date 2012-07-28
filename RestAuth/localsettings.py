@@ -56,6 +56,20 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }    
 }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'restauth',
+        'USER': 'restauth',
+        'PASSWORD': 'PASSWORD', # you really should change this!
+        'HOST': '',
+        'PORT': '',
+        'OPTIONS': {
+            'read_default_file': '/path/to/my.cnf',
+        },
+    }
+}
+
 
 # You may want to configure a database router if you use some sort of database replication. For more
 # information, please see:
