@@ -90,6 +90,15 @@ reading), just run:
 
    python setup.py build_doc
 
+.. NOTE:: You can build documentation customized for a specific distribution with:
+
+   .. code-block:: bash
+
+      python setup.py build_doc -t debian
+
+   This will customize various paths, binary names etc. for what is used in the respective
+   distribution.
+
 .. _source-update:
 
 Updating the source

@@ -123,13 +123,17 @@ class version(Command):
         print(get_version())
 
 class build_doc_meta(Command):
+    user_options = [
+        ('target=', 't', 'What distribution to build for'),
+    ]
+
     def __init__(self, *args, **kwargs):
         Command.__init__(self, *args, **kwargs)
         
         # generate files for cli-scripts:
         cli.service_parser.prog = 'restauth-service'
         cli.user_parser.prog = 'restauth-user'
-        cli.group_parser.prog = 'restauth-group'
+        cli.group_parser.prog = '|bin-restauth-group|'
         cli.import_parser.prog = 'restauth-import'
         
         # create necesarry folders:
@@ -197,14 +201,14 @@ class build_doc_meta(Command):
         return False
     
     def initialize_options(self):
-        pass
+        self.target = None
+
     def finalize_options(self):
-        pass
-    user_options = []
+        if self.target:
+            os.environ['SPHINXOPTS'] += ' -t %s' % self.target
 
 class build_doc(build_doc_meta):
-    user_options = []
-    description = "Build entire documentation"
+    description = "Build documentation as HTML and man-pages"
 
     def run(self):
         cmd = [ 'make', '-C', 'doc', 'man', 'html' ]
@@ -212,16 +216,16 @@ class build_doc(build_doc_meta):
         p.communicate()
 
 class build_html(build_doc_meta):
-    user_options = []
     description = "Build HTML documentation"
+
     def run(self):
         cmd = [ 'make', '-C', 'doc', 'html' ]
         p = Popen(cmd)
         p.communicate()
         
 class build_man(build_doc_meta):
-    user_options = []
     description = "Build man-pages"
+
     def run(self):
         cmd = [ 'make', '-C', 'doc', 'man' ]
         p = Popen(cmd)
