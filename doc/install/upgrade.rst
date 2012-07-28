@@ -22,26 +22,24 @@ Update database schema
 
 Starting from version 0.5.3, we use `Django South
 <http://south.readthedocs.org/en/latest/index.html>`_ to handle schema migrations. If you installed
-from source, simply go to your installation directory and do:
+from source, simply use |bin-restauth-manage-link| to update your schema:
 
-.. code-block:: bash
-
-   python manage.py migrate
+.. parsed-literal:: |bin-restauth-manage| migrate
 
 Update from 0.5.2 or earlier
 ++++++++++++++++++++++++++++
 
-If you update from 0.5.2, the process is a bit different:
+If you update from 0.5.2 or earlier, you need a few more |bin-restauth-manage-link| commands:
 
-.. code-block:: bash
+.. parsed-literal::
 
-   python manage.py syncdb
+   |bin-restauth-manage| syncdb
    
-   python manage.py migrate Services 0001 --fake
-   python manage.py migrate Users 0001 --fake
-   python manage.py migrate Groups 0001 --fake
+   |bin-restauth-manage| Services 0001 --fake
+   |bin-restauth-manage| Users 0001 --fake
+   |bin-restauth-manage| Groups 0001 --fake
    
-   python manage.py migrate
+   |bin-restauth-manage|
 
 .. WARNING:: The process of introducing Django-South is a bit fragile. ALWAYS backup your database
    before doing this. If all fails, please :doc:`contact us </developer/contribute>`.
@@ -88,8 +86,7 @@ validators using the :setting:`VALIDATORS` setting, please see the documentation
 how to enable validators. Our page on :doc:`/config/username-validation` has a list of validators
 shipping with RestAuth as well as documentation on how to implement your own validators.
 
-To just restore the previous behaviour, add this to :file:`localsettings.py` (or
-:file:`/etc/restauth/settings.py` if you installed using our Debian/Ubuntu packages):
+To just restore the previous behaviour, add this to |file-settings-link|:
 
 .. code-block:: python
 
