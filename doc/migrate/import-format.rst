@@ -3,7 +3,7 @@ RestAuth import data format
 
 The *RestAuth import data format* describes a file format to import data into RestAuth. Such files
 are typically created by systems from where existing account data should be exported and is imported
-by |restauth-import|.
+by |bin-restauth-import|.
 
 .. NOTE::
    
