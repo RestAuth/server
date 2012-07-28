@@ -51,8 +51,14 @@ CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = 'restauth'
 
 INSTALLED_APPS = (
+    # from django:
     'django.contrib.auth',
     'django.contrib.contenttypes',
+
+    # schema migrations:
+    'south',
+
+    # our own apps:
     'RestAuth.Services',
     'RestAuth.Users',
     'RestAuth.Groups',
