@@ -238,6 +238,7 @@ substitutions = {
     'bin-restauth-service': 'bin/restauth-service.py',
     'bin-restauth-user': 'bin/restauth-user.py',
     'bin-restauth-group': 'bin/restauth-group.py',
+    'bin-restauth-import': 'bin/restauth-import.py',
 }
 
 if tags.has('man'):
@@ -246,19 +247,20 @@ if tags.has('man'):
 
 if tags.has('debian'):
     substitutions['restauth-manage'] = 'restauth-manage'
+    substitutions['bin-restauth-service'] = 'restauth-'
+    substitutions['bin-restauth-user'] = 'restauth-user'
+    substitutions['bin-restauth-group'] = 'restauth-group'
+    substitutions['bin-restauth-import'] = 'restauth-import'
 elif tags.has('fedora') or tags.has('redhat'):
     substitutions[''] = ''
 elif tags.has('arch'):
     pass
+elif tags.has('bogus-platform'):
+    for key, value in substitutions.iteritems():
+        substitutions[key] = 'REPLACED-%s-REPLACED' % key
 
+rst_prolog = ""
 
-rst_prolog = """
-.. |restauth-manage| replace:: %(restauth-manage)s
-.. |restauth-import-format| replace:: %(restauth-import-format)s
-.. |restauth-import| replace:: %(restauth-import)s
-.. |restauth-latest-release| replace:: %(latest-release)s
-.. |bin-restauth-service| replace:: %(bin-restauth-service)s
-.. |bin-restauth-user| replace:: %(bin-restauth-user)s
-.. |bin-restauth-group| replace:: %(bin-restauth-group)s
-""" % substitutions
-
+for item in substitutions.iteritems():
+    rst_prolog += ".. |%s| replace:: %s\n" % item
+    rst_prolog += ".. |%s-bold| replace:: **%s**\n" % item
