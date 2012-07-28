@@ -228,16 +228,37 @@ man_pages = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
 
-if tags.has( 'man' ):
-  rst_prolog = """
-.. |restauth-import-format| replace:: :manpage:`restauth-import(5)`
-.. |restauth-import| replace:: :manpage:`restauth-import(1)`
-"""
-else:
-  rst_prolog = """
-.. |restauth-import-format| replace:: :doc:`import format <../migrate/import-format>`
-.. |restauth-import| replace:: :doc:`restauth-import <../restauth-import>`
-"""
 
-LATEST_RELEASE = os.environ.get( 'RESTAUTH_LATEST_RELEASE' )
-rst_prolog += """.. |restauth-latest-release| replace:: %s\n"""%LATEST_RELEASE
+substitutions = {
+    'restauth-manage': 'python manage.py',
+    'restauth-import-format': ':doc:`import format <../migrate/import-format>`',
+    'restauth-import': ':doc:`restauth-import <../restauth-import>`',
+    'latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE'),
+
+    'bin-restauth-service': 'bin/restauth-service.py',
+    'bin-restauth-user': 'bin/restauth-user.py',
+    'bin-restauth-group': 'bin/restauth-group.py',
+}
+
+if tags.has('man'):
+    substitutions['restauth-import-format'] = ':manpage:`restauth-import(5)`'
+    substitutions['restauth-import'] = ':manpage:`restauth-import(1)`'
+
+if tags.has('debian'):
+    substitutions['restauth-manage'] = 'restauth-manage'
+elif tags.has('fedora') or tags.has('redhat'):
+    substitutions[''] = ''
+elif tags.has('arch'):
+    pass
+
+
+rst_prolog = """
+.. |restauth-manage| replace:: %(restauth-manage)s
+.. |restauth-import-format| replace:: %(restauth-import-format)s
+.. |restauth-import| replace:: %(restauth-import)s
+.. |restauth-latest-release| replace:: %(latest-release)s
+.. |bin-restauth-service| replace:: %(bin-restauth-service)s
+.. |bin-restauth-user| replace:: %(bin-restauth-user)s
+.. |bin-restauth-group| replace:: %(bin-restauth-group)s
+""" % substitutions
+
