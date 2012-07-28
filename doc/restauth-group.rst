@@ -1,5 +1,5 @@
-restauth-group
-==============
+|bin-restauth-group|
+====================
 
 .. only:: man
 
@@ -11,7 +11,7 @@ restauth-group
    Description
    -----------
 
-**restauth-group** manages groups in RestAuth. Groups are a powerful but simple way for managing
+|bin-restauth-group-bold| manages groups in RestAuth. Groups are a powerful but simple way for managing
 permissions. A user can be a member in one or more groups, which grants her/him certain rights.
 Analogous concepts are used on many systems, such as Unix and Windows systems and most content
 management systems.
@@ -44,18 +44,19 @@ perform the respective operation. Each command usually requires more arguments
 to it, see the respective section for arguments (and possible options) for each
 command.
 
+
 .. only:: html
 
    Getting runtime help
    ^^^^^^^^^^^^^^^^^^^^^^^
 
-   To get an authoritative list of available commands, use::
+   To get an authoritative list of available commands, use:
       
-      restauth-group --help
+   .. parsed-literal:: |bin-restauth-group| --help
 
-   If you want more information on a specific comannd, do::
+   If you want more information on a specific comannd, do:
    
-      restauth-group command --help
+   .. parsed-literal:: |bin-restauth-group| <command> --help
    
    ... or see the :ref:`group-available-commands` section below.
 
@@ -69,48 +70,48 @@ command.
 Examples
 --------
 
-.. example:: **restauth-group add** *global_admin_group*
+.. example:: |bin-restauth-group-bold| **add** *global_admin_group*
 
    Create a group called *global_admin_group* that is not associated with any service.
    
-.. example:: **restauth-group add -**\ **-service=**\ *example.com* *local_admin_group*
+.. example:: |bin-restauth-group-bold| **add --service=**\ *example.com* *local_admin_group*
 
    Create a group called *local_admin_group* that is associated with the service called *example.com*.
    
-.. example:: **restauth-group view** *global_admin_group*
+.. example:: |bin-restauth-group-bold| *view** *global_admin_group*
 
    View all details of the group *global_admin_group*.
    
-.. example:: **restauth-group ls**
+.. example:: |bin-restauth-group-bold| **ls**
 
    List all groups not associated with any service.
    
-.. example:: **restauth-group ls -**\ **-service=**\ *example.com*
+.. example:: |bin-restauth-group-bold| **ls --service=**\ *example.com*
 
    List all groups associated with the service *example.com*.
    
-.. example:: **restauth-group add-user** *global_admin_group* *admin_user*
+.. example:: |bin-restauth-group-bold| **add-user** *global_admin_group* *admin_user*
 
    Add *admin_user* to the *global_admin_group* group.
 
-.. example:: **restauth-group add-user -**\ **-service=**\ *example.com* *local_admin_group* *local_admin*
+.. example:: |bin-restauth-group-bold| **add-user --service=**\ *example.com* *local_admin_group* *local_admin*
 
    Add *local_admin* to the *local_admin_group* group.   
    
-.. example:: **restauth-group add-group -**\ **-sub-service=**\ *example.com* *global_admin_group* *local_admin_group*
+.. example:: |bin-restauth-group-bold| **add-group --sub-service=**\ *example.com* *global_admin_group* *local_admin_group*
 
    Make the group *local_admin_group* a member of the *global_admin_group*. Any user that is a
    member of the latter is now automatically a member of the former.
 
-.. example:: **restauth-group rm-group -**\ **-sub-group=**\ *example.com* *global_admin_group* *local_admin_group*
+.. example:: |bin-restauth-group-bold| **rm-group --sub-group=**\ *example.com* *global_admin_group* *local_admin_group*
 
    Remove *local_admin_group*'s membership in the *global_admin_group*.
    
-.. example:: **restauth-group rm-user** *global_admin_group* *admin_user*
+.. example:: |bin-restauth-group-bold| **rm-user** *global_admin_group* *admin_user*
 
    Remove the membership of the user *admin_user* from the group *global_admin_group*.
 
-.. example:: **restauth-group rm** *global_admin_group*
+.. example:: |bin-restauth-group-bold| **rm** *global_admin_group*
 
    Remove the group *global_admin_group*.
 
