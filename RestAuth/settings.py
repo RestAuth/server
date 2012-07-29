@@ -263,3 +263,4 @@ if CACHES:
         0, 'django.middleware.cache.UpdateCacheMiddleware')
     MIDDLEWARE_CLASSES.append(
         'django.middleware.cache.FetchFromCacheMiddleware')
+SOUTH_TESTS_MIGRATE = False
