@@ -31,7 +31,7 @@ SITE_ID = 1
 USE_I18N = False
 ROOT_URLCONF = 'RestAuth.urls'
 TEMPLATE_LOADERS = ()
-TIME_ZONE=None  #None='same as os'
+TIME_ZONE = None  # None='same as os'
 
 # do not insert session middleware:
 ENABLE_SESSIONS = False
@@ -102,53 +102,53 @@ if not LOGGING:
             'users': {
                 'format': '%(levelname)s %(service)s: %(message)s'
             },
-            'users.user': { 
+            'users.user': {
                 'format': '%(levelname)s %(service)s: %(username)s: %(message)s'
             },
-            'users.user.props.prop': { 
+            'users.user.props.prop': {
                 'format': '%(levelname)s %(service)s: %(username)s: %(prop)s: %(message)s'
             },
             'groups': {
                 'format': '%(levelname)s %(service)s: %(message)s'
             },
-            'groups.group' : {
+            'groups.group': {
                 'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
             },
-            'groups.group.users' : {
+            'groups.group.users': {
                 'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
             },
-            'groups.group.users.user' : {
+            'groups.group.users.user': {
                 'format': '%(levelname)s %(service)s: %(group)s: %(user)s: %(message)s'
             },
-            'groups.group.groups' : {
+            'groups.group.groups': {
                 'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
             },
-            'groups.group.groups.subgroup' : {
+            'groups.group.groups.subgroup': {
                 'format': '%(levelname)s %(service)s: %(group)s: %(subgroup)s: %(message)s'
             },
         },
         'handlers': {
-            'general':{
+            'general': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
                 'formatter': 'general'
             },
-            'users':{
+            'users': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
                 'formatter': 'users'
             },
-            'users.user':{
+            'users.user': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
                 'formatter': 'users.user'
             },
-            'users.user.props.prop':{
+            'users.user.props.prop': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
                 'formatter': 'users.user.props.prop'
             },
-            'groups':{
+            'groups': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
                 'formatter': 'groups'
@@ -181,74 +181,74 @@ if not LOGGING:
         },
         'loggers': {
             'general': {
-                'handlers':['general'],
+                'handlers': ['general'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'users': {
-                'handlers':['users'],
+                'handlers': ['users'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'users.user': {
-                'handlers':['users.user'],
+                'handlers': ['users.user'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
-            'users.user.props': { # we have no additional info here!
-                'handlers':['users.user'],
+            'users.user.props': {  # we have no additional info here!
+                'handlers': ['users.user'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'users.user.props.prop': {
-                'handlers':['users.user.props.prop'],
+                'handlers': ['users.user.props.prop'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups': {
-                'handlers':['groups'],
+                'handlers': ['groups'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups.group': {
-                'handlers':['groups.group'],
+                'handlers': ['groups.group'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups.group.users': {
-                'handlers':['groups.group.users'],
+                'handlers': ['groups.group.users'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups.group.users.user': {
-                'handlers':['groups.group.users.user'],
+                'handlers': ['groups.group.users.user'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups.group.groups': {
-                'handlers':['groups.group.groups'],
+                'handlers': ['groups.group.groups'],
                 'propagate': False,
             'level': LOG_LEVEL,
             },
             'groups.group.groups.subgroup': {
-                'handlers':['groups.group.groups.subgroup'],
+                'handlers': ['groups.group.groups.subgroup'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             }
         }
     }
-    
+
     if LOG_HANDLER_KWARGS:
         for handler in LOGGING['handlers'].values():
-            handler.update( LOG_HANDLER_KWARGS )
-    
+            handler.update(LOG_HANDLER_KWARGS)
+
 if ENABLE_SESSIONS:
-    index = MIDDLEWARE_CLASSES.index( 'django.middleware.common.CommonMiddleware' ) + 1
-    MIDDLEWARE_CLASSES.insert( index,
-        'django.contrib.auth.middleware.AuthenticationMiddleware' )
-    MIDDLEWARE_CLASSES.insert( index,
-        'django.contrib.sessions.middleware.SessionMiddleware' )
+    index = MIDDLEWARE_CLASSES.index('django.middleware.common.CommonMiddleware') + 1
+    MIDDLEWARE_CLASSES.insert(index,
+        'django.contrib.auth.middleware.AuthenticationMiddleware')
+    MIDDLEWARE_CLASSES.insert(index,
+        'django.contrib.sessions.middleware.SessionMiddleware')
 
 if CACHES:
-    MIDDLEWARE_CLASSES.insert( 0, 'django.middleware.cache.UpdateCacheMiddleware' )
-    MIDDLEWARE_CLASSES.append( 'django.middleware.cache.FetchFromCacheMiddleware' )
+    MIDDLEWARE_CLASSES.insert(0, 'django.middleware.cache.UpdateCacheMiddleware')
+    MIDDLEWARE_CLASSES.append('django.middleware.cache.FetchFromCacheMiddleware')
