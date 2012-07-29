@@ -103,10 +103,12 @@ if not LOGGING:
                 'format': '%(levelname)s %(service)s: %(message)s'
             },
             'users.user': {
-                'format': '%(levelname)s %(service)s: %(username)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(username)s: '
+                          '%(message)s'
             },
             'users.user.props.prop': {
-                'format': '%(levelname)s %(service)s: %(username)s: %(prop)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(username)s: %(prop)s: '
+                          '%(message)s'
             },
             'groups': {
                 'format': '%(levelname)s %(service)s: %(message)s'
@@ -118,13 +120,16 @@ if not LOGGING:
                 'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
             },
             'groups.group.users.user': {
-                'format': '%(levelname)s %(service)s: %(group)s: %(user)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(group)s: %(user)s: '
+                          '%(message)s'
             },
             'groups.group.groups': {
                 'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
             },
             'groups.group.groups.subgroup': {
-                'format': '%(levelname)s %(service)s: %(group)s: %(subgroup)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(group)s: '
+                          '%(subgroup)s: %(message)s'
+#	settings.py.backup
             },
         },
         'handlers': {
@@ -195,7 +200,7 @@ if not LOGGING:
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
-            'users.user.props': {  # we have no additional info here!
+            'users.user.props': {
                 'handlers': ['users.user'],
                 'propagate': False,
                 'level': LOG_LEVEL,
@@ -243,12 +248,19 @@ if not LOGGING:
             handler.update(LOG_HANDLER_KWARGS)
 
 if ENABLE_SESSIONS:
-    index = MIDDLEWARE_CLASSES.index('django.middleware.common.CommonMiddleware') + 1
-    MIDDLEWARE_CLASSES.insert(index,
-        'django.contrib.auth.middleware.AuthenticationMiddleware')
-    MIDDLEWARE_CLASSES.insert(index,
-        'django.contrib.sessions.middleware.SessionMiddleware')
+    index = MIDDLEWARE_CLASSES.index(
+        'django.middleware.common.CommonMiddleware') + 1
+    MIDDLEWARE_CLASSES.insert(
+        index,
+        'django.contrib.auth.middleware.AuthenticationMiddleware'
+    )
+    MIDDLEWARE_CLASSES.insert(
+        index,
+        'django.contrib.sessions.middleware.SessionMiddleware'
+    )
 
 if CACHES:
-    MIDDLEWARE_CLASSES.insert(0, 'django.middleware.cache.UpdateCacheMiddleware')
-    MIDDLEWARE_CLASSES.append('django.middleware.cache.FetchFromCacheMiddleware')
+    MIDDLEWARE_CLASSES.insert(
+        0, 'django.middleware.cache.UpdateCacheMiddleware')
+    MIDDLEWARE_CLASSES.append(
+        'django.middleware.cache.FetchFromCacheMiddleware')
