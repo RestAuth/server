@@ -289,15 +289,9 @@ class coverage(Command):
     description = "Run test suite and generate code coverage analysis."
     user_options = [
         ('output-dir=', 'o', 'Output directory for coverage analysis'),
-        ('user=', 'u', 'Username to use vor RestAuth server'),
-        ('password=', 'p', 'Password to use vor RestAuth server'),
-        ('host=', 'h', 'URL of the RestAuth server (ex: http://auth.example.com)')
     ]
 
     def initialize_options(self):
-        self.user = 'vowi'
-        self.passwd = 'vowi'
-        self.host = 'http://[::1]:8000'
         self.dir = 'doc/coverage'
 
     def finalize_options(self):
