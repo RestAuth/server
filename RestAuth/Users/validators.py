@@ -155,7 +155,7 @@ class windows(validator):
     """
     This validator ensures that usernames are valid Windows system users.
 
-    .. WARNING:: This validator is completely untested as now Windows systems
+    .. WARNING:: This validator is completely untested as no Windows systems
        are available. This means that this validator is likely not allow some
        accounts that are in fact not valid. If you can, please consider to
        :ref:`contributing <contribute-validators>`.
