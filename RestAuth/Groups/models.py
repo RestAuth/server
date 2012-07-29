@@ -21,6 +21,7 @@ from django.db.utils import IntegrityError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote
 
+from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
 
 from RestAuth.Users.models import ServiceUser as User
@@ -77,7 +78,6 @@ class Group(models.Model):
 
     def __init__(self, *args, **kwargs):
         models.Model.__init__(self, *args, **kwargs)
-        from RestAuthCommon import resource_validator
 
         if self.name and not resource_validator(self.name):
             raise PreconditionFailed(

@@ -15,14 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponse
+from django.db import connection
 
 
 def sql_profiler(view, request, *args, **kwargs):  # pragma: no cover
     """
     Wrapper-function for the sql_profile decorator.
     """
-    from django.db import connection
     connection.queries = []
 
     try:

@@ -17,6 +17,7 @@
 
 import datetime
 import hashlib
+from random import random
 import re
 import stringprep
 
@@ -163,7 +164,6 @@ def get_salt():
     Get a very random salt. The salt is the first eight characters of a
     sha512 hash of 5 random numbers concatenated.
     """
-    from random import random
     random_string = ','.join(map(lambda a: str(random()), range(5)))
     return hashlib.sha512(random_string).hexdigest()[:8]
 
@@ -299,7 +299,6 @@ class ServiceUser(models.Model):
         @raises PropertyExists: If the property already exists.
         @return: The property that was created
         """
-        from RestAuthCommon import resource_validator
         if not resource_validator(key):
             raise PreconditionFailed("Property contains invalid characters")
 

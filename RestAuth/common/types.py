@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+import mimeparse
+
 from RestAuthCommon.error import BadRequest
 from RestAuthCommon.error import RestAuthException
 from RestAuthCommon.error import UnsupportedMediaType
@@ -24,7 +26,6 @@ from RestAuthCommon.handlers import CONTENT_HANDLERS
 
 
 def get_request_type(request):
-    import mimeparse
     supported = CONTENT_HANDLERS.keys()
 
     header = request.META['CONTENT_TYPE']
@@ -36,8 +37,6 @@ def get_request_type(request):
 
 
 def get_response_type(request):
-    import mimeparse
-    from RestAuthCommon.handlers import CONTENT_HANDLERS
     supported = CONTENT_HANDLERS.keys()
 
     header = request.META['HTTP_ACCEPT']
