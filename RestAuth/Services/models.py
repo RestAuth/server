@@ -20,19 +20,22 @@ from django.db.utils import IntegrityError
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 
+
 class ServiceUsernameNotValid(BaseException):
     pass
+
 
 def check_service_username(name):
     if ':' in name:
         raise ServiceUsernameNotValid("Service name must not contain a ':'")
+
 
 def service_create(name, password, *hosts):
     """
     @raises IntegrityError: If the service already exists.
     """
     check_service_username(name)
-    
+
     service = Service(username=name)
     service.set_password(password)
     service.save()
@@ -40,8 +43,9 @@ def service_create(name, password, *hosts):
     # add hosts
     if hosts:
         service.add_hosts(*hosts)
-        
+
     return service
+
 
 class Service(User):
     class Meta:
@@ -56,16 +60,18 @@ class Service(User):
     def verify_host(self, host):
         if self.hosts.filter(address=host).exists():
             return True
-        else: 
+        else:
             return False
 
     def set_hosts(self, *raw_hosts):
-        hosts = [ ServiceAddress.objects.get_or_create(address=raw)[0] for raw in raw_hosts ]
+        hosts = [ServiceAddress.objects.get_or_create(address=raw)[0]
+                 for raw in raw_hosts]
         self.hosts.clear()
         self.hosts.add(*hosts)
 
     def add_hosts(self, *raw_hosts):
-        hosts = [ ServiceAddress.objects.get_or_create(address=raw)[0] for raw in raw_hosts ]
+        hosts = [ServiceAddress.objects.get_or_create(address=raw)[0]
+                 for raw in raw_hosts]
         self.hosts.add(*hosts)
 
     def del_hosts(self, *raw_hosts):
@@ -79,18 +85,18 @@ class Service(User):
 
     def add_permissions(self, permissions):
         self.user_permissions.add(*permissions)
-    
+
     def rm_permissions(self, permissions):
         self.user_permissions.remove(*permissions)
-    
+
     def set_permissions(self, permissions):
         self.user_permissions.clear()
         self.user_permissions.add(*permissions)
+
 
 class ServiceAddress(models.Model):
     address = models.CharField(max_length=39, unique=True)
     services = models.ManyToManyField(Service, related_name='hosts')
 
-    def __unicode__(self): # pragma: no cover
+    def __unicode__(self):  # pragma: no cover
         return self.address
-

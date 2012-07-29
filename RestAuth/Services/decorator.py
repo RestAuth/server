@@ -15,17 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
-from django.conf import settings
 import logging
+
+from django.http import HttpResponse
+from django.contrib.auth import authenticate
+from django.contrib.auth import login
+from django.conf import settings
+
 logger = logging.getLogger('general')
 
 
 def get_auth_challenge(realm):
     response = HttpResponse("Please authenticate", status=401)
-    response['WWW-Authenticate'] = 'Basic realm="%s"'%realm
+    response['WWW-Authenticate'] = 'Basic realm="%s"' % realm
     return response
+
 
 def login_user(view, request, realm, *args, **kwargs):
     """
@@ -41,18 +45,17 @@ def login_user(view, request, realm, *args, **kwargs):
     elif 'REMOTE_USER' in request.META:
         # The web-server already authenticated the remote user:
         user = authenticate(remote_user=request.META['REMOTE_USER'])
-    elif hasattr(request, 'user') and request.user.is_authenticated(): # pragma: no cover
+    elif hasattr(request, 'user') and request.user.is_authenticated():  # pragma: no cover
         return view(request, *args, **kwargs)
     else:
         logger.warn("Unable to get authentication source.")
         return get_auth_challenge(realm)
 
-
     if user:
-        auth_middleware = 'django.contrib.auth.middleware.AuthenticationMiddleware'
+        middleware = 'django.contrib.auth.middleware.AuthenticationMiddleware'
 
         # log the user in:
-        if auth_middleware in settings.MIDDLEWARE_CLASSES: # pragma: no cover
+        if middleware in settings.MIDDLEWARE_CLASSES:  # pragma: no cover
             login(request, user)
         else:
             setattr(request, 'user', user)
@@ -61,9 +64,9 @@ def login_user(view, request, realm, *args, **kwargs):
         # send an authentication challenge:
         logger.warn("Client provided wrong authentication credentials")
         return get_auth_challenge(realm)
-        
 
-def login_required(function = None, realm = ""):
+
+def login_required(function=None, realm=""):
     """
     Define our own login_required decorator to handle basic authentication,
     performed either by the webserver or the decorator itself.
