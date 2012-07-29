@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging, httplib
+import httplib
+import logging
 
 from django.http import HttpResponseForbidden
 
