@@ -31,7 +31,7 @@
 
 # Note: This file is imported from the real settings.py file, most settings are
 #     already defined there. Given here are some settings that are typically of
-#     interest for a system administrator, but you can always set any of the 
+#     interest for a system administrator, but you can always set any of the
 #     other settings available in django, if you know what you are doing.
 
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
@@ -54,22 +54,8 @@ DATABASES = {
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }    
-}
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'restauth',
-        'USER': 'restauth',
-        'PASSWORD': 'PASSWORD', # you really should change this!
-        'HOST': '',
-        'PORT': '',
-        'OPTIONS': {
-            'read_default_file': '/path/to/my.cnf',
-        },
     }
 }
-
 
 # You may want to configure a database router if you use some sort of database replication. For more
 # information, please see:
@@ -118,7 +104,7 @@ SECRET_KEY=''
 # Set a different hash algorithm for hashing passwords. This only affects newly
 # created passwords, so you can safely change this at any time, old hashes will
 # still work.
-# 
+#
 # You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha512' is the
 # default and recommended. Additionally, RestAuth supports using hashes
 # compatible with other systems, please see:
@@ -130,7 +116,7 @@ SECRET_KEY=''
 ###############
 # Django can use memcached to considerably speed up some requests. Note that due
 # the Django caching implementation, the current performance improvement is not
-# that great. 
+# that great.
 # For more information on caching, please see:
 # 	https://docs.djangoproject.com/en/1.3/topics/cache/
 
