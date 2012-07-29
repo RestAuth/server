@@ -17,7 +17,8 @@
 
 from django.http import HttpResponse
 
-def sql_profiler(view, request, *args, **kwargs): # pragma: no cover
+
+def sql_profiler(view, request, *args, **kwargs):  # pragma: no cover
     """
     Wrapper-function for the sql_profile decorator.
     """
@@ -27,11 +28,12 @@ def sql_profiler(view, request, *args, **kwargs): # pragma: no cover
     try:
         return view(request, *args, **kwargs)
     finally:
-        print('%s queries:'%(len(connection.queries)))
+        print('%s queries:' % (len(connection.queries)))
         for query in connection.queries:
-            print('%s; (%s secs)'%(query['sql'], query['time']))
+            print('%s; (%s secs)' % (query['sql'], query['time']))
 
-def sql_profile(function = None): # pragma: no cover
+
+def sql_profile(function=None):  # pragma: no cover
     """
     Decorator that lets you profile the sql queries made by a request. This
     isn't used anywhere by default, it is mainly used for debugging.
