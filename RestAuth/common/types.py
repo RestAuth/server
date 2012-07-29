@@ -16,10 +16,10 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 from RestAuthCommon.error import BadRequest
-from RestAuthCommon.errors import RestAuthException
-from RestAuthCommon.errors import UnsupportedMediaType
-from RestAuthCommon.errors import NotAcceptable
-from RestAuthCommon.errors import UnmarshalError
+from RestAuthCommon.error import RestAuthException
+from RestAuthCommon.error import UnsupportedMediaType
+from RestAuthCommon.error import NotAcceptable
+from RestAuthCommon.error import UnmarshalError
 from RestAuthCommon.handlers import CONTENT_HANDLERS
 
 
