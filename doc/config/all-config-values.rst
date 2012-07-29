@@ -27,13 +27,15 @@ CACHES
 
 Default: ``{}``
 
-This setting is `available in Django
-<https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`_. Please see the `official
-documentation <https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this setting.
+This setting is
+`available in Django <https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`_.
+Please see the
+`official documentation <https://docs.djangoproject.com/en/dev/topics/cache/>`_ on
+how to use this setting.
 
-RestAuth automatically adjusts :setting:`MIDDLEWARE_CLASSES` (as documented `here
-<https://docs.djangoproject.com/en/dev/topics/cache/#the-per-site-cache>`_) if you configure any
-caches.
+RestAuth automatically adjusts :setting:`MIDDLEWARE_CLASSES` (as documented
+`here <https://docs.djangoproject.com/en/dev/topics/cache/#the-per-site-cache>`_ ) if
+you configure any caches.
 
 .. setting:: ENABLE_SESSIONS
 
