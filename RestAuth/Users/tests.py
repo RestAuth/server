@@ -664,7 +664,7 @@ class HashTest(RestAuthTest):
             },
             "foobar1234567890123": {
                 "password": {
-                    "hash": "/v0NmQF2WKY", "sala": "OS", "algorithm": "crypt"
+                    "hash": "/v0NmQF2WKY", "salt": "OS", "algorithm": "crypt"
                 }
             },
             "foobar12345678901234": {
