@@ -16,16 +16,15 @@ Using database routers
 
 To use a database router (you can either :ref:`write your own <config-db-replication-existing>` or
 :ref:`use an existing one <config-db-replication-existing>`), simply add it to the
-``DATABASE_ROUTERS`` setting in :file:`localsettings.py` (or file:`/etc/restauth/settings.py` on
-Debian/Ubuntu). For example, if you want to use our :py:class:`MasterSlave` router, simply add:
+``DATABASE_ROUTERS`` setting in |file-settings-link|. For example, if you want to use our :py:class:`MasterSlave` router, simply add:
 
 .. code-block:: python
-   
+
    DATABASE_ROUTERS = ['RestAuth.common.routers.MasterSlave']
-   
+
 .. NOTE:: Routers shipping with RestAuth are not intended to be used together with other routers.
    If you require a more complex database routing schema you can either:
-   
+
    * `File a feature request <https://redmine.fsinf.at/projects/restauth-server/issues/new>`_ if you
      think this is a common scheme that will be used by others, or
    * implement it yourself

@@ -1,14 +1,24 @@
 Settings reference
 ------------------
 
-Since RestAuth is implemented as a Django project, RestAuth not only uses all `settings available in
-Django <https://docs.djangoproject.com/en/dev/ref/settings/>`_, but also features a few additional
-settings that ease administration and configure RestAuth. This document is a complete reference of
-settings that are either specific to RestAuth or are normal Django settings that RestAuth handles
-in a different way.
+Since RestAuth is implemented as a Django project, RestAuth not only uses all
+`settings available in Django
+<https://docs.djangoproject.com/en/dev/ref/settings/>`_, but also features a
+few additional settings that ease administration and configure RestAuth. This
+document is a complete reference of settings that are either specific to
+RestAuth or are normal Django settings that RestAuth handles in a different way.
 
-The config-file you should edit is actually called :file:`localsettings.py`. If you used our
-Debian/Ubuntu packages for installation, the file is called :file:`/etc/restauth/settings.py`.
+.. only:: homepage
+
+   .. _dist-specific-file-settings
+
+   Location of |file-settings-as-file|
+   ===================================
+
+   TODO: List where your configuration file might be located.
+
+
+TODO: Explain that localsettings.py is only included
 
 .. setting:: CACHES
 
@@ -91,10 +101,11 @@ LOGGING
 Default: please see source-code
 
 This setting is `available in Django
-<https://docs.djangoproject.com/en/dev/ref/settings/#logging>`_. RestAuth has (unlike Django) an
-extensive default. Various views assume the presence of configured loggers, so it is not recommended
-to change this setting yourself. If you really know what you are doing, read :file:`settings.py`
-on how to imitate the required loggers.
+<https://docs.djangoproject.com/en/dev/ref/settings/#logging>`_. RestAuth has
+(unlike Django) an extensive default. Various views assume the presence of
+configured loggers, so it is not recommended to change this setting yourself.
+If you really know what you are doing, read the real :file:`settings.py` on how
+to imitate the required loggers.
 
 .. setting:: LOG_HANDLER
 
@@ -117,7 +128,7 @@ Default: ``{}``
 
 Any additional keyword arguments the log handler defined in :setting:`LOG_HANDLER` LoggingHandler
 will get.
-  
+
 Here is an example for a `SocketHandler
 <http://docs.python.org/library/logging.handlers.html#sockethandler>`_:
 
@@ -162,11 +173,11 @@ MIDDLEWARE_CLASSES
 ==================
 
 Default::
-   
+
    ['django.middleware.common.CommonMiddleware',
     'RestAuth.common.middleware.ExceptionMiddleware',
     'RestAuth.common.middleware.HeaderMiddleware',]
-    
+
 RestAuth uses `middlewares <https://docs.djangoproject.com/en/dev/topics/http/middleware/>`_ like
 any other Django project. The default however only contains the bare minimum of required
 middlewares. Various settings (currently :setting:`CACHES` and :setting:`ENABLE_SESSIONS`) influence
@@ -175,8 +186,8 @@ the effective value of this setting.
 Additionally, :setting:`MIDDLEWARE_CLASSES` is a list and not a tuple. This allows you to add your
 own middleware at any position without having to reconfigure the entire setting. If you do, please
 consult :setting:`CACHES` and :setting:`ENABLE_SESSIONS` to see how they manipulate
-:setting:`MIDDLEWARE_CLASSES` to get the effective value. 
-    
+:setting:`MIDDLEWARE_CLASSES` to get the effective value.
+
 .. setting:: MIN_PASSWORD_LENGTH
 
 MIN_PASSWORD_LENGTH
@@ -212,7 +223,7 @@ SECRET_KEY
 ==========
 
 Never forget to set a `SECRET_KEY <https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>`_
-in :file:`localsettings.py`.
+in |file-settings-link|.
 
 .. setting:: VALIDATORS
 
@@ -237,7 +248,7 @@ Example configuration for disabling the registration of accounts incompatible wi
 or XMPP:
 
 .. code-block:: python
-   
+
    VALIDATORS = [
        'RestAuth.Users.validators.mediawiki',
        'RestAuth.Users.validators.xmpp',

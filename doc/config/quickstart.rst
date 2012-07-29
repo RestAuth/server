@@ -19,12 +19,9 @@ If your plattform is not listed here, you have to install from source.
 Configure RestAuth
 ------------------
 
-The location of the configuration file depends on how you installed RestAuth:
-
-* from source: ``/usr/local/lib/python2.7/dist-packages/RestAuth/localsettings.py``
-* on Debian/Ubuntu: ``/etc/restauth/settings.py``
-* on Redhat/Fedora: unkown.
-* on ArchLinux: ``/etc/restauth/settings.py``
+RestAuth has a central configuration file called |file-settings-link|. The
+location varies depending on how you installed RestAuth. Follow the previous
+link to get an overview where this file might me stored.
 
 The configuration file is a plain Python file. Don't worry if you have no experience writing
 Python, the syntax is pretty straight forward. Be careful of syntax errors, though, as this would
@@ -45,14 +42,14 @@ look like this:
             'PASSWORD': 'changeme',                  # Not used with sqlite3.
             'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
             'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-            
+
             # REMOVE THIS AFTER YOU CREATED YOUR DATABASE:
             'OPTIONS': {
                 'init_command': 'SET storage_engine=INNODB',
             },
-        }    
+        }
     }
-    
+
     # ...
     SECRET_KEY='pleasechangethisstring'
 
@@ -72,7 +69,7 @@ done by two simple commands on the shell:
 
    mysql -uroot -pYOUR_PASSWORD -e "CREATE DATABASE restauth CHARACTER SET utf8;"
    mysql -uroot -pYOUR_PASSWORD -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost' IDENTIFIED BY 'changeme'"
-   
+
 .. WARNING:: Please set the password ('changeme') to whatever you configured in your config-file.
 
 On some systems (i.e. Debian based systems) there is no root-password for MySQL and you connect,
@@ -92,7 +89,7 @@ restauth-manage:
 .. code-block:: bash
 
    restauth-manage syncdb --noinput
-   
+
 The script might be called differently on your system, i.e. ``manage.py``. After you have created
 the database tables, you finally have to update your config-file again: You have to remove the
 ``OPTIONS`` settings in your ``DATABASES`` setting. The same part quoted above now looks like this:
@@ -108,9 +105,9 @@ the database tables, you finally have to update your config-file again: You have
             'PASSWORD': 'changeme',                  # Not used with sqlite3.
             'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
             'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-        }    
+        }
     }
-    
+
 Again, do not forget to set the password do the correct value in line 6 of the above example.
 
 Configure Webserver
@@ -129,7 +126,7 @@ first need to create this user:
 .. code-block:: bash
 
    adduser --system --group --home /path/to/sources --no-create-home --disabled-login restauth
-   
+
 The home-directory is basically irrelevant but it should exist.
 
 Add Apache virtual host
@@ -147,14 +144,14 @@ setup is greatly depends on your plattform. Here are the relevant parts for Rest
 
     <VirtualHost *:443>
         # your basic configuration here...
-        
+
         # Django/WSGI application
         WSGIScriptAlias / /path/to/your/wsgi-script/restauth
         WSGIPassAuthorization on
         WSGIProcessGroup restauth
         WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
     </VirtualHost>
-    
+
 The wsgi-script (see line 5) is located in different locations depending on how you installed
 RestAuth:
 
@@ -198,5 +195,5 @@ The most recommended pages in this documentation are:
   * :doc:`restauth-user </restauth-service>`
   * :doc:`restauth-group </restauth-service>`
   * :doc:`restauth-import </restauth-import>`
-  
+
 * Solutions for :doc:`importing existing user databases into RestAuth </migrate/overview>`

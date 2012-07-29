@@ -17,7 +17,7 @@ Available hash functions
 
 .. automodule:: RestAuth.Users.hashes
    :members: apr1, crypt, mediawiki
-   
+
 .. _own-hash-functions:
 
 Implement your own hash functions
@@ -31,7 +31,7 @@ function with the following signature:
    def my_algorithm(secret, salt):
        # do some magic
        return hash
-       
+
 There are a few things to note here:
 
 * ``my_algorithm`` is the function name and encodes a custom name of your algorithm. The only
@@ -45,7 +45,7 @@ There are a few things to note here:
 * The function must return the valid hash of ``secret`` using the ``salt`` supplied (if any).
 
 Once you implemented your hash function, all you have to do is append the path of that function to
-:setting:`HASH_FUNCTIONS` in :file:`localsettings.py`:
+:setting:`HASH_FUNCTIONS` in |file-settings-link|:
 
 .. code-block:: python
 
@@ -67,16 +67,16 @@ dash (``-``). Another scenario is that the hash is applied multiple times to imp
 are two examples:
 
 .. code-block:: python
-   
+
    import hashlib
-   
+
    def custom_delimiter(secret, salt):
        """
        This hash is the md5-hash of the salt, a dash (``-``) and the md5-hash of the password.
        """
        secret_hash = hashlib.md5(secret).hexdigest()
        return hashlib.md5('%s-%s' % (salt, secret_hash)).hexdigest()
-       
+
    def multiple_rounds(secret, salt):
        """
        Uses plain sha512 but uses 1000 rounds of hashing.
@@ -86,6 +86,6 @@ are two examples:
        while i < 1000:
            hash = hashlib.sha512('%s%s' % (salt, secret)).hexdigest()
            i += 1
-	   
+
        return hash
-       
+

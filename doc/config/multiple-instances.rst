@@ -42,7 +42,7 @@ and/or different IP addresses.
 Settings based on environment variables
 =======================================
 
-Since :file:`localsettings.py` is just a normal Python file, you can use any Python code you want
+Since |file-settings-link| is just a normal Python file, you can use any Python code you want
 in it. The best way of getting multiple instances with the least configuration overhead is by using
 environment variables.
 
@@ -56,7 +56,7 @@ for your web server. The following example sets environment variables in a mod_w
 .. NOTE:: Many server setups, including WSGI applications, do not pass environment variables set
    in the apache configuration to the python interpreter. Please consult your webserver
    documentation if you have trouble retrieving the right environment variables.
-   
+
    The WSGI script that ships with RestAuth specifically passes :envvar:`RESTAUTH_HOST` and
    :envvar:`DJANGO_SETTINGS_MODULE` if present. Other environment variables are filtered, if you
    need additional environment variables, you need to modify the WSGI script.
@@ -66,32 +66,35 @@ for your web server. The following example sets environment variables in a mod_w
    <VirtualHost *:443>
        ServerName auth.example.com
        # ...
-       
+
        # if you want to run WSGI processes as their own user:
        WSGIProcessGroup restauth-com
        WSGIDaemonProcess restauth-com user=restauth group=restauth processes=1 threads=10
-       
+
        SetEnv RESTAUTH_HOST auth.example.com
    </VirtualHost>
 
    <VirtualHost *:443>
        ServerName auth.example.org
        # ...
-       
+
        # if you want to run WSGI processes as their own user:
        WSGIProcessGroup restauth-org
        WSGIDaemonProcess restauth-org user=restauth group=restauth processes=1 threads=10
-       
+
        SetEnv RESTAUTH_HOST auth.example.org
    </VirtualHost>
 
-You can now use :envvar:`RESTAUTH_HOST` in :file:`localsettings.py` to determine settings based on the
-host that the client accesses. To configure different databases, the file might look like this:
+.. **
+
+You can now use :envvar:`RESTAUTH_HOST` in |file-settings-link| to determine
+settings based on the host that the client accesses. To configure different
+databases, the file might look like this:
 
 .. code-block:: python
-   
+
    # ...
-   
+
    import os
    # get environment variable, .com is the default if undefined
    RESTAUTH_HOST = os.environ.get( 'RESTAUTH_HOST', 'auth.example.com' )
@@ -117,19 +120,19 @@ host that the client accesses. To configure different databases, the file might 
                'PORT': '',
            }
        }
-       
+
 In this example, :samp:`auth.example.org` uses a PostgreSQL database and :samp:`auth.example.com`
 uses a MySQL database. You can use this setup to set **any other setting** based on the hostname.
 
 Separate settings files
 =======================
-Another, slightly more maintenance intensive way, is to use different :file:`settings.py` files
-altogether. All settings are duplicated in this configuration, if you want to share common
-configuration, you can still have them in the file :file:`localsettings.py` as described in the
-examples below.
+Another, slightly more maintenance intensive way, is to use different
+:file:`settings.py` files altogether. All settings are duplicated in this
+configuration, if you want to share common configuration, you can still have
+them in the file |file-settings-link| as described in the examples below.
 
-The Apache configuration is similar, only that you use the standard Django environment variable
-:envvar:`DJANGO_SETTINGS_MODULE`:
+The Apache configuration is similar, only that you use the standard Django
+environment variable :envvar:`DJANGO_SETTINGS_MODULE`:
 
 .. NOTE:: This Apache configuration example uses Server Name Indication. See the :ref:`dedicated
    chapter <config_multiple_instances_sni>` for more information.
@@ -137,7 +140,7 @@ The Apache configuration is similar, only that you use the standard Django envir
 .. NOTE:: Many server setups, including WSGI applications, do not pass environment variables set
    in the apache configuration to the python interpreter. Please consult your webserver
    documentation if you have trouble retrieving the right environment variables.
-   
+
    The WSGI script that ships with RestAuth specifically passes :envvar:`RESTAUTH_HOST` and
    :envvar:`DJANGO_SETTINGS_MODULE` if present. Other environment variables are filtered, if you
    need additional environment variables, you need to modify the WSGI script.
@@ -155,9 +158,12 @@ The Apache configuration is similar, only that you use the standard Django envir
        # ...
        SetEnv DJANGO_SETTINGS_MODULE RestAuth.settings_org
    </VirtualHost>
-   
-You then create two new files, :file:`settings_com.py` and :file:`settings_org.py` in the same
-location as :file:`settings.py`. Each file might look like this:
+
+.. **
+
+You then create two new files, :file:`settings_com.py` and
+:file:`settings_org.py` in the same location as :file:`settings.py`. Each file
+might look like this:
 
 .. code-block:: python
 
@@ -177,15 +183,17 @@ location as :file:`settings.py`. Each file might look like this:
         }
    }
 
-You can now configure each instance separately. The file :file:`localsettings.py` is still included
-in :file:`settings.py`, so you can use it to share settings for every instance.
+You can now configure each instance separately. The file |file-settings-link|
+is still included in :file:`settings.py`, so you can use it to share settings
+for every instance.
 
 Access different hosts via command line
 =======================================
 
-To access the different RestAuth instances via our command-line tools (:doc:`/restauth-service`,
-:doc:`/restauth-user`, :doc:`/restauth-group` and :doc:`/restauth-import`), you simply have to set
-the correct environment variables on the command line first:
+To access the different RestAuth instances via our command-line tools
+(:doc:`/restauth-service`, :doc:`/restauth-user`, :doc:`/restauth-group` and
+:doc:`/restauth-import`), you simply have to set the correct environment
+variables on the command line first:
 
 .. code-block:: bash
 
