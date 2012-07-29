@@ -15,9 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-from RestAuthCommon.error import BadRequest, RestAuthException, UnsupportedMediaType, NotAcceptable, UnmarshalError
+from RestAuthCommon.error import BadRequest
+from RestAuthCommon.errors import RestAuthException
+from RestAuthCommon.errors import UnsupportedMediaType
+from RestAuthCommon.errors import NotAcceptable
+from RestAuthCommon.errors import UnmarshalError
 from RestAuthCommon.handlers import CONTENT_HANDLERS
+
 
 def get_request_type(request):
     import mimeparse
@@ -29,6 +33,7 @@ def get_request_type(request):
         return match
     else:
         raise UnsupportedMediaType()
+
 
 def get_response_type(request):
     import mimeparse
@@ -42,11 +47,12 @@ def get_response_type(request):
     else:
         raise NotAcceptable()
 
+
 def get_dict(request, keys=[], optional=[]):
     """
-    Unmarshal a dictionary and verify that this dictionary only contains the specified
-    I{keys}. If I{keys} only contains one element, this method returns just
-    the string, otherwise it returns the unmarshalled dictionary.
+    Unmarshal a dictionary and verify that this dictionary only contains the
+    specified I{keys}. If I{keys} only contains one element, this method
+    returns just the string, otherwise it returns the unmarshalled dictionary.
 
     This method primarily exists as as a means to ensure standars compliance
     of clients in the reference service implementation. Using this method,
@@ -69,7 +75,7 @@ def get_dict(request, keys=[], optional=[]):
     try:
         mime_type = get_request_type(request)
         body = request.raw_post_data
-        
+
         handler = CONTENT_HANDLERS[mime_type]()
         data = handler.unmarshal_dict(body)
     except UnmarshalError as e:
@@ -83,8 +89,10 @@ def get_dict(request, keys=[], optional=[]):
     optional_parameters = key_set.difference(set(keys))
     if not optional_parameters.issubset(optional):
         raise BadRequest("Did not find expected keys in string")
-        
+
     if len(keys) == 1 and not optional:
         return data[keys[0]]
-    else:   
-        return [ data[key] for key in keys ] + [ data.pop(key, None) for key in optional ]
+    else:
+        mandatory = [data[key] for key in keys]
+        optional = [data.pop(key, None) for key in optional]
+        return mandatory + optional
