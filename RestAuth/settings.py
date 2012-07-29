@@ -129,7 +129,6 @@ if not LOGGING:
             'groups.group.groups.subgroup': {
                 'format': '%(levelname)s %(service)s: %(group)s: '
                           '%(subgroup)s: %(message)s'
-#	settings.py.backup
             },
         },
         'handlers': {
