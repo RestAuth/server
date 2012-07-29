@@ -15,21 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import re, datetime, stringprep, hashlib
+import datetime
+import hashlib
+import re
+import stringprep
+
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.core import exceptions
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.utils import IntegrityError
-from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote
 from django.utils.importlib import import_module
 from django.utils.encoding import smart_str
 
-from RestAuth.common.errors import UsernameInvalid, PasswordInvalid, UserExists, PropertyExists
-from RestAuth.Users import validators
 from RestAuthCommon.error import PreconditionFailed
 from RestAuthCommon import resource_validator
+
+from RestAuth.common.errors import PasswordInvalid
+from RestAuth.common.errors import PropertyExists
+from RestAuth.common.errors import UserExists
+from RestAuth.common.errors import UsernameInvalid
+from RestAuth.Users import validators
 
 user_permissions = (
     ('users_list', 'List all users'),
@@ -48,104 +54,110 @@ prop_permissions = (
     ('prop_delete', 'Delete a property'),
 )
 
-def user_get( name ):
-	"""
-	Get a user with the given username.
-	
-	Note: this is only used by the CLI interface any more.
 
-	@raises ServiceUser.DoesNotExist: When the user does not exist.
-	"""
-	return ServiceUser.objects.get( username=name.lower() )
+def user_get(name):
+    """
+    Get a user with the given username.
 
-def user_create( name, password ):
-	"""
-	Creates a new user. Lowercases the username.
+    Note: this is only used by the CLI interface any more.
 
-	@raise UserExists: If the user already exists
-	@raise UsernameInvalid: If the username is unacceptable
-	@raise PasswordInvalid: If the password is unacceptable
-	"""
-	name = name.lower()
-	validate_username( name )
-	try:
-		user = ServiceUser( username=name )
-		if password: 
-			user.set_password( password )
-		user.save()
-		return user
-	except IntegrityError:
-		raise UserExists( "A user with the given name already exists." )
+    @raises ServiceUser.DoesNotExist: When the user does not exist.
+    """
+    return ServiceUser.objects.get(username=name.lower())
 
-def validate_username( username ):
-	if len( username ) < settings.MIN_USERNAME_LENGTH:
-		raise UsernameInvalid( "Username too short" )
-	if len( username ) > settings.MAX_USERNAME_LENGTH:
-		raise UsernameInvalid( "Username too long" )
-		
-	illegal_chars = set()
-	reserved = set()
-	force_ascii = False
-	allow_whitespace = True
-	validators = []
-	
-	for validator_path in settings.VALIDATORS:
-		# import validator:
-		try:
-			modname, classname = validator_path.rsplit('.', 1)
-		except ValueError:
-			raise exceptions.ImproperlyConfigured(
-				'%s isn\'t a middleware module' % validator_path )
-		
-		try:
-			mod = import_module( modname )
-		except ImportError as e:
-			raise exceptions.ImproperlyConfigured(
-				'Error importing middleware %s: "%s"' % (modname, e))
-		try:
-			validator = getattr( mod, classname )
-		except AttributeError:
-			raise exceptions.ImproperlyConfigured(
-				'Middleware module "%s" does not define a "%s" class' % (modname, classname))
-		
-		if hasattr( validator, 'check' ):
-			validators.append( validator )
-		
-		illegal_chars |= validator.ILLEGAL_CHARACTERS
-		reserved |= validator.RESERVED
-		if validator.FORCE_ASCII:
-			force_ascii = True
-		if not validator.ALLOW_WHITESPACE:
-			allow_whitespace = False
-	
-	# check for illegal characters:
-	for char in illegal_chars:
-		if char in username:
-			raise UsernameInvalid( "Username must not contain character '%s'"%char )
 
-	# reserved names
-	if username in reserved:
-		raise UsernameInvalid( "Username is reserved" )
-	
-	# force ascii if necessary
-	if force_ascii:
-		try:
-			username.decode( 'ascii' )
-		except UnicodeDecodeError:
-			raise UsernameInvalid( "Username must only contain ASCII characters" )
-	
-	# check for whitespace
-	if not allow_whitespace:
-		if force_ascii:
-			whitespace_regex = re.compile( '\s' )
-		else:
-			whitespace_regex = re.compile( '\s', re.UNICODE )
-		if whitespace_regex.search( username ):
-			raise UsernameInvalid( "Username must not contain any whitespace" )
+def user_create(name, password):
+    """
+    Creates a new user. Lowercases the username.
 
-	for validator in validators:
-		validator.check( username )
-		
+    @raise UserExists: If the user already exists
+    @raise UsernameInvalid: If the username is unacceptable
+    @raise PasswordInvalid: If the password is unacceptable
+    """
+    name = name.lower()
+    validate_username(name)
+    try:
+        user = ServiceUser(username=name)
+        if password:
+            user.set_password(password)
+        user.save()
+        return user
+    except IntegrityError:
+        raise UserExists("A user with the given name already exists.")
+
+
+def validate_username(username):
+    if len(username) < settings.MIN_USERNAME_LENGTH:
+        raise UsernameInvalid("Username too short")
+    if len(username) > settings.MAX_USERNAME_LENGTH:
+        raise UsernameInvalid("Username too long")
+
+    illegal_chars = set()
+    reserved = set()
+    force_ascii = False
+    allow_whitespace = True
+    validators = []
+
+    for validator_path in settings.VALIDATORS:
+        # import validator:
+        try:
+            modname, classname = validator_path.rsplit('.', 1)
+        except ValueError:
+            raise ImproperlyConfigured(
+                '%s isn\'t a middleware module' % validator_path)
+
+        try:
+            mod = import_module(modname)
+        except ImportError as e:
+            raise ImproperlyConfigured(
+                'Error importing middleware %s: "%s"' % (modname, e))
+        try:
+            validator = getattr(mod, classname)
+        except AttributeError:
+            msg = 'Middleware module "%s" does not define a "%s" class'
+            raise ImproperlyConfigured(msg % (modname, classname))
+
+        if hasattr(validator, 'check'):
+            validators.append(validator)
+
+        illegal_chars |= validator.ILLEGAL_CHARACTERS
+        reserved |= validator.RESERVED
+        if validator.FORCE_ASCII:
+            force_ascii = True
+        if not validator.ALLOW_WHITESPACE:
+            allow_whitespace = False
+
+    # check for illegal characters:
+    for char in illegal_chars:
+        if char in username:
+            raise UsernameInvalid(
+                "Username must not contain character '%s'" % char)
+
+    # reserved names
+    if username in reserved:
+        raise UsernameInvalid("Username is reserved")
+
+    # force ascii if necessary
+    if force_ascii:
+        try:
+            username.decode('ascii')
+        except UnicodeDecodeError:
+            raise UsernameInvalid(
+                "Username must only contain ASCII characters")
+
+    # check for whitespace
+    if not allow_whitespace:
+        if force_ascii:
+            whitespace_regex = re.compile('\s')
+        else:
+            whitespace_regex = re.compile('\s', re.UNICODE)
+        if whitespace_regex.search(username):
+            raise UsernameInvalid("Username must not contain any whitespace")
+
+    for validator in validators:
+        validator.check(username)
+
+
 def get_salt():
     """
     Get a very random salt. The salt is the first eight characters of a
@@ -154,6 +166,7 @@ def get_salt():
     from random import random
     random_string = ','.join(map(lambda a: str(random()), range(5)))
     return hashlib.sha512(random_string).hexdigest()[:8]
+
 
 def get_hexdigest(algorithm, salt, secret):
     """
@@ -164,54 +177,55 @@ def get_hexdigest(algorithm, salt, secret):
     secret = smart_str(secret)
     if salt:
             salt = smart_str(salt)
-    
+
     try:
             func = getattr(hashlib, algorithm)
             if salt:
                 return func(salt + secret).hexdigest()
-            else: # pragma: no cover
+            else:  # pragma: no cover
                 return func(secret).hexdigest()
-    except AttributeError: # custom hashing algorithm
+    except AttributeError:  # custom hashing algorithm
         for path in settings.HASH_FUNCTIONS:
             # import validator:
             try:
                 modname, funcname = path.rsplit('.', 1)
-            except ValueError: # pragma: no cover
-                raise exceptions.ImproperlyConfigured('%s isn\'t a python path' % path)
-            
+            except ValueError:  # pragma: no cover
+                raise ImproperlyConfigured('%s isn\'t a python path' % path)
+
             # skip if funcname is not the desired algorithm:
             if algorithm != funcname:
                 continue
-            
+
             try:
                 mod = import_module(modname)
-            except ImportError as e: # pragma: no cover
-                raise exceptions.ImproperlyConfigured(
+            except ImportError as e:  # pragma: no cover
+                raise ImproperlyConfigured(
                     'Error importing module %s: "%s"' % (modname, e))
             try:
                 func = getattr(mod, funcname)
-            except AttributeError: # pragma: no cover
-                raise exceptions.ImproperlyConfigured(
-                    'Module "%s" does not define a "%s" function' % (modname, funcname))
-            
+            except AttributeError:  # pragma: no cover
+                msg = 'Module "%s" does not define a "%s" function'
+                raise ImproperlyConfigured(msg % (modname, funcname))
+
             return func(secret, salt)
+
 
 class ServiceUser(models.Model):
     username = models.CharField('username', max_length=60, unique=True)
-    algorithm = models.CharField('algorithm', max_length=20, blank=True, null=True)
+    algorithm = models.CharField('algorithm', max_length=20,
+                                 blank=True, null=True)
     salt = models.CharField('salt', max_length=16, blank=True, null=True)
     hash = models.CharField('hash', max_length=128, blank=True, null=True)
-    last_login = models.DateTimeField('last login', auto_now=True, auto_now_add=True)
+    last_login = models.DateTimeField('last login',
+                                      auto_now=True, auto_now_add=True)
     date_joined = models.DateTimeField('date joined', auto_now_add=True)
-
 
     class Meta:
         permissions = user_permissions
-        
 
     def __init__(self, *args, **kwargs):
         models.Model.__init__(self, *args, **kwargs)
-        
+
         if self.username and not resource_validator(self.username):
             raise PreconditionFailed("Username contains invalid characters")
 
@@ -242,16 +256,17 @@ class ServiceUser(models.Model):
         """
         if not (self.algorithm and self.hash):
             return False
-        
+
         digest = get_hexdigest(self.algorithm, self.salt, raw_password)
-        if digest == self.hash: # correct
-            if self.algorithm != settings.HASH_ALGORITHM: # pragma: no cover
+        if digest == self.hash:  # correct
+            if self.algorithm != settings.HASH_ALGORITHM:  # pragma: no cover
                 # we do this manually so we avoid any checks.
                 self.algorithm = settings.HASH_ALGORITHM
                 self.salt = get_salt()
-                self.hash = get_hexdigest(self.algorithm, self.salt, raw_password)
+                self.hash = get_hexdigest(
+                    self.algorithm, self.salt, raw_password)
             return True
-        else: # password not correct
+        else:  # password not correct
             return False
 
     def get_groups(self, service):
@@ -263,13 +278,14 @@ class ServiceUser(models.Model):
         @type  service: service
         """
         groups = set(self.group_set.filter(service=service).only('name'))
-        
+
         # import here to avoid circular imports:
         from RestAuth.Groups.models import Group
-            
+
         # any remaining candidates
-        exclude_ids = [ group.id for group in groups ]
-        others = Group.objects.filter(service=service).exclude(id__in=exclude_ids).only('name')
+        exclude_ids = [group.id for group in groups]
+        others = Group.objects.filter(service=service).exclude(
+            id__in=exclude_ids).only('name')
         for other in others:
             if other.is_indirect_member(self):
                 groups.add(other)
@@ -286,13 +302,13 @@ class ServiceUser(models.Model):
         from RestAuthCommon import resource_validator
         if not resource_validator(key):
             raise PreconditionFailed("Property contains invalid characters")
-            
+
         try:
             prop = Property(user=self, key=key, value=value)
             prop.save()
             return prop
         except IntegrityError:
-            raise PropertyExists(key)        
+            raise PropertyExists(key)
 
     def get_properties(self):
         dictionary = {}
@@ -307,7 +323,7 @@ class ServiceUser(models.Model):
         Set the property identified by I{key} to I{value}. If the
         property already exists, it is overwritten.
 
-        @return: Returns a tuple. The first value represents the 
+        @return: Returns a tuple. The first value represents the
             L{Property} acted upon and the second value is a string
             with the previous value or None if this was a new
             property.
@@ -330,23 +346,24 @@ class ServiceUser(models.Model):
         """
         # exactly one SELECT statement
         return self.property_set.get(key=key)
-    
+
     def del_property(self, key):
         """
         Delete a property.
 
         @raises Property.DoesNotExist: When the property does not exist.
         """
-        if self.property_set.filter(key=key).exists():    
+        if self.property_set.filter(key=key).exists():
             self.property_set.filter(key=key).delete()
         else:
             raise Property.DoesNotExist()
 
-    def __unicode__(self): # pragma: no cover
+    def __unicode__(self):  # pragma: no cover
         return self.username
 
     def get_absolute_url(self):
-        return '/users/%s/'% urlquote(self.username)
+        return '/users/%s/' % urlquote(self.username)
+
 
 class Property(models.Model):
     user = models.ForeignKey(ServiceUser)
@@ -357,9 +374,9 @@ class Property(models.Model):
         unique_together = ('user', 'key')
         permissions = prop_permissions
 
-    def __unicode__(self): # pragma: no cover
-        return "%s: %s=%s"%(self.user.username, self.key, self.value)
-    
+    def __unicode__(self):  # pragma: no cover
+        return "%s: %s=%s" % (self.user.username, self.key, self.value)
+
     def get_absolute_url(self):
         userpath = self.user.get_absolute_url()
-        return '%sprops/%s/'%(userpath, urlquote(self.key))
+        return '%sprops/%s/' % (userpath, urlquote(self.key))
