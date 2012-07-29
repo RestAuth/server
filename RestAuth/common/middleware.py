@@ -68,7 +68,7 @@ class HeaderMiddleware:
     Middleware to ensure required headers are present.
     """
     def process_request(self, request):
-        if request.method in CONTENT_TYPE_METHDOS and \
+        if request.method in CONTENT_TYPE_METHODS and \
                 'CONTENT_TYPE' not in request.META:
             return HttpResponse(
                 'POST/PUT requests must include a Content-Type header.',
