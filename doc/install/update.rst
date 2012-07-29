@@ -1,5 +1,5 @@
-Upgrade instructions
---------------------
+Update instructions
+-------------------
 
 Updating RestAuth consists of three steps: First you have to update the source code and database
 schema. You should also check for new available settings when a new version becomes available.
@@ -7,7 +7,7 @@ schema. You should also check for new available settings when a new version beco
 Update source
 =============
 
-The specific installation instructions for your platform provide documentation on how to upgrade
+The specific installation instructions for your platform provide documentation on how to update
 your source code:
 
 * :ref:`from source <source-update>`
