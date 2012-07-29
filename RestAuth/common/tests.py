@@ -69,6 +69,6 @@ class ContentTypeTests(RestAuthTest):
 
     def test_wrong_content(self):
         content = 'no_json_at_all}}}'
-        resp = self.c.post('/users/', content, *self.extra)
+        resp = self.c.post('/users/', content, **self.extra)
         self.assertEquals(resp.status_code, httplib.BAD_REQUEST)
         self.assertItemsEqual(User.objects.all(), [])
