@@ -15,10 +15,28 @@ RestAuth or are normal Django settings that RestAuth handles in a different way.
    Location of |file-settings-as-file|
    ===================================
 
-   TODO: List where your configuration file might be located.
+   The file |file-settings-as-file| is referenced throughout the documentation.
+   The name and location of this file varies depending on how you installed
+   RestAuth. Here is an overview of known locations:
 
+   ============================================= =========================
+   Installation method                           Location
+   ============================================= =========================
+   :doc:`from source </install/from-source>`     RestAuth/localsettings.py
+   :doc:`Debian/Ubuntu </install/debian-ubuntu>` /etc/restauth/settings.py
+   :doc:`Fedora </install/redhat-fedora>`        Unknown
+   :doc:`Archlinux </install/archlinux>`         Unknown
+   ============================================= =========================
 
-TODO: Explain that localsettings.py is only included
+   .. TODO:: Research locations on Fedora and Archlinux
+
+.. NOTE:: If you start digging deeper into RestAuth and Django configuration,
+   you will notice, that many configuration variables
+   `normally present in a Django settings file
+   <https://docs.djangoproject.com/en/dev/topics/settings/>`_ are missing from
+   that file. This is because the file is only included in the
+   real :file:`settings.py` file. This is why you can set any Django setting in
+   your |file-settings-as-file| and overwrite any existing Django setting.
 
 .. setting:: CACHES
 
