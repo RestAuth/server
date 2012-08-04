@@ -1,6 +1,20 @@
 [
     {
         "pk": 1,
+        "model": "Services.serviceaddress",
+        "fields": {
+            "address": "::1"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "Services.serviceaddress",
+        "fields": {
+            "address": "127.0.0.1"
+        }
+    },
+    {
+        "pk": 1,
         "model": "auth.user",
         "fields": {
             "username": "vowi",
@@ -9,7 +23,7 @@
             "is_active": true,
             "is_superuser": false,
             "is_staff": false,
-            "last_login": "2012-07-15T19:16:45.558",
+            "last_login": "2012-08-04T16:30:47.009",
             "groups": [],
             "user_permissions": [
                 [
@@ -133,33 +147,142 @@
                     "serviceuser"
                 ]
             ],
-            "password": "pbkdf2_sha256$10000$3E1Lr9BqNWhy$3FTgcG7Oiz7CTwX8Z6uj2+8ut3QU+jjmwSzHKaXaCzY=",
+            "password": "pbkdf2_sha256$10000$ytAKtjSJODVL$yEJhoxHp3lYK2BjPCyjrTFqcYTifYuplzADf7s6q3rc=",
             "email": "",
-            "date_joined": "2012-07-15T19:16:45.558"
+            "date_joined": "2012-08-04T16:30:47.009"
         }
     },
     {
         "pk": 1,
-        "model": "Services.serviceaddress",
+        "model": "Services.service",
         "fields": {
-            "services": [
+            "user_permissions": [
                 [
-                    "vowi"
+                    "group_add_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_add_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_create",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_delete",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_exists",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_groups_list",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_user_in_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_users",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_for_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_list",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "prop_create",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_delete",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_get",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_set",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "props_list",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "user_change_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_create",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_delete",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_delete_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_exists",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_verify_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "users_list",
+                    "Users",
+                    "serviceuser"
                 ]
             ],
-            "address": "::1"
-        }
-    },
-    {
-        "pk": 2,
-        "model": "Services.serviceaddress",
-        "fields": {
-            "services": [
-                [
-                    "vowi"
-                ]
+            "hosts": [
+                1,
+                2
             ],
-            "address": "127.0.0.1"
+            "groups": []
         }
     }
 ]
