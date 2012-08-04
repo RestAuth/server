@@ -88,16 +88,9 @@ Setup database
 --------------
 
 Next you need to populate your database with the necessary tables. This
-couldn't be simpler, using restauth-manage:
+couldn't be simpler, using |bin-restauth-manage-link|:
 
-.. code-block:: bash
-
-   restauth-manage syncdb --noinput
-
-The script might be called differently on your system, i.e. ``manage.py``.
-After you have created the database tables, you finally have to update your
-config-file again: You have to remove the ``OPTIONS`` settings in your
-``DATABASES`` setting. The same part quoted above now looks like this:
+.. parsed-literal:: |bin-restauth-manage| syncdb --noinput
 
 .. code-block:: python
     :linenos:
@@ -121,20 +114,26 @@ Configure Webserver
 
 Note that :doc:`more detailed documentation </config/webserver>` is available.
 
-Add daemon user
-_______________
+.. only:: not debian
 
-.. NOTE:: This step is not necessary if you installed using our Debian/Ubuntu
-   packages.
+   Add daemon user
+   _______________
 
-In this setup, RestAuth WSGI daemons run as a dedicated system user. Depending
-on the system, you first need to create this user:
+.. only:: homepage
 
-.. code-block:: bash
+   .. NOTE:: This step is not necessary if you installed using our Debian/Ubuntu
+      packages, as the user is added automatically.
 
-   adduser --system --group --home /path/to/sources --no-create-home --disabled-login restauth
+.. only:: not debian
 
-The home-directory is basically irrelevant but it should exist.
+   In this setup, RestAuth WSGI daemons run as a dedicated system user. Depending
+   on the system, you first need to create this user:
+
+   .. code-block:: bash
+
+      adduser --system --group --home /path/to/sources --no-create-home --disabled-login restauth
+
+   The home-directory is basically irrelevant but it should exist.
 
 Add Apache virtual host
 _______________________
@@ -160,6 +159,8 @@ plattform. Here are the relevant parts for RestAuth:
         WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
     </VirtualHost>
 
+.. vim syntax highlighting for rst sucks*
+
 The wsgi-script (see line 5) is located in different locations depending on how you installed
 RestAuth:
 
@@ -177,14 +178,13 @@ The final step to get a working RestAuth server is to add services to RestAuth.
 A service is a system (i.e. a Wiki, a CMS, a Unix system, ...) that uses
 RestAuth. RestAuth needs to know about the services using it, where they connect
 from and what they are allowed to do. Managing services is done via
-:doc:`restauth-service </restauth-service>`. Adding a service works like this:
+|bin-restauth-service-doc|. Adding a service works like this:
 
-.. code-block:: bash
-   :linenos:
+.. parsed-literal::
 
-   restauth-service add --gen-password wiki.example.com
-   restauth-service set-hosts 127.0.0.1
-   restauth-service set-permissions users_list user_verify_password user_change_password
+   |bin-restauth-service| add --gen-password wiki.example.com
+   |bin-restauth-service| set-hosts 127.0.0.1
+   |bin-restauth-service| set-permissions users_list user_verify_password user_change_password
 
 In the above example the command in line 1 adds the service. A generated
 password is printed to standard output. Use these credentials in the
@@ -202,11 +202,11 @@ The most recommended pages in this documentation are:
   </config/all-config-values>`
 * Documentation for the cli tools:
 
-  * :doc:`restauth-manage </bin/restauth-manage>`
-  * :doc:`restauth-service </restauth-service>`
-  * :doc:`restauth-user </restauth-service>`
-  * :doc:`restauth-group </restauth-service>`
-  * :doc:`restauth-import </restauth-import>`
+  * |bin-restauth-manage-doc|
+  * |bin-restauth-service-doc|
+  * |bin-restauth-user-doc|
+  * |bin-restauth-group-doc|
+  * |bin-restauth-import-doc|
 
 * Solutions for :doc:`importing existing user databases into RestAuth
   </migrate/overview>`
