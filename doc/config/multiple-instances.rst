@@ -59,8 +59,8 @@ RestAuth instance you want to maintain. You can set this anywhere you like,
 please consult the appropriate documentation for your web server. The following
 example sets environment variables in a mod_wsgi deployment.
 
-.. NOTE:: This Apache configuration example uses Server Name Indication. See the
-   :ref:`dedicated chapter <config_multiple_instances_sni>` for more
+.. NOTE:: This Apache configuration example uses Server Name Indication. See
+   the :ref:`dedicated chapter <config_multiple_instances_sni>` for more
    information.
 
 .. NOTE:: Many server setups, including WSGI applications, do not pass
@@ -68,8 +68,8 @@ example sets environment variables in a mod_wsgi deployment.
    interpreter.  Please consult your webserver documentation if you have trouble
    retrieving the right environment variables.
 
-   The WSGI script that ships with RestAuth specifically passes
-   :envvar:`RESTAUTH_HOST` and :envvar:`DJANGO_SETTINGS_MODULE` if present.
+   The WSGI script that ships with RestAuth specifically
+   passes :envvar:`RESTAUTH_HOST` and :envvar:`DJANGO_SETTINGS_MODULE` if present.
    Other environment variables are filtered, if you need additional environment
    variables, you need to modify the WSGI script.
 
@@ -147,8 +147,8 @@ them in the file |file-settings-link| as described in the examples below.
 The Apache configuration is similar, only that you use the standard Django
 environment variable :envvar:`DJANGO_SETTINGS_MODULE`:
 
-.. NOTE:: This Apache configuration example uses Server Name Indication. See the
-   :ref:`dedicated chapter <config_multiple_instances_sni>` for more
+.. NOTE:: This Apache configuration example uses Server Name Indication. See
+   the :ref:`dedicated chapter <config_multiple_instances_sni>` for more
    information.
 
 .. NOTE:: Many server setups, including WSGI applications, do not pass
@@ -156,10 +156,10 @@ environment variable :envvar:`DJANGO_SETTINGS_MODULE`:
    Please consult your webserver documentation if you have trouble retrieving
    the right environment variables.
 
-   The WSGI script that ships with RestAuth specifically passes
-   :envvar:`RESTAUTH_HOST` and :envvar:`DJANGO_SETTINGS_MODULE` if present.
-   Other environment variables are filtered, if you need additional environment
-   variables, you need to modify the WSGI script.
+   The WSGI script that ships with RestAuth specifically
+   passes :envvar:`RESTAUTH_HOST` and :envvar:`DJANGO_SETTINGS_MODULE` if
+   present.  Other environment variables are filtered, if you need additional
+   environment variables, you need to modify the WSGI script.
 
 .. code-block:: apache
 
