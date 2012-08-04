@@ -1,8 +1,9 @@
 Quickstart to setting up RestAuth
 =================================
 
-This is a quickstart guide for getting RestAuth up and running. It assumes a simple setup with
-RestAuth as a Apache/WSGI application, a MySQL database and no complex settings.
+This is a quickstart guide for getting RestAuth up and running. It assumes a
+simple setup with RestAuth as a Apache/WSGI application, a MySQL database and
+no complex settings.
 
 Install RestAuth
 ----------------
@@ -23,13 +24,13 @@ RestAuth has a central configuration file called |file-settings-link|. The
 location varies depending on how you installed RestAuth. Follow the previous
 link to get an overview where this file might me stored.
 
-The configuration file is a plain Python file. Don't worry if you have no experience writing
-Python, the syntax is pretty straight forward. Be careful of syntax errors, though, as this would
-cause hard-to-debug errors.
+The configuration file is a plain Python file. Don't worry if you have no
+experience writing Python, the syntax is pretty straight forward. Be careful of
+syntax errors, though, as this would cause hard-to-debug errors.
 
-The only settings you really have to make are the ``DATABASES`` and the ``SECRET_KEY`` settings,
-which are almost at the beginning of the file. After your editing, the relevant sections should
-look like this:
+The only settings you really have to make are the ``DATABASES`` and the
+``SECRET_KEY`` settings, which are almost at the beginning of the file. After
+your editing, the relevant sections should look like this:
 
 .. code-block:: python
     :linenos:
@@ -53,17 +54,18 @@ look like this:
     # ...
     SECRET_KEY='pleasechangethisstring'
 
-.. WARNING:: Please do not forget to set the password for the database (line 6) and SECRET KEY
-   (line 18) to some random string. The two strings should not be the same strings.
+.. WARNING:: Please do not forget to set the password for the database (line 6)
+   and SECRET KEY (line 18) to some random string. The two strings should not be
+   the same strings.
 
-Feel free to look around the config-file, it has lots of comments to make it easy for you to
-customize RestAuth to your needs.
+Feel free to look around the config-file, it has lots of comments to make it
+easy for you to customize RestAuth to your needs.
 
 Create a database
 -----------------
 
-The next step is creating your database (:ref:`detailed instructions <database_create>`). This is
-done by two simple commands on the shell:
+The next step is creating your database (:ref:`detailed instructions
+<database_create>`). This is done by two simple commands on the shell:
 
 .. code-block:: bash
 
