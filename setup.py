@@ -168,7 +168,8 @@ class build_doc_meta(Command):
             for suffix in ['usage', 'commands', 'parameters']:
                 filename = 'doc/gen/%s-%s.rst' % (name, suffix)
                 if self.should_generate(cli.__file__, filename):
-                    cli.write_usage(parser, filename)
+                    func = getattr(cli, 'write_%s' % suffix)
+                    func(parser, filename, name)
 
         # generate permissions:
         self.write_perm_table('users', user_permissions)
