@@ -13,14 +13,14 @@ RestAuth 0.5.3 (XX XX 20XX)
   * The WSGI script now passes the RESTAUTH_HOST environment variable.
     doc/config/multiple-instances.rst suggests using this variable, but WSGI
     applications never receive this variable otherwise. Likewise, the
-    DJANGO_SETTINGS_MODULE is passed through if set.  * Generated passwords no
-    longer contain whitespace, a backslash, single or double quotes.
+    DJANGO_SETTINGS_MODULE is passed through if set.
+  * Generated passwords no longer contain whitespace, a backslash, single or
+    double quotes.
   * Fix a bug that broke Service passwords with a colon (':')
   * Most of the code now adheres to python coding standards.
   * restauth-service now has set-hosts, add-hosts and rm-hosts, which is in line
     with the new permission system. The 'add' command can no longer add hosts in
-    one step, since the command
-    would be too overloaded.
+    one step, since the command would be too overloaded.
   
   Django 1.4.0 compatibility fixes:
   * 'setup.py testserver' now works different for 1.4.0, because 'manage.py
