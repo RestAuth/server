@@ -49,7 +49,9 @@ restauth-manage
 Interesting |bin-restauth-manage-as-cmd| commands
 -------------------------------------------------
 
-foobar.
+Several commands for |bin-restauth-manage| are worth noting:
+
+.. todo:: document interesting command
 
 Influential environment variables
 ---------------------------------
