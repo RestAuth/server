@@ -311,10 +311,14 @@ if tags.has('homepage'):
             '/config/all-config-values.html#dist-specific-file-settings',
         'bin-restauth-manage':
             '/bin/restauth-manage.html#dist-specific-bin-restauth-manage',
-        'bin-restauth-service': '/todo',
-        'bin-restauth-user': '/todo',
-        'bin-restauth-group': '/todo',
-        'bin-restauth-import': '/todo',
+        'bin-restauth-service':
+            '/restauth-service.html#dist-specific-bin-restauth-service',
+        'bin-restauth-user':
+            '/restauth-user.html#dist-specific-bin-restauth-user',
+        'bin-restauth-group':
+            '/restauth-group.html#dist-specific-bin-restauth-group',
+        'bin-restauth-import':
+            '/restauth-import.html#dist-specific-bin-restauth-import',
     }
     for key, value in dist_conf_targets.iteritems():
         rst_prolog += ".. _%s-link-hp: %s\n" % (key, value)
