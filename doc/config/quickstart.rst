@@ -72,10 +72,12 @@ The next step is creating your database (:ref:`detailed instructions
    mysql -uroot -pYOUR_PASSWORD -e "CREATE DATABASE restauth CHARACTER SET utf8;"
    mysql -uroot -pYOUR_PASSWORD -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost' IDENTIFIED BY 'changeme'"
 
-.. WARNING:: Please set the password ('changeme') to whatever you configured in your config-file.
+.. WARNING:: Please set the password ('changeme') to whatever you configured in
+   your config-file.
 
-On some systems (i.e. Debian based systems) there is no root-password for MySQL and you connect,
-as root system user, using a config-file. Here is an example for Debian/Ubuntu:
+On some systems (i.e. Debian based systems) there is no root-password for MySQL
+and you connect, as root system user, using a config-file. Here is an example
+for Debian/Ubuntu:
 
 .. code-block:: bash
 
@@ -85,16 +87,17 @@ as root system user, using a config-file. Here is an example for Debian/Ubuntu:
 Setup database
 --------------
 
-Next you need to populate your database with the necessary tables. This couldn't be simpler, using
-restauth-manage:
+Next you need to populate your database with the necessary tables. This
+couldn't be simpler, using restauth-manage:
 
 .. code-block:: bash
 
    restauth-manage syncdb --noinput
 
-The script might be called differently on your system, i.e. ``manage.py``. After you have created
-the database tables, you finally have to update your config-file again: You have to remove the
-``OPTIONS`` settings in your ``DATABASES`` setting. The same part quoted above now looks like this:
+The script might be called differently on your system, i.e. ``manage.py``.
+After you have created the database tables, you finally have to update your
+config-file again: You have to remove the ``OPTIONS`` settings in your
+``DATABASES`` setting. The same part quoted above now looks like this:
 
 .. code-block:: python
     :linenos:
@@ -110,7 +113,8 @@ the database tables, you finally have to update your config-file again: You have
         }
     }
 
-Again, do not forget to set the password do the correct value in line 6 of the above example.
+Again, do not forget to set the password do the correct value in line 6 of the
+above example.
 
 Configure Webserver
 -------------------
@@ -120,10 +124,11 @@ Note that :doc:`more detailed documentation </config/webserver>` is available.
 Add daemon user
 _______________
 
-.. NOTE:: This step is not necessary if you installed using our Debian/Ubuntu packages.
+.. NOTE:: This step is not necessary if you installed using our Debian/Ubuntu
+   packages.
 
-In this setup, RestAuth WSGI daemons run as a dedicated system user. Depending on the system, you
-first need to create this user:
+In this setup, RestAuth WSGI daemons run as a dedicated system user. Depending
+on the system, you first need to create this user:
 
 .. code-block:: bash
 
@@ -134,12 +139,13 @@ The home-directory is basically irrelevant but it should exist.
 Add Apache virtual host
 _______________________
 
-.. NOTE:: General Apache webserver setup is outside the scope of this document. Please consult
-   the (excellent) Apache documentation for more information.
+.. NOTE:: General Apache webserver setup is outside the scope of this document.
+   Please consult the (excellent) Apache documentation for more information.
 
-Next you need to actually configure your Webserver. It is recommended to add a dedicated virtual
-host. The exact locations of Apache webserver configuration files and what your basic (virtual) host
-setup is greatly depends on your plattform. Here are the relevant parts for RestAuth:
+Next you need to actually configure your Webserver. It is recommended to add a
+dedicated virtual host. The exact locations of Apache webserver configuration
+files and what your basic (virtual) host setup is greatly depends on your
+plattform. Here are the relevant parts for RestAuth:
 
 .. code-block:: apache
     :linenos:
@@ -167,10 +173,11 @@ Don't forget to restart your Apache after you've added the configuration.
 Add services that use RestAuth
 ------------------------------
 
-The final step to get a working RestAuth server is to add services to RestAuth. A service is a
-system (i.e. a Wiki, a CMS, a Unix system, ...) that uses RestAuth. RestAuth needs to know about
-the services using it, where they connect from and what they are allowed to do. Managing services
-is done via :doc:`restauth-service </restauth-service>`. Adding a service works like this:
+The final step to get a working RestAuth server is to add services to RestAuth.
+A service is a system (i.e. a Wiki, a CMS, a Unix system, ...) that uses
+RestAuth. RestAuth needs to know about the services using it, where they connect
+from and what they are allowed to do. Managing services is done via
+:doc:`restauth-service </restauth-service>`. Adding a service works like this:
 
 .. code-block:: bash
    :linenos:
@@ -179,10 +186,11 @@ is done via :doc:`restauth-service </restauth-service>`. Adding a service works 
    restauth-service set-hosts 127.0.0.1
    restauth-service set-permissions users_list user_verify_password user_change_password
 
-In the above example the command in line 1 adds the service. A generated password is printed to
-standard output. Use these credentials in the configuration of the service that uses RestAuth.
-The command in line 2 specifies that the service connects from 127.0.0.1 (that is, it runs on the
-same machine as the RestAuth server). Line 3 specifies that the service is allowed to get a
+In the above example the command in line 1 adds the service. A generated
+password is printed to standard output. Use these credentials in the
+configuration of the service that uses RestAuth. The command in line 2 specifies
+that the service connects from 127.0.0.1 (that is, it runs on the same machine
+as the RestAuth server). Line 3 specifies that the service is allowed to get a
 list of all users, verify and change user passwords.
 
 Further reading
@@ -190,12 +198,15 @@ Further reading
 
 The most recommended pages in this documentation are:
 
-* A complete reference of :doc:`all configuration variables </config/all-config-values>`
+* A complete reference of :doc:`all configuration variables
+  </config/all-config-values>`
 * Documentation for the cli tools:
 
+  * :doc:`restauth-manage </bin/restauth-manage>`
   * :doc:`restauth-service </restauth-service>`
   * :doc:`restauth-user </restauth-service>`
   * :doc:`restauth-group </restauth-service>`
   * :doc:`restauth-import </restauth-import>`
 
-* Solutions for :doc:`importing existing user databases into RestAuth </migrate/overview>`
+* Solutions for :doc:`importing existing user databases into RestAuth
+  </migrate/overview>`
