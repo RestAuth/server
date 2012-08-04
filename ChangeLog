@@ -2,42 +2,47 @@ RestAuth 0.5.3 (XX XX 20XX)
 
   General:
   * There were some schema updates. Please read:
-    	https://server.restauth.net/install/upgrade.html
+        https://server.restauth.net/install/upgrade.html
   * Removed the migration directory, as the scripts there are now maintained in
     a dedicated git repository:
         https://git.fsinf.at/restauth/migration
   * Add a test fixture that can be used by the manage.py testserver. setup.py
     now includes a 'testserver' command that automatically loads that fixture.
-    Libraries that require a testserver for testing should run
-    'setup.py testserver' instead of the now deprecated test.sh script.
+    Libraries that require a testserver for testing should run 'setup.py
+    testserver' instead of the now deprecated test.sh script.
   * The WSGI script now passes the RESTAUTH_HOST environment variable.
-    doc/config/multiple-instances.rst suggests using this variable, but WSGI applications never
-    receive this variable otherwise. Likewise, the DJANGO_SETTINGS_MODULE is passed through if set.
-  * Generated passwords no longer contain whitespace, a backslash, single or double quotes.
+    doc/config/multiple-instances.rst suggests using this variable, but WSGI
+    applications never receive this variable otherwise. Likewise, the
+    DJANGO_SETTINGS_MODULE is passed through if set.  * Generated passwords no
+    longer contain whitespace, a backslash, single or double quotes.
   * Fix a bug that broke Service passwords with a colon (':')
   * Most of the code now adheres to python coding standards.
-  * restauth-service now has set-hosts, add-hosts and rm-hosts, which is in line with the new
-    permission system. The 'add' command can no longer add hosts in one step, since the command
+  * restauth-service now has set-hosts, add-hosts and rm-hosts, which is in line
+    with the new permission system. The 'add' command can no longer add hosts in
+    one step, since the command
     would be too overloaded.
   
   Django 1.4.0 compatibility fixes:
   * 'setup.py testserver' now works different for 1.4.0, because 'manage.py
     testserver' is broken in 1.4.0. See: 
-	https://code.djangoproject.com/ticket/18019
+        https://code.djangoproject.com/ticket/18019
   
   Permissions:
-  * RestAuth now offers a brand-new permission system. Services can only perform the operations they
-    are explicitly configured for. This improves security, because leaked service credentials limit
-    the potential damage an attacker can do.
-  * The permissions are managed with restauth-service. The new commands are set-permissions,
-    add-permissions and rm-permissions.
-  * The available permissions are documented in the man-page for restauth-service and here:
-      https://server.restauth.net/restauth-service.html
+  * RestAuth now offers a brand-new permission system. Services can only perform
+    the operations they are explicitly configured for. This improves security,
+    because leaked service credentials limit the potential damage an attacker
+    can do.
+  * The permissions are managed with restauth-service. The new commands are
+    set-permissions, add-permissions and rm-permissions.
+  * The available permissions are documented in the man-page for
+    restauth-service and here:
+        https://server.restauth.net/restauth-service.html
   
   build-related:
-  * The 'debian' branch now includes a ready-to-use debian package. Several distro-specific
-    branches include packages for older distributions.
-  * The new command 'prepare_debian_changelog' updates debian/changelog to the newest version
+  * The 'debian' branch now includes a ready-to-use debian package. Several
+    distro-specific branches include packages for older distributions.
+  * The new command 'prepare_debian_changelog' updates debian/changelog to the
+    newest version
 
   Users:
   * Add database index for the username.
@@ -75,7 +80,8 @@ RestAuth 0.5.3 (XX XX 20XX)
   * Add upgrade notes
   * setup.py includes the new target build_html
   * Add minimal manpage for restauth-manage
-  * Add developer/testserver documenting how to run a testserver for library testing
+  * Add developer/testserver documenting how to run a testserver for library
+    testing
   * Add installation instructions for RHEL and Fedora
   * Add installation instructions for ArchLinux
 
