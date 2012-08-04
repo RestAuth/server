@@ -319,4 +319,11 @@ if tags.has('homepage'):
     for key, value in dist_conf_targets.iteritems():
         rst_prolog += ".. _%s-link-hp: %s\n" % (key, value)
 
+# links to binary documents:
+rst_prolog += ".. |bin-restauth-manage-doc| replace:: :doc:`/bin/restauth-manage`\n"
+rst_prolog += ".. |bin-restauth-service-doc| replace:: :doc:`/restauth-service`\n"
+rst_prolog += ".. |bin-restauth-user-doc| replace:: :doc:`/restauth-user`\n"
+rst_prolog += ".. |bin-restauth-group-doc| replace:: :doc:`/restauth-group`\n"
+rst_prolog += ".. |bin-restauth-import-doc| replace:: :doc:`/restauth-import`\n"
+
 print(rst_prolog)
