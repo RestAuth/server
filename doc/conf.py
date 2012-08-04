@@ -232,7 +232,7 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 substitutions = {
     'restauth-import-format': ':doc:`import format </migrate/import-format>`',
     'restauth-import': ':doc:`restauth-import </restauth-import>`',
-    'latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE'),
+    'restauth-latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE'),
 
     'bin-restauth-manage': 'RestAuth/manage.py',
     'bin-restauth-service': 'bin/restauth-service.py',
