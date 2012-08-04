@@ -34,6 +34,18 @@ some central management service. Any other services using RestAuth have their
 own *admin* group (which can each have a different name, whatever suits the
 service best), which are subgroups to the global admin group.
 
+.. only:: homepage
+
+   .. _dist-specific-bin-restauth-group:
+
+   Location of |bin-restauth-group|
+   --------------------------------
+
+   If you installed via source, the script is located at
+   :file:`bin/restauth-group.py`.
+
+   If you installed via any other means, the script is installed as
+   |bin-restauth-group-as-cmd|.
 
 Usage
 -----

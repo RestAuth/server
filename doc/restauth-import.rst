@@ -17,6 +17,19 @@
 specially formatted JSON file.  Please see |restauth-import-format| for a
 description of how exactly the data must be formatted.
 
+.. only:: homepage
+
+   .. _dist-specific-bin-restauth-import:
+
+   Location of |bin-restauth-import|
+   ---------------------------------
+
+   If you installed via source, the script is located at
+   :file:`bin/restauth-import.py`.
+
+   If you installed via any other means, the script is installed as
+   |bin-restauth-import-as-cmd|.
+
 Usage
 -----
 
