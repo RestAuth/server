@@ -3,7 +3,7 @@ restauth-manage
 
 .. only:: html
 
-   |restauth-manage| is the Django manage.py script that usually ships with
+   |bin-restauth-manage-as-cmd| is the Django manage.py script that usually ships with
    Django projects. Please see `the official Django documentation
    <https://docs.djangoproject.com/en/dev/ref/django-admin/>`_
    for more information.
@@ -45,6 +45,11 @@ restauth-manage
    If you Installed via your distributions packaging tools, the script should
    be in your PATH and you can start it by just typing
    |bin-restauth-manage-as-cmd|.
+
+Interesting |bin-restauth-manage-as-cmd| commands
+-------------------------------------------------
+
+foobar.
 
 Influential environment variables
 ---------------------------------
