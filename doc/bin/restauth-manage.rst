@@ -1,5 +1,5 @@
-restauth-manage
-===============
+|bin-restauth-manage|
+=====================
 
 .. only:: html
 

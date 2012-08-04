@@ -1,5 +1,5 @@
-restauth-user
-=============
+|bin-restauth-user|
+===================
 
 .. only:: man
 
@@ -23,7 +23,7 @@ Usage
 -----
 
 .. only:: html
-   
+
    .. include:: gen/restauth-user-usage.rst
 
 Use one of the commands (either set-password, verify, list, add, rm or view) to
@@ -37,20 +37,20 @@ command.
    ^^^^^^^^^^^^^^^^^^^^^^^
 
    To get an authoritative list of available commands, use::
-      
+
       restauth-user --help
 
    If you want more information on a specific comannd, do::
-   
+
       restauth-user command --help
-   
+
    ... or see the :ref:`user-available-commands` section below.
 
 .. only:: man
 
     Use "**restauth-user --help**" to get an authoritative list of available
-    commands. If you want help on a specific command, use "**restauth-user** 
-    *command* **--help**" or see the 
+    commands. If you want help on a specific command, use "**restauth-user**
+    *command* **--help**" or see the
     :ref:`AVAILABLE COMMANDS<user-available-commands>` section below.
 
 Examples
@@ -63,12 +63,12 @@ Examples
    password.
 
 .. example:: **restauth-user add -**\ **-gen-password** *exampleuser*
-   
+
    Add a user called *exampleuser*, automatically generate a password and print
    it to stdout.
 
 .. example:: **restauth-user view** *exampleuser*
-   
+
    View all details of *exampleuser*.
 
 .. example:: **restauth-user list**

@@ -1,5 +1,5 @@
-restauth-service
-================
+|bin-restauth-service|
+======================
 
 .. only:: man
 
@@ -25,7 +25,7 @@ Usage
 -----
 
 .. only:: html
-   
+
    .. include:: gen/restauth-service-usage.rst
 
 Use one of the commands (i.e. add, view, ls, ...) to perform the respective operation. Each command
@@ -38,20 +38,20 @@ options) for each command.
    ^^^^^^^^^^^^^^^^^^^^^^^
 
    To get an authoritative list of available commands, use::
-      
+
       restauth-service --help
 
    If you want more information on a specific comannd, do::
-   
+
       restauth-service command --help
-   
+
    ... or see the :ref:`service-available-commands` section below.
 
 .. only:: man
 
     Use "**restauth-service --help**" to get an authoritative list of available
-    commands. If you want help on a specific command, use "**restauth-service** 
-    *command* **--help**" or see the 
+    commands. If you want help on a specific command, use "**restauth-service**
+    *command* **--help**" or see the
     :ref:`AVAILABLE COMMANDS<service-available-commands>` section below.
 
 Examples
@@ -61,7 +61,7 @@ Examples
 
    Add the service *example.com* and prompt for a password.
 
-   
+
 .. example:: **restauth-service add -**\ **-gen-password** *example.com*
 
    Add the service *example.com* and print a generated password to stdout.
@@ -77,17 +77,17 @@ Examples
 .. example:: **restauth-service set-password -**\ **-password=**\ *foobar* *example.com*
 
    Set the password of the service *example.com* (which must already exist)
-   to *foobar*. 
+   to *foobar*.
 
 .. example:: **restauth-service set-hosts** *example.com* *192.168.0.1* *192.168.0.2*
 
    Enable the service *example.com* for the hosts *192.168.0.1* *192.168.0.2*.
    Note that this removes any previously configured hosts.
-   
+
 .. example:: **restauth-service set-permissions** *example.com* *user\**
 
    Specify that the service *example.com* is allowed to perform all user operations.
-   
+
 .. example:: **restauth-service rm-permissions** *example.com* *user_delete*
 
    Specify that the service *example.com* is **not** allowed to delete users.
@@ -102,7 +102,7 @@ A typical workflow for adding a service is::
    restauth-service add example.net
    restauth-service set-hosts 127.0.0.1 ::1
    restauth-service set-permissions user_verify_password user_change_password
-   
+
 Please see the :ref:`available permissions <service-available-permissions>` below for a full
 reference on what permissions can be configured.
 

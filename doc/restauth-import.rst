@@ -1,5 +1,5 @@
-restauth-import
-===============
+|bin-restauth-import|
+=====================
 
 .. only:: man
 
@@ -20,7 +20,7 @@ Usage
 -----
 
 .. only:: html
-   
+
    .. include:: gen/restauth-import-usage.rst
 
 **restauth-import** by default imports the data as is and does not overwrite any already existing
@@ -33,24 +33,24 @@ Examples
 --------
 
 .. example:: **restauth-import** *import.json*
-   
+
    Simply import the data in the file *import.json*. If data already exists in the local service,
    it will be ignored. This means:
-   
+
    * passwords will only be used if the user didn't exist before.
    * properties that already exist will be ignored.
    * group memberships are added.
-   
+
 .. example:: **restauth-import** **--gen-passwords** *import.json*
 
    Import data and generate new passwords for *new* users (or services) that don't have a password
    in the input data.
-   
+
 .. example:: **restauth-import** **--overwrite-passwords** **--overwrite-properties** *import.json*
 
    Import data and overwrite passwords of already existing users. Also set properties that already
    exist to the new value found in the input data.
-   
+
 .. example:: **restauth-import** **--skip-existing-users** **--skip-existing-groups** *import.json*
 
    Skip users or groups that already exist alltogether. Properties won't be used even if they
@@ -72,5 +72,5 @@ Influential environment variables
    ^^^^^^^^
 
    The input data format used by this script: :manpage:`restauth-import(5)`
-   
+
    Other scripts: :manpage:`restauth-service(1)`, :manpage:`restauth-user(1)`, :manpage:`restauth-group(1)`
