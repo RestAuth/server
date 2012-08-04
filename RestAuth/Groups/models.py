@@ -53,6 +53,8 @@ def group_create(name, service=None):
         ommitted, the group will not be associated with any service.
     @type service: service
     """
+    if Group.objects.filter(name=name, service=service).exists():
+        raise GroupExists('Group "%s" already exists' % name)
     try:
         return Group.objects.create(name=name, service=service)
     except IntegrityError:
