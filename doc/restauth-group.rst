@@ -38,14 +38,13 @@ service best), which are subgroups to the global admin group.
 
    .. _dist-specific-bin-restauth-group:
 
-   Location of |bin-restauth-group|
-   --------------------------------
+   Name of |bin-restauth-group|
+   ----------------------------
 
-   If you installed via source, the script is located at
-   :file:`bin/restauth-group.py`.
-
-   If you installed via any other means, the script is installed as
-   |bin-restauth-group-as-cmd|.
+   If you :doc:`installed from source </install/from-source>`, the script is
+   installed as :command:`restauth-group.py`. If you installed RestAuth via
+   your distributions package management system, the script is usually called
+   :command:`restauth-group`.
 
 Usage
 -----

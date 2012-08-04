@@ -235,11 +235,11 @@ substitutions = {
     'restauth-latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE',
                                               version),
 
-    'bin-restauth-manage': 'RestAuth/manage.py',
-    'bin-restauth-service': 'bin/restauth-service.py',
-    'bin-restauth-user': 'bin/restauth-user.py',
-    'bin-restauth-group': 'bin/restauth-group.py',
-    'bin-restauth-import': 'bin/restauth-import.py',
+    'bin-restauth-manage': 'restauth-manage.py',
+    'bin-restauth-service': 'restauth-service.py',
+    'bin-restauth-user': 'restauth-user.py',
+    'bin-restauth-group': 'restauth-group.py',
+    'bin-restauth-import': 'restauth-import.py',
 
     'file-settings': 'RestAuth/localsettings.py'
 }

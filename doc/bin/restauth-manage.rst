@@ -24,27 +24,18 @@
       https://docs.djangoproject.com/en/dev/ref/django-admin/
 
    for more information.
+
 .. only:: homepage
 
    .. _dist-specific-bin-restauth-manage:
 
-   Location of |bin-restauth-manage-as-cmd|
-   ----------------------------------------
+   Name of |bin-restauth-manage-as-cmd|
+   ------------------------------------
 
-   If you :doc:`installed from source </install/from-source>`, this script is
-   not automatically put in your path. Instead, the script is included as
-   :file:`manage.py` to the location setuptools installed to. On Unix
-   or Linux systems, this usually is
-   :file:`/usr/local/lib/python2.{x}/dist-packages/RestAuth`. You can find the
-   exact installation location using the following shell command:
-
-   .. code-block:: bash
-
-      python -c "import RestAuth; print RestAuth.__file__"
-
-   If you Installed via your distributions packaging tools, the script should
-   be in your PATH and you can start it by just typing
-   |bin-restauth-manage-as-cmd|.
+   If you :doc:`installed from source </install/from-source>`, the script is
+   installed as :command:`restauth-manage.py`. If you installed RestAuth via
+   your distributions package management system, the script is usually called
+   :command:`restauth-manage`.
 
 Interesting |bin-restauth-manage-as-cmd| commands
 -------------------------------------------------

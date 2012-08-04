@@ -26,14 +26,13 @@ must have permissions to perform the respective actions, use the
 
    .. _dist-specific-bin-restauth-service:
 
-   Location of |bin-restauth-service|
-   ----------------------------------
+   Name of |bin-restauth-service|
+   ------------------------------
 
-   If you installed via source, the script is located at
-   :file:`bin/restauth-service.py`.
-
-   If you installed via any other means, the script is installed as
-   |bin-restauth-service-as-cmd|.
+   If you :doc:`installed from source </install/from-source>`, the script is
+   installed as :command:`restauth-service.py`. If you installed RestAuth via
+   your distributions package management system, the script is usually called
+   :command:`restauth-service`.
 
 Usage
 -----
