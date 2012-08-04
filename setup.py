@@ -15,12 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
+import glob
+import os
+import re
+import shutil
+import stat
 from subprocess import Popen, PIPE
+import sys
+import time
+
 from distutils.core import setup, Command
 from distutils.command.install_data import install_data as _install_data
 from distutils.command.build import build as _build
 from distutils.command.clean import clean as _clean
-import re, os, sys, time, glob, shutil, argparse
+from distutils.command.install import install as _install
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -94,6 +103,21 @@ class install_data(_install_data):
                 self.custom_copy_tree(src, dest)
                 nodes.remove(src)
         _install_data.run(self)
+
+
+class install(_install):
+    def run(self):
+        _install.run(self)
+
+        # write symlink for restauth-manage.py
+        target = os.path.join(self.install_scripts, 'restauth-manage.py')
+        source = os.path.join(
+            os.path.abspath(self.install_purelib), 'RestAuth', 'manage.py')
+        os.symlink(source, target)
+
+        # set execute permissions:
+        mode = os.stat(source).st_mode
+        os.chmod(source, mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 added_options = [
     ('prefix=', None, 'installation prefix'),
@@ -384,18 +408,24 @@ setup(
     version=str(get_version()),
     description='RestAuth web service',
     author='Mathias Ertl',
-    author_email='mati@restauth.net',
+    author_emaiil='mati@restauth.net',
     url='https://restauth.net',
     packages=['RestAuth', 'RestAuth.Services', 'RestAuth.common',
         'RestAuth.Groups', 'RestAuth.Users', 'RestAuth.Test'],
+    scripts=[
+        'bin/restauth-service.py', 'bin/restauth-user.py',
+        'bin/restauth-group.py', 'bin/restauth-import.py',
+    ],
     data_files=[
         ('share/restauth', ['wsgi']),
         ('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT']),
     ],
     cmdclass={
-        'install_data': install_data, 'version': version, 'clean': clean,
-        'build': build, 'build_doc': build_doc,
-        'build_man': build_man, 'build_html': build_html,
+        'build': build, 'clean': clean,
+        'build_doc': build_doc, 'build_man': build_man,
+        'build_html': build_html,
+        'install': install, 'install_data': install_data,
+        'version': version,
         'test': test, 'coverage': coverage, 'testserver': testserver,
         'prepare_debian_changelog': prepare_debian_changelog,
     },
