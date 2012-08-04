@@ -1,8 +1,8 @@
 Settings reference
 ------------------
 
-Since RestAuth is implemented as a Django project, RestAuth not only uses all
-`settings available in Django
+Since RestAuth is implemented as a Django project, RestAuth not only uses
+`all settings available in Django
 <https://docs.djangoproject.com/en/dev/ref/settings/>`_, but also features a
 few additional settings that ease administration and configure RestAuth. This
 document is a complete reference of settings that are either specific to
@@ -45,11 +45,11 @@ CACHES
 
 Default: ``{}``
 
-This setting is
-`available in Django <https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`_.
-Please see the
-`official documentation <https://docs.djangoproject.com/en/dev/topics/cache/>`_ on
-how to use this setting.
+This setting is `available in Django
+<https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`_.
+Please see the `official documentation
+<https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this
+setting.
 
 RestAuth automatically adjusts :setting:`MIDDLEWARE_CLASSES` (as documented
 `here <https://docs.djangoproject.com/en/dev/topics/cache/#the-per-site-cache>`_ ) if
