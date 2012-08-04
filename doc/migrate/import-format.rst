@@ -6,7 +6,7 @@ are typically created by systems from where existing account data should be expo
 by |bin-restauth-import|.
 
 .. NOTE::
-   
+
    You only need this documentation if you want to write a new exporter (i.e. for a system for which
    no such exporter is yet available). If you write a new exporter, please feel free
    to :doc:`contribute </developer/contribute>` it.
@@ -28,7 +28,7 @@ pairs, identified by these keys:
 All keys are optional, but the file must of course contain at least one key to be useful. Also see
 the :ref:`import-format-example` section for a detailed example.
 
-The :doc:`import script </restauth-import>` will import services, users and groups in precisely this
+The |bin-restauth-manage-doc| will import services, users and groups in precisely this
 order. This is important because groups may reference services and users that are imported in the
 same file and thus wouldn't yet exist if the order were any different.
 
@@ -44,19 +44,19 @@ format supports two key/value pairs here:
 * **password** is either a string representing the cleartext password or a dictionary with three
   key/value pairs: **algorithm**, **salt** and **hash**. In the latter case, this must of course be
   something that is supported by your Django installation.
-  
+
   If the service already exists, passwords won't be overwritten unless you give the
   **-**\ **-overwrite-passwords** parameter.
-  
+
 * **hosts** is a list of strings containing one or more hostnames that this service would connect
   from.
-  
+
   If the service already exists, hosts will be added to this service.
-  
-Both elements are optional and can also be configured by the :doc:`/restauth-service` script.
+
+Both elements are optional and can also be configured by the |bin-restauth-service-doc| script.
 
 Example::
-   
+
     {
         'services': {
             "example.at": {},
@@ -82,7 +82,7 @@ Example::
             }
         }
     }
-    
+
 In this example, only *example.com* is actually usable (from localhost). The other services may
 still be usable if the service already exists. In the case of *example.org*, for example, the
 two named hostnames would be added to an existing service with the same name.
@@ -102,12 +102,12 @@ two key/value pairs here:
   for the special values **date_joined** and **last_login**, which are a float representing a
   standard unix timestamp. If the two latter properties are not given, the user joined and logged in
   "now".
-  
+
   If a named property already exists, its not overwritten unless you give the
   **-**\ **-overwrite-properties** command line parameter. The last_login and date_joined properties
   are handled differently: restauth-import will use the earlier joined date and the later logged-in
   date.
-  
+
 Example::
 
     {
@@ -156,7 +156,7 @@ supports three key/value pairs here:
   exists, the users are *added* to this group.
 * **subgroups** is a list of dictionaries describing subgroups. Such a dictionary contains a
   service and a name identifying the subgroup.
-  
+
 Note that subgroup relationships are only added after all groups are added, so the order is not
 in any way important.
 
@@ -170,7 +170,7 @@ Example::
                 ],
                 "service": "example.com",
                 "subgroups": [
-                    {   
+                    {
                         "name": "users",
                         "service": "example.com"
                     }
@@ -191,7 +191,7 @@ Example::
 Example
 -------
 
-This is a full example of a file that can be used by :doc:`/restauth-import`::
+This is a full example of a file that can be used by |bin-restauth-import-doc|::
 
     {
         "services": {
@@ -258,6 +258,6 @@ This is a full example of a file that can be used by :doc:`/restauth-import`::
             }
         }
     }
-    
+
 Note again that you can easily not import any one of the above things simply by ommitting the
 appropriate keys.
