@@ -11,7 +11,7 @@ things you have to do to get a working RestAuth server:
    create and configure a database </config/database>
 
 After you have done that, you still need to tell RestAuth about the services that may use it. You
-can do this with the command-line script :doc:`restauth-service </restauth-service>`. After that,
+can do this with the command-line script |bin-restauth-service-doc|. After that,
 all that is left is to configure the services themself.
 
 RestAuth configuration and management
