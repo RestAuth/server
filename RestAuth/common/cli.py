@@ -554,7 +554,7 @@ def write_commands(parser, path, cmd):
     f.close()
 
 
-def write_usage(parser, path):
+def write_usage(parser, path, cmd=None):
     f = open(path, 'w')
     usage = parser.format_usage().replace('usage: ', '')
     usage = usage.replace("\n", '')
