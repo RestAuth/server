@@ -10,7 +10,7 @@ RestAuth or are normal Django settings that RestAuth handles in a different way.
 
 .. only:: homepage
 
-   .. _dist-specific-file-settings
+   .. _dist-specific-file-settings:
 
    Location of |file-settings-as-file|
    ===================================
