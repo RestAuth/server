@@ -53,6 +53,56 @@ Several commands for |bin-restauth-manage| are worth noting:
 
 .. todo:: document interesting command
 
+.. only:: not man
+
+   syncdb
+   ^^^^^^
+
+.. example:: **syncdb** [**--noinput**]
+
+   The standard `syncdb
+   <https://docs.djangoproject.com/en/dev/ref/django-admin/#django-admin-syncdb>`_
+   command. This command creates all database tables that don't yet exist in the
+   database you configured in |file-settings-link|.
+
+   .. NOTE:: If you execute ``syncdb`` without the ``--noinput`` parameter, you
+      will be asked if you want to create a *user*. This user is equivalent to
+      service added with |bin-restauth-service-link|, not a user added with
+      |bin-restauth-user-link|.
+
+.. only:: not man
+
+   migrate
+   ^^^^^^^
+
+.. example:: **migrate**
+
+   Used to bring the database schema to the newest state.
+
+.. only:: not man
+
+   dbshell
+   ^^^^^^^
+
+.. example:: **dbshell**
+
+   Open a database shell to the database you configured in
+   |file-settings-link|. Also see the `official documentation
+   <https://docs.djangoproject.com/en/dev/ref/django-admin/#dbshell>`_.
+
+.. only:: not man
+
+   shell
+   ^^^^^
+
+.. example:: **shell**
+
+   Open a python shell (using ipython if available) with your settings
+   preconfigured. Also see the `official documentation
+   <https://docs.djangoproject.com/en/dev/ref/django-admin/#shell>`_.
+
+
+
 Influential environment variables
 ---------------------------------
 
