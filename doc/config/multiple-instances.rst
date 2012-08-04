@@ -1,23 +1,27 @@
 Running multiple instances
 --------------------------
 
-You might want to run multiple instances of RestAuth on the same host. This would mean that you
-effectively have two RestAuth servers (e.g. :samp:`auth.example.com` and :samp:`auth.example.org`),
-each with their own users, groups and services. You could maintain two completely separate
-installations (maybe even on separate hosts), but that would require twice the maintenance. This
-page is dedicated to documenting (known) configuration tips regarding this problem.
+You might want to run multiple instances of RestAuth on the same host. This
+would mean that you effectively have two RestAuth servers (e.g.
+:samp:`auth.example.com` and :samp:`auth.example.org`), each with their own
+users, groups and services. You could maintain two completely separate
+installations (maybe even on separate hosts), but that would require twice the
+maintenance. This page is dedicated to documenting (known) configuration tips
+regarding this problem.
 
 General introduction
 ====================
 
-The only thing that really needs to differ from instance to instance is the database.
+The only thing that really needs to differ from instance to instance is the
+database.
 
-If two instances access the same database, they effectively become the same instance with possibly
-different configuration. You could imagine exotic different scenarios, like one instance requiring a
-minimum password length of 10 characters and another instance requiring a minimum password length of
-12 characters, but they makes little sense. If you desire such a setup, you can still use any of the
-following chapters, but examples are based on the assumption that you want a different database
-setup.
+If two instances access the same database, they effectively become the same
+instance with possibly different configuration. You could imagine exotic
+different scenarios, like one instance requiring a minimum password length of 10
+characters and another instance requiring a minimum password length of 12
+characters, but they makes little sense. If you desire such a setup, you can
+still use any of the following chapters, but examples are based on the
+assumption that you want a different database setup.
 
 .. _config_multiple_instances_sni:
 
@@ -25,41 +29,49 @@ Server Name Indication
 ++++++++++++++++++++++
 
 All examples below use `Server Name Indication (SNI)
-<http://en.wikipedia.org/wiki/Server_Name_Indication>`_. That means that the web server (in the
-configuration examples, `Apache <http://httpd.apache.org>`_) is able to serve multiple domains on
-the same IP via SSL. If you want to use SNI, both client and server need to support it.
+<http://en.wikipedia.org/wiki/Server_Name_Indication>`_. That means that the web
+server (in the configuration examples, `Apache <http://httpd.apache.org>`_) is
+able to serve multiple domains on the same IP via SSL. If you want to use SNI,
+both client and server need to support it.
 
-On most modern systems, ``server side`` support is not a problem. See the `appropriate chapter
-<http://en.wikipedia.org/wiki/Server_Name_Indication#Support>`_ on WikiPedia for more information
-on the required software versions. On the client side, the situation is a little more tricky.
-`RestAuthClient <https://python.restauth.net>`_ only supports SNI if run with Python 3.2 or later.
-`php-restauth <https://php.restauth.net>`_ supports SNI if compiled with OpenSSL/GNU TLS and libcurl
-versions that support it.
+On most modern systems, ``server side`` support is not a problem. See the
+`appropriate chapter
+<http://en.wikipedia.org/wiki/Server_Name_Indication#Support>`_ on WikiPedia for
+more information on the required software versions. On the client side, the
+situation is a little more tricky. `RestAuthClient
+<https://python.restauth.net>`_ only supports SNI if run with Python 3.2 or
+later. `php-restauth <https://php.restauth.net>`_ supports SNI if compiled with
+OpenSSL/GNU TLS and libcurl versions that support it.
 
-If using SNI is not an option, the web server can serve different instances on different ports
-and/or different IP addresses.
+If using SNI is not an option, the web server can serve different instances on
+different ports and/or different IP addresses.
 
 Settings based on environment variables
 =======================================
 
-Since |file-settings-link| is just a normal Python file, you can use any Python code you want
-in it. The best way of getting multiple instances with the least configuration overhead is by using
+Since |file-settings-link| is just a normal Python file, you can use any Python
+code you want in it. The best way of getting multiple instances with the least
+configuration overhead is by using
 environment variables.
 
-First, you must make sure that some environment variable is different for each RestAuth instance you
-want to maintain. You can set this anywhere you like, please consult the appropriate documentation
-for your web server. The following example sets environment variables in a mod_wsgi deployment.
+First, you must make sure that some environment variable is different for each
+RestAuth instance you want to maintain. You can set this anywhere you like,
+please consult the appropriate documentation for your web server. The following
+example sets environment variables in a mod_wsgi deployment.
 
-.. NOTE:: This Apache configuration example uses Server Name Indication. See the :ref:`dedicated
-   chapter <config_multiple_instances_sni>` for more information.
+.. NOTE:: This Apache configuration example uses Server Name Indication. See the
+   :ref:`dedicated chapter <config_multiple_instances_sni>` for more
+   information.
 
-.. NOTE:: Many server setups, including WSGI applications, do not pass environment variables set
-   in the apache configuration to the python interpreter. Please consult your webserver
-   documentation if you have trouble retrieving the right environment variables.
+.. NOTE:: Many server setups, including WSGI applications, do not pass
+   environment variables set in the apache configuration to the python
+   interpreter.  Please consult your webserver documentation if you have trouble
+   retrieving the right environment variables.
 
-   The WSGI script that ships with RestAuth specifically passes :envvar:`RESTAUTH_HOST` and
-   :envvar:`DJANGO_SETTINGS_MODULE` if present. Other environment variables are filtered, if you
-   need additional environment variables, you need to modify the WSGI script.
+   The WSGI script that ships with RestAuth specifically passes
+   :envvar:`RESTAUTH_HOST` and :envvar:`DJANGO_SETTINGS_MODULE` if present.
+   Other environment variables are filtered, if you need additional environment
+   variables, you need to modify the WSGI script.
 
 .. code-block:: apache
 
@@ -121,8 +133,9 @@ databases, the file might look like this:
            }
        }
 
-In this example, :samp:`auth.example.org` uses a PostgreSQL database and :samp:`auth.example.com`
-uses a MySQL database. You can use this setup to set **any other setting** based on the hostname.
+In this example, :samp:`auth.example.org` uses a PostgreSQL database and
+:samp:`auth.example.com` uses a MySQL database. You can use this setup to set
+**any other setting** based on the hostname.
 
 Separate settings files
 =======================
@@ -134,16 +147,19 @@ them in the file |file-settings-link| as described in the examples below.
 The Apache configuration is similar, only that you use the standard Django
 environment variable :envvar:`DJANGO_SETTINGS_MODULE`:
 
-.. NOTE:: This Apache configuration example uses Server Name Indication. See the :ref:`dedicated
-   chapter <config_multiple_instances_sni>` for more information.
+.. NOTE:: This Apache configuration example uses Server Name Indication. See the
+   :ref:`dedicated chapter <config_multiple_instances_sni>` for more
+   information.
 
-.. NOTE:: Many server setups, including WSGI applications, do not pass environment variables set
-   in the apache configuration to the python interpreter. Please consult your webserver
-   documentation if you have trouble retrieving the right environment variables.
+.. NOTE:: Many server setups, including WSGI applications, do not pass
+   environment variables set in the apache configuration to the python interpreter.
+   Please consult your webserver documentation if you have trouble retrieving
+   the right environment variables.
 
-   The WSGI script that ships with RestAuth specifically passes :envvar:`RESTAUTH_HOST` and
-   :envvar:`DJANGO_SETTINGS_MODULE` if present. Other environment variables are filtered, if you
-   need additional environment variables, you need to modify the WSGI script.
+   The WSGI script that ships with RestAuth specifically passes
+   :envvar:`RESTAUTH_HOST` and :envvar:`DJANGO_SETTINGS_MODULE` if present.
+   Other environment variables are filtered, if you need additional environment
+   variables, you need to modify the WSGI script.
 
 .. code-block:: apache
 
@@ -191,18 +207,18 @@ Access different hosts via command line
 =======================================
 
 To access the different RestAuth instances via our command-line tools
-(:doc:`/restauth-service`, :doc:`/restauth-user`, :doc:`/restauth-group` and
-:doc:`/restauth-import`), you simply have to set the correct environment
+(|bin-restauth-service-doc|, |bin-restauth-user-doc|, |bin-restauth-group-doc|
+and |bin-restauth-import-doc|), you simply have to set the correct environment
 variables on the command line first:
 
-.. code-block:: bash
+.. parsed-literal::
 
-    user@host ~ $ restauth-service ls # will access auth.example.org
+    user@host ~ $ |bin-restauth-service| ls # will access auth.example.org
     user@host ~ $ export RESTAUTH_HOST=auth.example.com
-    user@host ~ $ restauth-service ls # will access auth.example.com
+    user@host ~ $ |bin-restauth-service| ls # will access auth.example.com
 
 ... of course, you can still configure this on a per-command basis:
 
-.. code-block:: bash
+.. parsed-literal::
 
-    user@host ~ $ RESTAUTH_HOST=auth.example.com restauth-service ls
+    user@host ~ $ RESTAUTH_HOST=auth.example.com |bin-restauth-service| ls
