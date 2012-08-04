@@ -262,8 +262,9 @@ VALIDATORS
 ==========
 
 .. versionadded:: 0.5.3
-   In version 0.5.2 and earlier ``SKIP_VALIDATORS`` configured roughly the inverse. Please see the
-   :ref:`upgrade notes <update_settings_0.5.3>` if you still use the old setting.
+   In version 0.5.2 and earlier ``SKIP_VALIDATORS`` configured roughly the
+   inverse. Please see the :ref:`upgrade notes <update_settings_0.5.3>` if you
+   still use the old setting.
 
 Default: ``[]``
 
