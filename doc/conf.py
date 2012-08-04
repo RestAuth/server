@@ -267,7 +267,7 @@ elif tags.has('homepage'):
     substitutions['bin-restauth-group'] = 'restauth-group'
     substitutions['bin-restauth-import'] = 'restauth-import'
 
-    
+
     substitutions['file-settings'] = 'localsettings.py'
 
 elif tags.has('bogus-platform'):
@@ -307,8 +307,10 @@ for key, value in substitutions.iteritems():
 
 if tags.has('homepage'):
     dist_conf_targets = {
-        'file-settings': '/config/all-config-values.html',
-        'bin-restauth-manage': '/todo',
+        'file-settings':
+            '/config/all-config-values.html#dist-specific-file-settings',
+        'bin-restauth-manage':
+            '/bin/restauth-manage.html#dist-specific-bin-restauth-manage',
         'bin-restauth-service': '/todo',
         'bin-restauth-user': '/todo',
         'bin-restauth-group': '/todo',
