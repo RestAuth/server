@@ -32,7 +32,7 @@ try:
 except ImportError:
 	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
 	sys.exit(1)
-	
+
 # parse arguments
 args = group_parser.parse_args()
 
@@ -49,9 +49,9 @@ def print_groups_by_service( groups, indent='' ):
 		none_names.sort()
 		print( '%sNone: %s'%(indent, ', '.join( none_names ) ) )
 		del servs[None]
-	
+
 	service_names = sorted( servs.keys(), key=attrgetter('username') )
-	
+
 	for name in service_names:
 		names = [ service.name.encode('utf-8') for service in servs[name] ]
 		names.sort()
@@ -80,7 +80,7 @@ try:
 	group = Group.objects.get(name=args.group, service=service)
 except Group.DoesNotExist:
 	print('Error: %s: Group does not exist' % args.group)
-	sys.exit(1)	
+	sys.exit(1)
 
 # Actions that act on an existing group:
 if args.action == 'view':
@@ -108,16 +108,15 @@ if args.action == 'view':
 		print( '* No subgroups' )
 elif args.action == 'add-user':
 	user = user_get( args.user )
-	
+
 	group.users.add( user )
-	group.save()
 elif args.action == 'add-group':
 	if args.sub_service:
 		sub_service = Service.objects.get( username=args.sub_service )
 	else:
 		sub_service = None
 	sub_group = Group.objects.get(name=args.subgroup, service=sub_service)
-	
+
 	sub_group.parent_groups.add(group)
 elif args.action in [ 'delete', 'del', 'rm' ]:
 	group.delete()
@@ -125,7 +124,6 @@ elif args.action in [ 'remove-user', 'rm-user', 'del-user' ]:
 	user = user_get( args.user )
 	if user in group.users.all():
 		group.users.remove( user )
-		group.save()
 elif args.action in [ 'remove-group', 'rm-group', 'del-group' ]:
 	try:
 		if args.sub_service:
