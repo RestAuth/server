@@ -34,15 +34,12 @@ If you update from 0.5.2 or earlier, you need a few more |bin-restauth-manage-li
 .. parsed-literal::
 
    |bin-restauth-manage| syncdb
-   
+
    |bin-restauth-manage| Services 0001 --fake
    |bin-restauth-manage| Users 0001 --fake
    |bin-restauth-manage| Groups 0001 --fake
-   
-   |bin-restauth-manage|
 
-.. WARNING:: The process of introducing Django-South is a bit fragile. ALWAYS backup your database
-   before doing this. If all fails, please :doc:`contact us </developer/contribute>`.
+   |bin-restauth-manage| migrate
 
 Update from earlier versions
 ++++++++++++++++++++++++++++
@@ -93,5 +90,5 @@ To just restore the previous behaviour, add this to |file-settings-link|:
    VALIDATORS = [
        'RestAuth.Users.validators.mediawiki',
    ]
-   
+
 ... and remove the ``SKIP_VALIDATORS`` setting.
