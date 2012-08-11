@@ -73,6 +73,15 @@ located ("RestAuth" in the above example) and run:
 Once you have installed RestAuth, you can go on :doc:`configuring your webserver
 <../config/webserver>` and :doc:`configuring RestAuth <../config/restauth>`.
 
+Next steps
+----------
+Now that you have installed RestAuth, you still need to
+
+#. :doc:`configure your webserver <../config/webserver>`
+#. :doc:`setup your database <../config/database>`
+#. :doc:`configure RestAuth <../config/restauth>`
+
+
 Run tests
 ---------
 
