@@ -1,3 +1,7 @@
-This is a prioritized list of TODOs:
+0.5.4:
 
-1. add support for /users/<user>/blobs
+* Add schema-upgrades now found in the 0.5.4 branch
+
+Future:
+
+* add support for /users/<user>/blobs
