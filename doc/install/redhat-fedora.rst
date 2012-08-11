@@ -21,7 +21,7 @@ Once you have installed RestAuth, you can go on :doc:`configuring your webserver
 </config/webserver>` and :doc:`configuring RestAuth </config/restauth>`.
 
 Next steps
-----------
+==========
 Now that you have installed RestAuth, you still need to
 
 #. :doc:`configure your webserver <../config/webserver>`
