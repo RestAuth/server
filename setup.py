@@ -45,7 +45,7 @@ from RestAuth.common import cli
 from RestAuth.Users.models import user_permissions, prop_permissions
 from RestAuth.Groups.models import group_permissions
 
-LATEST_RELEASE = '0.5.2'
+LATEST_RELEASE = '0.5.3'
 
 if os.path.exists('RestAuth'):
     sys.path.insert(0, 'RestAuth')

@@ -1,8 +1,13 @@
-RestAuth 0.5.3 (XX XX 20XX)
+RestAuth 0.5.4 (XX XX 20XX)
+
+  * A few schema-updates:
+    * Many new indizes
+    * Remove useless subclass-relation for services
+    * Uniqueness for groups is now enforced on a schema-level
+
+RestAuth 0.5.3 (11 August 2012)
 
   General:
-  * There were some schema updates. Please read:
-        https://server.restauth.net/install/upgrade.html
   * Removed the migration directory, as the scripts there are now maintained in
     a dedicated git repository:
         https://git.fsinf.at/restauth/migration
@@ -43,9 +48,8 @@ RestAuth 0.5.3 (XX XX 20XX)
     distro-specific branches include packages for older distributions.
   * The new command 'prepare_debian_changelog' updates debian/changelog to the
     newest version
-
-  Users:
-  * Add database index for the username.
+  * scripts found in bin/ are now automatically installed.
+  * manage.py gets an automatic symlink in $PREFIX/bin
 
   Passwords:
   * Support empty salts (some legacy systems to not use a salt)
@@ -72,7 +76,6 @@ RestAuth 0.5.3 (XX XX 20XX)
   Groups:
   * Speed up group creation
   * some code-cleanup (remove one-line functions, etc.)
-  * Add database index for the groupname
   * Improve speed of getting groups of a user
 
   Documentation:
