@@ -81,7 +81,6 @@ Now that you have installed RestAuth, you still need to
 #. :doc:`setup your database <../config/database>`
 #. :doc:`configure RestAuth <../config/restauth>`
 
-
 Run tests
 ---------
 
