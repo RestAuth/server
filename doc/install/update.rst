@@ -20,9 +20,9 @@ your source code:
 Update database schema
 ======================
 
-Starting from version 0.5.3, we use `Django South
-<http://south.readthedocs.org/en/latest/index.html>`_ to handle schema migrations. If you installed
-from source, simply use |bin-restauth-manage-link| to update your schema:
+Starting from version 0.5.3, we use `Django South`_ to handle schema migrations.
+If you installed from source, simply use |bin-restauth-manage-link| to update
+your schema:
 
 .. parsed-literal:: |bin-restauth-manage| migrate
 
