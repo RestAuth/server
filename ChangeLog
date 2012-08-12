@@ -5,6 +5,9 @@ RestAuth 0.5.4 (XX XX 20XX)
     * Remove useless subclass-relation for services
     * Uniqueness for groups is now enforced on a schema-level
 
+  Testing:
+  * Most testcases no longer use transactions speeding up testruns a bit
+
 RestAuth 0.5.3 (11 August 2012)
 
   General:
