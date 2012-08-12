@@ -3,7 +3,7 @@ Settings reference
 
 Since RestAuth is implemented as a Django project, RestAuth not only uses
 `all settings available in Django
-<https://docs.djangoproject.com/en/dev/ref/settings/>`_, but also features a
+<https://docs.djangoproject.com/en/dev/ref/settings/>`__, but also features a
 few additional settings that ease administration and configure RestAuth. This
 document is a complete reference of settings that are either specific to
 RestAuth or are normal Django settings that RestAuth handles in a different way.
@@ -46,7 +46,7 @@ CACHES
 Default: ``{}``
 
 This setting is `available in Django
-<https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`_.
+<https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`__.
 Please see the `official documentation
 <https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this
 setting.
