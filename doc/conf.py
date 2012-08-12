@@ -330,3 +330,12 @@ rst_prolog += ".. |bin-restauth-service-doc| replace:: :doc:`/restauth-service`\
 rst_prolog += ".. |bin-restauth-user-doc| replace:: :doc:`/restauth-user`\n"
 rst_prolog += ".. |bin-restauth-group-doc| replace:: :doc:`/restauth-group`\n"
 rst_prolog += ".. |bin-restauth-import-doc| replace:: :doc:`/restauth-import`\n"
+
+# some common link labels:
+rst_prolog += """
+.. _Django South: http://south.aeracode.org/
+.. _Django: https://www.djangoproject.com
+.. _RestAuthCommon: https://common.restauth.net
+.. _Python: http://www.python.org
+.. _mimeparse: https://code.google.com/p/mimeparse/
+"""
