@@ -1,15 +1,16 @@
 Configuring your webserver
 ==========================
 
-To make your RestAuth service available to the outside world, you need to configure your webserver.
-RestAuth is (more or less) a standard `Django <http://www.djangoproject.com>`_ project, so you can
-use any webserver configuration supported by Django. The Django project itself has some
-`nice documentation <https://docs.djangoproject.com/en/dev/howto/deployment/>`_ on the subject.
+To make your RestAuth service available to the outside world, you need to
+configure your webserver.  RestAuth is (more or less) a standard `Django`_
+project, so you can use any webserver configuration supported by Django. The
+Django project itself has some `nice documentation
+<https://docs.djangoproject.com/en/dev/howto/deployment/>`_ on the subject.
 
-.. Note:: You might want to read this document in the version matching your Django version. 
+.. Note:: You might want to read this document in the version matching your Django version.
 
 We provide specialized installation instructions for Apache and mod_wsgi, which is the prefered
-solution by both Django and RestAuth. 
+solution by both Django and RestAuth.
 
 Apache and mod_wsgi
 -------------------
@@ -33,7 +34,7 @@ Configuring Apache is very simple, only the basic WSGI configuration directives 
        # basic django configuration:
        WSGIScriptAlias / /path/to/your/wsgi-script/restauth
        WSGIPassAuthorization on
-       
+
        # if you want to run WSGI processes as their own user:
        WSGIProcessGroup restauth
        WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
@@ -45,9 +46,9 @@ The HTTP Basic Authentication is already taken care of by RestAuth itself as lon
 .. NOTE:: It is recommended to run the RestAuth WSGI application as its own user. The Debian
    packages already add a user called ``restauth``. If you install from source, you can create a
    user using:
-   
+
    .. code-block:: bash
-   
+
       user@host:~ $ adduser --system --group --home /path/to/sources --no-create-home --disabled-login restauth
 
 Alternatively, the wsgi script (and thus the webserver) can also perform authentication for the
@@ -65,11 +66,11 @@ are unsupported and if enabled, cost considerable performance without being usef
        # basic django configuration:
        WSGIScriptAlias / /path/to/your/wsgi-script/restauth
        # WSGIPassAuthorization on
-       
+
        # if you want to run WSGI processes as their own user:
        WSGIProcessGroup restauth
        WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
-       
+
        <Location />
            AuthType Basic
            AuthName "RestAuth authentication service"
