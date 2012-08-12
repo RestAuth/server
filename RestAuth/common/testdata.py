@@ -17,7 +17,7 @@
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.test import TransactionTestCase
+from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
 from django.conf import settings
 
@@ -67,7 +67,7 @@ propval4 = u"propval \u6154"
 propval5 = u"propval \u6155"
 
 
-class RestAuthTest(TransactionTestCase):
+class RestAuthTestBase(object):
     def setUp(self):
         if hasattr(self, 'settings'):  # requires django-1.4:
             self.settings(LOGGING_CONFIG=None)
@@ -120,3 +120,11 @@ class RestAuthTest(TransactionTestCase):
         body = response.content.decode('utf-8')
         func = getattr(self.handler, 'unmarshal_%s' % typ)
         return func(body)
+
+
+class RestAuthTest(RestAuthTestBase, TestCase):
+    pass
+
+
+class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
+    pass

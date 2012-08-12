@@ -22,11 +22,11 @@ from RestAuth.common.testdata import password1
 from RestAuth.common.testdata import propkey1
 from RestAuth.common.testdata import propval1
 from RestAuth.common.testdata import propval2
-from RestAuth.common.testdata import RestAuthTest
+from RestAuth.common.testdata import RestAuthTransactionTest
 from RestAuth.common.testdata import username1
 
 
-class CreateUserTest(RestAuthTest):
+class CreateUserTest(RestAuthTransactionTest):
     def test_dry_run_create_user(self):
         resp = self.post('/test/users/', {'user': username1})
         self.assertEqual(resp.status_code, httplib.CREATED)
@@ -75,9 +75,9 @@ class CreateUserTest(RestAuthTest):
         self.assertFalse(ServiceUser.objects.all())
 
 
-class CreatePropertyTest(RestAuthTest):
+class CreatePropertyTest(RestAuthTransactionTest):
     def setUp(self):
-        RestAuthTest.setUp(self)
+        RestAuthTransactionTest.setUp(self)
         self.user = ServiceUser.objects.create(username=username1)
 
     def test_create_property(self):
@@ -117,7 +117,7 @@ class CreatePropertyTest(RestAuthTest):
         self.assertFalse(self.user.property_set.all())
 
 
-class CreateGroupTest(RestAuthTest):
+class CreateGroupTest(RestAuthTransactionTest):
     def test_dry_run_create_group(self):
         resp = self.post('/test/groups/', {'group': groupname1})
         self.assertEqual(resp.status_code, httplib.CREATED)
