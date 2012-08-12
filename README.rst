@@ -14,4 +14,5 @@ administrators to manage permissions for users in a central and easy way.
 
 This is a mirror of the server-side reference implementation of RestAuth, the
 most up-to-date documentation can always be viewed at
-https://server.restauth.net.
+https://server.restauth.net. The master source repository can be found at
+https://git.fsinf.at/restauth/server.
