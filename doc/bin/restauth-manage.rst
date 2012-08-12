@@ -79,7 +79,7 @@ Several commands for |bin-restauth-manage| are worth noting:
 
    Open a database shell to the database you configured in
    |file-settings-link|. Also see the `official documentation
-   <https://docs.djangoproject.com/en/dev/ref/django-admin/#dbshell>`_.
+   <https://docs.djangoproject.com/en/dev/ref/django-admin/#dbshell>`__.
 
 .. only:: not man
 
@@ -90,7 +90,7 @@ Several commands for |bin-restauth-manage| are worth noting:
 
    Open a python shell (using ipython if available) with your settings
    preconfigured. Also see the `official documentation
-   <https://docs.djangoproject.com/en/dev/ref/django-admin/#shell>`_.
+   <https://docs.djangoproject.com/en/dev/ref/django-admin/#shell>`__.
 
 
 
