@@ -38,6 +38,9 @@ named "RestAuth", simply do:
 
    git clone http://git.fsinf.at/restauth/server.git RestAuth
 
+.. NOTE:: A mirror of this git-repository is available
+   `on github <https://github.com/matigit/restauth>`_.
+
 Older versions are marked as tags. You can view available tags with
 :command:`git tag -l`. You can use any of those versions with :command:`git
 checkout`, for example :command:`git checkout 1.0`.  To move back to the newest
