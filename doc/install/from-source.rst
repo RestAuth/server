@@ -17,6 +17,8 @@ new software versions.
 * `mimeparse <https://code.google.com/p/mimeparse/>`_
 * The `argparse <http://docs.python.org/library/argparse.html>`_ module ships
   with Python 2.7 and is available for Python 2.6
+* `Django South <http://south.aeracode.org/>`_ is used for handeling schema
+  migrations.
 
 .. Note:: Although Django itself still supports Python 2.5, RestAuth is only
    compatible with Python 2.6 or later.
