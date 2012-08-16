@@ -357,7 +357,7 @@ class testserver(Command):
         management._commands['syncdb'] = 'django.core'
 
         fixture = 'RestAuth/fixtures/testserver.json'
-        if django.VERSION[:3] == (1, 4, 0):
+        if django.VERSION[:2] == (1, 4):
             # see https://github.com/django/django/commit/bb4452f212e211bca7b6b57904d59270ffd7a503
             from django.db import connection as conn
 
