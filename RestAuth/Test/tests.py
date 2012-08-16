@@ -123,13 +123,13 @@ class CreateGroupTest(RestAuthTransactionTest):
         self.assertEqual(resp.status_code, httplib.CREATED)
         self.assertFalse(Group.objects.all())
 
-#    def test_dry_run_create_existing_group(self):
-#        group = Group(name=groupname1, service=self.service)
-#        group.save()
-#
-#        resp = self.post('/test/groups/', {'group': groupname1})
-#        self.assertEqual(resp.status_code, httplib.CONFLICT)
-#        self.assertItemsEqual([group], Group.objects.all())
+    def test_dry_run_create_existing_group(self):
+        group = Group(name=groupname1, service=self.service)
+        group.save()
+
+        resp = self.post('/test/groups/', {'group': groupname1})
+        self.assertEqual(resp.status_code, httplib.CONFLICT)
+        self.assertItemsEqual([group], Group.objects.all())
 
     def test_dry_run_create_invalid_group(self):
         resp = self.post('/test/groups/', {'group': 'foo/bar'})

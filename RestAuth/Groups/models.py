@@ -53,8 +53,6 @@ def group_create(name, service=None):
         ommitted, the group will not be associated with any service.
     @type service: service
     """
-    if Group.objects.filter(name=name, service=service).exists():
-        raise GroupExists('Group "%s" already exists' % name)
     try:
         return Group.objects.create(name=name, service=service)
     except IntegrityError:
@@ -67,7 +65,7 @@ class Group(models.Model):
         help_text=_("Service that is associated with this group.")
     )
     name = models.CharField(
-        _('name'), max_length=30,
+        _('name'), max_length=30, db_index=True,
         help_text=_("Required. Name of the group.")
     )
     users = models.ManyToManyField(User)
@@ -75,7 +73,7 @@ class Group(models.Model):
         'self', symmetrical=False, related_name='parent_groups')
 
     class Meta:
-#        unique_together = ('name', 'service')
+        unique_together = ('name', 'service')
         permissions = group_permissions
 
     def __init__(self, *args, **kwargs):

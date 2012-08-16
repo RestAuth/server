@@ -366,7 +366,7 @@ class ServiceUser(models.Model):
 
 class Property(models.Model):
     user = models.ForeignKey(ServiceUser)
-    key = models.CharField(max_length=128)
+    key = models.CharField(max_length=128, db_index=True)
     value = models.TextField()
 
     class Meta:

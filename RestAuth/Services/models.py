@@ -47,18 +47,9 @@ def service_create(name, password, *hosts):
     return service
 
 
-class ServiceAddress(models.Model):
-    address = models.CharField(max_length=39, unique=True)
-#    services = models.ManyToManyField(Service, related_name='hosts')
-
-    def __unicode__(self):  # pragma: no cover
-        return self.address
-
-
 class Service(User):
-    hosts = models.ManyToManyField(ServiceAddress)
-#    class Meta:
-#        proxy = True
+    class Meta:
+        proxy = True
 
     def verify(self, password, host):
         if self.check_password(password) and self.verify_host(host):
@@ -101,3 +92,11 @@ class Service(User):
     def set_permissions(self, permissions):
         self.user_permissions.clear()
         self.user_permissions.add(*permissions)
+
+
+class ServiceAddress(models.Model):
+    address = models.CharField(max_length=39, unique=True)
+    services = models.ManyToManyField(Service, related_name='hosts')
+
+    def __unicode__(self):  # pragma: no cover
+        return self.address
