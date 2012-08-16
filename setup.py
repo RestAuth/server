@@ -35,21 +35,6 @@ from distutils.command.install import install as _install
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 
-try:
-    from django.core.management import call_command
-except ImportError:
-    print('Error: Could not import django')
-    sys.exit(1)
-
-from RestAuth.common import cli
-from RestAuth.Users.models import user_permissions, prop_permissions
-from RestAuth.Groups.models import group_permissions
-
-LATEST_RELEASE = '0.5.3'
-
-if os.path.exists('RestAuth'):
-    sys.path.insert(0, 'RestAuth')
-
 common_path = os.path.join('..', 'restauth-common', 'python')
 if os.path.exists(common_path):
     sys.path.insert(0, common_path)
@@ -59,6 +44,16 @@ if os.path.exists(common_path):
     else:
         os.environ['PYTHONPATH'] = common_path
 
+from django.core.management import call_command
+
+from RestAuth.common import cli
+from RestAuth.Users.models import user_permissions, prop_permissions
+from RestAuth.Groups.models import group_permissions
+
+LATEST_RELEASE = '0.5.3'
+
+if os.path.exists('RestAuth'):
+    sys.path.insert(0, 'RestAuth')
 
 def get_version():
     """
