@@ -48,10 +48,6 @@ def service_create(name, password, *hosts):
 
 
 class Service(User):
-    hosts = models.ManyToManyField('ServiceAddress')
-#    class Meta:
-#        proxy = True
-
     def verify(self, password, host):
         if self.check_password(password) and self.verify_host(host):
             return True
@@ -97,7 +93,7 @@ class Service(User):
 
 class ServiceAddress(models.Model):
     address = models.CharField(max_length=39, unique=True)
-    services = models.ManyToManyField(Service, related_name='hosts_new')
+    services = models.ManyToManyField(Service, related_name='hosts')
 
     def __unicode__(self):  # pragma: no cover
         return self.address
