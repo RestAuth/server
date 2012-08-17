@@ -48,6 +48,9 @@ def service_create(name, password, *hosts):
 
 
 class Service(User):
+    class Meta:
+        proxy = True
+
     def verify(self, password, host):
         if self.check_password(password) and self.verify_host(host):
             return True
