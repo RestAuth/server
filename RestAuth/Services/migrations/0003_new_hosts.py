@@ -8,15 +8,16 @@ class Migration(DataMigration):
 
     def forwards(self, orm):
         "Write your forwards methods here."
-        print('services:')
         for service in orm.Service.objects.all():
             print(dir(service))
             print('hosts: %s' % service.hosts.all())
             print('hosts_new: %s' % service.hosts_new.all())
 
-        print('addresses:')
-        for address in orm.ServiceAddress.objects.all():
-            print(dir(address))
+            service.hosts_new.add(*service.hosts.all())
+
+#        print('addresses:')
+#        for address in orm.ServiceAddress.objects.all():
+#            print(dir(address))
 
     def backwards(self, orm):
         "Write your backwards methods here."
