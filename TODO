@@ -1,7 +1,7 @@
 0.5.4:
 
-* Add schema-upgrades now found in the 0.5.4 branch
 * Add a config-variable that enables the admin interface
+* see if the resource_validator function costs too much performance
 
 Future:
 
