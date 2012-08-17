@@ -90,21 +90,10 @@ Setup database
 Next you need to populate your database with the necessary tables. This
 couldn't be simpler, using |bin-restauth-manage-link|:
 
-.. parsed-literal:: |bin-restauth-manage| syncdb --noinput
+.. parsed-literal::
 
-.. code-block:: python
-    :linenos:
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'restauth', # Or path to database file if using sqlite3.
-            'USER': 'restauth',                      # Not used with sqlite3.
-            'PASSWORD': 'changeme',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-        }
-    }
+   |bin-restauth-manage| syncdb --noinput
+   |bin-restauth-manage| migrate
 
 Again, do not forget to set the password do the correct value in line 6 of the
 above example.
