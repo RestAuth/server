@@ -18,7 +18,7 @@ class Migration(SchemaMigration):
         db.create_table('Services_serviceaddress_services', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('serviceaddress', models.ForeignKey(orm['Services.serviceaddress'], null=False)),
-            ('service', models.ForeignKey(orm['Services.service'], null=False))
+            ('service', models.ForeignKey(orm['auth.User'], null=False))
         ))
         db.create_unique('Services_serviceaddress_services', ['serviceaddress_id', 'service_id'])
 
