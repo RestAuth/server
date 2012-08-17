@@ -8,28 +8,11 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting model 'Service'
-        db.delete_table('Services_service')
-
         # Removing M2M table for field hosts on 'Service'
         db.delete_table('Services_service_hosts')
 
-        # Adding M2M table for field services on 'ServiceAddress'
-        db.create_table('Services_serviceaddress_services', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('serviceaddress', models.ForeignKey(orm['Services.serviceaddress'], null=False)),
-            ('service', models.ForeignKey(orm['auth.User'], null=False))
-        ))
-        db.create_unique('Services_serviceaddress_services', ['serviceaddress_id', 'service_id'])
-
 
     def backwards(self, orm):
-        # Adding model 'Service'
-        db.create_table('Services_service', (
-            ('user_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, primary_key=True)),
-        ))
-        db.send_create_signal('Services', ['Service'])
-
         # Adding M2M table for field hosts on 'Service'
         db.create_table('Services_service_hosts', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
@@ -38,16 +21,17 @@ class Migration(SchemaMigration):
         ))
         db.create_unique('Services_service_hosts', ['service_id', 'serviceaddress_id'])
 
-        # Removing M2M table for field services on 'ServiceAddress'
-        db.delete_table('Services_serviceaddress_services')
-
 
     models = {
+        'Services.service': {
+            'Meta': {'object_name': 'Service', '_ormbases': ['auth.User']},
+            'user_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True', 'primary_key': 'True'})
+        },
         'Services.serviceaddress': {
             'Meta': {'object_name': 'ServiceAddress'},
             'address': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '39'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'services': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'hosts'", 'symmetrical': 'False', 'to': "orm['auth.User']"})
+            'services': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'hosts'", 'symmetrical': 'False', 'to': "orm['Services.Service']"})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},
