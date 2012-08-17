@@ -70,7 +70,7 @@ The next step is creating your database (:ref:`detailed instructions
 .. code-block:: bash
 
    mysql -uroot -pYOUR_PASSWORD -e "CREATE DATABASE restauth CHARACTER SET utf8;"
-   mysql -uroot -pYOUR_PASSWORD -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost' IDENTIFIED BY 'changeme'"
+   mysql -uroot -pYOUR_PASSWORD -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost' IDENTIFIED BY 'changeme';"
 
 .. WARNING:: Please set the password ('changeme') to whatever you configured in
    your config-file.
@@ -82,7 +82,7 @@ for Debian/Ubuntu:
 .. code-block:: bash
 
    mysql --defaults-file=/etc/mysql/debian.cnf -e "CREATE DATABASE matitest CHARACTER SET utf8;"
-   mysql --defaults-file=/etc/mysql/debian.cnf -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost' IDENTIFIED BY 'changeme'"
+   mysql --defaults-file=/etc/mysql/debian.cnf -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost' IDENTIFIED BY 'changeme';"
 
 Setup database
 --------------
