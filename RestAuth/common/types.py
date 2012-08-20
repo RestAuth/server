@@ -95,3 +95,13 @@ def get_dict(request, keys=[], optional=[]):
         mandatory = [data[key] for key in keys]
         optional = [data.pop(key, None) for key in optional]
         return mandatory + optional
+
+def get_freeform_dict(request):
+    try:
+        mime_type = get_request_type(request)
+        body = request.raw_post_data
+
+        handler = CONTENT_HANDLERS[mime_type]()
+        return handler.unmarshal_dict(body)
+    except UnmarshalError as e:
+        raise BadRequest(e)
