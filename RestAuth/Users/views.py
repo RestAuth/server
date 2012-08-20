@@ -23,7 +23,7 @@ from django.http import HttpResponseForbidden
 from RestAuthCommon.error import BadRequest
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
-from RestAuth.common.types import get_dict
+from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
 
 from RestAuth.common.decorators import sql_profile
@@ -169,6 +169,13 @@ def userprops_index(request, username):
         logger.info(
             'Created property "%s" as "%s"', prop, value, extra=log_args)
         return HttpResponseCreated(request, property)
+    elif request.method == 'PUT':  # set multiple properties
+        if not request.user.has_perm('Users.prop_create'):
+            return HttpResponseForbidden()
+
+        for key, value in get_freeform_dict(request):
+            user.set_property(key, value)
+        return HttpResponseNoContent()
     else:  # pragma: no cover
         logger.error('Method not allowed: %s', request.method, extra=log_args)
         return HttpResponse(status=405)  # Method Not Allowed
