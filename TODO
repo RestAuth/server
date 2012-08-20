@@ -1,5 +1,6 @@
-0.5.4:
+0.6.0:
 
+* Add new API call for setting multiple properties
 * Add a config-variable that enables the admin interface
 * see if the resource_validator function costs too much performance
 
