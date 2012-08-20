@@ -3,6 +3,7 @@
 * Add new API call for setting multiple properties
 * Add a config-variable that enables the admin interface
 * see if the resource_validator function costs too much performance
+* Automatically set date_created property
 
 Future:
 
