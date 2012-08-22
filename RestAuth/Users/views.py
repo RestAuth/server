@@ -173,7 +173,7 @@ def userprops_index(request, username):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
-        for key, value in get_freeform_dict(request):
+        for key, value in get_freeform_dict(request).iteritems():
             user.set_property(key, value)
         return HttpResponseNoContent()
     else:  # pragma: no cover
