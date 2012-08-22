@@ -454,6 +454,69 @@ class CreatePropertyTests(PropertyTests):  # POST /users/<user>/props/
         self.assertDictEqual(self.user2.get_properties(), {})
 
 
+class SetMultiplePropertiesTests(PropertyTests):
+    def test_user_doesnt_exist(self):
+        resp = self.put('/users/%s/props/' % username3,
+                        {propkey1: propval1, propkey2: propval2})
+        self.assertEquals(resp.status_code, httplib.NOT_FOUND)
+        self.assertEqual(resp['Resource-Type'], 'user')
+
+    def test_no_property(self):
+        resp = self.put('/users/%s/props/' % username1, {})
+        self.assertDictEqual(self.user1.get_properties(), {})
+
+    def test_create_one_property(self):
+        testdict = {propkey1: propval1}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+    def test_create_two_properties(self):
+        testdict = {propkey1: propval1, propkey2: propval2}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+    def test_create_three_properties(self):
+        testdict = {propkey1: propval1, propkey2: propval2, propkey3: propval3}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+    def test_set_one_property(self):
+        testdict = {propkey1: propval1}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+        testdict = {propkey1: propval2}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+    def test_set_two_properties(self):
+        testdict = {propkey1: propval1, propkey2: propval2}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+        testdict = {propkey1: propval3, propkey2: propval4}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+    def test_set_three_properties(self):
+        testdict = {propkey1: propval1, propkey2: propval2, propkey3: propval3}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+        testdict = {propkey1: propval2, propkey2: propval5, propkey3: propval4}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+    def test_mix_set_and_create(self):
+        testdict = {propkey1: propval1}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+        testdict = {propkey1: propval1, propkey2: propval2}
+        resp = self.put('/users/%s/props/' % username1, testdict)
+        self.assertDictEqual(self.user1.get_properties(), testdict)
+
+
 class GetPropertyTests(PropertyTests):  # GET /users/<user>/props/<prop>/
     def test_user_doesnt_exist(self):
         resp = self.get('/users/%s/props/%s/' % (username3, propkey1))
