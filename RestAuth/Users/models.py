@@ -307,12 +307,7 @@ class ServiceUser(models.Model):
             raise PropertyExists(key)
 
     def get_properties(self):
-        dictionary = {}
-
-        props = self.property_set.values_list('key', 'value').all()
-        for key, value in props:
-            dictionary[key] = value
-        return dictionary
+        return dict(self.property_set.values_list('key', 'value').all())
 
     def set_property(self, key, value):
         """
