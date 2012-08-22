@@ -209,13 +209,13 @@ def userprops_prop(request, username, prop):
         value = get_dict(request, [u'value'])
 
         prop, old_value = user.set_property(prop, value)
-        if old_value.__class__ == unicode:  # property previously defined:
+        if old_value is None: # new property
+            logger.info('Set to "%s"', value, extra=log_args)
+            return HttpResponseCreated(request, prop)
+        else:  # existing property
             logger.info(
                 'Changed from "%s" to "%s"', old_value, value, extra=log_args)
             return HttpRestAuthResponse(request, old_value)
-        else:  # new property:
-            logger.info('Set to "%s"', value, extra=log_args)
-            return HttpResponseCreated(request, prop)
 
     elif request.method == 'DELETE':  # Delete property:
         if not request.user.has_perm('Users.prop_delete'):
