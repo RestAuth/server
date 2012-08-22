@@ -224,10 +224,14 @@ class ServiceUser(models.Model):
         permissions = user_permissions
 
     def __init__(self, *args, **kwargs):
-        models.Model.__init__(self, *args, **kwargs)
+        super(ServiceUser, self).__init__(*args, **kwargs)
+        self.orig_username = self.username
 
-        if self.username and not resource_validator(self.username):
-            raise PreconditionFailed("Username contains invalid characters")
+    def save(self, *args, **kwargs):
+        if self.pk is None or self.username != self.orig_username:
+            if not resource_validator(self.username):
+                raise PreconditionFailed("Username contains invalid characters")
+        return super(ServiceUser, self).save(*args, **kwargs)
 
     def set_password(self, raw_password):
         """
@@ -327,11 +331,11 @@ class ServiceUser(models.Model):
             with the previous value or None if this was a new
             property.
         """
-        try:
-            return self.add_property(key, value), None
-        except PropertyExists:
-            # only update the right key.
-            prop = self.property_set.get(key=key)
+        prop, created = Property.objects.get_or_create(
+            user=self, key=key, defaults={'value': value})
+        if created:
+            return prop, None
+        else:
             old_value = prop.value
             prop.value = value
             prop.save()
