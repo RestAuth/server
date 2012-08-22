@@ -282,13 +282,11 @@ class ServiceUser(models.Model):
         @type  service: service
         """
         groups = set(self.group_set.filter(service=service).only('name'))
-
-        # import here to avoid circular imports:
-        from RestAuth.Groups.models import Group
+        model = self.group_set.model
 
         # any remaining candidates
         exclude_ids = [group.id for group in groups]
-        others = Group.objects.filter(service=service).exclude(
+        others = model.objects.filter(service=service).exclude(
             id__in=exclude_ids).only('name')
         for other in others:
             if other.is_indirect_member(self):
@@ -303,13 +301,8 @@ class ServiceUser(models.Model):
         @raises PropertyExists: If the property already exists.
         @return: The property that was created
         """
-        if not resource_validator(key):
-            raise PreconditionFailed("Property contains invalid characters")
-
         try:
-            prop = Property(user=self, key=key, value=value)
-            prop.save()
-            return prop
+            return Property.objects.create(user=self, key=key, value=value)
         except IntegrityError:
             raise PropertyExists(key)
 
@@ -376,6 +369,11 @@ class Property(models.Model):
     class Meta:
         unique_together = ('user', 'key')
         permissions = prop_permissions
+
+    def save(self, *args, **kwargs):
+        if self.pk is None and not resource_validator(self.key):
+            raise PreconditionFailed("Property contains invalid characters")
+        return super(Property, self).save(*args, **kwargs)
 
     def __unicode__(self):  # pragma: no cover
         return "%s: %s=%s" % (self.user.username, self.key, self.value)
