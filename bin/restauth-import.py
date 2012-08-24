@@ -104,6 +104,7 @@ try:
         print('Users:')
 
         for username, data in users.iteritems():
+            username = username.lower()
             user, created = ServiceUser.objects.get_or_create(
                 username=username)
 
