@@ -23,12 +23,11 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append( os.getcwd() )
 
 try:
-    from RestAuth.Services.models import *
     from RestAuth.common.cli import import_parser
 
-    from RestAuth.Services.models as Service, ServiceAddress
+    from RestAuth.Services.models import Service, ServiceAddress
     from RestAuth.Users.models import ServiceUser, Property
-    from RestAuth.Groups import models as group_models
+    from RestAuth.Groups.models import Group
 except ImportError, e:
     sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
     sys.exit(1)
@@ -165,7 +164,7 @@ try:
             if service:
                 service = Service.objects.get( username=service )
 
-            group, created = group_models.Group.objects.get_or_create( name=name, service=service )
+            group, created = Group.objects.get_or_create( name=name, service=service )
             if created:
                 print( "* %s: created."%name)
             elif args.skip_existing_groups:
@@ -188,7 +187,7 @@ try:
                 if service:
                     service = Service.objects.get( username=service )
 
-                subgroup = group_models.Group.objects.get( name=name, service=service)
+                subgroup = Group.objects.get( name=name, service=service)
                 group.groups.add( subgroup )
 
 
