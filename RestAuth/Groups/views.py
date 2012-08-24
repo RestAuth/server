@@ -25,41 +25,41 @@ from RestAuth.Groups.models import *
 from RestAuth.common.errors import GroupExists
 from RestAuth.common.types import get_dict
 from RestAuth.common.responses import *
+from RestAuth.common.views import RestAuthView
 
 
-@login_required(realm='/groups/')
-#@sql_profile()
-def index(request):
-    service = request.user
-    logger = logging.getLogger('groups')
-    log_args = {'service': service}
+class GroupsView(RestAuthView):
+    log = logging.getLogger('groups')
 
-    if request.method == 'GET' and 'user' in request.GET:
-        if not request.user.has_perm('Groups.groups_for_user'):
-            return HttpResponseForbidden()
+    def get(self, request):
+        if 'user' in request.GET:
+            if not request.user.has_perm('Groups.groups_for_user'):
+                return HttpResponseForbidden()
 
-        # Get all groups of a user
-        username = request.GET['user'].lower()
+            # Get all groups of a user
+            username = request.GET['user'].lower()
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+            # If User.DoesNotExist: 404 Not Found
+            user = ServiceUser.objects.only('username').get(username=username)
 
-        groups = user.get_groups(service)
-        names = [group.name for group in groups]
+            groups = user.get_groups(request.user)
+            names = [group.name for group in groups]
 
-        logger.debug('Get groups for user %s', username, extra=log_args)
-        return HttpRestAuthResponse(request, names)  # Ok
-    elif request.method == 'GET':  # Get a list of groups:
-        if not request.user.has_perm('Groups.groups_list'):
-            return HttpResponseForbidden()
+            self.log.debug('Get groups for user %s',
+                           username, extra=self.largs)
+            return HttpRestAuthResponse(request, names)
+        else:  # Get a list of groups:
+            if not request.user.has_perm('Groups.groups_list'):
+                return HttpResponseForbidden()
 
-        # get all groups for this service
-        groups = Group.objects.filter(service=service)
-        groups = list(groups.values_list('name', flat=True))
+            # get all groups for this service
+            groups = Group.objects.filter(service=request.user)
+            groups = list(groups.values_list('name', flat=True))
 
-        logger.debug('Get all groups', extra=log_args)
-        return HttpRestAuthResponse(request, groups)  # Ok
-    elif request.method == 'POST':  # Create a group
+            self.log.debug('Get all groups', extra=self.largs)
+            return HttpRestAuthResponse(request, groups)
+
+    def post(self, request):
         if not request.user.has_perm('Groups.group_create'):
             return HttpResponseForbidden()
 
@@ -67,13 +67,10 @@ def index(request):
         groupname = get_dict(request, [u'group'])
 
         # If ResourceExists: 409 Conflict
-        group = group_create(groupname, service)
+        group = group_create(groupname, request.user)
 
-        logger.info('%s: Created group', groupname, extra=log_args)
+        self.log.info('%s: Created group', groupname, extra=self.largs)
         return HttpResponseCreated(request, group)  # Created
-    else:  # pragma: no cover
-        logger.error('%s: Method not allowed: %s', service, request.method)
-        return HttpResponse(status=405)  # method not allowed
 
 
 @login_required(realm='/groups/<group>/')

@@ -17,9 +17,12 @@
 
 from django.conf.urls.defaults import patterns
 
+from Services.decorator import login_required
+from Groups.views import GroupsView
+
 urlpatterns = patterns(
     'RestAuth.Groups.views',
-    (r'^$', 'index'),
+    (r'^$', login_required(realm='/groups/')(GroupsView.as_view())),
     (r'^(?P<groupname>[^/]+)/$', 'group_handler'),
     (r'^(?P<groupname>[^/]+)/users/$', 'group_users_index_handler'),
     (r'^(?P<groupname>[^/]+)/users/(?P<username>[^/]+)/$',

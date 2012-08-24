@@ -1,11 +1,12 @@
 from django.db import transaction
 
 from RestAuth.Users.views import UsersView, UserPropsIndex
-from RestAuth.Groups import views as group_views
+from RestAuth.Groups.views import GroupsView
 from RestAuth.Services.decorator import login_required
 
 users_view = UsersView.as_view()
 props_view = UserPropsIndex.as_view()
+groups_view = GroupsView.as_view()
 
 @login_required(realm="/test/users/")
 @transaction.commit_manually
@@ -29,6 +30,6 @@ def users_user_props(request, username):
 @transaction.commit_manually
 def groups(request):
     try:
-        return group_views.index(request)
+        return groups_view(request)
     finally:
         transaction.rollback()
