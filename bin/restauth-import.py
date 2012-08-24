@@ -26,7 +26,7 @@ try:
     from RestAuth.Services.models import *
     from RestAuth.common.cli import import_parser
 
-    from RestAuth.Services import models as service_models
+    from RestAuth.Services.models as Service, ServiceAddress
     from RestAuth.Users.models import ServiceUser, Property
     from RestAuth.Groups import models as group_models
 except ImportError, e:
@@ -58,11 +58,11 @@ try:
     elif services:
         print( 'Services:' )
         for name, data in services.iteritems():
-            if service_models.Service.objects.filter( username=name ).exists():
+            if Service.objects.filter( username=name ).exists():
                 print( '* %s: Already exists.'%name )
                 continue
 
-            service = service_models.Service( username=name )
+            service = Service( username=name )
 
             # set password:
             if 'password' in data:
@@ -80,7 +80,7 @@ try:
 
             if 'hosts' in data:
                 for host in data['hosts']:
-                    address = service_models.ServiceAddress.objects.get_or_create( address=host )[0]
+                    address = ServiceAddress.objects.get_or_create( address=host )[0]
                     service.hosts.add( address )
 
     ####################
@@ -163,7 +163,7 @@ try:
         for name, data in groups.iteritems():
             service = data.pop( 'service', None )
             if service:
-                service = service_models.Service.objects.get( username=service )
+                service = Service.objects.get( username=service )
 
             group, created = group_models.Group.objects.get_or_create( name=name, service=service )
             if created:
@@ -186,7 +186,7 @@ try:
             for subgroup_data in subgroups_data:
                 name, service = subgroup_data['name'], subgroup_data['service']
                 if service:
-                    service = service_models.Service.objects.get( username=service )
+                    service = Service.objects.get( username=service )
 
                 subgroup = group_models.Group.objects.get( name=name, service=service)
                 group.groups.add( subgroup )
