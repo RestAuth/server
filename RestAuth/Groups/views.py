@@ -28,6 +28,17 @@ from RestAuth.common.responses import *
 from RestAuth.common.views import RestAuthView
 
 
+class BaseGroupView(RestAuthView):
+    def dispatch(self, request, *args, **kwargs):
+        groupname = kwargs.get('groupname').lower()
+
+        if 'largs' not in kwargs:
+            kwargs['largs'] = {}
+        kwargs['groupname'] = groupname
+        kwargs['largs']['groupname'] = groupname
+        return super(BaseGroupView, self).dispatch(request, *args, **kwargs)
+
+
 class GroupsView(RestAuthView):
     log = logging.getLogger('groups')
 
@@ -73,32 +84,29 @@ class GroupsView(RestAuthView):
         return HttpResponseCreated(request, group)  # Created
 
 
-@login_required(realm='/groups/<group>/')
-#@sql_profile()
-def group_handler(request, groupname):
-    service = request.user
-    logger = logging.getLogger('groups.group')
-    log_args = {'service': service, 'group': groupname}
+class GroupHandlerView(BaseGroupView):
+    log = logging.getLogger('groups.group')
 
-    # If Group.DoesNotExist: 404 Not Found
-    group = Group.objects.only('name').get(name=groupname, service=service)
-
-    if request.method == 'GET':  # Verify that a group exists:
+    def get(self, request, groupname):  # Verify that a group exists
         if not request.user.has_perm('Groups.group_exists'):
             return HttpResponseForbidden()
 
-        logger.debug("Check if group exists", extra=log_args)
+        group = Group.objects.only('name').get(
+            name=groupname, service=request.user)
+
+        self.log.debug("Check if group exists", extra=self.largs)
         return HttpResponseNoContent()
-    if request.method == 'DELETE':  # Delete group
+
+    def delete(self, request, groupname):  # Delete group
         if not request.user.has_perm('Groups.group_delete'):
             return HttpResponseForbidden()
 
+        group = Group.objects.only('name').get(
+            name=groupname, service=request.user)
+
         group.delete()
-        logger.info("Deleted group", extra=log_args)
+        self.log.info("Deleted group", extra=self.largs)
         return HttpResponseNoContent()  # OK
-    else:  # pragma: no cover
-        logger.error('%s: Method not allowed: %s', service, request.method)
-        return HttpResponse(status=405)
 
 
 @login_required(realm='/groups/<group>/users/')

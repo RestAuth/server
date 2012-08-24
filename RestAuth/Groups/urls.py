@@ -18,12 +18,12 @@
 from django.conf.urls.defaults import patterns
 
 from Services.decorator import login_required
-from Groups.views import GroupsView
+from Groups.views import GroupsView, GroupHandlerView
 
 urlpatterns = patterns(
     'RestAuth.Groups.views',
     (r'^$', login_required(realm='/groups/')(GroupsView.as_view())),
-    (r'^(?P<groupname>[^/]+)/$', 'group_handler'),
+    (r'^(?P<groupname>[^/]+)/$', login_required(realm='/groups/<group>/')(GroupHandlerView.as_view())),
     (r'^(?P<groupname>[^/]+)/users/$', 'group_users_index_handler'),
     (r'^(?P<groupname>[^/]+)/users/(?P<username>[^/]+)/$',
      'group_user_handler'),
