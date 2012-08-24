@@ -19,6 +19,7 @@ import httplib
 import logging
 
 from django.http import HttpResponseForbidden
+from django.views.generic.base import View
 
 from RestAuthCommon.error import BadRequest
 from RestAuth.Services.decorator import login_required
@@ -28,22 +29,33 @@ from RestAuth.common.responses import *
 
 from RestAuth.common.decorators import sql_profile
 
+class BaseUserView(View):
+    def dispatch(self, request, *args, **kwargs):
+        self.largs = kwargs.pop('largs', {})
+        username = kwargs.get('username').lower()
+        kwargs['username'] = username
+        self.largs['service'] = request.user.username
+        self.largs['username'] = username
+        return super(BaseUserView, self).dispatch(request, *args, **kwargs)
 
-@login_required(realm="/users/")
-def index(request):
-    service = request.user.username
-    logger = logging.getLogger('users')
-    log_args = {'service': service}
+class UsersView(View):
+    http_method_names = ['get', 'post',]
+    log = logging.getLogger('users')
 
-    if request.method == "GET":  # get list of users:
+    def dispatch(self, request):
+        self.largs = {'service': request.user.username}
+        return super(UsersView, self).dispatch(request)
+
+    def get(self, request, *args, **kwargs):
         if not request.user.has_perm('Users.users_list'):
             return HttpResponseForbidden()
 
         names = ServiceUser.objects.values_list('username', flat=True)
 
-        logger.debug("Got list of users", extra=log_args)
+        self.log.debug("Got list of users", extra=self.largs)
         return HttpRestAuthResponse(request, list(names))
-    elif request.method == 'POST':  # create new user:
+
+    def post(self, request, *args, **kwargs):
         if not request.user.has_perm('Users.user_create'):
             return HttpResponseForbidden()
 
@@ -60,30 +72,25 @@ def index(request):
                 raise BadRequest('Properties not a dictionary!')
             [user.set_property(key, value) for key, value in props.iteritems()]
 
-        logger.info('%s: Created user', name, extra=log_args)
+        self.log.info('%s: Created user', name, extra=self.largs)
         return HttpResponseCreated(request, user)
-    else:  # pragma: no cover
-        logger.error('Method not allowed: %s', request.method, extra=log_args)
-        return HttpResponse(status=405)
 
 
-@login_required(realm="/users/<user>/")
-def user_handler(request, username):
-    service = request.user.username
-    username = username.lower()
-    logger = logging.getLogger('users.user')
-    log_args = {'service': service, 'username': username}
+class UserHandlerView(BaseUserView):
+    http_method_names = ['get', 'post', 'put', 'delete',]
+    log = logging.getLogger('users.user')
 
-    if request.method == 'GET':  # Verify that a user exists:
+    def get(self, request, username):
         if not request.user.has_perm('Users.user_exists'):
             return HttpResponseForbidden()
 
-        logger.debug("Check if user exists", extra=log_args)
+        self.log.debug("Check if user exists", extra=self.largs)
         if ServiceUser.objects.filter(username=username).exists():
-            return HttpResponseNoContent()  # OK
+            return HttpResponseNoContent()
         else:
             raise ServiceUser.DoesNotExist()
-    elif request.method == 'POST':  # verify password
+
+    def post(self, request, username):
         if not request.user.has_perm('Users.user_verify_password'):
             return HttpResponseForbidden()
 
@@ -96,13 +103,14 @@ def user_handler(request, username):
 
         if not user.check_password(password):
             # password does not match - raises 404
-            logger.info("Wrong password checked", extra=log_args)
+            self.log.info("Wrong password checked", extra=self.largs)
             raise ServiceUser.DoesNotExist("Password invalid for this user.")
         user.save()  # update "modified" timestamp, perhaps hash
 
-        logger.debug("Checked password (ok)", extra=log_args)
+        self.log.debug("Checked password (ok)", extra=self.largs)
         return HttpResponseNoContent()  # Ok
-    elif request.method == 'PUT':  # Change password
+
+    def put(self, request, username):
         if not request.user.has_perm('Users.user_change_password'):
             return HttpResponseForbidden()
 
@@ -120,9 +128,10 @@ def user_handler(request, username):
 
         user.save()
 
-        logger.info("Updated password", extra=log_args)
+        self.log.info("Updated password", extra=self.largs)
         return HttpResponseNoContent()
-    elif request.method == 'DELETE':  # delete a user:
+
+    def delete(self, request, username):
         if not request.user.has_perm('Users.user_delete'):
             return HttpResponseForbidden()
 
@@ -131,101 +140,103 @@ def user_handler(request, username):
 
         user.delete()
 
-        logger.info("Deleted user", extra=log_args)
+        self.log.info("Deleted user", extra=self.largs)
         return HttpResponseNoContent()
-    else:  # pragma: no cover
-        logger.error('Method not allowed: %s', request.method, extra=log_args)
-        return HttpResponse(status=405)  # Method Not Allowed
 
 
-@login_required(realm="/users/<user>/props/")
-def userprops_index(request, username):
-    service = request.user.username
-    username = username.lower()
-    # If User.DoesNotExist: 404 Not Found
-    user = ServiceUser.objects.only('username').get(username=username)
+class UserPropsIndex(BaseUserView):
+    log = logging.getLogger('users.user.props')
+    http_method_names = ['get', 'post', 'put',]
 
-    logger = logging.getLogger('users.user.props')
-    log_args = {'service': service, 'username': username}
-
-    if request.method == 'GET':  # get all properties
+    def get(self, request, username):
         if not request.user.has_perm('Users.props_list'):
             return HttpResponseForbidden()
 
+        # If User.DoesNotExist: 404 Not Found
+        user = ServiceUser.objects.only('username').get(username=username)
         props = user.get_properties()
 
-        logger.debug("Got properties", extra=log_args)
+        self.log.debug("Got properties", extra=self.largs)
         return HttpRestAuthResponse(request, props)
-    elif request.method == 'POST':  # create property
+
+    def post(self, request, username):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
         prop, value = get_dict(request, [u'prop', u'value'])
 
+        # If User.DoesNotExist: 404 Not Found
+        user = ServiceUser.objects.only('username').get(username=username)
+
         # If PropertyExists: 409 Conflict
         property = user.add_property(prop, value)
 
-        logger.info(
-            'Created property "%s" as "%s"', prop, value, extra=log_args)
+        self.log.info(
+            'Created property "%s" as "%s"', prop, value, extra=self.largs)
         return HttpResponseCreated(request, property)
-    elif request.method == 'PUT':  # set multiple properties
+
+    def put(self, request, username):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
+
+        # If User.DoesNotExist: 404 Not Found
+        user = ServiceUser.objects.only('username').get(username=username)
 
         for key, value in get_freeform_dict(request).iteritems():
             user.set_property(key, value)
         return HttpResponseNoContent()
-    else:  # pragma: no cover
-        logger.error('Method not allowed: %s', request.method, extra=log_args)
-        return HttpResponse(status=405)  # Method Not Allowed
 
 
-@login_required(realm="/users/<user>/props/<prop>/")
-def userprops_prop(request, username, prop):
-    service = request.user.username
-    username = username.lower()
-    # If User.DoesNotExist: 404 Not Found
-    user = ServiceUser.objects.only('username').get(username=username)
+class UserPropHandler(BaseUserView):
+    log = logging.getLogger('users.user.props.prop')
+    http_method_names = ['get', 'put', 'delete',]
 
-    logger = logging.getLogger('users.user.props.prop')
-    log_args = {'service': service, 'username': username, 'prop': prop}
+    def dispatch(self, request, *args, **kwargs):
+        return super(UserPropHandler, self).dispatch(
+            request, largs={'prop': kwargs.get('prop')}, **kwargs)
 
-    if request.method == 'GET':  # get value of a property
+    def get(self, request, username, prop):
         if not request.user.has_perm('Users.prop_get'):
             return HttpResponseForbidden()
+
+        # If User.DoesNotExist: 404 Not Found
+        user = ServiceUser.objects.only('username').get(username=username)
 
         # If Property.DoesNotExist: 404 Not Found
         prop = user.get_property(prop)
 
-        logger.debug('Got property', extra=log_args)
+        self.log.debug('Got property', extra=self.largs)
         return HttpRestAuthResponse(request, prop.value)
 
-    elif request.method == 'PUT':  # Set property
+    def put(self, request, username, prop):
         if not request.user.has_perm('Users.prop_set'):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
         value = get_dict(request, [u'value'])
 
+        # If User.DoesNotExist: 404 Not Found
+        user = ServiceUser.objects.only('username').get(username=username)
+
         prop, old_value = user.set_property(prop, value)
         if old_value is None: # new property
-            logger.info('Set to "%s"', value, extra=log_args)
+            self.log.info('Set to "%s"', value, extra=self.largs)
             return HttpResponseCreated(request, prop)
         else:  # existing property
-            logger.info(
-                'Changed from "%s" to "%s"', old_value, value, extra=log_args)
+            self.log.info(
+                'Changed from "%s" to "%s"', old_value, value, extra=self.largs)
             return HttpRestAuthResponse(request, old_value)
 
-    elif request.method == 'DELETE':  # Delete property:
+    def delete(self, request, username, prop):
         if not request.user.has_perm('Users.prop_delete'):
             return HttpResponseForbidden()
+
+        # If User.DoesNotExist: 404 Not Found
+        user = ServiceUser.objects.only('username').get(username=username)
 
         # If Property.DoesNotExist: 404 Not Found
         user.del_property(prop)
 
-        logger.info('Delete property', extra=log_args)
+        self.log.info('Delete property', extra=self.largs)
         return HttpResponseNoContent()
-    else:  # pragma: no cover
-        logger.error('Method not allowed: %s', request.method, extra=log_args)
-        return HttpResponse(status=405)  # Method Not Allowed
