@@ -29,6 +29,7 @@ from RestAuth.common.responses import *
 
 from RestAuth.common.decorators import sql_profile
 
+
 class BaseUserView(View):
     def dispatch(self, request, *args, **kwargs):
         self.largs = kwargs.pop('largs', {})
@@ -38,8 +39,9 @@ class BaseUserView(View):
         self.largs['username'] = username
         return super(BaseUserView, self).dispatch(request, *args, **kwargs)
 
+
 class UsersView(View):
-    http_method_names = ['get', 'post',]
+    http_method_names = ['get', 'post']
     log = logging.getLogger('users')
 
     def dispatch(self, request):
@@ -77,7 +79,7 @@ class UsersView(View):
 
 
 class UserHandlerView(BaseUserView):
-    http_method_names = ['get', 'post', 'put', 'delete',]
+    http_method_names = ['get', 'post', 'put', 'delete']
     log = logging.getLogger('users.user')
 
     def get(self, request, username):
@@ -146,7 +148,7 @@ class UserHandlerView(BaseUserView):
 
 class UserPropsIndex(BaseUserView):
     log = logging.getLogger('users.user.props')
-    http_method_names = ['get', 'post', 'put',]
+    http_method_names = ['get', 'post', 'put']
 
     def get(self, request, username):
         if not request.user.has_perm('Users.props_list'):
@@ -190,7 +192,7 @@ class UserPropsIndex(BaseUserView):
 
 class UserPropHandler(BaseUserView):
     log = logging.getLogger('users.user.props.prop')
-    http_method_names = ['get', 'put', 'delete',]
+    http_method_names = ['get', 'put', 'delete']
 
     def dispatch(self, request, *args, **kwargs):
         return super(UserPropHandler, self).dispatch(
@@ -220,12 +222,12 @@ class UserPropHandler(BaseUserView):
         user = ServiceUser.objects.only('username').get(username=username)
 
         prop, old_value = user.set_property(prop, value)
-        if old_value is None: # new property
+        if old_value is None:  # new property
             self.log.info('Set to "%s"', value, extra=self.largs)
             return HttpResponseCreated(request, prop)
         else:  # existing property
-            self.log.info(
-                'Changed from "%s" to "%s"', old_value, value, extra=self.largs)
+            self.log.info('Changed from "%s" to "%s"',
+                          old_value, value, extra=self.largs)
             return HttpRestAuthResponse(request, old_value)
 
     def delete(self, request, username, prop):
