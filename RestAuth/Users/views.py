@@ -19,34 +19,31 @@ import httplib
 import logging
 
 from django.http import HttpResponseForbidden
-from django.views.generic.base import View
 
 from RestAuthCommon.error import BadRequest
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
+from RestAuth.common.views import RestAuthView
 
 from RestAuth.common.decorators import sql_profile
 
 
-class BaseUserView(View):
+class BaseUserView(RestAuthView):
     def dispatch(self, request, *args, **kwargs):
-        self.largs = kwargs.pop('largs', {})
         username = kwargs.get('username').lower()
+
+        if 'largs' not in kwargs:
+            kwargs['largs'] = {}
         kwargs['username'] = username
-        self.largs['service'] = request.user.username
-        self.largs['username'] = username
+        kwargs['largs']['username'] = username
         return super(BaseUserView, self).dispatch(request, *args, **kwargs)
 
 
-class UsersView(View):
+class UsersView(RestAuthView):
     http_method_names = ['get', 'post']
     log = logging.getLogger('users')
-
-    def dispatch(self, request):
-        self.largs = {'service': request.user.username}
-        return super(UsersView, self).dispatch(request)
 
     def get(self, request, *args, **kwargs):
         if not request.user.has_perm('Users.users_list'):
