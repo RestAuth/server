@@ -347,8 +347,7 @@ class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
 
 class AddUserToGroupTests(GroupUserTests):  # POST /groups/<group>/users/
     def test_group_doesnt_exist(self):
-        content = self.handler.marshal_dict({})
-        resp = self.post('/groups/%s/users/' % groupname6, content)
+        resp = self.post('/groups/%s/users/' % groupname6, {'user': username5})
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
