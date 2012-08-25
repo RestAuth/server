@@ -18,16 +18,21 @@
 from django.conf.urls.defaults import patterns
 
 from Services.decorator import login_required
-from Groups.views import GroupsView, GroupHandlerView
+from Groups.views import (GroupsView, GroupHandlerView,
+                          GroupUsersIndex, GroupUserHandler,
+                          GroupGroupsIndex, GroupGroupHandler)
 
 urlpatterns = patterns(
     'RestAuth.Groups.views',
     (r'^$', login_required(realm='/groups/')(GroupsView.as_view())),
-    (r'^(?P<groupname>[^/]+)/$', login_required(realm='/groups/<group>/')(GroupHandlerView.as_view())),
-    (r'^(?P<groupname>[^/]+)/users/$', 'group_users_index_handler'),
+    (r'^(?P<groupname>[^/]+)/$',
+     login_required(realm='/groups/<group>/')(GroupHandlerView.as_view())),
+    (r'^(?P<groupname>[^/]+)/users/$',
+     login_required(realm='/groups/<group>/users/')(GroupUsersIndex.as_view())),
     (r'^(?P<groupname>[^/]+)/users/(?P<username>[^/]+)/$',
-     'group_user_handler'),
-    (r'^(?P<groupname>[^/]+)/groups/$', 'group_groups_index_handler'),
-    (r'^(?P<meta_groupname>[^/]+)/groups/(?P<sub_groupname>[^/]+)/$',
-     'group_groups_handler'),
+     login_required(realm='/groups/<group>/users/<username>')(GroupUserHandler.as_view())),
+    (r'^(?P<groupname>[^/]+)/groups/$',
+     login_required(realm='/groups/<group>/groups/')(GroupGroupsIndex.as_view())),
+    (r'^(?P<groupname>[^/]+)/groups/(?P<subgroupname>[^/]+)/$',
+     login_required(realm='/groups/<group>/groups/<subgroupname>')(GroupGroupHandler.as_view())),
 )

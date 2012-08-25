@@ -41,6 +41,7 @@ class BaseGroupView(RestAuthView):
 
 class GroupsView(RestAuthView):
     log = logging.getLogger('groups')
+    http_method_names = ['get', 'post']
 
     def get(self, request):
         if 'user' in request.GET:
@@ -86,6 +87,7 @@ class GroupsView(RestAuthView):
 
 class GroupHandlerView(BaseGroupView):
     log = logging.getLogger('groups.group')
+    http_method_names = ['get', 'delete']
 
     def get(self, request, groupname):  # Verify that a group exists
         if not request.user.has_perm('Groups.group_exists'):
@@ -109,145 +111,147 @@ class GroupHandlerView(BaseGroupView):
         return HttpResponseNoContent()  # OK
 
 
-@login_required(realm='/groups/<group>/users/')
-#@sql_profile()
-def group_users_index_handler(request, groupname):
-    service = request.user
-    logger = logging.getLogger('groups.group.users')
-    log_args = {'service': service, 'group': groupname}
+class GroupUsersIndex(BaseGroupView):
+    log = logging.getLogger('groups.group.users')
+    http_method_names = ['get', 'post']
 
-    # If Group.DoesNotExist: 404 Not Found
-    group = Group.objects.only('name').get(name=groupname, service=service)
-
-    if request.method == 'GET':  # Get all users in a group
+    def get(self, request, groupname):  # Get all users in a group
         if not request.user.has_perm('Groups.group_users'):
             return HttpResponseForbidden()
+
+        # If Group.DoesNotExist: 404 Not Found
+        group = Group.objects.only('name').get(name=groupname, service=request.user)
 
         users = group.get_members()
 
         # If MarshalError: 500 Internal Server Error
-        logger.debug("Get users in group", extra=log_args)
+        self.log.debug("Get users in group", extra=self.largs)
         return HttpRestAuthResponse(request, list(users))
-    elif request.method == 'POST':  # Add a user to a group
+
+    def post(self, request, groupname):  # Add a user to a group
         if not request.user.has_perm('Groups.group_add_user'):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
         username = get_dict(request, [u'user'])
 
+        # If Group.DoesNotExist: 404 Not Found
+        group = Group.objects.only('name').get(name=groupname, service=request.user)
+
         # If User.DoesNotExist: 404 Not Found
         user = ServiceUser.objects.only('username').get(username=username)
 
         group.users.add(user)
 
-        logger.info('Add user "%s"', username, extra=log_args)
+        self.log.info('Add user "%s"', username, extra=self.largs)
         return HttpResponseNoContent()
-    else:  # pragma: no cover
-        logger.error('%s: Method not allowed: %s', service, request.method)
-        return HttpResponse(status=405)
 
 
-@login_required(realm='/groups/<group>/users/<user>/')
-#@sql_profile()
-def group_user_handler(request, groupname, username):
-    service = request.user
-    username = username.lower()
-    logger = logging.getLogger('groups.group.users.user')
-    log_args = {'service': service, 'group': groupname, 'user': username}
+class GroupUserHandler(BaseGroupView):
+    log = logging.getLogger('groups.group.users.user')
+    http_method_names = ['get', 'delete']
 
-    # If Group.DoesNotExist: 404 Not Found
-    group = Group.objects.only('name').get(name=groupname, service=service)
-    # If User.DoesNotExist: 404 Not Found
-    user = ServiceUser.objects.only('username').get(username=username)
+    def dispatch(self, request, *args, **kwargs):
+        kwargs['username'] = kwargs.get('username').lower()
+        return super(GroupUserHandler, self).dispatch(
+            request, largs={'user': kwargs.get('username')}, **kwargs)
 
-    if request.method == 'GET':  # Verify that a user is in a group
+    def get(self, request, groupname, username):  # Verify that a user is in a group
         if not request.user.has_perm('Groups.group_user_in_group'):
             return HttpResponseForbidden()
 
-        logger.debug('Check if user is in group', extra=log_args)
+        self.log.debug('Check if user is in group', extra=self.largs)
+
+        # If Group.DoesNotExist: 404 Not Found
+        group = Group.objects.only('name').get(name=groupname, service=request.user)
+
+        # If User.DoesNotExist: 404 Not Found
+        user = ServiceUser.objects.only('username').get(username=username)
+
         if group.is_member(user):
             return HttpResponseNoContent()
         else:
             raise ServiceUser.DoesNotExist()  # 404 Not Found
-    elif request.method == 'DELETE':  # Remove user from a group
+
+    def delete(self, request, groupname, username):  # Remove user from a group
         if not request.user.has_perm('Groups.group_remove_user'):
             return HttpResponseForbidden()
+
+        # If Group.DoesNotExist: 404 Not Found
+        group = Group.objects.only('name').get(name=groupname, service=request.user)
+
+        # If User.DoesNotExist: 404 Not Found
+        user = ServiceUser.objects.only('username').get(username=username)
 
         if not group.is_member(user, False):
             raise User.DoesNotExist()  # 404 Not Found
 
         group.users.remove(user)
-        logger.info('Remove user from group', extra=log_args)
+        self.log.info('Remove user from group', extra=self.largs)
         return HttpResponseNoContent()
-    else:  # pragma: no cover
-        logger.error('%s: Method not allowed: %s', service, request.method)
-        return HttpResponse(status=405)
 
 
-@login_required(realm='/groups/<group>/groups/')
-#@sql_profile()
-def group_groups_index_handler(request, groupname):
-    service = request.user
-    logger = logging.getLogger('groups.group.groups')
-    log_args = {'service': service, 'group': groupname}
+class GroupGroupsIndex(BaseGroupView):
+    log = logging.getLogger('groups.group.groups')
+    http_method_names = ['get', 'post']
 
-    # If Group.DoesNotExist: 404 Not Found
-    group = Group.objects.only('name').get(name=groupname, service=service)
-    if request.method == 'GET':  # get a list of sub-groups
+    def get(self, request, groupname):  # get a list of sub-groups
         if not request.user.has_perm('Groups.group_groups_list'):
             return HttpResponseForbidden()
 
-        groups = group.groups.filter(service=service).values_list(
+        # If Group.DoesNotExist: 404 Not Found
+        group = Group.objects.only('name').get(name=groupname, service=request.user)
+
+        groups = group.groups.filter(service=request.user).values_list(
             'name', flat=True)
 
         # If MarshalError: 500 Internal Server Error
-        logger.debug('Get subgroups', extra=log_args)
+        self.log.debug('Get subgroups', extra=self.largs)
         return HttpRestAuthResponse(request, list(groups))
-    elif request.method == 'POST':  # Add a sub-group:
+
+    def post(self, request, groupname):  # Add a sub-group:
         if not request.user.has_perm('Groups.group_add_group'):
             return HttpResponseForbidden()
+
+        # If Group.DoesNotExist: 404 Not Found
+        group = Group.objects.only('name').get(name=groupname, service=request.user)
 
         # If BadRequest: 400 Bad Request
         sub_groupname = get_dict(request, [u'group'])
 
         # If Group.DoesNotExist: 404 Not Found
         sub_group = Group.objects.only('name').get(
-            name=sub_groupname, service=service)
+            name=sub_groupname, service=request.user)
 
         group.groups.add(sub_group)
-        logger.info('Add subgroup "%s"', sub_groupname, extra=log_args)
+        self.log.info('Add subgroup "%s"', sub_groupname, extra=self.largs)
         return HttpResponseNoContent()
-    else:  # pragma: no cover
-        logger.error('%s: Method not allowed: %s', service, request.method)
-        return HttpResponse(status=405)
 
 
-@login_required(realm='/groups/<meta-group>/groups/<sub-group>/')
-#@sql_profile()
-def group_groups_handler(request, meta_groupname, sub_groupname):
-    service = request.user
-    logger = logging.getLogger('groups.group.groups.subgroup')
-    log_args = {'service': service, 'group':
-                meta_groupname, 'subgroup': sub_groupname}
+class GroupGroupHandler(BaseGroupView):
+    log = logging.getLogger('groups.group.groups.subgroup')
+    http_method_names = ['delete']
 
-    # If Group.DoesNotExist: 404 Not Found
-    meta_group = Group.objects.only('name').get(
-        name=meta_groupname, service=service)
-    # If Group.DoesNotExist: 404 Not Found
-    sub_group = Group.objects.only('name').get(
-        name=sub_groupname, service=service)
+    def dispatch(self, request, *args, **kwargs):
+        kwargs['subgroupname'] = kwargs.get('subgroupname').lower()
+        return super(GroupGroupHandler, self).dispatch(
+            request, largs={'subgroup': kwargs.get('subgroupname')}, **kwargs)
 
-    if request.method == 'DELETE':  # Remove group from a group
+    def delete(self, request, groupname, subgroupname):  # Remove group from a group
         if not request.user.has_perm('Groups.group_remove_group'):
             return HttpResponseForbidden()
 
-        qs = meta_group.groups.filter(name=sub_groupname, service=service)
+        # If Group.DoesNotExist: 404 Not Found
+        group = Group.objects.only('name').get(
+            name=groupname, service=request.user)
+        # If Group.DoesNotExist: 404 Not Found
+        subgroup = Group.objects.only('name').get(
+            name=subgroupname, service=request.user)
+
+        qs = group.groups.filter(name=subgroupname, service=request.user)
         if not qs.exists():
             raise Group.DoesNotExist()
 
-        meta_group.groups.remove(sub_group)
-        logger.info('Remove subgroup %s', sub_groupname, extra=log_args)
+        group.groups.remove(subgroup)
+        self.log.info('Remove subgroup %s', subgroupname, extra=self.largs)
         return HttpResponseNoContent()
-    else:  # pragma: no cover
-        logger.error('%s: Method not allowed: %s', service, request.method)
-        return HttpResponse(status=405)
