@@ -3,7 +3,6 @@ RestAuth 0.6.0 (XX XX 20XX)
   General:
   * Greatly simplify default logging configuration
   * Migration to Django generic class-based views
-  * Most testcases no longer use transactions speeding up testruns a bit
 
   Compliance with RestAuth:
   * This release complies with RestAuth 0.6, adding support for setting
@@ -16,6 +15,10 @@ RestAuth 0.6.0 (XX XX 20XX)
   * Many new indizes
   * Remove useless subclass-relation for services
   * Uniqueness for groups is now enforced on a schema-level
+
+  Testing:
+  * Most testcases no longer use transactions speeding up testruns a bit
+  * Hashing tests for custom hashes also check shorter usernames
 
 RestAuth 0.5.3 (11 August 2012)
 
