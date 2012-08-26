@@ -1,12 +1,21 @@
 RestAuth 0.6.0 (XX XX 20XX)
 
-  * A few schema-updates:
-    * Many new indizes
-    * Remove useless subclass-relation for services
-    * Uniqueness for groups is now enforced on a schema-level
-
-  Testing:
+  General:
+  * Greatly simplify default logging configuration
+  * Migration to Django generic class-based views
   * Most testcases no longer use transactions speeding up testruns a bit
+
+  Compliance with RestAuth:
+  * This release complies with RestAuth 0.6, adding support for setting
+    multiple properties at once. Support for status code 403 was already added
+    in the previous release.
+  * All resource names (names of users, groups and properties) are now
+    consistantly lower-cased.
+
+  Database schema:
+  * Many new indizes
+  * Remove useless subclass-relation for services
+  * Uniqueness for groups is now enforced on a schema-level
 
 RestAuth 0.5.3 (11 August 2012)
 
