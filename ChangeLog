@@ -3,6 +3,7 @@ RestAuth 0.6.0 (XX XX 20XX)
   General:
   * Greatly simplify default logging configuration
   * Migration to Django generic class-based views
+  * Globally cache username validators and pasword hashers
 
   Compliance with RestAuth:
   * This release complies with RestAuth 0.6, adding support for setting
