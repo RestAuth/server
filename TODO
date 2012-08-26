@@ -1,7 +1,5 @@
 0.6.0:
 
-* In groups we seem to use only() to get too many fields.
-
 Future:
 
 * add support for /users/<user>/blobs
