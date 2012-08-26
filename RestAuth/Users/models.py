@@ -23,20 +23,19 @@ import stringprep
 
 import django
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.utils import IntegrityError
 from django.utils.http import urlquote
-from django.utils.importlib import import_module
 from django.utils.encoding import smart_str
 
-from RestAuthCommon.error import PreconditionFailed
 from RestAuthCommon import resource_validator
+from RestAuthCommon.error import PreconditionFailed
 
 from RestAuth.common.errors import PasswordInvalid
 from RestAuth.common.errors import PropertyExists
 from RestAuth.common.errors import UserExists
 from RestAuth.common.errors import UsernameInvalid
+from RestAuth.common.utils import import_path
 from RestAuth.Users import validators
 
 user_permissions = (
@@ -105,23 +104,7 @@ def load_username_validators():
     allow_whitespace = True
 
     for validator_path in settings.VALIDATORS:
-        # import validator:
-        try:
-            modname, classname = validator_path.rsplit('.', 1)
-        except ValueError:
-            raise ImproperlyConfigured(
-                '%s isn\'t a middleware module' % validator_path)
-
-        try:
-            mod = import_module(modname)
-        except ImportError as e:
-            raise ImproperlyConfigured(
-                'Error importing middleware %s: "%s"' % (modname, e))
-        try:
-            validator = getattr(mod, classname)
-        except AttributeError:
-            msg = 'Middleware module "%s" does not define a "%s" class'
-            raise ImproperlyConfigured(msg % (modname, classname))
+        validator = import_path(validator_path)[0]
 
         if hasattr(validator, 'check'):
             USERNAME_VALIDATORS.append(validator)
@@ -146,7 +129,6 @@ def validate_username(username):
         raise UsernameInvalid("Username too short")
     if len(username) > settings.MAX_USERNAME_LENGTH:
         raise UsernameInvalid("Username too long")
-
 
     if USERNAME_VALIDATORS is None:
         load_username_validators()
@@ -207,26 +189,9 @@ def get_hexdigest(algorithm, salt=None, secret=''):
             return func('%s%s' % (smart_str(salt), secret)).hexdigest()
     else:
         for path in settings.HASH_FUNCTIONS:
-            # import validator:
-            try:
-                modname, funcname = path.rsplit('.', 1)
-            except ValueError:  # pragma: no cover
-                raise ImproperlyConfigured('%s isn\'t a python path' % path)
-
-            # skip if funcname is not the desired algorithm:
-            if algorithm != funcname:
+            func, name = import_path(path)
+            if name != algorithm:
                 continue
-
-            try:
-                mod = import_module(modname)
-            except ImportError as e:  # pragma: no cover
-                raise ImproperlyConfigured(
-                    'Error importing module %s: "%s"' % (modname, e))
-            try:
-                func = getattr(mod, funcname)
-            except AttributeError:  # pragma: no cover
-                msg = 'Module "%s" does not define a "%s" function'
-                raise ImproperlyConfigured(msg % (modname, funcname))
 
             if salt is None:
                 return func(secret, salt)
