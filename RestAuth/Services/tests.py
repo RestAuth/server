@@ -17,6 +17,18 @@ from RestAuth.Services.models import service_create
 from RestAuth.Services.models import ServiceUsernameNotValid
 from Users import views
 
+PATHS = [
+    (['get', 'post'], '/users/'),
+    (['get', 'post', 'put', 'delete'], '/users/user/'),
+    (['get', 'post', 'put'], '/users/user/props/'),
+    (['get', 'put', 'delete'], '/users/user/props/prop/'),
+    (['get', 'post'], '/groups/'),
+    (['get', 'delete'], '/groups/group/'),
+    (['get', 'post'], '/groups/group/users/'),
+    (['get', 'delete'], '/groups/group/users/user/'),
+    (['get', ], '/groups/group/groups/'),
+    (['delete'], '/groups/group/groups/group/'),
+]
 
 class BasicAuthTests(RestAuthTest):  # GET /users/
     def setUp(self):
@@ -53,6 +65,18 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
         resp = self.get('/users/')
         self.assertEquals(resp.status_code, httplib.OK)
         self.assertItemsEqual(self.parse(resp, 'list'), [])
+
+    def test_permission_denied(self):
+        self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
+        self.set_auth('vowi', 'vowi')
+
+        for methods, path in PATHS:
+            for method in methods:
+                if method in ['post', 'put']:
+                    resp = getattr(self, method)(path, {})
+                else:
+                    resp = getattr(self, method)(path)
+                self.assertEquals(resp.status_code, httplib.FORBIDDEN)
 
     def test_wrong_user(self):
         service_create('vowi', 'vowi', '127.0.0.1', '::1')
