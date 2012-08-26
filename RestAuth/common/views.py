@@ -2,6 +2,14 @@ from django.views.generic.base import View
 
 
 class RestAuthView(View):
+    def sanitize_arguments(self, resource_name, **kwargs):
+        if 'largs' not in kwargs:
+            kwargs['largs'] = {}
+
+        kwargs[resource_name] = kwargs.get(resource_name).lower()
+        kwargs['largs'][resource_name] = kwargs.get(resource_name)
+        return kwargs
+
     def dispatch(self, request, *args, **kwargs):
         self.largs = kwargs.pop('largs', {})
         self.largs['service'] = request.user.username
@@ -9,20 +17,12 @@ class RestAuthView(View):
 
 class RestAuthResourceView(RestAuthView):
     def dispatch(self, request, *args, **kwargs):
-        largs = kwargs.pop('largs', {})
-
-        kwargs['name'] = kwargs.get('name').lower()
-        largs['name'] = kwargs.get('name')
-
+        kwargs = self.sanitize_arguments('name', **kwargs)
         return super(RestAuthResourceView, self).dispatch(
-            request, largs=largs, *args, **kwargs)
+            request, *args, **kwargs)
 
 class RestAuthSubResourceView(RestAuthView):
     def dispatch(self, request, *args, **kwargs):
-        largs = kwargs.pop('largs', {})
-
-        kwargs['subname'] = kwargs.get('subname').lower()
-        largs['subname'] = kwargs.get('subname')
-
+        kwargs = self.sanitize_arguments('subname', **kwargs)
         return super(RestAuthSubResourceView, self).dispatch(
-            request, largs=largs, *args, **kwargs)
+            request, *args, **kwargs)
