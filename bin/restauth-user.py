@@ -26,8 +26,8 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
-    from RestAuth.Users.models import (ServiceUser, user_get,
-                                       validate_username, Property)
+    from RestAuth.Users.models import (ServiceUser, Property,
+                                       validate_username)
     from RestAuth.Services.models import Service
     from RestAuth.common import errors
     from RestAuth.common.cli import user_parser
@@ -39,6 +39,8 @@ except ImportError, e:
 
 # parse arguments
 args = user_parser.parse_args()
+if hasattr(args, 'user'):
+    args.user = args.user.lower()
 
 
 def get_password(options):
@@ -73,7 +75,7 @@ elif args.action in ['ls', 'list']:
         print(user.encode('utf-8'))
 elif args.action == 'verify':
     try:
-        user = user_get(args.user)
+        user = ServiceUser.objects.get(username=args.user)
         if not args.pwd:
             args.pwd = getpass.getpass('password: ')
         if user.check_password(args.pwd):
@@ -86,7 +88,7 @@ elif args.action == 'verify':
         sys.exit(1)
 elif args.action == 'set-password':
     try:
-        user = user_get(args.user)
+        user = ServiceUser.objects.get(username=args.user)
         password = get_password(args)
         user.set_password(password)
         user.save()
@@ -98,7 +100,7 @@ elif args.action == 'set-password':
         sys.exit(1)
 elif args.action == 'view':
     try:
-        user = user_get(args.user)
+        user = ServiceUser.objects.get(username=args.user)
 
         try:
             print('Joined: %s' % user.property_set.get(key='date joined'))
@@ -139,7 +141,7 @@ elif args.action == 'view':
         sys.exit(1)
 elif args.action in ['delete', 'rm', 'remove']:
     try:
-        user_get(args.user).delete()
+        ServiceUser.objects.get(username=args.user).delete()
     except ServiceUser.DoesNotExist:
         print("Error: %s: User does not exist." % args.user)
         sys.exit(1)
