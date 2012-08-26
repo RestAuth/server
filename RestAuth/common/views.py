@@ -23,18 +23,7 @@ class RestAuthView(View):
     Base view for all RestAuth related views.
     """
 
-    def sanitize_arguments(self, resource_name, **kwargs):
-        """
-        Lowercases kwargs[resource_name] and also add that to kwargs['largs'].
-        """
-        if 'largs' not in kwargs:
-            kwargs['largs'] = {}
-
-        kwargs[resource_name] = kwargs.get(resource_name).lower()
-        kwargs['largs'][resource_name] = kwargs.get(resource_name)
-        return kwargs
-
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request, **kwargs):
         """
         Adds the 'service' logging argument, and passes that as extra
         keyword-argument to the parents dispatch method.
@@ -42,7 +31,7 @@ class RestAuthView(View):
         largs = kwargs.pop('largs', {})
         largs['service'] = request.user.username
         return super(RestAuthView, self).dispatch(
-            request, *args, largs=largs, **kwargs)
+            request, largs=largs, **kwargs)
 
 class RestAuthResourceView(RestAuthView):
     """
@@ -50,14 +39,16 @@ class RestAuthResourceView(RestAuthView):
     ``/users/<user>/props/``.
     """
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request, name):
         """
         Adds the 'name' logging argument, and passes that as extra
         keyword-argument to the parents dispatch method.
         """
-        kwargs = self.sanitize_arguments('name', **kwargs)
+        name = name.lower()
+        largs = {'name': name}
+
         return super(RestAuthResourceView, self).dispatch(
-            request, *args, **kwargs)
+            request, largs=largs, name=name)
 
 class RestAuthSubResourceView(RestAuthView):
     """
@@ -65,11 +56,14 @@ class RestAuthSubResourceView(RestAuthView):
     ``/users/<user>/props/<prop>/``.
     """
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request, name, subname):
         """
         Adds the 'subname' logging argument, and passes that as extra
         keyword-argument to the parents dispatch method.
         """
-        kwargs = self.sanitize_arguments('subname', **kwargs)
+        name = name.lower()
+        subname = subname.lower()
+        largs = {'name': name, 'subname': subname}
+
         return super(RestAuthSubResourceView, self).dispatch(
-            request, *args, **kwargs)
+            request, largs=largs, name=name, subname=subname)
