@@ -24,7 +24,8 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append( os.getcwd() )
 
 try:
-	from RestAuth.Users.models import ServiceUser, user_get, validate_username
+	from RestAuth.Users.models import (ServiceUser, user_get, validate_username,
+                                       Property)
 	from RestAuth.Services.models import Service
 	from RestAuth.common import errors
 	from RestAuth.common.cli import user_parser
@@ -33,7 +34,7 @@ except ImportError, e:
 	sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
 	sys.exit(1)
 
-# parse arguments	
+# parse arguments
 args = user_parser.parse_args()
 
 def get_password( options ):
@@ -94,9 +95,16 @@ elif args.action == 'set-password':
 elif args.action == 'view':
 	try:
 		user = user_get( args.user )
-		print( 'Joined: %s'%( user.date_joined ) )
-		print( 'Last login: %s'%(user.last_login) )
-		
+
+        try:
+            print('Joined: %s' % user.property_set.get('date joined'))
+        except Property.DoesNotExist:
+            pass
+        try:
+            print('Last login: %s' % user.property_set.get('last login'))
+        except Property.DoesNotExist:
+            pass
+
 		if args.service:
 			service = Service.objects.get( username=args.service )
 			groups = user.group_set.filter( service=service ).values_list('service__username', flat=True)
@@ -110,7 +118,7 @@ elif args.action == 'view':
 				else:
 					groups_dict[service] = [name]
 
-		
+
 			print( 'Groups: ' )
 
 			for service in sorted( groups_dict ):
