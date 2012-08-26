@@ -16,3 +16,13 @@ class RestAuthResourceView(RestAuthView):
 
         return super(RestAuthResourceView, self).dispatch(
             request, largs=largs, *args, **kwargs)
+
+class RestAuthSubResourceView(RestAuthView):
+    def dispatch(self, request, *args, **kwargs):
+        largs = kwargs.pop('largs', {})
+
+        kwargs['subname'] = kwargs.get('subname').lower()
+        largs['subname'] = kwargs.get('subname')
+
+        return super(RestAuthSubResourceView, self).dispatch(
+            request, largs=largs, *args, **kwargs)
