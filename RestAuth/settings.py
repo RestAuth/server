@@ -103,32 +103,32 @@ if not LOGGING:
                 'format': '%(levelname)s %(service)s: %(message)s'
             },
             'users.user': {
-                'format': '%(levelname)s %(service)s: %(username)s: '
+                'format': '%(levelname)s %(service)s: %(name)s: '
                           '%(message)s'
             },
             'users.user.props.prop': {
-                'format': '%(levelname)s %(service)s: %(username)s: %(prop)s: '
+                'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: '
                           '%(message)s'
             },
             'groups': {
                 'format': '%(levelname)s %(service)s: %(message)s'
             },
             'groups.group': {
-                'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(name)s: %(message)s'
             },
             'groups.group.users': {
-                'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(name)s: %(message)s'
             },
             'groups.group.users.user': {
-                'format': '%(levelname)s %(service)s: %(group)s: %(user)s: '
+                'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: '
                           '%(message)s'
             },
             'groups.group.groups': {
-                'format': '%(levelname)s %(service)s: %(group)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(name)s: %(message)s'
             },
             'groups.group.groups.subgroup': {
-                'format': '%(levelname)s %(service)s: %(group)s: '
-                          '%(subgroup)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(name)s: '
+                          '%(subname)s: %(message)s'
             },
         },
         'handlers': {
