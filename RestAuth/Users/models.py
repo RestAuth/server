@@ -185,6 +185,7 @@ def load_hashers():
 
     HASH_FUNCTION_CACHE = cache
 
+
 def get_hexdigest(algorithm, salt=None, secret=''):
     """
     This method overrides the standard get_hexdigest method for service
@@ -228,7 +229,8 @@ class ServiceUser(models.Model):
     def save(self, *args, **kwargs):
         if self.pk is None or self.username != self.orig_username:
             if not resource_validator(self.username):
-                raise PreconditionFailed("Username contains invalid characters")
+                raise PreconditionFailed(
+                    "Username contains invalid characters")
         return super(ServiceUser, self).save(*args, **kwargs)
 
     def set_password(self, raw_password):
