@@ -83,16 +83,6 @@ class Service(User):
                 pass
         self.hosts.remove(*hosts)
 
-    def add_permissions(self, permissions):
-        self.user_permissions.add(*permissions)
-
-    def rm_permissions(self, permissions):
-        self.user_permissions.remove(*permissions)
-
-    def set_permissions(self, permissions):
-        self.user_permissions.clear()
-        self.user_permissions.add(*permissions)
-
 
 class ServiceAddress(models.Model):
     address = models.CharField(max_length=39, unique=True)
