@@ -25,20 +25,9 @@ from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
-from RestAuth.common.views import RestAuthView
+from RestAuth.common.views import RestAuthView, RestAuthResourceView
 
 from RestAuth.common.decorators import sql_profile
-
-
-class BaseUserView(RestAuthView):
-    def dispatch(self, request, *args, **kwargs):
-        username = kwargs.get('username').lower()
-
-        if 'largs' not in kwargs:
-            kwargs['largs'] = {}
-        kwargs['username'] = username
-        kwargs['largs']['username'] = username
-        return super(BaseUserView, self).dispatch(request, *args, **kwargs)
 
 
 class UsersView(RestAuthView):
@@ -75,21 +64,21 @@ class UsersView(RestAuthView):
         return HttpResponseCreated(request, user)
 
 
-class UserHandlerView(BaseUserView):
+class UserHandlerView(RestAuthResourceView):
     http_method_names = ['get', 'post', 'put', 'delete']
     log = logging.getLogger('users.user')
 
-    def get(self, request, username):
+    def get(self, request, name):
         if not request.user.has_perm('Users.user_exists'):
             return HttpResponseForbidden()
 
         self.log.debug("Check if user exists", extra=self.largs)
-        if ServiceUser.objects.filter(username=username).exists():
+        if ServiceUser.objects.filter(username=name).exists():
             return HttpResponseNoContent()
         else:
             raise ServiceUser.DoesNotExist()
 
-    def post(self, request, username):
+    def post(self, request, name):
         if not request.user.has_perm('Users.user_verify_password'):
             return HttpResponseForbidden()
 
@@ -98,7 +87,7 @@ class UserHandlerView(BaseUserView):
 
         # If User.DoesNotExist: 404 Not Found
         fields = ['username', 'algorithm', 'salt', 'hash']
-        user = ServiceUser.objects.only(*fields).get(username=username)
+        user = ServiceUser.objects.only(*fields).get(username=name)
 
         if not user.check_password(password):
             # password does not match - raises 404
@@ -109,7 +98,7 @@ class UserHandlerView(BaseUserView):
         self.log.debug("Checked password (ok)", extra=self.largs)
         return HttpResponseNoContent()  # Ok
 
-    def put(self, request, username):
+    def put(self, request, name):
         if not request.user.has_perm('Users.user_change_password'):
             return HttpResponseForbidden()
 
@@ -117,7 +106,7 @@ class UserHandlerView(BaseUserView):
         password, = get_dict(request, optional=[u'password'])
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=name)
 
         # If UsernameInvalid: 412 Precondition Failed
         if password:
@@ -130,12 +119,12 @@ class UserHandlerView(BaseUserView):
         self.log.info("Updated password", extra=self.largs)
         return HttpResponseNoContent()
 
-    def delete(self, request, username):
+    def delete(self, request, name):
         if not request.user.has_perm('Users.user_delete'):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=name)
 
         user.delete()
 
@@ -143,22 +132,22 @@ class UserHandlerView(BaseUserView):
         return HttpResponseNoContent()
 
 
-class UserPropsIndex(BaseUserView):
+class UserPropsIndex(RestAuthResourceView):
     log = logging.getLogger('users.user.props')
     http_method_names = ['get', 'post', 'put']
 
-    def get(self, request, username):
+    def get(self, request, name):
         if not request.user.has_perm('Users.props_list'):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=name)
         props = user.get_properties()
 
         self.log.debug("Got properties", extra=self.largs)
         return HttpRestAuthResponse(request, props)
 
-    def post(self, request, username):
+    def post(self, request, name):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
@@ -166,7 +155,7 @@ class UserPropsIndex(BaseUserView):
         prop, value = get_dict(request, [u'prop', u'value'])
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=name)
 
         # If PropertyExists: 409 Conflict
         property = user.add_property(prop, value)
@@ -175,19 +164,19 @@ class UserPropsIndex(BaseUserView):
             'Created property "%s" as "%s"', prop, value, extra=self.largs)
         return HttpResponseCreated(request, property)
 
-    def put(self, request, username):
+    def put(self, request, name):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=name)
 
         for key, value in get_freeform_dict(request).iteritems():
             user.set_property(key, value)
         return HttpResponseNoContent()
 
 
-class UserPropHandler(BaseUserView):
+class UserPropHandler(RestAuthResourceView):
     log = logging.getLogger('users.user.props.prop')
     http_method_names = ['get', 'put', 'delete']
 
@@ -195,12 +184,12 @@ class UserPropHandler(BaseUserView):
         return super(UserPropHandler, self).dispatch(
             request, largs={'prop': kwargs.get('prop')}, **kwargs)
 
-    def get(self, request, username, prop):
+    def get(self, request, name, prop):
         if not request.user.has_perm('Users.prop_get'):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=name)
 
         # If Property.DoesNotExist: 404 Not Found
         prop = user.get_property(prop)
@@ -208,7 +197,7 @@ class UserPropHandler(BaseUserView):
         self.log.debug('Got property', extra=self.largs)
         return HttpRestAuthResponse(request, prop.value)
 
-    def put(self, request, username, prop):
+    def put(self, request, name, prop):
         if not request.user.has_perm('Users.prop_set'):
             return HttpResponseForbidden()
 
@@ -216,7 +205,7 @@ class UserPropHandler(BaseUserView):
         value = get_dict(request, [u'value'])
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=name)
 
         prop, old_value = user.set_property(prop, value)
         if old_value is None:  # new property
@@ -227,12 +216,12 @@ class UserPropHandler(BaseUserView):
                           old_value, value, extra=self.largs)
             return HttpRestAuthResponse(request, old_value)
 
-    def delete(self, request, username, prop):
+    def delete(self, request, name, prop):
         if not request.user.has_perm('Users.prop_delete'):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=name)
 
         # If Property.DoesNotExist: 404 Not Found
         user.del_property(prop)

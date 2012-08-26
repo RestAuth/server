@@ -24,10 +24,10 @@ urlpatterns = patterns(
     'RestAuth.Users.views',
 
     (r'^$', login_required(realm='/users/')(UsersView.as_view())),
-    (r'^(?P<username>[^/]+)/$',
+    (r'^(?P<name>[^/]+)/$',
         login_required(realm='/users/<user>/')(UserHandlerView.as_view())),
-    (r'^(?P<username>[^/]+)/props/$',
+    (r'^(?P<name>[^/]+)/props/$',
         login_required(realm='/users/<user>/props/')(UserPropsIndex.as_view())),
-    (r'^(?P<username>[^/]+)/props/(?P<prop>.+)/$',
+    (r'^(?P<name>[^/]+)/props/(?P<prop>.+)/$',
         login_required(realm='/users/<user>/props/<prop>/')(UserPropHandler.as_view())),
 )
