@@ -684,8 +684,6 @@ class HashTest(RestAuthTest):
             algorithm = u.password.split('$', 1)[0]
             self.assertTrue(algorithm, settings.HASH_ALGORITHM)
 
-            u.delete()
-
     @override_settings(MIN_PASSWORD_LENGTH=1)
     @override_settings(MIN_USERNAME_LENGTH=1)
     def test_apr1(self):
@@ -771,8 +769,6 @@ class HashTest(RestAuthTest):
             algorithm = u.password.split('$', 1)[0]
             self.assertTrue(algorithm, settings.HASH_ALGORITHM)
 
-            u.delete()
-
     @override_settings(MIN_PASSWORD_LENGTH=1)
     def test_mediawiki(self):
         testdata = {
@@ -808,6 +804,3 @@ class HashTest(RestAuthTest):
 
             # check that the hash was actually updated
             algorithm = u.password.split('$', 1)[0]
-            self.assertTrue(algorithm, settings.HASH_ALGORITHM)
-
-            u.delete()
