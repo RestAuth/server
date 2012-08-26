@@ -55,6 +55,11 @@ prop_permissions = (
     ('prop_set', 'Set or create a property'),
     ('prop_delete', 'Delete a property'),
 )
+USERNAME_VALIDATORS = None
+USERNAME_ILLEGAL_CHARS = set()
+USERNAME_RESERVED = set()
+USERNAME_FORCE_ASCII = False
+USERNAME_NO_WHITESPACE = False
 
 
 def user_get(name):
@@ -88,17 +93,16 @@ def user_create(name, password):
         raise UserExists("A user with the given name already exists.")
 
 
-def validate_username(username):
-    if len(username) < settings.MIN_USERNAME_LENGTH:
-        raise UsernameInvalid("Username too short")
-    if len(username) > settings.MAX_USERNAME_LENGTH:
-        raise UsernameInvalid("Username too long")
+def load_username_validators():
+    global USERNAME_VALIDATORS
+    global USERNAME_ILLEGAL_CHARS
+    global USERNAME_RESERVED
+    global USERNAME_FORCE_ASCII
+    global USERNAME_NO_WHITESPACE
 
-    illegal_chars = set()
-    reserved = set()
+    USERNAME_VALIDATORS = []
     force_ascii = False
     allow_whitespace = True
-    validators = []
 
     for validator_path in settings.VALIDATORS:
         # import validator:
@@ -120,27 +124,45 @@ def validate_username(username):
             raise ImproperlyConfigured(msg % (modname, classname))
 
         if hasattr(validator, 'check'):
-            validators.append(validator)
+            USERNAME_VALIDATORS.append(validator)
 
-        illegal_chars |= validator.ILLEGAL_CHARACTERS
-        reserved |= validator.RESERVED
+        USERNAME_ILLEGAL_CHARS |= validator.ILLEGAL_CHARACTERS
+        USERNAME_RESERVED |= validator.RESERVED
         if validator.FORCE_ASCII:
-            force_ascii = True
+            USERNAME_FORCE_ASCII = True
         if not validator.ALLOW_WHITESPACE:
             allow_whitespace = False
 
+    # use different regular expressions, depending on if we force ASCII
+    if not allow_whitespace:
+        if force_ascii:
+            USERNAME_NO_WHITESPACE = re.compile('\s')
+        else:
+            USERNAME_NO_WHITESPACE = re.compile('\s', re.UNICODE)
+
+
+def validate_username(username):
+    if len(username) < settings.MIN_USERNAME_LENGTH:
+        raise UsernameInvalid("Username too short")
+    if len(username) > settings.MAX_USERNAME_LENGTH:
+        raise UsernameInvalid("Username too long")
+
+
+    if USERNAME_VALIDATORS is None:
+        load_username_validators()
+
     # check for illegal characters:
-    for char in illegal_chars:
+    for char in USERNAME_ILLEGAL_CHARS:
         if char in username:
             raise UsernameInvalid(
                 "Username must not contain character '%s'" % char)
 
     # reserved names
-    if username in reserved:
+    if username in USERNAME_RESERVED:
         raise UsernameInvalid("Username is reserved")
 
     # force ascii if necessary
-    if force_ascii:
+    if USERNAME_FORCE_ASCII:
         try:
             username.decode('ascii')
         except UnicodeDecodeError:
@@ -148,15 +170,12 @@ def validate_username(username):
                 "Username must only contain ASCII characters")
 
     # check for whitespace
-    if not allow_whitespace:
-        if force_ascii:
-            whitespace_regex = re.compile('\s')
-        else:
-            whitespace_regex = re.compile('\s', re.UNICODE)
+    if USERNAME_NO_WHITESPACE is not False:
+        USERNAME_NO_WHITESPACE.search(username)
         if whitespace_regex.search(username):
             raise UsernameInvalid("Username must not contain any whitespace")
 
-    for validator in validators:
+    for validator in USERNAME_VALIDATORS:
         validator.check(username)
 
 
@@ -246,7 +265,7 @@ class ServiceUser(models.Model):
         if len(raw_password) < settings.MIN_PASSWORD_LENGTH:
             raise PasswordInvalid("Password too short")
 
-        salt = get_random_string(length)
+        salt = get_random_string(16)
         digest = get_hexdigest(settings.HASH_ALGORITHM, salt, raw_password)
         self.password = '%s$%s$%s' % (settings.HASH_ALGORITHM, salt, digest)
 
