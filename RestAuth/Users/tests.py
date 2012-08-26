@@ -17,6 +17,8 @@
 
 import httplib
 
+from django.test.utils import override_settings
+
 from RestAuth.common import errors
 from RestAuth.common.testdata import *
 
@@ -632,310 +634,160 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
 
 
 class HashTest(RestAuthTest):
-    def test_crypt(self):
-        """
-        .. todo:: Django 1.4: enable one and two-letter test cases and set
-           MIN_USERNAME_LENGTH to 1. see:
-           https://docs.djangoproject.com/en/dev/topics/testing/#overriding-settings
-        """
 
+    @override_settings(MIN_PASSWORD_LENGTH=1)
+    @override_settings(MIN_USERNAME_LENGTH=1)
+    def test_crypt(self):
         testdata = {
-            #"f": {
-            #    "password": {
-            #        "hash": "zByHy85N5JE", "salt": "LG", "algorithm": "crypt"
-            #    }
-            #},
-            #"fo": {
-            #    "password": {
-            #        "hash": "Lb4p57NVOh6", "salt": "qO", "algorithm": "crypt"
-            #    }
-            #},
-            "foo": {
-                "password": {
-                    "hash": "SOM3CYj26Xk", "salt": "L/", "algorithm": "crypt"
-                }
-            },
-            "foob": {
-                "password": {
-                    "hash": "6J6SsDmmvPE", "salt": "fq", "algorithm": "crypt"
-                }
-            },
-            "fooba": {
-                "password": {
-                    "hash": "45YY/lBbQL.", "salt": "EG", "algorithm": "crypt"
-                }
-            },
-            "foobar": {
-                "password": {
-                    "hash": "5RKNB0QSl4g", "salt": "wC", "algorithm": "crypt"
-                }
-            },
-            "foobar1": {
-                "password": {
-                    "hash": "3.K3kCyb2AA", "salt": "st", "algorithm": "crypt"
-                }
-            },
-            "foobar12": {
-                "password": {
-                    "hash": "LbMAd.nZIv2", "salt": "ca", "algorithm": "crypt"
-                }
-            },
-            "foobar123": {
-                "password": {
-                    "hash": "9yA..KnYzIk", "salt": "s0", "algorithm": "crypt"
-                }
-            },
-            "foobar1234": {
-                "password": {
-                    "hash": "FOG2CHhzJm.", "salt": "SF", "algorithm": "crypt"
-                }
-            },
-            "foobar12345": {"password": {
-                "hash": "uqrrlepaCqE", "salt": "vB", "algorithm": "crypt"}},
-            "foobar123456": {
-                "password": {
-                    "hash": "44fvIAOpK5U", "salt": "ep", "algorithm": "crypt"
-                }
-            },
-            "foobar1234567": {
-                "password": {
-                    "hash": "TWg6AU5FFN6", "salt": "T.", "algorithm": "crypt"
-                }
-            },
-            "foobar12345678": {
-                "password": {
-                    "hash": "KbFo0bhBYRs", "salt": "FF", "algorithm": "crypt"
-                }
-            },
-            "foobar123456789": {
-                "password": {
-                    "hash": "exX507cNB0.", "salt": "TU", "algorithm": "crypt"
-                }
-            },
-            "foobar1234567890": {
-                "password": {
-                    "hash": "FITBq2CGn9k", "salt": "nO", "algorithm": "crypt"
-                }
-            },
-            "foobar12345678901": {
-                "password": {
-                    "hash": "fgvFsy8H7ww", "salt": "9c", "algorithm": "crypt"
-                }
-            },
-            "foobar123456789012": {
-                "password": {
-                    "hash": "6nsIfUA4bD2", "salt": "Hi", "algorithm": "crypt"
-                }
-            },
-            "foobar1234567890123": {
-                "password": {
-                    "hash": "/v0NmQF2WKY", "salt": "OS", "algorithm": "crypt"
-                }
-            },
-            "foobar12345678901234": {
-                "password": {
-                    "hash": "Pmfg.DUC.Rs", "salt": "G3", "algorithm": "crypt"
-                }
-            },
-            "foobar123456789012345": {
-                "password": {
-                    "hash": "tXcQwpW/7Q.", "salt": "vV", "algorithm": "crypt"
-                }
-            },
-            "foobar1234567890123456": {
-                "password": {
-                    "hash": "kOOW4gLfNx6", "salt": "rv", "algorithm": "crypt"
-                }
-            },
-            "foobar12345678901234567": {
-                "password": {
-                    "hash": "ttw4jFym6PY", "salt": "uO", "algorithm": "crypt"
-                }
-            },
-            "foobar123456789012345678": {
-                "password": {
-                    "hash": "cDX1JLZATDk", "salt": "I5", "algorithm": "crypt"
-                }
-            },
+            "f": {"hash": "zByHy85N5JE", "salt": "LG"},
+            "fo": {"hash": "Lb4p57NVOh6", "salt": "qO"},
+            "foo": {"hash": "SOM3CYj26Xk", "salt": "L/"},
+            "foob": {"hash": "6J6SsDmmvPE", "salt": "fq"},
+            "fooba": {"hash": "45YY/lBbQL.", "salt": "EG"},
+            "foobar": {"hash": "5RKNB0QSl4g", "salt": "wC"},
+            "foobar1": {"hash": "3.K3kCyb2AA", "salt": "st"},
+            "foobar12": {"hash": "LbMAd.nZIv2", "salt": "ca"},
+            "foobar123": {"hash": "9yA..KnYzIk", "salt": "s0"},
+            "foobar1234": {"hash": "FOG2CHhzJm.", "salt": "SF"},
+            "foobar12345": {"hash": "uqrrlepaCqE", "salt": "vB"},
+            "foobar123456": {"hash": "44fvIAOpK5U", "salt": "ep"},
+            "foobar1234567": {"hash": "TWg6AU5FFN6", "salt": "T."},
+            "foobar12345678": {"hash": "KbFo0bhBYRs", "salt": "FF"},
+            "foobar123456789": {"hash": "exX507cNB0.", "salt": "TU"},
+            "foobar1234567890": {"hash": "FITBq2CGn9k", "salt": "nO"},
+            "foobar12345678901": {"hash": "fgvFsy8H7ww", "salt": "9c"},
+            "foobar123456789012": {"hash": "6nsIfUA4bD2", "salt": "Hi"},
+            "foobar1234567890123": {"hash": "/v0NmQF2WKY", "salt": "OS"},
+            "foobar12345678901234": {"hash": "Pmfg.DUC.Rs", "salt": "G3"},
+            "foobar123456789012345": {"hash": "tXcQwpW/7Q.", "salt": "vV"},
+            "foobar1234567890123456": {"hash": "kOOW4gLfNx6", "salt": "rv"},
+            "foobar12345678901234567": {"hash": "ttw4jFym6PY", "salt": "uO"},
+            "foobar123456789012345678": {"hash": "cDX1JLZATDk", "salt": "I5"},
             "foobar1234567890123456789": {
-                "password": {
-                    "hash": "yvWIcShdQtE", "salt": "7t", "algorithm": "crypt"
-                }
+                "hash": "yvWIcShdQtE", "salt": "7t",
             },
             "foobar12345678901234567890": {
-                "password": {
-                    "hash": "z7U9nEzM6eI", "salt": ".B", "algorithm": "crypt"
-                }
+                "hash": "z7U9nEzM6eI", "salt": ".B",
             },
         }
 
         for username, pwd_data in testdata.items():
             u = ServiceUser.objects.create(username=username)
-            u.algorithm = pwd_data['password']['algorithm']
-            u.salt = pwd_data['password']['salt']
-            u.hash = pwd_data['password']['hash']
+            u.password = 'crypt$%(salt)s$%(hash)s' % pwd_data
             u.save()
 
             self.assertTrue(u.check_password(username))
 
             u.delete()
 
+    @override_settings(MIN_PASSWORD_LENGTH=1)
+    @override_settings(MIN_USERNAME_LENGTH=1)
     def test_apr1(self):
-        """
-        .. todo:: Django 1.4: enable one and two-letter test cases and set
-           MIN_USERNAME_LENGTH to 1. see:
-           https://docs.djangoproject.com/en/dev/topics/testing/#overriding-settings
-        """
-
         testdata = {
-            #"f": {"hash": "wencZ6WkOMvuOANC/A8LZ0", "salt": "nErdosRy",
-            #      "algorithm": "apr1"},
-            #"fo": {"hash": "Vyc4Thuvc/YAbWYb1nVI70", "salt": "1aigqzQz",
-            #       "algorithm": "apr1"},
-            "foo": {"hash": "cXr93EItT.sxzwewzWX4p.", "salt": "c.aI4ooC",
-                    "algorithm": "apr1"},
-            "foob": {"hash": "jN4YoWkxbtBI8D8d/Xoo3.", "salt": "wcPr1Vxv",
-                     "algorithm": "apr1"},
-            "fooba": {"hash": "Tn2C7XgOdv6v45XbC8TNn/", "salt": "nQp8UKRJ",
-                      "algorithm": "apr1"},
-            "foobar": {"hash": "XD2jiMfDOvzldmLpJl9SO.", "salt": "ilSj3Uel",
-                       "algorithm": "apr1"},
-            "foobar0": {"hash": "94YS3btM0C/5CiUvCOW.s/", "salt": "hrTvU.wk",
-                        "algorithm": "apr1"},
-            "foobar01": {"hash": "4Pqs5OTqXx3IGF3pm7QLv1", "salt": "EytZabM0",
-                         "algorithm": "apr1"},
-            "foobar012": {"hash": "eLFTYKqrZaXlLoUY6CziS/", "salt": "EkOE4ywR",
-                          "algorithm": "apr1"},
-            "foobar0123": {"hash": "K1k6x/RVk92AmiWnAFdEj.",
-                           "salt": "pMAaLcxe", "algorithm": "apr1"},
-            "foobar01234": {"hash": "PAtaCCc4kqruXb0NLoRTg0",
-                            "salt": "sAEmwZJG", "algorithm": "apr1"},
-            "foobar012345": {"hash": "I9pT1Vx.CMEO6wqelEAOP0",
-                             "salt": "aQ.R.N4o", "algorithm": "apr1"},
-            "foobar0123456": {"hash": "G4zjuqUYGU6nFSxPFyO4x0",
-                              "salt": "HvbXrlI/", "algorithm": "apr1"},
-            "foobar01234567": {"hash": "cVAXAQ42OPeHSC3SNSOHS/",
-                               "salt": "TDF/0tAf", "algorithm": "apr1"},
-            "foobar012345678": {"hash": "HASHq302/S19PI.RLbb400",
-                                "salt": "zaKZEcLq", "algorithm": "apr1"},
-            "foobar0123456789": {"hash": "TzOmxdrHqe0HfwxIPXlU10",
-                                 "salt": "NjALUYrK", "algorithm": "apr1"},
-            "foobar01234567890": {"hash": "aQ127rgKtHR098iUEgW.F1",
-                                  "salt": "SJJuaEKa", "algorithm": "apr1"},
-            "foobar012345678901": {"hash": "TLkfRBIjGqjL4clR0873c1",
-                                   "salt": "hDJaX1Sa", "algorithm": "apr1"},
-            "foobar0123456789012": {"hash": "1OIrHIzF.HOQ72wbcFWzU0",
-                                    "salt": "HlBLH.DU", "algorithm": "apr1"},
-            "foobar01234567890123": {"hash": "hnBripG.5yMPXE4FJg7Np0",
-                                     "salt": "snk9PtYt", "algorithm": "apr1"},
+            "f": {"hash": "wencZ6WkOMvuOANC/A8LZ0", "salt": "nErdosRy"},
+            "fo": {"hash": "Vyc4Thuvc/YAbWYb1nVI70", "salt": "1aigqzQz"},
+            "foo": {"hash": "cXr93EItT.sxzwewzWX4p.", "salt": "c.aI4ooC"},
+            "foob": {"hash": "jN4YoWkxbtBI8D8d/Xoo3.", "salt": "wcPr1Vxv"},
+            "fooba": {"hash": "Tn2C7XgOdv6v45XbC8TNn/", "salt": "nQp8UKRJ"},
+            "foobar": {"hash": "XD2jiMfDOvzldmLpJl9SO.", "salt": "ilSj3Uel"},
+            "foobar0": {"hash": "94YS3btM0C/5CiUvCOW.s/", "salt": "hrTvU.wk"},
+            "foobar01": {
+                "hash": "4Pqs5OTqXx3IGF3pm7QLv1", "salt": "EytZabM0"},
+            "foobar012": {
+                "hash": "eLFTYKqrZaXlLoUY6CziS/", "salt": "EkOE4ywR"},
+            "foobar0123": {
+                "hash": "K1k6x/RVk92AmiWnAFdEj.", "salt": "pMAaLcxe"},
+            "foobar01234": {
+                "hash": "PAtaCCc4kqruXb0NLoRTg0", "salt": "sAEmwZJG"},
+            "foobar012345": {
+                "hash": "I9pT1Vx.CMEO6wqelEAOP0", "salt": "aQ.R.N4o"},
+            "foobar0123456": {
+                "hash": "G4zjuqUYGU6nFSxPFyO4x0", "salt": "HvbXrlI/"},
+            "foobar01234567": {
+                "hash": "cVAXAQ42OPeHSC3SNSOHS/", "salt": "TDF/0tAf"},
+            "foobar012345678": {
+                "hash": "HASHq302/S19PI.RLbb400", "salt": "zaKZEcLq"},
+            "foobar0123456789": {
+                "hash": "TzOmxdrHqe0HfwxIPXlU10", "salt": "NjALUYrK"},
+            "foobar01234567890": {
+                "hash": "aQ127rgKtHR098iUEgW.F1", "salt": "SJJuaEKa"},
+            "foobar012345678901": {
+                "hash": "TLkfRBIjGqjL4clR0873c1", "salt": "hDJaX1Sa"},
+            "foobar0123456789012": {
+                "hash": "1OIrHIzF.HOQ72wbcFWzU0", "salt": "HlBLH.DU"},
+            "foobar01234567890123": {
+                "hash": "hnBripG.5yMPXE4FJg7Np0", "salt": "snk9PtYt"},
             "foobar012345678901234": {
-                "hash": "zbRB1BrZmWaFKJMqKyTum0", "salt": "NyCJRWye",
-                "algorithm": "apr1"
-            },
+                "hash": "zbRB1BrZmWaFKJMqKyTum0", "salt": "NyCJRWye"},
             "foobar0123456789012345": {
-                "hash": "UugUUu7D7pABxWg2p2ovc1", "salt": "c3tj3eYu",
-                "algorithm": "apr1"
-            },
+                "hash": "UugUUu7D7pABxWg2p2ovc1", "salt": "c3tj3eYu"},
             "foobar01234567890123456": {
-                "hash": "8iXmJONIozEPLup/2KgQp/", "salt": "tecrND8A",
-                "algorithm": "apr1"
-            },
+                "hash": "8iXmJONIozEPLup/2KgQp/", "salt": "tecrND8A"},
             "foobar012345678901234567": {
-                "hash": "fx2Tly.fIvybOKAbtUWMN/", "salt": "JpSOF7qJ",
-                "algorithm": "apr1"
-            },
+                "hash": "fx2Tly.fIvybOKAbtUWMN/", "salt": "JpSOF7qJ"},
             "foobar0123456789012345678": {
-                "hash": "fGBumUrVrJ40UB/Q2K1lI.", "salt": "fS58gR6t",
-                "algorithm": "apr1"
-            },
+                "hash": "fGBumUrVrJ40UB/Q2K1lI.", "salt": "fS58gR6t"},
             "foobar01234567890123456789": {
-                "hash": "bEsAOMdUIs1GNh5LLjlP1.", "salt": "PLG28sJA",
-                "algorithm": "apr1"
-            },
+                "hash": "bEsAOMdUIs1GNh5LLjlP1.", "salt": "PLG28sJA"},
             "foobar012345678901234567890": {
-                "hash": "CmoV8ccWcCEzBV01Pq496/", "salt": "MM49C.Vs",
-                "algorithm": "apr1"
-            },
+                "hash": "CmoV8ccWcCEzBV01Pq496/", "salt": "MM49C.Vs"},
             "foobar0123456789012345678901": {
-                "hash": "2tGWA3NHFeGAEmSXZhYnR/", "salt": "9n8nToVo",
-                "algorithm": "apr1"
-            },
+                "hash": "2tGWA3NHFeGAEmSXZhYnR/", "salt": "9n8nToVo"},
             "foobar01234567890123456789012": {
-                "hash": "1cyFn3QVsTQf5RID7O6wC.", "salt": "88x7/ARO",
-                "algorithm": "apr1"
-            },
+                "hash": "1cyFn3QVsTQf5RID7O6wC.", "salt": "88x7/ARO"},
             "foobar012345678901234567890123": {
-                "hash": "ADOeE2pC3SIrRPpj1wdJs/", "salt": "r/oMeWiA",
-                "algorithm": "apr1"
-            },
+                "hash": "ADOeE2pC3SIrRPpj1wdJs/", "salt": "r/oMeWiA"},
             "foobar0123456789012345678901234": {
-                "hash": "O6pOM0l0DEfJipuhQLk1u/", "salt": "hViGYCEr",
-                "algorithm": "apr1"
-            },
+                "hash": "O6pOM0l0DEfJipuhQLk1u/", "salt": "hViGYCEr"},
             "foobar01234567890123456789012345": {
-                "hash": "WcPoFDPY2hMpalN2bZibX.", "salt": "2QBHE4/Q",
-                "algorithm": "apr1"
-            },
+                "hash": "WcPoFDPY2hMpalN2bZibX.", "salt": "2QBHE4/Q"},
             "foobar012345678901234567890123456": {
-                "hash": "BHCTbYz7NZZK4HAFuHLzG.", "salt": "knaM/8D4",
-                "algorithm": "apr1"
-            },
+                "hash": "BHCTbYz7NZZK4HAFuHLzG.", "salt": "knaM/8D4"},
             "foobar0123456789012345678901234567": {
-                "hash": "QyzsGHXVFAEu1aO9rkphD0", "salt": "gfdWhcS7",
-                "algorithm": "apr1"
-            },
+                "hash": "QyzsGHXVFAEu1aO9rkphD0", "salt": "gfdWhcS7"},
             "foobar01234567890123456789012345678": {
-                "hash": "Frfmzydl8OC7RrMbkTUY21", "salt": "v8oc0omI",
-                "algorithm": "apr1"
-            },
+                "hash": "Frfmzydl8OC7RrMbkTUY21", "salt": "v8oc0omI"},
             "foobar012345678901234567890123456789": {
-                "hash": "ZvOpfsrYFSUgUwtVsCUBR0", "salt": "GAAPD33a",
-                "algorithm": "apr1"
-            },
+                "hash": "ZvOpfsrYFSUgUwtVsCUBR0", "salt": "GAAPD33a"},
             "foobar0123456789012345678901234567890": {
-                "hash": "D2ISHi8yEIL/0MzNWiDis.", "salt": "3Glrt6Oh",
-                "algorithm": "apr1"
-            },
+                "hash": "D2ISHi8yEIL/0MzNWiDis.", "salt": "3Glrt6Oh"},
         }
 
         for username, pwd_data in testdata.items():
             u = ServiceUser.objects.create(username=username)
-            u.algorithm = pwd_data['algorithm']
-            u.salt = pwd_data['salt']
-            u.hash = pwd_data['hash']
+            u.password = 'apr1$%(salt)s$%(hash)s' % pwd_data
             u.save()
 
             self.assertTrue(u.check_password(username))
 
             u.delete()
 
+    @override_settings(MIN_PASSWORD_LENGTH=1)
     def test_mediawiki(self):
         testdata = {
-            "user 1": {"algorithm": "mediawiki", "salt": "4891a58e",
+            "user 1": {"salt": "4891a58e",
                        "hash": "222ecf008e098295058d0c9a77e19d16"},
-            "user 10": {"algorithm": "mediawiki", "salt": "02828b87",
+            "user 10": {"salt": "02828b87",
                         "hash": "555f6f62e646afc840b1995d0467ef06"},
-            "user 3": {"algorithm": "mediawiki", "salt": "7bb9c41a",
+            "user 3": {"salt": "7bb9c41a",
                        "hash": "f72fbb4126a0002d88cb4afc62980d49"},
-            "user 4": {"algorithm": "mediawiki", "salt": "e4121fde",
+            "user 4": {"salt": "e4121fde",
                        "hash": "2de7c06ecfee2468cc0f6cf345632d29"},
-            "user 5": {"algorithm": "mediawiki", "salt": "99739c15",
+            "user 5": {"salt": "99739c15",
                        "hash": "5c1ddaa0fa981ac651c6bac72f640e44"},
-            "user 6": {"algorithm": "mediawiki", "salt": "9650ce2d",
+            "user 6": {"salt": "9650ce2d",
                        "hash": "2ad8888099fe7ce36d84c1046638f261"},
-            "user 7": {"algorithm": "mediawiki", "salt": "d0027595",
+            "user 7": {"salt": "d0027595",
                        "hash": "49a25052a0690e607c1f7d103c2b51b9"},
-            "user 8": {"algorithm": "mediawiki", "salt": "eec0c833",
+            "user 8": {"salt": "eec0c833",
                        "hash": "971a19cefb858a481e7b0e36137774da"},
-            "user 9": {"algorithm": "mediawiki", "salt": "fb74cdba",
+            "user 9": {"salt": "fb74cdba",
                        "hash": "9e562f64b90a6445de607f30dc745c7d"},
         }
 
         for username, pwd_data in testdata.items():
             u = ServiceUser.objects.create(username=username)
-            u.algorithm = pwd_data['algorithm']
-            u.salt = pwd_data['salt']
-            u.hash = pwd_data['hash']
+            u.password = 'mediawiki$%(salt)s$%(hash)s' % pwd_data
             u.save()
 
             password = '0123456789'[0:int(username[5:])]
