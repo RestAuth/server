@@ -105,11 +105,13 @@ class Group(models.Model):
         return self.get_members(depth=0).filter(username=username).exists()
 
     def save(self, *args, **kwargs):
-        if self.service is not None:
-            conflict = Group.objects.filter(name=self.name, service=None)
+        if self.service is None:
+            # some database engines to not enforce unique constraint
+            # if service=None
+            qs = Group.objects.filter(name=self.name, service=None)
             if self.id:
-                conflict.exclude(pk=self.id)
-            if conflict.exists():
+                qs = qs.exclude(pk=self.id)
+            if qs.exists():
                 raise IntegrityError("columns name, service_id are not unique")
         super(Group, self).save(*args, **kwargs)
 
