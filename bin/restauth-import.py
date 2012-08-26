@@ -15,12 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from datetime import datetime
 import os
 import sys
 import json
 import random
 import string
-import datetime
+
+# Properties that may also be represented as a UNIX timestamp.
+# Otherwise the format must be "%Y-%m-%d %H:%M:%S"
+TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
+TIMESTAMP_PROPS = ['date joined', 'last login']
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -134,36 +139,15 @@ try:
                 props = data['properties']
                 overwrite_props = args.overwrite_properties
 
-                # handle created, last login
-                date_joined_stamp = props.pop('date_joined', None)
-                if date_joined_stamp:
-                    date_joined = datetime.datetime.fromtimestamp(
-                        date_joined_stamp)
-
-                    # set when created:
-                    if created:
-                        user.date_joined = date_joined
-                    # set if we overwrite properties and only if date is
-                    # earlier than previous date:
-                    elif overwrite_props and user.date_joined > date_joined:
-                        user.date_joined = date_joined
-
-                last_login_stamp = props.pop('last_login', None)
-                if last_login_stamp:
-                    last_login = datetime.datetime.fromtimestamp(
-                        elast_login_stamp)
-
-                    # set when created
-                    if created:
-                        user.last_login = last_login
-                    # set if we overwrite properties and only if date is later
-                    # than previous date:
-                    elif overwrite_properties and user.last_login < last_login:
-                        user.last_login = last_login
-                user.save()
-
                 # handle all other preferences
                 for key, value in props.iteritems():
+                    if key in TIMESTAMP_PROPS:
+                        if value.__class__ in [int, float]:
+                            value = datetime.fromtimestamp(value)
+                        else:  # parse time, to ensure correct format
+                            value = datetime.strptime(value, TIMESTAMP_FORMAT)
+                        value = datetime.strftime(value, TIMESTAMP_FORMAT)
+
                     prop, prop_created = Property.objects.get_or_create(
                         user=user, key=key, defaults={'value': value})
 
