@@ -14,6 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+"""
+This module implements all HTTP queries to /user/*.
+"""
 
 import logging
 from datetime import datetime
