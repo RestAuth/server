@@ -97,12 +97,12 @@ elif args.action == 'view':
         user = user_get(args.user)
 
         try:
-            print('Joined: %s' % user.property_set.get('date joined'))
+            print('Joined: %s' % user.property_set.get(key='date joined'))
         except Property.DoesNotExist:
             pass
 
         try:
-            print('Last login: %s' % user.property_set.get('last login'))
+            print('Last login: %s' % user.property_set.get(key='last login'))
         except Property.DoesNotExist:
             pass
 
