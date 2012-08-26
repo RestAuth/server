@@ -17,9 +17,8 @@
 
 import httplib
 
-from django.test.utils import override_settings
-
 from RestAuth.common import errors
+from RestAuth.common.decorators import override_settings
 from RestAuth.common.testdata import *
 
 from Users import views
