@@ -25,7 +25,7 @@ from RestAuth.Groups.models import *
 from RestAuth.common.errors import GroupExists
 from RestAuth.common.types import get_dict
 from RestAuth.common.responses import *
-from RestAuth.common.views import RestAuthView, RestAuthResourceView
+from RestAuth.common.views import RestAuthView, RestAuthResourceView, RestAuthSubResourceView
 
 
 class GroupsView(RestAuthView):
@@ -136,16 +136,11 @@ class GroupUsersIndex(RestAuthResourceView):
         return HttpResponseNoContent()
 
 
-class GroupUserHandler(RestAuthResourceView):
+class GroupUserHandler(RestAuthSubResourceView):
     log = logging.getLogger('groups.group.users.user')
     http_method_names = ['get', 'delete']
 
-    def dispatch(self, request, *args, **kwargs):
-        kwargs['username'] = kwargs.get('username').lower()
-        return super(GroupUserHandler, self).dispatch(
-            request, largs={'user': kwargs.get('username')}, **kwargs)
-
-    def get(self, request, name, username):  # Verify that a user is in a group
+    def get(self, request, name, subname):  # Verify that a user is in a group
         if not request.user.has_perm('Groups.group_user_in_group'):
             return HttpResponseForbidden()
 
@@ -155,14 +150,14 @@ class GroupUserHandler(RestAuthResourceView):
         group = Group.objects.only('name').get(name=name, service=request.user)
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=subname)
 
         if group.is_member(user):
             return HttpResponseNoContent()
         else:
             raise ServiceUser.DoesNotExist()  # 404 Not Found
 
-    def delete(self, request, name, username):  # Remove user from a group
+    def delete(self, request, name, subname):  # Remove user from a group
         if not request.user.has_perm('Groups.group_remove_user'):
             return HttpResponseForbidden()
 
@@ -170,7 +165,7 @@ class GroupUserHandler(RestAuthResourceView):
         group = Group.objects.only('name').get(name=name, service=request.user)
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=username)
+        user = ServiceUser.objects.only('username').get(username=subname)
 
         if not group.is_member(user, False):
             raise User.DoesNotExist()  # 404 Not Found
@@ -217,16 +212,11 @@ class GroupGroupsIndex(RestAuthResourceView):
         return HttpResponseNoContent()
 
 
-class GroupGroupHandler(RestAuthResourceView):
+class GroupGroupHandler(RestAuthSubResourceView):
     log = logging.getLogger('groups.group.groups.subgroup')
     http_method_names = ['delete']
 
-    def dispatch(self, request, *args, **kwargs):
-        kwargs['subgroupname'] = kwargs.get('subgroupname').lower()
-        return super(GroupGroupHandler, self).dispatch(
-            request, largs={'subgroup': kwargs.get('subgroupname')}, **kwargs)
-
-    def delete(self, request, name, subgroupname):  # Remove group from a group
+    def delete(self, request, name, subname):  # Remove group from a group
         if not request.user.has_perm('Groups.group_remove_group'):
             return HttpResponseForbidden()
 
@@ -235,12 +225,12 @@ class GroupGroupHandler(RestAuthResourceView):
             name=name, service=request.user)
         # If Group.DoesNotExist: 404 Not Found
         subgroup = Group.objects.only('name').get(
-            name=subgroupname, service=request.user)
+            name=subname, service=request.user)
 
-        qs = group.groups.filter(name=subgroupname, service=request.user)
+        qs = group.groups.filter(name=subname, service=request.user)
         if not qs.exists():
             raise Group.DoesNotExist()
 
         group.groups.remove(subgroup)
-        self.log.info('Remove subgroup %s', subgroupname, extra=self.largs)
+        self.log.info('Remove subgroup %s', subname, extra=self.largs)
         return HttpResponseNoContent()
