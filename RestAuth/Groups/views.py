@@ -29,6 +29,9 @@ from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
 
 
 class GroupsView(RestAuthView):
+    """
+    Handle requests to /groups/.
+    """
     log = logging.getLogger('groups')
     http_method_names = ['get', 'post']
 
@@ -75,6 +78,9 @@ class GroupsView(RestAuthView):
 
 
 class GroupHandlerView(RestAuthResourceView):
+    """
+    Handle requests to /groups/<group>/.
+    """
     log = logging.getLogger('groups.group')
     http_method_names = ['get', 'delete']
 
@@ -101,6 +107,9 @@ class GroupHandlerView(RestAuthResourceView):
 
 
 class GroupUsersIndex(RestAuthResourceView):
+    """
+    Handle requests to /groups/<group>/users/.
+    """
     log = logging.getLogger('groups.group.users')
     http_method_names = ['get', 'post']
 
@@ -137,6 +146,9 @@ class GroupUsersIndex(RestAuthResourceView):
 
 
 class GroupUserHandler(RestAuthSubResourceView):
+    """
+    Handle requests to /groups/<group>/users/<user>/.
+    """
     log = logging.getLogger('groups.group.users.user')
     http_method_names = ['get', 'delete']
 
@@ -176,6 +188,9 @@ class GroupUserHandler(RestAuthSubResourceView):
 
 
 class GroupGroupsIndex(RestAuthResourceView):
+    """
+    Handle requests to /groups/<group>/group/.
+    """
     log = logging.getLogger('groups.group.groups')
     http_method_names = ['get', 'post']
 
@@ -213,6 +228,9 @@ class GroupGroupsIndex(RestAuthResourceView):
 
 
 class GroupGroupHandler(RestAuthSubResourceView):
+    """
+    Handle requests to /groups/<meta-group>/group/<sub-group>/.
+    """
     log = logging.getLogger('groups.group.groups.subgroup')
     http_method_names = ['delete']
 
