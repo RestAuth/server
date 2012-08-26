@@ -183,7 +183,6 @@ def get_hexdigest(algorithm, salt=None, secret=''):
         else:
             return func('%s%s' % (smart_str(salt), secret)).hexdigest()
     else:
-#    except AttributeError:  # custom hashing algorithm
         for path in settings.HASH_FUNCTIONS:
             # import validator:
             try:
