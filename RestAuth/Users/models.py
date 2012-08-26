@@ -242,14 +242,12 @@ class ServiceUser(models.Model):
         if len(raw_password) < settings.MIN_PASSWORD_LENGTH:
             raise PasswordInvalid("Password too short")
 
-        self.algorithm = settings.HASH_ALGORITHM
-        self.salt = get_salt()
-        self.hash = get_hexdigest(self.algorithm, self.salt, raw_password)
+        salt = get_salt()
+        hash = get_hexdigest(settings.HASH_ALGORITHM, salt, raw_password)
+        self.password = '%s$%s%s' % (algo, salt, hash)
 
     def set_unusable_password(self):
-        self.hash = None
-        self.salt = None
-        self.algorithm = None
+        self.password = None
 
     def check_password(self, raw_password):
         """
