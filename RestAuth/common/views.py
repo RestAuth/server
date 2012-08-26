@@ -6,3 +6,13 @@ class RestAuthView(View):
         self.largs = kwargs.pop('largs', {})
         self.largs['service'] = request.user.username
         return super(RestAuthView, self).dispatch(request, *args, **kwargs)
+
+class RestAuthResourceView(RestAuthView):
+    def dispatch(self, request, *args, **kwargs):
+        largs = kwargs.pop('largs', {})
+
+        kwargs['name'] = kwargs.get('name').lower()
+        largs['name'] = kwargs.get('name')
+
+        return super(RestAuthResourceView, self).dispatch(
+            request, largs=largs, *args, **kwargs)
