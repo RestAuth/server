@@ -12,3 +12,4 @@ Future:
 When Django >= 1.4 is required:
 * Remove backported override_settings decorator
 * Use Django password hashers
+* Remove custom implementation of get_random_string in Users.models
