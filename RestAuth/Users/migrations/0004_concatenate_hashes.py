@@ -8,12 +8,12 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        for user in orm.User.objects.all():
+        for user in orm.ServiceUser.objects.all():
             user.password = '%s$%s$%s' % (user.algorithm, user.salt, user.hash)
             user.save()
 
     def backwards(self, orm):
-        for user in orm.User.objects.all():
+        for user in orm.ServiceUser.objects.all():
             algo, salt, hash = user.password.split('$')
             user.algo = algo
             user.salt = salt
