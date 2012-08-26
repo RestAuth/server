@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from datetime.datetime import strftime
 from south.db import db
 from south.v2 import DataMigration
 from django.db import models
@@ -11,6 +11,20 @@ class Migration(DataMigration):
         for user in orm.ServiceUser.objects.all():
             user.password = '%s$%s$%s' % (user.algorithm, user.salt, user.hash)
             user.save()
+
+            if user.date_joined is not None:
+                try:
+                    raw = strftime(user.date_joined, "%Y-%m-%d %H:%M:%S")
+                    user.add_property('date joined', raw)
+                except:
+                    pass
+            if user.last_login is not None:
+                try:
+                    raw = strftime(user.last_login, "%Y-%m-%d %H:%M:%S")
+                    user.add_property('last login', raw)
+                except:
+                    pass
+
 
     def backwards(self, orm):
         for user in orm.ServiceUser.objects.all():
