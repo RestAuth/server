@@ -34,16 +34,16 @@ class UsersView(RestAuthView):
     http_method_names = ['get', 'post']
     log = logging.getLogger('users')
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, largs, *args, **kwargs):
         if not request.user.has_perm('Users.users_list'):
             return HttpResponseForbidden()
 
         names = ServiceUser.objects.values_list('username', flat=True)
 
-        self.log.debug("Got list of users", extra=self.largs)
+        self.log.debug("Got list of users", extra=largs)
         return HttpRestAuthResponse(request, list(names))
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, largs, *args, **kwargs):
         if not request.user.has_perm('Users.user_create'):
             return HttpResponseForbidden()
 
@@ -64,7 +64,7 @@ class UsersView(RestAuthView):
             stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user.set_property('date joined', stamp)
 
-        self.log.info('%s: Created user', name, extra=self.largs)
+        self.log.info('%s: Created user', name, extra=largs)
         return HttpResponseCreated(request, user)
 
 
@@ -72,17 +72,17 @@ class UserHandlerView(RestAuthResourceView):
     http_method_names = ['get', 'post', 'put', 'delete']
     log = logging.getLogger('users.user')
 
-    def get(self, request, name):
+    def get(self, request, largs, name):
         if not request.user.has_perm('Users.user_exists'):
             return HttpResponseForbidden()
 
-        self.log.debug("Check if user exists", extra=self.largs)
+        self.log.debug("Check if user exists", extra=largs)
         if ServiceUser.objects.filter(username=name).exists():
             return HttpResponseNoContent()
         else:
             raise ServiceUser.DoesNotExist()
 
-    def post(self, request, name):
+    def post(self, request, largs, name):
         if not request.user.has_perm('Users.user_verify_password'):
             return HttpResponseForbidden()
 
@@ -94,14 +94,14 @@ class UserHandlerView(RestAuthResourceView):
 
         if not user.check_password(password):
             # password does not match - raises 404
-            self.log.info("Wrong password checked", extra=self.largs)
+            self.log.info("Wrong password checked", extra=largs)
             raise ServiceUser.DoesNotExist("Password invalid for this user.")
         user.save()  # update "modified" timestamp, perhaps hash
 
-        self.log.debug("Checked password (ok)", extra=self.largs)
+        self.log.debug("Checked password (ok)", extra=largs)
         return HttpResponseNoContent()  # Ok
 
-    def put(self, request, name):
+    def put(self, request, largs, name):
         if not request.user.has_perm('Users.user_change_password'):
             return HttpResponseForbidden()
 
@@ -119,10 +119,10 @@ class UserHandlerView(RestAuthResourceView):
 
         user.save()
 
-        self.log.info("Updated password", extra=self.largs)
+        self.log.info("Updated password", extra=largs)
         return HttpResponseNoContent()
 
-    def delete(self, request, name):
+    def delete(self, request, largs, name):
         if not request.user.has_perm('Users.user_delete'):
             return HttpResponseForbidden()
 
@@ -131,7 +131,7 @@ class UserHandlerView(RestAuthResourceView):
 
         user.delete()
 
-        self.log.info("Deleted user", extra=self.largs)
+        self.log.info("Deleted user", extra=largs)
         return HttpResponseNoContent()
 
 
@@ -139,7 +139,7 @@ class UserPropsIndex(RestAuthResourceView):
     log = logging.getLogger('users.user.props')
     http_method_names = ['get', 'post', 'put']
 
-    def get(self, request, name):
+    def get(self, request, largs, name):
         if not request.user.has_perm('Users.props_list'):
             return HttpResponseForbidden()
 
@@ -147,10 +147,10 @@ class UserPropsIndex(RestAuthResourceView):
         user = ServiceUser.objects.only('username').get(username=name)
         props = user.get_properties()
 
-        self.log.debug("Got properties", extra=self.largs)
+        self.log.debug("Got properties", extra=largs)
         return HttpRestAuthResponse(request, props)
 
-    def post(self, request, name):
+    def post(self, request, largs, name):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
@@ -164,10 +164,10 @@ class UserPropsIndex(RestAuthResourceView):
         property = user.add_property(prop, value)
 
         self.log.info(
-            'Created property "%s" as "%s"', prop, value, extra=self.largs)
+            'Created property "%s" as "%s"', prop, value, extra=largs)
         return HttpResponseCreated(request, property)
 
-    def put(self, request, name):
+    def put(self, request, largs, name):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
@@ -183,7 +183,7 @@ class UserPropHandler(RestAuthSubResourceView):
     log = logging.getLogger('users.user.props.prop')
     http_method_names = ['get', 'put', 'delete']
 
-    def get(self, request, name, subname):
+    def get(self, request, largs, name, subname):
         if not request.user.has_perm('Users.prop_get'):
             return HttpResponseForbidden()
 
@@ -193,10 +193,10 @@ class UserPropHandler(RestAuthSubResourceView):
         # If Property.DoesNotExist: 404 Not Found
         prop = user.get_property(subname)
 
-        self.log.debug('Got property', extra=self.largs)
+        self.log.debug('Got property', extra=largs)
         return HttpRestAuthResponse(request, prop.value)
 
-    def put(self, request, name, subname):
+    def put(self, request, largs, name, subname):
         if not request.user.has_perm('Users.prop_set'):
             return HttpResponseForbidden()
 
@@ -208,14 +208,14 @@ class UserPropHandler(RestAuthSubResourceView):
 
         prop, old_value = user.set_property(subname, value)
         if old_value is None:  # new property
-            self.log.info('Set to "%s"', value, extra=self.largs)
+            self.log.info('Set to "%s"', value, extra=largs)
             return HttpResponseCreated(request, prop)
         else:  # existing property
             self.log.info('Changed from "%s" to "%s"',
-                          old_value, value, extra=self.largs)
+                          old_value, value, extra=largs)
             return HttpRestAuthResponse(request, old_value)
 
-    def delete(self, request, name, subname):
+    def delete(self, request, largs, name, subname):
         if not request.user.has_perm('Users.prop_delete'):
             return HttpResponseForbidden()
 
@@ -225,5 +225,5 @@ class UserPropHandler(RestAuthSubResourceView):
         # If Property.DoesNotExist: 404 Not Found
         user.del_property(subname)
 
-        self.log.info('Delete property', extra=self.largs)
+        self.log.info('Delete property', extra=largs)
         return HttpResponseNoContent()

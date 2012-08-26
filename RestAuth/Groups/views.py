@@ -32,7 +32,7 @@ class GroupsView(RestAuthView):
     log = logging.getLogger('groups')
     http_method_names = ['get', 'post']
 
-    def get(self, request):
+    def get(self, request, largs):
         if 'user' in request.GET:
             if not request.user.has_perm('Groups.groups_for_user'):
                 return HttpResponseForbidden()
@@ -47,7 +47,7 @@ class GroupsView(RestAuthView):
             names = [group.name for group in groups]
 
             self.log.debug('Get groups for user %s',
-                           username, extra=self.largs)
+                           username, extra=largs)
             return HttpRestAuthResponse(request, names)
         else:  # Get a list of groups:
             if not request.user.has_perm('Groups.groups_list'):
@@ -57,10 +57,10 @@ class GroupsView(RestAuthView):
             groups = Group.objects.filter(service=request.user)
             groups = list(groups.values_list('name', flat=True))
 
-            self.log.debug('Get all groups', extra=self.largs)
+            self.log.debug('Get all groups', extra=largs)
             return HttpRestAuthResponse(request, groups)
 
-    def post(self, request):
+    def post(self, request, largs):
         if not request.user.has_perm('Groups.group_create'):
             return HttpResponseForbidden()
 
@@ -70,7 +70,7 @@ class GroupsView(RestAuthView):
         # If ResourceExists: 409 Conflict
         group = group_create(groupname, request.user)
 
-        self.log.info('%s: Created group', groupname, extra=self.largs)
+        self.log.info('%s: Created group', groupname, extra=largs)
         return HttpResponseCreated(request, group)  # Created
 
 
@@ -78,17 +78,17 @@ class GroupHandlerView(RestAuthResourceView):
     log = logging.getLogger('groups.group')
     http_method_names = ['get', 'delete']
 
-    def get(self, request, name):  # Verify that a group exists
+    def get(self, request, largs, name):  # Verify that a group exists
         if not request.user.has_perm('Groups.group_exists'):
             return HttpResponseForbidden()
 
         group = Group.objects.only('name').get(
             name=name, service=request.user)
 
-        self.log.debug("Check if group exists", extra=self.largs)
+        self.log.debug("Check if group exists", extra=largs)
         return HttpResponseNoContent()
 
-    def delete(self, request, name):  # Delete group
+    def delete(self, request, largs, name):  # Delete group
         if not request.user.has_perm('Groups.group_delete'):
             return HttpResponseForbidden()
 
@@ -96,7 +96,7 @@ class GroupHandlerView(RestAuthResourceView):
             name=name, service=request.user)
 
         group.delete()
-        self.log.info("Deleted group", extra=self.largs)
+        self.log.info("Deleted group", extra=largs)
         return HttpResponseNoContent()  # OK
 
 
@@ -104,7 +104,7 @@ class GroupUsersIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.users')
     http_method_names = ['get', 'post']
 
-    def get(self, request, name):  # Get all users in a group
+    def get(self, request, largs, name):  # Get all users in a group
         if not request.user.has_perm('Groups.group_users'):
             return HttpResponseForbidden()
 
@@ -114,10 +114,10 @@ class GroupUsersIndex(RestAuthResourceView):
         users = group.get_members()
 
         # If MarshalError: 500 Internal Server Error
-        self.log.debug("Get users in group", extra=self.largs)
+        self.log.debug("Get users in group", extra=largs)
         return HttpRestAuthResponse(request, list(users))
 
-    def post(self, request, name):  # Add a user to a group
+    def post(self, request, largs, name):  # Add a user to a group
         if not request.user.has_perm('Groups.group_add_user'):
             return HttpResponseForbidden()
 
@@ -132,7 +132,7 @@ class GroupUsersIndex(RestAuthResourceView):
 
         group.users.add(user)
 
-        self.log.info('Add user "%s"', username, extra=self.largs)
+        self.log.info('Add user "%s"', username, extra=largs)
         return HttpResponseNoContent()
 
 
@@ -140,11 +140,11 @@ class GroupUserHandler(RestAuthSubResourceView):
     log = logging.getLogger('groups.group.users.user')
     http_method_names = ['get', 'delete']
 
-    def get(self, request, name, subname):  # Verify that a user is in a group
+    def get(self, request, largs, name, subname):  # Verify that a user is in a group
         if not request.user.has_perm('Groups.group_user_in_group'):
             return HttpResponseForbidden()
 
-        self.log.debug('Check if user is in group', extra=self.largs)
+        self.log.debug('Check if user is in group', extra=largs)
 
         # If Group.DoesNotExist: 404 Not Found
         group = Group.objects.only('name').get(name=name, service=request.user)
@@ -157,7 +157,7 @@ class GroupUserHandler(RestAuthSubResourceView):
         else:
             raise ServiceUser.DoesNotExist()  # 404 Not Found
 
-    def delete(self, request, name, subname):  # Remove user from a group
+    def delete(self, request, largs, name, subname):  # Remove user from a group
         if not request.user.has_perm('Groups.group_remove_user'):
             return HttpResponseForbidden()
 
@@ -171,7 +171,7 @@ class GroupUserHandler(RestAuthSubResourceView):
             raise ServiceUser.DoesNotExist()  # 404 Not Found
 
         group.users.remove(user)
-        self.log.info('Remove user from group', extra=self.largs)
+        self.log.info('Remove user from group', extra=largs)
         return HttpResponseNoContent()
 
 
@@ -179,7 +179,7 @@ class GroupGroupsIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.groups')
     http_method_names = ['get', 'post']
 
-    def get(self, request, name):  # get a list of sub-groups
+    def get(self, request, largs, name):  # get a list of sub-groups
         if not request.user.has_perm('Groups.group_groups_list'):
             return HttpResponseForbidden()
 
@@ -190,10 +190,10 @@ class GroupGroupsIndex(RestAuthResourceView):
             'name', flat=True)
 
         # If MarshalError: 500 Internal Server Error
-        self.log.debug('Get subgroups', extra=self.largs)
+        self.log.debug('Get subgroups', extra=largs)
         return HttpRestAuthResponse(request, list(groups))
 
-    def post(self, request, name):  # Add a sub-group:
+    def post(self, request, largs, name):  # Add a sub-group:
         if not request.user.has_perm('Groups.group_add_group'):
             return HttpResponseForbidden()
 
@@ -208,7 +208,7 @@ class GroupGroupsIndex(RestAuthResourceView):
             name=sub_groupname, service=request.user)
 
         group.groups.add(sub_group)
-        self.log.info('Add subgroup "%s"', sub_groupname, extra=self.largs)
+        self.log.info('Add subgroup "%s"', sub_groupname, extra=largs)
         return HttpResponseNoContent()
 
 
@@ -216,7 +216,7 @@ class GroupGroupHandler(RestAuthSubResourceView):
     log = logging.getLogger('groups.group.groups.subgroup')
     http_method_names = ['delete']
 
-    def delete(self, request, name, subname):  # Remove group from a group
+    def delete(self, request, largs, name, subname):  # Remove group from a group
         if not request.user.has_perm('Groups.group_remove_group'):
             return HttpResponseForbidden()
 
@@ -232,5 +232,5 @@ class GroupGroupHandler(RestAuthSubResourceView):
             raise Group.DoesNotExist()
 
         group.groups.remove(subgroup)
-        self.log.info('Remove subgroup %s', subname, extra=self.largs)
+        self.log.info('Remove subgroup %s', subname, extra=largs)
         return HttpResponseNoContent()
