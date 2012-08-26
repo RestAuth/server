@@ -128,9 +128,9 @@ Example::
                 "password": "rawpassword",
                 "properties": {
                     "email": "mati@example.com",
-                    "last_login": 1300731615.060394,
+                    "last login": 1300731615.060394,
                     "full name": "Mathias Ertl",
-                    "date_joined": 1300730615.060394
+                    "date joined": 1300730615.060394
                 }
             },
             "full example": {
@@ -141,9 +141,9 @@ Example::
                 },
                 "properties": {
                     "email": "mati@fsinf.at",
-                    "last_login": 1310731615.060394,
+                    "last login": 1310731615.060394,
                     "full name": "foo foo",
-                    "date_joined": 1310730615.060394
+                    "date joined": 1310730615.060394
                 }
             }
         }
@@ -228,9 +228,9 @@ This is a full example of a file that can be used by |bin-restauth-import-doc|::
                 "password": "rawpassword",
                 "properties": {
                     "email": "mati@fsinf.at",
-                    "last_login": 1300731615.060394,
+                    "last login": 1300731615.060394,
                     "full name": "Another name",
-                    "date_joined": 1300730615.060394
+                    "date joined": 1300730615.060394
                 }
             },
             "mati": {
@@ -241,9 +241,9 @@ This is a full example of a file that can be used by |bin-restauth-import-doc|::
                 },
                 "properties": {
                     "email": "mati@fsinf.at",
-                    "last_login": 1310731615.060394,
+                    "last login": 1310731615.060394,
                     "full name": "Mathias Ertl",
-                    "date_joined": 1310730615.060394
+                    "date joined": 1310730615.060394
                 }
             }
         },
