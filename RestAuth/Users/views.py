@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import httplib
 import logging
+from datetime import datetime
 
 from django.http import HttpResponseForbidden
 
@@ -59,6 +59,10 @@ class UsersView(RestAuthView):
             if props.__class__ != dict:
                 raise BadRequest('Properties not a dictionary!')
             [user.set_property(key, value) for key, value in props.iteritems()]
+
+        if not props or 'date joined' not in props:
+            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            user.set_property('date joined', stamp)
 
         self.log.info('%s: Created user', name, extra=self.largs)
         return HttpResponseCreated(request, user)

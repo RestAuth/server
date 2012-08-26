@@ -1,7 +1,5 @@
 0.6.0:
 
-* Automatically set the 'date joined' property upon user-creation
-
 Future:
 
 * add support for /users/<user>/blobs

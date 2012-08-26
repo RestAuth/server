@@ -55,12 +55,17 @@ class AddUserTests(RestAuthTest):  # POST /users/
     def get_usernames(self):
         return list(ServiceUser.objects.values_list('username', flat=True))
 
+    def assertHasProperties(self, username, actual):
+        expected = user_get(username).get_properties().keys()
+        self.assertItemsEqual(expected, actual)
+
     def test_add_user(self):
         resp = self.post('/users/', {'user': username1, 'password': password1})
 
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1])
         self.assertTrue(user_get(username1).check_password(password1))
+        self.assertHasProperties(username1, ['date joined'])
 
     def test_add_two_users(self):
         resp = self.post('/users/', {'user': username1, 'password': password1})
@@ -68,10 +73,12 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEquals(self.get_usernames(), [username1])
         self.assertTrue(user_get(username1).check_password(password1))
         self.assertFalse(user_get(username1).check_password(password2))
+        self.assertHasProperties(username1, [u'date joined'])
 
         resp = self.post('/users/', {'user': username2, 'password': password2})
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1, username2])
+        self.assertHasProperties(username2, [u'date joined'])
 
         self.assertTrue(user_get(username1).check_password(password1))
         self.assertFalse(user_get(username1).check_password(password2))
@@ -83,6 +90,8 @@ class AddUserTests(RestAuthTest):  # POST /users/
         resp = self.post('/users/', {'user': username1, 'password': password1})
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1])
+        self.assertHasProperties(username1, [u'date joined'])
+        joined = user_get(username1).get_property('date joined')
 
         self.assertTrue(user_get(username1).check_password(password1))
         self.assertFalse(user_get(username1).check_password(password2))
@@ -92,9 +101,11 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEquals(resp.status_code, httplib.CONFLICT)
         self.assertEquals(self.get_usernames(), [username1])
 
-        # check that we still have the old password:
+        # check that we still have the old password and properties:
         self.assertTrue(user_get(username1).check_password(password1))
         self.assertFalse(user_get(username1).check_password(password2))
+        self.assertEquals(user_get(username1).get_property('date joined'),
+                          joined)
 
     def test_add_user_no_pass(self):
         resp = self.post('/users/', {'user': username1})
@@ -105,6 +116,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertFalse(user.check_password(None))
         self.assertFalse(user.check_password(password1))
         self.assertFalse(user.check_password(password2))
+        self.assertHasProperties(username1, ['date joined'])
 
         resp = self.post('/users/', {'user': username2, 'password': ''})
         self.assertEquals(resp.status_code, httplib.CREATED)
@@ -114,6 +126,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertFalse(user.check_password(None))
         self.assertFalse(user.check_password(password1))
         self.assertFalse(user.check_password(password2))
+        self.assertHasProperties(username2, [u'date joined'])
 
         resp = self.post('/users/', {'user': username3, 'password': None})
         self.assertEquals(resp.status_code, httplib.CREATED)
@@ -124,6 +137,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertFalse(user.check_password(None))
         self.assertFalse(user.check_password(password1))
         self.assertFalse(user.check_password(password2))
+        self.assertHasProperties(username3, [u'date joined'])
 
     def test_add_user_with_property(self):
         resp = self.post('/users/', {'user': username1, 'properties': {
@@ -132,17 +146,23 @@ class AddUserTests(RestAuthTest):  # POST /users/
 
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1])
+        self.assertHasProperties(username1, ['date joined', propkey1])
 
         user = user_get(username1)
-        self.assertDictEqual({propkey1: propval1}, user.get_properties())
+        fetched_props = user.get_properties()
+        del fetched_props['date joined']
+        self.assertDictEqual({propkey1: propval1}, fetched_props)
 
     def test_add_user_with_properties(self):
         props = {propkey1: propval1, propkey2: propval2}
         resp = self.post('/users/', {'user': username1, 'properties': props})
         self.assertEquals(resp.status_code, httplib.CREATED)
+        self.assertHasProperties(username1, [u'date joined'] + props.keys())
 
         user = user_get(username1)
-        self.assertDictEqual(props, user.get_properties())
+        fetched_props = user.get_properties()
+        del fetched_props['date joined']
+        self.assertDictEqual(props, fetched_props)
 
     def test_bad_requests(self):
         self.assertEquals(self.get_usernames(), [])
