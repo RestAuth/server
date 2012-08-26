@@ -28,6 +28,6 @@ urlpatterns = patterns(
         login_required(realm='/users/<user>/')(UserHandlerView.as_view())),
     (r'^(?P<name>[^/]+)/props/$',
         login_required(realm='/users/<user>/props/')(UserPropsIndex.as_view())),
-    (r'^(?P<name>[^/]+)/props/(?P<prop>.+)/$',
+    (r'^(?P<name>[^/]+)/props/(?P<subname>.+)/$',
         login_required(realm='/users/<user>/props/<prop>/')(UserPropHandler.as_view())),
 )

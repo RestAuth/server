@@ -25,7 +25,7 @@ from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
-from RestAuth.common.views import RestAuthView, RestAuthResourceView
+from RestAuth.common.views import RestAuthView, RestAuthResourceView, RestAuthSubResourceView
 
 from RestAuth.common.decorators import sql_profile
 
@@ -176,15 +176,11 @@ class UserPropsIndex(RestAuthResourceView):
         return HttpResponseNoContent()
 
 
-class UserPropHandler(RestAuthResourceView):
+class UserPropHandler(RestAuthSubResourceView):
     log = logging.getLogger('users.user.props.prop')
     http_method_names = ['get', 'put', 'delete']
 
-    def dispatch(self, request, *args, **kwargs):
-        return super(UserPropHandler, self).dispatch(
-            request, largs={'prop': kwargs.get('prop')}, **kwargs)
-
-    def get(self, request, name, prop):
+    def get(self, request, name, subname):
         if not request.user.has_perm('Users.prop_get'):
             return HttpResponseForbidden()
 
@@ -192,12 +188,12 @@ class UserPropHandler(RestAuthResourceView):
         user = ServiceUser.objects.only('username').get(username=name)
 
         # If Property.DoesNotExist: 404 Not Found
-        prop = user.get_property(prop)
+        prop = user.get_property(subname)
 
         self.log.debug('Got property', extra=self.largs)
         return HttpRestAuthResponse(request, prop.value)
 
-    def put(self, request, name, prop):
+    def put(self, request, name, subname):
         if not request.user.has_perm('Users.prop_set'):
             return HttpResponseForbidden()
 
@@ -207,7 +203,7 @@ class UserPropHandler(RestAuthResourceView):
         # If User.DoesNotExist: 404 Not Found
         user = ServiceUser.objects.only('username').get(username=name)
 
-        prop, old_value = user.set_property(prop, value)
+        prop, old_value = user.set_property(subname, value)
         if old_value is None:  # new property
             self.log.info('Set to "%s"', value, extra=self.largs)
             return HttpResponseCreated(request, prop)
@@ -216,7 +212,7 @@ class UserPropHandler(RestAuthResourceView):
                           old_value, value, extra=self.largs)
             return HttpRestAuthResponse(request, old_value)
 
-    def delete(self, request, name, prop):
+    def delete(self, request, name, subname):
         if not request.user.has_perm('Users.prop_delete'):
             return HttpResponseForbidden()
 
@@ -224,7 +220,7 @@ class UserPropHandler(RestAuthResourceView):
         user = ServiceUser.objects.only('username').get(username=name)
 
         # If Property.DoesNotExist: 404 Not Found
-        user.del_property(prop)
+        user.del_property(subname)
 
         self.log.info('Delete property', extra=self.largs)
         return HttpResponseNoContent()
