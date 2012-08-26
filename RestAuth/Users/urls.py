@@ -18,16 +18,28 @@
 from django.conf.urls.defaults import *
 
 from Services.decorator import login_required
-from Users.views import UsersView, UserHandlerView, UserPropsIndex, UserPropHandler
+from Users.views import (UsersView, UserHandlerView,
+                         UserPropsIndex, UserPropHandler)
 
 urlpatterns = patterns(
     'RestAuth.Users.views',
 
-    (r'^$', login_required(realm='/users/')(UsersView.as_view())),
-    (r'^(?P<name>[^/]+)/$',
-        login_required(realm='/users/<user>/')(UserHandlerView.as_view())),
-    (r'^(?P<name>[^/]+)/props/$',
-        login_required(realm='/users/<user>/props/')(UserPropsIndex.as_view())),
-    (r'^(?P<name>[^/]+)/props/(?P<subname>.+)/$',
-        login_required(realm='/users/<user>/props/<prop>/')(UserPropHandler.as_view())),
+    (
+        r'^$', login_required(realm='/users/')(UsersView.as_view())
+    ),
+    (
+        r'^(?P<name>[^/]+)/$',
+        login_required(realm='/users/<user>/')(
+            UserHandlerView.as_view())
+    ),
+    (
+        r'^(?P<name>[^/]+)/props/$',
+        login_required(realm='/users/<user>/props/')(
+            UserPropsIndex.as_view())
+    ),
+    (
+        r'^(?P<name>[^/]+)/props/(?P<subname>.+)/$',
+        login_required(realm='/users/<user>/props/<prop>/')(
+            UserPropHandler.as_view())
+    ),
 )
