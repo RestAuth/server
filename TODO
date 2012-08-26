@@ -1,6 +1,5 @@
 0.6.0:
 
-* Add a config-variable that enables the admin interface
 * Automatically set the 'date joined' property upon user-creation
 
 Future:
