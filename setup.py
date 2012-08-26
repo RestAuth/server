@@ -293,16 +293,22 @@ class build(_build):
 
 
 class test(Command):
-    user_options = []
+    user_options = [
+        ('app=', None, 'Only test the specified app'),
+    ]
 
     def initialize_options(self):
-        pass
+        self.app = None
 
     def finalize_options(self):
         pass
 
     def run(self):
-        call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common')
+        if self.app:
+            print(self.app)
+            call_command('test', self.app)
+        else:
+            call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common')
 
 
 class coverage(Command):
