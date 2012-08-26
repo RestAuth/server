@@ -804,7 +804,7 @@ class HashTest(RestAuthTest):
             password = '0123456789'[0:int(username[5:])]
 
             self.assertTrue(u.check_password(password))
-            self.assertTrue(u.check_password(username))
+            self.assertTrue(u.check_password(password))
 
             # check that the hash was actually updated
             algorithm = u.password.split('$', 1)[0]
