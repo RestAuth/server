@@ -35,7 +35,7 @@ from RestAuth.common.decorators import sql_profile
 
 class UsersView(RestAuthView):
     """
-    Handle requests to /users/.
+    Handle requests to ``/users/``.
     """
     http_method_names = ['get', 'post']
     log = logging.getLogger('users')
@@ -82,7 +82,7 @@ class UsersView(RestAuthView):
 
 class UserHandlerView(RestAuthResourceView):
     """
-    Handle requests to /users/<user>/.
+    Handle requests to ``/users/<user>/``.
     """
     http_method_names = ['get', 'post', 'put', 'delete']
     log = logging.getLogger('users.user')
@@ -164,7 +164,7 @@ class UserHandlerView(RestAuthResourceView):
 
 class UserPropsIndex(RestAuthResourceView):
     """
-    Handle requests to /users/<user>/props/.
+    Handle requests to ``/users/<user>/props/``.
     """
     log = logging.getLogger('users.user.props')
     http_method_names = ['get', 'post', 'put']
@@ -220,7 +220,7 @@ class UserPropsIndex(RestAuthResourceView):
 
 class UserPropHandler(RestAuthSubResourceView):
     """
-    Handle requests to /users/<user>/props/<prop>/.
+    Handle requests to ``/users/<user>/props/<prop>/``.
     """
     log = logging.getLogger('users.user.props.prop')
     http_method_names = ['get', 'put', 'delete']
