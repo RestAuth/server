@@ -676,7 +676,13 @@ class HashTest(RestAuthTest):
             u.password = 'crypt$%(salt)s$%(hash)s' % pwd_data
             u.save()
 
+            # call twice to make sure conversion works
             self.assertTrue(u.check_password(username))
+            self.assertTrue(u.check_password(username))
+
+            # check that the hash was actually updated
+            algorithm = u.password.split('$', 1)[0]
+            self.assertTrue(algorithm, settings.HASH_ALGORITHM)
 
             u.delete()
 
@@ -759,6 +765,11 @@ class HashTest(RestAuthTest):
             u.save()
 
             self.assertTrue(u.check_password(username))
+            self.assertTrue(u.check_password(username))
+
+            # check that the hash was actually updated
+            algorithm = u.password.split('$', 1)[0]
+            self.assertTrue(algorithm, settings.HASH_ALGORITHM)
 
             u.delete()
 
@@ -793,5 +804,10 @@ class HashTest(RestAuthTest):
             password = '0123456789'[0:int(username[5:])]
 
             self.assertTrue(u.check_password(password))
+            self.assertTrue(u.check_password(username))
+
+            # check that the hash was actually updated
+            algorithm = u.password.split('$', 1)[0]
+            self.assertTrue(algorithm, settings.HASH_ALGORITHM)
 
             u.delete()
