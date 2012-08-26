@@ -168,23 +168,22 @@ def get_salt():
     return hashlib.sha512(random_string).hexdigest()[:8]
 
 
-def get_hexdigest(algorithm, salt, secret):
+def get_hexdigest(algorithm, salt=None, secret=''):
     """
     This method overrides the standard get_hexdigest method for service
     users. It adds support for for the 'mediawiki' hash-type and any
     crypto-algorithm included in the hashlib module.
     """
     secret = smart_str(secret)
-    if salt:
-        salt = smart_str(salt)
 
-    try:
+    if hasattr(hashlib, algorithm):
         func = getattr(hashlib, algorithm)
-        if salt:
-            return func(salt + secret).hexdigest()
-        else:  # pragma: no cover
+        if salt is None:
             return func(secret).hexdigest()
-    except AttributeError:  # custom hashing algorithm
+        else:
+            return func('%s%s' % (smart_str(salt), secret)).hexdigest()
+    else:
+#    except AttributeError:  # custom hashing algorithm
         for path in settings.HASH_FUNCTIONS:
             # import validator:
             try:
@@ -207,7 +206,10 @@ def get_hexdigest(algorithm, salt, secret):
                 msg = 'Module "%s" does not define a "%s" function'
                 raise ImproperlyConfigured(msg % (modname, funcname))
 
-            return func(secret, salt)
+            if salt is None:
+                return func(secret, salt)
+            else:
+                return func(secret, smart_str(salt))
 
 
 class ServiceUser(models.Model):
