@@ -105,15 +105,16 @@ here:
 
 * **password** works the same way as with :ref:`import-format-services`. Note
   that an empty string is equal to setting an unusable password.
-* **properties** is a dictionary containing any user properties. Values are
-  usually strings except for the special values **date_joined** and
-  **last_login**, which are a float representing a standard unix timestamp. If
-  the two latter properties are not given, the user joined and logged in "now".
+* **properties** is a dictionary containing any user properties.
+
+  All values are strings except for the special values **date joined** and
+  **last login**. Both values may also be a float representing a UNIX timestamp.
+  If the variables are a string anyway, they must be in the format
+  ``%Y-%m-%d %H:%M:%S`` in compliance with the
+  `specification <https://restauth.net/wiki/Specification#Predefined_property_names>`_.
 
   If a named property already exists, its not overwritten unless you give the
-  **-**\ **-overwrite-properties** command line parameter. The last_login and
-  date_joined properties are handled differently: |bin-restauth-import-as-cmd|
-  will use the earlier joined date and the later logged-in date.
+  **-**\ **-overwrite-properties** command line parameter.
 
 Example::
 
