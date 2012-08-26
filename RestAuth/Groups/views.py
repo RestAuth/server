@@ -25,7 +25,8 @@ from RestAuth.Groups.models import *
 from RestAuth.common.errors import GroupExists
 from RestAuth.common.types import get_dict
 from RestAuth.common.responses import *
-from RestAuth.common.views import RestAuthView, RestAuthResourceView, RestAuthSubResourceView
+from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
+                                   RestAuthSubResourceView)
 
 
 class GroupsView(RestAuthView):
