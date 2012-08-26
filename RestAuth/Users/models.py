@@ -244,7 +244,7 @@ class ServiceUser(models.Model):
 
         salt = get_salt()
         digest = get_hexdigest(settings.HASH_ALGORITHM, salt, raw_password)
-        self.password = '%s$%s%s' % (algo, salt, digest)
+        self.password = '%s$%s$%s' % (settings.HASH_ALGORITHM, salt, digest)
 
     def set_unusable_password(self):
         self.password = None
