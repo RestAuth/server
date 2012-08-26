@@ -97,38 +97,17 @@ if not LOGGING:
         'disable_existing_loggers': True,
         'formatters': {
             'general': {
-                'format': '%(levelname)s: %(message)s'
+                'format': '%(levelname)s %(message)s'
             },
-            'users': {
+            'base': {
                 'format': '%(levelname)s %(service)s: %(message)s'
             },
-            'users.user': {
-                'format': '%(levelname)s %(service)s: %(name)s: '
-                          '%(message)s'
+            'resource': {
+                'format': '%(levelname)s %(service)s: %(name)s: %(message)s'
             },
-            'users.user.props.prop': {
+            'subresource': {
                 'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: '
                           '%(message)s'
-            },
-            'groups': {
-                'format': '%(levelname)s %(service)s: %(message)s'
-            },
-            'groups.group': {
-                'format': '%(levelname)s %(service)s: %(name)s: %(message)s'
-            },
-            'groups.group.users': {
-                'format': '%(levelname)s %(service)s: %(name)s: %(message)s'
-            },
-            'groups.group.users.user': {
-                'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: '
-                          '%(message)s'
-            },
-            'groups.group.groups': {
-                'format': '%(levelname)s %(service)s: %(name)s: %(message)s'
-            },
-            'groups.group.groups.subgroup': {
-                'format': '%(levelname)s %(service)s: %(name)s: '
-                          '%(subname)s: %(message)s'
             },
         },
         'handlers': {
@@ -137,51 +116,21 @@ if not LOGGING:
                 'class': LOG_HANDLER,
                 'formatter': 'general'
             },
-            'users': {
+            'base': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'users'
+                'formatter': 'base'
             },
-            'users.user': {
+            'resource': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'users.user'
+                'formatter': 'resource'
             },
-            'users.user.props.prop': {
+            'subresource': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'users.user.props.prop'
+                'formatter': 'subresource'
             },
-            'groups': {
-                'level': LOG_LEVEL,
-                'class': LOG_HANDLER,
-                'formatter': 'groups'
-            },
-            'groups.group': {
-                'level': LOG_LEVEL,
-                'class': LOG_HANDLER,
-                'formatter': 'groups.group'
-            },
-            'groups.group.users': {
-                'level': LOG_LEVEL,
-                'class': LOG_HANDLER,
-                'formatter': 'groups.group.users'
-            },
-            'groups.group.users.user': {
-                'level': LOG_LEVEL,
-                'class': LOG_HANDLER,
-                'formatter': 'groups.group.users.user'
-            },
-            'groups.group.groups': {
-                'level': LOG_LEVEL,
-                'class': LOG_HANDLER,
-                'formatter': 'groups.group.groups'
-            },
-            'groups.group.groups.subgroup': {
-                'level': LOG_LEVEL,
-                'class': LOG_HANDLER,
-                'formatter': 'groups.group.groups.subgroup'
-            }
         },
         'loggers': {
             'general': {
@@ -190,52 +139,52 @@ if not LOGGING:
                 'level': LOG_LEVEL,
             },
             'users': {
-                'handlers': ['users'],
+                'handlers': ['base'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'users.user': {
-                'handlers': ['users.user'],
+                'handlers': ['resource'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'users.user.props': {
-                'handlers': ['users.user'],
+                'handlers': ['resource'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'users.user.props.prop': {
-                'handlers': ['users.user.props.prop'],
+                'handlers': ['subresource'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups': {
-                'handlers': ['groups'],
+                'handlers': ['base'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups.group': {
-                'handlers': ['groups.group'],
+                'handlers': ['resource'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups.group.users': {
-                'handlers': ['groups.group.users'],
+                'handlers': ['resource'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups.group.users.user': {
-                'handlers': ['groups.group.users.user'],
+                'handlers': ['subresource'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             },
             'groups.group.groups': {
-                'handlers': ['groups.group.groups'],
+                'handlers': ['resource'],
                 'propagate': False,
             'level': LOG_LEVEL,
             },
             'groups.group.groups.subgroup': {
-                'handlers': ['groups.group.groups.subgroup'],
+                'handlers': ['subresource'],
                 'propagate': False,
                 'level': LOG_LEVEL,
             }
