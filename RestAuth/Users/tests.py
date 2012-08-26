@@ -22,7 +22,11 @@ from RestAuth.common.decorators import override_settings
 from RestAuth.common.testdata import *
 
 from Users import views
-from Users.models import ServiceUser, user_create, Property, user_get
+from Users.models import ServiceUser, user_create, Property
+
+
+def user_get(name):
+    return ServiceUser.objects.get(username=name.lower())
 
 
 class GetUsersTests(RestAuthTest):  # GET /users/

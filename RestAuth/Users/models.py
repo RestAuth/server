@@ -63,17 +63,6 @@ USERNAME_NO_WHITESPACE = False
 HASH_FUNCTION_CACHE = None
 
 
-def user_get(name):
-    """
-    Get a user with the given username.
-
-    Note: this is only used by the CLI interface any more.
-
-    @raises ServiceUser.DoesNotExist: When the user does not exist.
-    """
-    return ServiceUser.objects.get(username=name.lower())
-
-
 def user_create(name, password):
     """
     Creates a new user. Lowercases the username.

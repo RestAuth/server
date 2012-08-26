@@ -107,7 +107,7 @@ if args.action == 'view':
 	else:
 		print( '* No subgroups' )
 elif args.action == 'add-user':
-	user = user_get( args.user )
+	user = ServiceUser.objects.get(username=args.user.lower())
 
 	group.users.add( user )
 elif args.action == 'add-group':
@@ -121,7 +121,7 @@ elif args.action == 'add-group':
 elif args.action in [ 'delete', 'del', 'rm' ]:
 	group.delete()
 elif args.action in [ 'remove-user', 'rm-user', 'del-user' ]:
-	user = user_get( args.user )
+	user = ServiceUser.objects.get(username=args.user.lower())
 	if user in group.users.all():
 		group.users.remove( user )
 elif args.action in [ 'remove-group', 'rm-group', 'del-group' ]:
