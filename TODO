@@ -1,11 +1,11 @@
 0.6.0:
 
-* Add new API call for setting multiple properties
 * Add a config-variable that enables the admin interface
-* see if the resource_validator function costs too much performance
 * Remove date_joined and last_login database fields, they should be
   implemented as a property
 * Automatically set the 'date joined' property upon user-creation
+* Merge algorithm|salt|hash into one column, to become compatible with regular
+  Django password hashers in 1.4
 
 Future:
 
