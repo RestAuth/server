@@ -213,10 +213,8 @@ def get_hexdigest(algorithm, salt=None, secret=''):
 
 class ServiceUser(models.Model):
     username = models.CharField('username', max_length=60, unique=True)
-    algorithm = models.CharField('algorithm', max_length=20,
-                                 blank=True, null=True)
-    salt = models.CharField('salt', max_length=16, blank=True, null=True)
-    hash = models.CharField('hash', max_length=128, blank=True, null=True)
+    password = models.CharField('password', max_length=256,
+                                blank=True, null=True)
     last_login = models.DateTimeField('last login',
                                       auto_now=True, auto_now_add=True)
     date_joined = models.DateTimeField('date joined', auto_now_add=True)
