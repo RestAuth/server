@@ -86,8 +86,7 @@ class UserHandlerView(RestAuthResourceView):
         password = get_dict(request, [u'password'])
 
         # If User.DoesNotExist: 404 Not Found
-        fields = ['username', 'algorithm', 'salt', 'hash']
-        user = ServiceUser.objects.only(*fields).get(username=name)
+        user = ServiceUser.objects.only('password').get(username=name)
 
         if not user.check_password(password):
             # password does not match - raises 404
