@@ -97,15 +97,6 @@ def crypt_apr1_md5(plainpasswd, salt):
     return base64.b64encode(tmp)[2:][::-1].translate(trans)
 
 
-def get_salt():
-    """
-    Get a very random salt. The salt is the first eight characters of a
-    sha512 hash of 5 random numbers concatenated.
-    """
-    random_string = ','.join(map(lambda a: str(random()), range(5)))
-    return hashlib.sha512(random_string).hexdigest()[:8]
-
-
 def get_hexdigest(algorithm, salt, secret):
     """
     This method overrides the standard get_hexdigest method for service
