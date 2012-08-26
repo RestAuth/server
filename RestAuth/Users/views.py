@@ -117,7 +117,6 @@ class UserHandlerView(RestAuthResourceView):
             # password does not match - raises 404
             self.log.info("Wrong password checked", extra=largs)
             raise ServiceUser.DoesNotExist("Password invalid for this user.")
-        user.save()  # update "modified" timestamp, perhaps hash
 
         self.log.debug("Checked password (ok)", extra=largs)
         return HttpResponseNoContent()  # Ok
@@ -133,7 +132,7 @@ class UserHandlerView(RestAuthResourceView):
         password, = get_dict(request, optional=[u'password'])
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=name)
+        user = ServiceUser.objects.only('id').get(username=name)
 
         # If UsernameInvalid: 412 Precondition Failed
         if password:
@@ -154,9 +153,11 @@ class UserHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=name)
-
-        user.delete()
+        qs = ServiceUser.objects.filter(username=name)
+        if qs.exists():
+            qs.delete()
+        else:
+            raise ServiceUser.DoesNotExist
 
         self.log.info("Deleted user", extra=largs)
         return HttpResponseNoContent()
@@ -177,7 +178,7 @@ class UserPropsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=name)
+        user = ServiceUser.objects.only('id').get(username=name)
         props = user.get_properties()
 
         self.log.debug("Got properties", extra=largs)
@@ -194,7 +195,7 @@ class UserPropsIndex(RestAuthResourceView):
         prop, value = get_dict(request, [u'prop', u'value'])
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=name)
+        user = ServiceUser.objects.only('id').get(username=name)
 
         # If PropertyExists: 409 Conflict
         property = user.add_property(prop, value)
@@ -211,7 +212,7 @@ class UserPropsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=name)
+        user = ServiceUser.objects.only('id').get(username=name)
 
         for key, value in get_freeform_dict(request).iteritems():
             user.set_property(key, value)
@@ -233,7 +234,7 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=name)
+        user = ServiceUser.objects.only('id').get(username=name)
 
         # If Property.DoesNotExist: 404 Not Found
         prop = user.get_property(subname)
@@ -252,7 +253,7 @@ class UserPropHandler(RestAuthSubResourceView):
         value = get_dict(request, [u'value'])
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=name)
+        user = ServiceUser.objects.only('id').get(username=name)
 
         prop, old_value = user.set_property(subname, value)
         if old_value is None:  # new property
@@ -271,7 +272,7 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=name)
+        user = ServiceUser.objects.only('id').get(username=name)
 
         # If Property.DoesNotExist: 404 Not Found
         user.del_property(subname)
