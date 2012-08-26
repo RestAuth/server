@@ -53,12 +53,12 @@ class GroupsView(RestAuthView):
             # If User.DoesNotExist: 404 Not Found
             user = ServiceUser.objects.only('username').get(username=username)
 
-            groups = user.get_groups(request.user)
-            names = [group.name for group in groups]
+            groups = Group.objects.member(user=user, service=request.user)
+            groups = list(groups.only('name').values_list('name', flat=True))
 
             self.log.debug('Get groups for user %s',
                            username, extra=largs)
-            return HttpRestAuthResponse(request, names)
+            return HttpRestAuthResponse(request, groups)
         else:  # Get a list of groups:
             if not request.user.has_perm('Groups.groups_list'):
                 return HttpResponseForbidden()
@@ -139,7 +139,7 @@ class GroupUsersIndex(RestAuthResourceView):
         # If Group.DoesNotExist: 404 Not Found
         group = Group.objects.only('name').get(name=name, service=request.user)
 
-        users = group.get_members()
+        users = group.get_members().values_list('username', flat=True)
 
         # If MarshalError: 500 Internal Server Error
         self.log.debug("Get users in group", extra=largs)
@@ -186,10 +186,7 @@ class GroupUserHandler(RestAuthSubResourceView):
         # If Group.DoesNotExist: 404 Not Found
         group = Group.objects.only('name').get(name=name, service=request.user)
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('username').get(username=subname)
-
-        if group.is_member(user):
+        if group.is_member(subname):
             return HttpResponseNoContent()
         else:
             raise ServiceUser.DoesNotExist()  # 404 Not Found
@@ -207,7 +204,7 @@ class GroupUserHandler(RestAuthSubResourceView):
         # If User.DoesNotExist: 404 Not Found
         user = ServiceUser.objects.only('username').get(username=subname)
 
-        if not group.is_member(user, False):
+        if not group.is_member(user):
             raise ServiceUser.DoesNotExist()  # 404 Not Found
 
         group.users.remove(user)

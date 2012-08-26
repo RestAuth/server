@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.conf import settings
 from django.contrib.auth.models import User as Service
 from django.db import models
 from django.db.utils import IntegrityError
@@ -25,6 +26,7 @@ from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
 
 from RestAuth.Users.models import ServiceUser as User
+from RestAuth.Groups.managers import GroupManager
 from RestAuth.common.errors import GroupExists
 
 group_permissions = (
@@ -72,6 +74,8 @@ class Group(models.Model):
     groups = models.ManyToManyField(
         'self', symmetrical=False, related_name='parent_groups')
 
+    objects = GroupManager()
+
     class Meta:
         unique_together = ('name', 'service')
         permissions = group_permissions
@@ -83,30 +87,22 @@ class Group(models.Model):
             raise PreconditionFailed(
                 "Name of group contains invalid characters")
 
-    def get_members(self, recursive=True, lvl=0):
-        users = set(self.users.values_list('username', flat=True))
+    def get_members(self, depth=None):
+        expr = models.Q(group=self)
+        if depth is None:
+            depth = settings.GROUP_RECURSION_DEPTH
 
-        if recursive and lvl < 10:
-            for parent in self.parent_groups.only('name'):
-                users = users.union(parent.get_members(recursive, lvl + 1))
+        kwarg = 'group'
+        for i in range(depth):
+            kwarg += '__groups'
+            expr |= models.Q(**{kwarg: self})
+        return User.objects.filter(expr)
 
-        return users
+    def is_member(self, username):
+        return self.get_members().filter(username=username).exists()
 
-    def is_member(self, user, recursive=True, lvl=0):
-        if self.users.filter(id=user.id).exists():
-            return True
-
-        if recursive and lvl < 10:
-            for parent in self.parent_groups.only('name'):
-                if parent.is_member(user, recursive, lvl + 1):
-                    return True
-        return False
-
-    def is_indirect_member(self, user):
-        for parent in self.parent_groups.only('name'):
-            if parent.is_member(user, True):
-                return True
-        return False
+    def is_direct_member(self, username):
+        return self.get_members(depth=0).filter(username=username).exists()
 
     def save(self, *args, **kwargs):
         if self.service is not None:

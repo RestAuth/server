@@ -255,26 +255,6 @@ class ServiceUser(models.Model):
         else:
             return False
 
-    def get_groups(self, service):
-        """
-        Get a list of groups that this user is a member of.
-
-        @param service: Limit the list of groups to those defined by the
-            given service.
-        @type  service: service
-        """
-        groups = set(self.group_set.filter(service=service).only('name'))
-        model = self.group_set.model
-
-        # any remaining candidates
-        exclude_ids = [group.id for group in groups]
-        others = model.objects.filter(service=service).exclude(
-            id__in=exclude_ids).only('name')
-        for other in others:
-            if other.is_indirect_member(self):
-                groups.add(other)
-        return groups
-
     def add_property(self, key, value):
         """
         Add a new property to this user. It is an error if this property

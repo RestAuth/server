@@ -87,7 +87,7 @@ except Group.DoesNotExist:
 
 # Actions that act on an existing group:
 if args.action == 'view':
-    explicit_users = group.get_members(False)
+    explicit_users = group.get_members(depth=0)
     effective_users = group.get_members()
     parent_groups = list(group.parent_groups.all())
     sub_groups = list(group.groups.all())
