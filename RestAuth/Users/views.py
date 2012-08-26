@@ -38,6 +38,9 @@ class UsersView(RestAuthView):
     log = logging.getLogger('users')
 
     def get(self, request, largs, *args, **kwargs):
+        """
+        Get all users.
+        """
         if not request.user.has_perm('Users.users_list'):
             return HttpResponseForbidden()
 
@@ -47,6 +50,9 @@ class UsersView(RestAuthView):
         return HttpRestAuthResponse(request, list(names))
 
     def post(self, request, largs, *args, **kwargs):
+        """
+        Create a new user.
+        """
         if not request.user.has_perm('Users.user_create'):
             return HttpResponseForbidden()
 
@@ -79,6 +85,9 @@ class UserHandlerView(RestAuthResourceView):
     log = logging.getLogger('users.user')
 
     def get(self, request, largs, name):
+        """
+        Verify that a user exists.
+        """
         if not request.user.has_perm('Users.user_exists'):
             return HttpResponseForbidden()
 
@@ -89,6 +98,9 @@ class UserHandlerView(RestAuthResourceView):
             raise ServiceUser.DoesNotExist()
 
     def post(self, request, largs, name):
+        """
+        Verify a users password.
+        """
         if not request.user.has_perm('Users.user_verify_password'):
             return HttpResponseForbidden()
 
@@ -108,6 +120,9 @@ class UserHandlerView(RestAuthResourceView):
         return HttpResponseNoContent()  # Ok
 
     def put(self, request, largs, name):
+        """
+        Change a users password.
+        """
         if not request.user.has_perm('Users.user_change_password'):
             return HttpResponseForbidden()
 
@@ -129,6 +144,9 @@ class UserHandlerView(RestAuthResourceView):
         return HttpResponseNoContent()
 
     def delete(self, request, largs, name):
+        """
+        Delete a user.
+        """
         if not request.user.has_perm('Users.user_delete'):
             return HttpResponseForbidden()
 
@@ -149,6 +167,9 @@ class UserPropsIndex(RestAuthResourceView):
     http_method_names = ['get', 'post', 'put']
 
     def get(self, request, largs, name):
+        """
+        Get all properties of a user.
+        """
         if not request.user.has_perm('Users.props_list'):
             return HttpResponseForbidden()
 
@@ -160,6 +181,9 @@ class UserPropsIndex(RestAuthResourceView):
         return HttpRestAuthResponse(request, props)
 
     def post(self, request, largs, name):
+        """
+        Create a new property.
+        """
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
@@ -177,6 +201,9 @@ class UserPropsIndex(RestAuthResourceView):
         return HttpResponseCreated(request, property)
 
     def put(self, request, largs, name):
+        """
+        Set multiple properties.
+        """
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
@@ -196,6 +223,9 @@ class UserPropHandler(RestAuthSubResourceView):
     http_method_names = ['get', 'put', 'delete']
 
     def get(self, request, largs, name, subname):
+        """
+        Get value of a single property.
+        """
         if not request.user.has_perm('Users.prop_get'):
             return HttpResponseForbidden()
 
@@ -209,6 +239,9 @@ class UserPropHandler(RestAuthSubResourceView):
         return HttpRestAuthResponse(request, prop.value)
 
     def put(self, request, largs, name, subname):
+        """
+        Set value of a single property.
+        """
         if not request.user.has_perm('Users.prop_set'):
             return HttpResponseForbidden()
 
@@ -228,6 +261,9 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpRestAuthResponse(request, old_value)
 
     def delete(self, request, largs, name, subname):
+        """
+        Delete a property.
+        """
         if not request.user.has_perm('Users.prop_delete'):
             return HttpResponseForbidden()
 
