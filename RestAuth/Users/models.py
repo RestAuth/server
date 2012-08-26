@@ -60,6 +60,8 @@ USERNAME_RESERVED = set()
 USERNAME_FORCE_ASCII = False
 USERNAME_NO_WHITESPACE = False
 
+HASH_FUNCTION_CACHE = None
+
 
 def user_get(name):
     """
@@ -173,6 +175,16 @@ else:
         return hashlib.sha512(random_string).hexdigest()[:length]
 
 
+def load_hashers():
+    global HASH_FUNCTION_CACHE
+
+    cache = {}
+    for path in settings.HASH_FUNCTIONS:
+        func, name = import_path(path)
+        cache[name] = func
+
+    HASH_FUNCTION_CACHE = cache
+
 def get_hexdigest(algorithm, salt=None, secret=''):
     """
     This method overrides the standard get_hexdigest method for service
@@ -188,15 +200,14 @@ def get_hexdigest(algorithm, salt=None, secret=''):
         else:
             return func('%s%s' % (smart_str(salt), secret)).hexdigest()
     else:
-        for path in settings.HASH_FUNCTIONS:
-            func, name = import_path(path)
-            if name != algorithm:
-                continue
+        if HASH_FUNCTION_CACHE is None:
+            load_hashers()
 
-            if salt is None:
-                return func(secret, salt)
-            else:
-                return func(secret, smart_str(salt))
+        hasher = HASH_FUNCTION_CACHE[algorithm]
+        if salt is None:
+            return hasher(secret, salt)
+        else:
+            return hasher(secret, smart_str(salt))
 
 
 class ServiceUser(models.Model):
