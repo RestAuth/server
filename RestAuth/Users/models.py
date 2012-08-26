@@ -262,7 +262,7 @@ class ServiceUser(models.Model):
         digest = get_hexdigest(algo, salt, raw_password)
         if good_digest == digest:
             if algo != settings.HASH_ALGORITHM:
-                self.password = self.set_password(raw_password)
+                self.set_password(raw_password)
                 self.save()
             return True
         else:
