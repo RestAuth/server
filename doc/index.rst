@@ -96,6 +96,7 @@ Developers
 
    developer/contribute
    developer/testserver
+   developer/views
 
 Indices and tables
 ==================
