@@ -19,7 +19,14 @@ from django.views.generic.base import View
 
 
 class RestAuthView(View):
+    """
+    Base view for all RestAuth related views.
+    """
+
     def sanitize_arguments(self, resource_name, **kwargs):
+        """
+        Lowercases kwargs[resource_name] and also add that to kwargs['largs'].
+        """
         if 'largs' not in kwargs:
             kwargs['largs'] = {}
 
@@ -28,19 +35,41 @@ class RestAuthView(View):
         return kwargs
 
     def dispatch(self, request, *args, **kwargs):
+        """
+        Adds the 'service' logging argument, and passes that as extra
+        keyword-argument to the parents dispatch method.
+        """
         largs = kwargs.pop('largs', {})
         largs['service'] = request.user.username
         return super(RestAuthView, self).dispatch(
             request, *args, largs=largs, **kwargs)
 
 class RestAuthResourceView(RestAuthView):
+    """
+    Class for all views that have one variable in the path, i.e.
+    ``/users/<user>/props/``.
+    """
+
     def dispatch(self, request, *args, **kwargs):
+        """
+        Adds the 'name' logging argument, and passes that as extra
+        keyword-argument to the parents dispatch method.
+        """
         kwargs = self.sanitize_arguments('name', **kwargs)
         return super(RestAuthResourceView, self).dispatch(
             request, *args, **kwargs)
 
 class RestAuthSubResourceView(RestAuthView):
+    """
+    Class for all views that have two variables in the path, i.e.
+    ``/users/<user>/props/<prop>/``.
+    """
+
     def dispatch(self, request, *args, **kwargs):
+        """
+        Adds the 'subname' logging argument, and passes that as extra
+        keyword-argument to the parents dispatch method.
+        """
         kwargs = self.sanitize_arguments('subname', **kwargs)
         return super(RestAuthSubResourceView, self).dispatch(
             request, *args, **kwargs)
