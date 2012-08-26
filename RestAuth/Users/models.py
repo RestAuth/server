@@ -215,9 +215,6 @@ class ServiceUser(models.Model):
     username = models.CharField('username', max_length=60, unique=True)
     password = models.CharField('password', max_length=256,
                                 blank=True, null=True)
-    last_login = models.DateTimeField('last login',
-                                      auto_now=True, auto_now_add=True)
-    date_joined = models.DateTimeField('date joined', auto_now_add=True)
 
     class Meta:
         permissions = user_permissions
