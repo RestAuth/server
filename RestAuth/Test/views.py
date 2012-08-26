@@ -19,9 +19,9 @@ def users(request):
 
 @login_required(realm="/test/users/<user>/props/")
 @transaction.commit_manually
-def users_user_props(request, username):
+def users_user_props(request, name):
     try:
-        return props_view(request, username=username)
+        return props_view(request, name=name)
     finally:
         transaction.rollback()
 
