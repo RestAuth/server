@@ -25,7 +25,8 @@ from RestAuth.Services.decorator import login_required
 from RestAuth.Users.models import *
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
-from RestAuth.common.views import RestAuthView, RestAuthResourceView, RestAuthSubResourceView
+from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
+                                   RestAuthSubResourceView)
 
 from RestAuth.common.decorators import sql_profile
 
