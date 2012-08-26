@@ -243,8 +243,8 @@ class ServiceUser(models.Model):
             raise PasswordInvalid("Password too short")
 
         salt = get_salt()
-        hash = get_hexdigest(settings.HASH_ALGORITHM, salt, raw_password)
-        self.password = '%s$%s%s' % (algo, salt, hash)
+        digest = get_hexdigest(settings.HASH_ALGORITHM, salt, raw_password)
+        self.password = '%s$%s%s' % (algo, salt, digest)
 
     def set_unusable_password(self):
         self.password = None
@@ -255,19 +255,17 @@ class ServiceUser(models.Model):
         of the same type as the current settings.HASH_ALGORITHM, the
         hash is updated but *not* saved.
         """
-        if not (self.algorithm and self.hash):
+        if self.password is None:
             return False
 
-        digest = get_hexdigest(self.algorithm, self.salt, raw_password)
-        if digest == self.hash:  # correct
-            if self.algorithm != settings.HASH_ALGORITHM:  # pragma: no cover
-                # we do this manually so we avoid any checks.
-                self.algorithm = settings.HASH_ALGORITHM
-                self.salt = get_salt()
-                self.hash = get_hexdigest(
-                    self.algorithm, self.salt, raw_password)
+        algo, salt, good_digest = self.password.split('$')
+        digest = get_hexdigest(algo, salt, raw_password)
+        if good_digest == digest:
+            if algo != settings.HASH_ALGORITHM:
+                self.password = self.set_password(raw_password)
+                self.save()
             return True
-        else:  # password not correct
+        else:
             return False
 
     def get_groups(self, service):
