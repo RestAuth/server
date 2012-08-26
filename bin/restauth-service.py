@@ -25,7 +25,7 @@ sys.path.append(os.getcwd())
 try:
     from RestAuth.Services.models import *
     from RestAuth.common.cli import pwd_parser, service_parser
-    
+
     from RestAuth.Users.models import user_permissions, prop_permissions
     from RestAuth.Groups.models import group_permissions
 except ImportError, e:
@@ -51,11 +51,11 @@ def parse_permissions(raw_permissions):
     user_ct = ContentType.objects.get(app_label='Users', model='serviceuser')
     prop_ct = ContentType.objects.get(app_label='Users', model='property')
     group_ct = ContentType.objects.get(app_label='Groups', model='group')
-    
+
     user_permissions_dict = dict(user_permissions)
     prop_permissions_dict = dict(prop_permissions)
     group_permissions_dict = dict(group_permissions)
-    
+
     permissions = []
     for raw_permission in raw_permissions:
         for codename in fnmatch.filter(user_permissions_dict.keys(), raw_permission):
@@ -64,21 +64,21 @@ def parse_permissions(raw_permissions):
                 defaults={'name': user_permissions_dict[codename]}
             )
             permissions.append(perm)
-            
+
         for codename in fnmatch.filter(prop_permissions_dict.keys(), raw_permission):
             perm, c = Permission.objects.get_or_create(
                 content_type=prop_ct, codename=codename,
                 defaults={'name': prop_permissions_dict[codename]}
             )
             permissions.append(perm)
-        
+
         for codename in fnmatch.filter(group_permissions_dict.keys(), raw_permission):
             perm, c = Permission.objects.get_or_create(
                 content_type=group_ct, codename=codename,
                 defaults={'name': group_permissions_dict[codename]}
             )
             permissions.append(perm)
-        
+
     return permissions
 
 if args.action in ['create', 'add']:
@@ -116,7 +116,7 @@ elif args.action == 'view':
         print('Permissions: %s' % (', '.join(perms)))
     except Service.DoesNotExist:
         print("Error: %s: Service not found."%args.service)
-        sys.exit(1) 
+        sys.exit(1)
 elif args.action == 'set-hosts':
     try:
         service = Service.objects.get(username=args.service)
@@ -150,7 +150,8 @@ elif args.action == 'set-permissions':
     try:
         service = Service.objects.get(username=args.service)
         perms = parse_permissions(args.permissions)
-        service.set_permissions(perms)
+        service.user_permissions.clear()
+        service.user_permissions.add(*perms)
     except Service.DoesNotExist:
         print("Error: %s: Service not found." % args.service)
         sys.exit(1)
@@ -158,7 +159,7 @@ elif args.action == 'add-permissions':
     try:
         service = Service.objects.get(username=args.service)
         perms = parse_permissions(args.permissions)
-        service.add_permissions(perms)
+        service.user_permissions.add(*perms)
     except Service.DoesNotExist:
         print("Error: %s: Service not found." % args.service)
         sys.exit(1)
@@ -166,7 +167,7 @@ elif args.action == 'rm-permissions':
     try:
         service = Service.objects.get(username=args.service)
         perms = parse_permissions(args.permissions)
-        service.rm_permissions(perms)
+        service.user_permissions.remove(*perms)
     except Service.DoesNotExist:
         print("Error: %s: Service not found." % args.service)
         sys.exit(1)
