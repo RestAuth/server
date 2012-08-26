@@ -163,13 +163,13 @@ def validate_username(username):
 if django.get_version() >= 1.4:
     from django.utils.crypto import get_random_string
 else:
-    def get_random_string():
+    def get_random_string(length=12):
         """
-        Get a very random salt. The salt is the first eight characters of a
+        Get a very random salt. The salt is the first *length* characters of a
         sha512 hash of 5 random numbers concatenated.
         """
         random_string = ','.join(map(lambda a: str(random()), range(5)))
-        return hashlib.sha512(random_string).hexdigest()[:8]
+        return hashlib.sha512(random_string).hexdigest()[:length]
 
 
 def get_hexdigest(algorithm, salt=None, secret=''):
@@ -246,7 +246,7 @@ class ServiceUser(models.Model):
         if len(raw_password) < settings.MIN_PASSWORD_LENGTH:
             raise PasswordInvalid("Password too short")
 
-        salt = get_random_string()
+        salt = get_random_string(length)
         digest = get_hexdigest(settings.HASH_ALGORITHM, salt, raw_password)
         self.password = '%s$%s$%s' % (settings.HASH_ALGORITHM, salt, digest)
 
