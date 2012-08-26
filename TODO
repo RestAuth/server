@@ -8,3 +8,7 @@
 Future:
 
 * add support for /users/<user>/blobs
+
+When Django >= 1.4 is required:
+* Remove backported override_settings decorator
+* Use Django password hashers
