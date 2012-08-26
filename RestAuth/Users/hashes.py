@@ -16,13 +16,12 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import base64
-import crypt
+import crypt as cryptlib
 import hashlib
-from random import random
-import struct
 import string
+import struct
 
-from django.utils.encoding import smart_str
+from django.conf import settings
 
 
 def crypt_apr1_md5(plainpasswd, salt):
@@ -36,7 +35,8 @@ def crypt_apr1_md5(plainpasswd, salt):
     def pack(val):
         md5 = hashlib.md5(val).hexdigest()
         cs = [md5[i:i + 2] for i in xrange(0, len(md5), 2)]
-        return struct.pack('16B', *[int(c, 16) for c in cs])
+        values = [int(c, 16) for c in cs]
+        return struct.pack('16B', *values)
 
     length = len(plainpasswd)
     text = "%s$apr1$%s" % (plainpasswd, salt)
@@ -97,31 +97,47 @@ def crypt_apr1_md5(plainpasswd, salt):
     return base64.b64encode(tmp)[2:][::-1].translate(trans)
 
 
-def get_hexdigest(algorithm, salt, secret):
+def mediawiki(secret, salt=None):
     """
-    This method overrides the standard get_hexdigest method for service
-    users. It adds support for for the 'mediawiki' hash-type and any
-    crypto-algorithm included in the hashlib module.
+    Returns hashes as stored in a `MediaWiki <https://www.mediawiki.org>`_ user
+    database. If salt is a string, the hash returned is the md5 hash of a
+    concatenation of the salt, a dash ("-"), and the md5 hash of the password,
+    otherwise it is identical to a plain md5 hash of the password.
 
-    Unlike the django function, this function requires python2.5 or higher.
+    Please see the `official documentation
+    <http://www.mediawiki.org/wiki/Manual:User_table#user_password>`_ for exact
+    details.
     """
-    secret = smart_str(secret)
     if salt:
-        salt = smart_str(salt)
-
-    if algorithm == 'mediawiki':  # pragma: no cover
         secret_hash = hashlib.md5(secret).hexdigest()
         return hashlib.md5('%s-%s' % (salt, secret_hash)).hexdigest()
-    elif algorithm == 'crypt':
-        if '$' in salt:
-            return crypt.crypt(secret, salt).rsplit('$', 1)[1]
-        else:
-            return crypt.crypt(secret, salt)[2:]
-    elif algorithm == 'apr1':
-        return crypt_apr1_md5(secret, salt).encode('utf-8')
+    else:  # pragma: no cover
+        return hashlib.md5(hash).hexdigest()
+
+
+def crypt(secret, salt=None):
+    """
+    Returns hashes as generated using the systems `crypt(3)` routine. Hashes
+    like this are used by linux system accounts and the ``htpasswd`` tool of
+    the Apache webserver if you used the ``-d`` option.
+
+    The difference to the implementation shipping with python is that this
+    function automatically filters the salt from the returned hash, which is
+    included in the standard version.
+    """
+    if not salt:  # pragma: no cover
+        return cryptlib.crypt(secret)
+    elif '$' in salt:  # pragma: no cover
+        # linux system accounts:
+        return cryptlib.crypt(secret, salt).rsplit('$', 1)[1]
     else:
-        func = getattr(hashlib, algorithm)
-        if salt:
-            return func(salt + secret).hexdigest()
-        else:
-            return func(secret).hexdigest()
+        return cryptlib.crypt(secret, salt)[2:]
+
+
+def apr1(secret, salt=None):
+    """
+    Returns hashes using a modified md5 algorithm used by the Apache webserver
+    to store passwords. Hashes generated using this function are identical to
+    the ones generated with ``htpasswd -m``.
+    """
+    return crypt_apr1_md5(secret, salt).encode('utf-8')
