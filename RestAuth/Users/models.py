@@ -176,14 +176,14 @@ def get_hexdigest(algorithm, salt, secret):
     """
     secret = smart_str(secret)
     if salt:
-            salt = smart_str(salt)
+        salt = smart_str(salt)
 
     try:
-            func = getattr(hashlib, algorithm)
-            if salt:
-                return func(salt + secret).hexdigest()
-            else:  # pragma: no cover
-                return func(secret).hexdigest()
+        func = getattr(hashlib, algorithm)
+        if salt:
+            return func(salt + secret).hexdigest()
+        else:  # pragma: no cover
+            return func(secret).hexdigest()
     except AttributeError:  # custom hashing algorithm
         for path in settings.HASH_FUNCTIONS:
             # import validator:
