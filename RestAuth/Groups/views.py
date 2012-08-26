@@ -19,9 +19,8 @@ import logging
 
 from django.http import HttpResponse, HttpResponseForbidden
 
-from RestAuth.Services.decorator import login_required
-from RestAuth.Users.models import *
-from RestAuth.Groups.models import *
+from RestAuth.Users.models import ServiceUser
+from RestAuth.Groups.models import Group, group_create
 from RestAuth.common.errors import GroupExists
 from RestAuth.common.types import get_dict
 from RestAuth.common.responses import *
@@ -169,7 +168,7 @@ class GroupUserHandler(RestAuthSubResourceView):
         user = ServiceUser.objects.only('username').get(username=subname)
 
         if not group.is_member(user, False):
-            raise User.DoesNotExist()  # 404 Not Found
+            raise ServiceUser.DoesNotExist()  # 404 Not Found
 
         group.users.remove(user)
         self.log.info('Remove user from group', extra=self.largs)

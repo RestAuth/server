@@ -21,8 +21,7 @@ import logging
 from django.http import HttpResponseForbidden
 
 from RestAuthCommon.error import BadRequest
-from RestAuth.Services.decorator import login_required
-from RestAuth.Users.models import *
+from RestAuth.Users.models import ServiceUser, Property, user_create
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
