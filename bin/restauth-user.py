@@ -15,82 +15,86 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, getpass
+import os
+import sys
+import getpass
 from argparse import ArgumentParser
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
-sys.path.append( os.getcwd() )
+sys.path.append(os.getcwd())
 
 try:
-    from RestAuth.Users.models import (ServiceUser, user_get, validate_username,
-                                       Property)
+    from RestAuth.Users.models import (ServiceUser, user_get,
+                                       validate_username, Property)
     from RestAuth.Services.models import Service
     from RestAuth.common import errors
     from RestAuth.common.cli import user_parser
     from django.db.utils import IntegrityError
 except ImportError, e:
-    sys.stderr.write( 'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n' )
+    sys.stderr.write('Error: Cannot import RestAuth. Please make '
+                     'sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
 # parse arguments
 args = user_parser.parse_args()
 
-def get_password( options ):
+
+def get_password(options):
     if options.pwd:
         return options.pwd
 
-    password = getpass.getpass( 'password: ' )
-    confirm = getpass.getpass( 'confirm: ' )
+    password = getpass.getpass('password: ')
+    confirm = getpass.getpass('confirm: ')
     if password != confirm:
-        print( "Passwords do not match, please try again." )
-        return get_password( options )
+        print("Passwords do not match, please try again.")
+        return get_password(options)
     else:
         return password
 
 if args.action in ['create', 'add']:
-    username = args.user.decode( 'utf-8')
+    username = args.user.decode('utf-8')
 
     try:
-        validate_username( username )
-        user = ServiceUser( username=username )
-        password = get_password( args )
-        user.set_password( password )
+        validate_username(username)
+        user = ServiceUser(username=username)
+        password = get_password(args)
+        user.set_password(password)
         user.save()
     except IntegrityError as e:
-        print( "Error: %s: User already exists."%username )
+        print("Error: %s: User already exists." % username)
         sys.exit(1)
     except errors.PreconditionFailed as e:
-        print( "Error: %s"%e )
+        print("Error: %s" % e)
         sys.exit(1)
 elif args.action in ['ls', 'list']:
-    for user in ServiceUser.objects.values_list( 'username', flat=True ):
-        print( user.encode('utf-8' ) )
+    for user in ServiceUser.objects.values_list('username', flat=True):
+        print(user.encode('utf-8'))
 elif args.action == 'verify':
     try:
-        user = user_get( args.user )
+        user = user_get(args.user)
         if not args.pwd:
-            args.pwd = getpass.getpass( 'password: ' )
-        if user.check_password( args.pwd ):
-            print( 'Ok.' )
+            args.pwd = getpass.getpass('password: ')
+        if user.check_password(args.pwd):
+            print('Ok.')
         else:
-            print( 'Failed.' )
+            print('Failed.')
             sys.exit(1)
     except ServiceUser.DoesNotExist:
-        print( "Error: %s: User does not exist."%args.user )
+        print("Error: %s: User does not exist." % args.user)
         sys.exit(1)
 elif args.action == 'set-password':
     try:
-        user = user_get( args.user )
-        password = get_password( args )
-        user.set_password( password )
+        user = user_get(args.user)
+        password = get_password(args)
+        user.set_password(password)
         user.save()
     except ServiceUser.DoesNotExist:
-        print( "Error: %s: User does not exist."%args.user )
+        print("Error: %s: User does not exist." % args.user)
         sys.exit(1)
     except errors.PasswordInvalid as e:
-        print( "Error: %s"%e )
+        print("Error: %s" % e)
         sys.exit(1)
 elif args.action == 'view':
     try:
@@ -107,35 +111,35 @@ elif args.action == 'view':
             pass
 
         if args.service:
-            service = Service.objects.get( username=args.service )
-            groups = user.group_set.filter( service=service ).values_list('service__username', flat=True)
-            print( 'Groups: %s'%(', '.join( groups )))
+            service = Service.objects.get(username=args.service)
+            groups = user.group_set.filter(service=service)
+            groups = groups.values_list('service__username', flat=True)
+            print('Groups: %s' % ', '.join(groups))
         else:
             groups_dict = {}
-            qs = user.group_set.values_list( 'service__username', 'name' )
+            qs = user.group_set.values_list('service__username', 'name')
             for service, name in qs:
                 if service in groups_dict:
-                    groups_dict[service].append( name )
+                    groups_dict[service].append(name)
                 else:
                     groups_dict[service] = [name]
 
+            print('Groups: ')
 
-            print( 'Groups: ' )
-
-            for service in sorted( groups_dict ):
+            for service in sorted(groups_dict):
                 groups = groups_dict[service]
-                if service == None:
+                if service is None:
                     service = 'no-service'
-                print( '* %s: %s'%(service, ', '.join( groups )))
+                print('* %s: %s' % (service, ', '.join(groups)))
     except Service.DoesNotExist:
-        print( "Error: %s: Service does not exist."%args.service )
+        print("Error: %s: Service does not exist." % args.service)
         sys.exit(1)
     except ServiceUser.DoesNotExist:
-        print( "Error: %s: User does not exist."%args.user )
+        print("Error: %s: User does not exist." % args.user)
         sys.exit(1)
-elif args.action in [ 'delete', 'rm', 'remove' ]:
+elif args.action in ['delete', 'rm', 'remove']:
     try:
-        user_get( args.user ).delete()
+        user_get(args.user).delete()
     except ServiceUser.DoesNotExist:
-        print( "Error: %s: User does not exist."%args.user )
+        print("Error: %s: User does not exist." % args.user)
         sys.exit(1)
