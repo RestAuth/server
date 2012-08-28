@@ -1,3 +1,9 @@
+restauth (0.5.3-151-g6950faa-1) unstable; urgency=low
+
+  * bump from upstream
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Tue, 28 Aug 2012 20:16:14 +0200
+
 restauth (0.5.2-72-g6d327bb-1) unstable; urgency=low
 
   * bump from upstream
