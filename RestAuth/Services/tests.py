@@ -11,6 +11,7 @@ import RestAuthCommon
 
 from RestAuth.common import errors
 from RestAuth.common.testdata import RestAuthTest
+from RestAuth.common.decorators import override_settings
 from RestAuth.Services.models import Service
 from RestAuth.Services.models import ServiceAddress
 from RestAuth.Services.models import service_create
@@ -30,11 +31,9 @@ PATHS = [
     (['delete'], '/groups/group/groups/group/'),
 ]
 
+@override_settings(LOGGING_CONFIG=None)
 class BasicAuthTests(RestAuthTest):  # GET /users/
     def setUp(self):
-        if hasattr(self, 'settings'):  # requires django-1.4:
-            self.settings(LOGGING_CONFIG=None)
-
         self.c = Client()
         self.handler = RestAuthCommon.handlers.json()
         self.extra = {
