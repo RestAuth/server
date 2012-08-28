@@ -102,4 +102,4 @@ class ValidatorTests(RestAuthTest):
         self.assertRaises(UsernameInvalid, validate_username, *[username1])
 
     def test_no_whitespace(self):
-        pass
+        self.assertRaises(UsernameInvalid, validate_username, *['foo bar'])
