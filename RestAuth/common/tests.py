@@ -10,11 +10,13 @@ from RestAuthCommon.error import UnsupportedMediaType
 
 from RestAuth.Services.models import Service
 from RestAuth.Services.models import service_create
-from RestAuth.Users.models import ServiceUser as User
+from RestAuth.Users.models import ServiceUser as User, validate_username, load_username_validators
+from RestAuth.common.errors import UsernameInvalid
 from RestAuth.common.testdata import password1
 from RestAuth.common.testdata import RestAuthTest
 from RestAuth.common.testdata import username1
 from RestAuth.common.middleware import HeaderMiddleware
+from RestAuth.common.decorators import override_settings
 
 
 class HeaderMiddlewareTests(TestCase):
@@ -72,3 +74,32 @@ class ContentTypeTests(RestAuthTest):
         resp = self.c.post('/users/', content, **self.extra)
         self.assertEquals(resp.status_code, httplib.BAD_REQUEST)
         self.assertItemsEqual(User.objects.all(), [])
+
+validators = (
+    'RestAuth.Users.validators.email',
+    'RestAuth.Users.validators.mediawiki',
+    'RestAuth.Users.validators.linux',
+    'RestAuth.Users.validators.windows',
+    'RestAuth.Users.validators.xmpp',
+)
+
+class ValidatorTests(RestAuthTest):
+    def setUp(self):
+        load_username_validators(validators)
+        super(ValidatorTests, self).setUp()
+
+    def tearDown(self):
+        super(ValidatorTests, self).tearDown()
+        load_username_validators()
+
+    def test_illegal_chars(self):
+        self.assertRaises(UsernameInvalid, validate_username, *['foo>bar'])
+
+    def test_reserved_username(self):
+        self.assertRaises(UsernameInvalid, validate_username, *['mediawiki default'])
+
+    def test_force_ascii(self):
+        self.assertRaises(UsernameInvalid, validate_username, *[username1])
+
+    def test_no_whitespace(self):
+        pass
