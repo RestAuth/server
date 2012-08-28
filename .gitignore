@@ -11,3 +11,4 @@ dist/
 doc/coverage
 Makefile.local
 .pc
+profile.py

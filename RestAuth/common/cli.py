@@ -15,170 +15,260 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from argparse import ArgumentParser, Action
-import argparse, re, sys, random, string
+from argparse import ArgumentParser
+from argparse import Action
+import argparse
+import random
+import re
+import string
+import sys
+
 
 class PasswordGenerator(Action):
     def __call__(self, parser, namespace, values, option_string):
         chars = string.digits + string.letters + string.punctuation
         chars = chars.translate(None, '\\\'"')
-            
+
         passwd = ''.join(random.choice(chars) for x in range(30))
         print(passwd)
         setattr(namespace, self.dest, passwd)
 
 pwd_parser = ArgumentParser(add_help=False)
 pwd_group = pwd_parser.add_mutually_exclusive_group()
-pwd_group.add_argument('--password', dest='pwd', metavar='PWD', help="The password to use.")
-pwd_group.add_argument('--gen-password', action=PasswordGenerator, nargs=0, dest='pwd',
-    help="Generate a password and print it to stdout.")
+pwd_group.add_argument(
+    '--password', dest='pwd', metavar='PWD', help="The password to use.")
+pwd_group.add_argument(
+    '--gen-password', action=PasswordGenerator, nargs=0, dest='pwd',
+    help="Generate a password and print it to stdout."
+)
 
 ####################################
 ### Various positional arguments ###
 ####################################
 service_arg_parser = ArgumentParser(add_help=False)
-service_arg_parser.add_argument('service', metavar="SERVICE", help="The name of the service.")
+service_arg_parser.add_argument(
+    'service', metavar="SERVICE", help="The name of the service.")
 
 host_arg_parser = ArgumentParser(add_help=False)
-host_arg_parser.add_argument('hosts', metavar='HOST', nargs='*', help="""A host that the service is able to
-    connect from. You can name multiple hosts as additional positional arguments. If ommitted,
-    this service cannot be used from anywhere.""")
+host_arg_parser.add_argument(
+    'hosts', metavar='HOST', nargs='*',
+    help='A host that the service is able to connect from. You can name '
+    'multiple hosts as additional positional arguments. If ommitted, this '
+    'service cannot be used from anywhere.'
+)
 username_arg_parser = ArgumentParser(add_help=False)
 username_arg_parser.add_argument('user', help="The name of the user.")
 
 group_arg_parser = ArgumentParser(add_help=False)
 group_arg_parser.add_argument('group', help="The name of the group.")
-group_arg_parser.add_argument('--service', metavar="SERVICE", help="""Act as if %(prog)s was the
-service named SERVICE. If ommitted, act on groups that are not associated with any service.""")
+group_arg_parser.add_argument(
+    '--service', metavar="SERVICE",
+    help='Act as if %(prog)s was the service named SERVICE. If ommitted, act '
+    'on groups that are not associated with any service.'
+)
 
 subgroup_parser = ArgumentParser(add_help=False)
-subgroup_parser.add_argument('subgroup', help="The name of the subgroup.")
-subgroup_parser.add_argument('--sub-service', metavar='SUBSERVICE',
-    help="""Assume that the named subgroup is from SUBSERVICE.""")
+subgroup_parser.add_argument('subgroup', help='The name of the subgroup.')
+subgroup_parser.add_argument(
+    '--sub-service', metavar='SUBSERVICE',
+    help='Assume that the named subgroup is from SUBSERVICE.'
+)
 
 ###############################
 ### restauth-service parser ###
 ###############################
-service_desc = """%(prog)s manages services in RestAuth. Services are websites, hosts, etc. that use
-RestAuth as authentication service."""
+service_desc = """%(prog)s manages services in RestAuth. Services are websites,
+hosts, etc. that use RestAuth as authentication service."""
 service_parser = ArgumentParser(description=service_desc)
 
-service_subparsers = service_parser.add_subparsers(title="Available actions", dest='action',
-    description="""Use '%(prog)s action --help' for more help on each action.""")
-service_subparsers.add_parser('add', help="Add a new service.",  description="Add a new service.",
-    parents=[pwd_parser, service_arg_parser])
-service_subparsers.add_parser('ls', help="List all services.",
-    description="""List all available services.""")
-service_subparsers.add_parser('rm', help="Remove a service.", parents=[service_arg_parser],
-    description="""Completely remove a service. This will also remove any groups associated with
-that service.""")
-service_subparsers.add_parser('view', help="View details of a service.", parents=[service_arg_parser],
-    description="View details of a service.")
+service_subparsers = service_parser.add_subparsers(
+    title='Available actions', dest='action',
+    description='Use "%(prog)s action --help" for more help on each action.')
+service_subparsers.add_parser(
+    'add', help="Add a new service.", description="Add a new service.",
+    parents=[pwd_parser, service_arg_parser]
+)
+service_subparsers.add_parser(
+    'ls', help="List all services.",
+    description="""List all available services."""
+)
+service_subparsers.add_parser(
+    'rm', help="Remove a service.", parents=[service_arg_parser],
+    description='Completely remove a service. This will also remove any '
+    'groups associated with that service.'
+)
+service_subparsers.add_parser(
+    'view', help="View details of a service.", parents=[service_arg_parser],
+    description="View details of a service."
+)
 
-subparser = service_subparsers.add_parser('set-hosts', parents=[service_arg_parser],
-    help="Set hosts that a service can connect from, removes any previous hosts.",
-    description="Set hosts that a service can connect from.")
-subparser.add_argument('hosts', metavar='HOST', nargs='*',
-    help='''Hosts that this service is able to connect from.
-        Note: This must be an IPv4 or IPv6 address, NOT a hostname.''')
-subparser = service_subparsers.add_parser('add-hosts', parents=[service_arg_parser],
+subparser = service_subparsers.add_parser(
+    'set-hosts', parents=[service_arg_parser],
+    help='Set hosts that a service can connect from, removes any previous '
+    'hosts.',
+    description='Set hosts that a service can connect from.'
+)
+subparser.add_argument(
+    'hosts', metavar='HOST', nargs='*',
+    help='Hosts that this service is able to connect from. Note: This must be '
+    'an IPv4 or IPv6 address, NOT a hostname.'
+)
+subparser = service_subparsers.add_parser(
+    'add-hosts', parents=[service_arg_parser],
     help="Add hosts that a service can connect from.",
-    description="Add hosts that a service can connect from.")
-subparser.add_argument('hosts', metavar='HOST', nargs='+',
-    help='''Add hosts that this service is able to connect from.
-        Note: This must be an IPv4 or IPv6 address, NOT a hostname.''')
-subparser = service_subparsers.add_parser('rm-hosts', parents=[service_arg_parser],
-    help="Remove hosts that a service can connect from.",
-    description="Set hosts that a service can connect from.")
-subparser.add_argument('hosts', metavar='HOST', nargs='+',
-    help='''Remove hosts that this service is able to connect from.
-        Note: This must be an IPv4 or IPv6 address, NOT a hostname.''')
+    description="Add hosts that a service can connect from."
+)
+subparser.add_argument(
+    'hosts', metavar='HOST', nargs='+',
+    help='Add hosts that this service is able to connect from. Note: This '
+    'must be an IPv4 or IPv6 address, NOT a hostname.'
+)
+subparser = service_subparsers.add_parser(
+    'rm-hosts', parents=[service_arg_parser],
+    help='Remove hosts that a service can connect from.',
+    description='Remove hosts that a service can connect from.'
+)
+subparser.add_argument(
+    'hosts', metavar='HOST', nargs='+',
+    help='Remove hosts that this service is able to connect from. Note: This '
+    'must be an IPv4 or IPv6 address, NOT a hostname.'
+)
 
-service_subparsers.add_parser('set-password', parents=[service_arg_parser, pwd_parser],
-    help="Set the password for a service.", description="Set the password for a service.")
-subparser = service_subparsers.add_parser('add-permissions', parents=[service_arg_parser],
+service_subparsers.add_parser(
+    'set-password', parents=[service_arg_parser, pwd_parser],
+    help="Set the password for a service.",
+    description="Set the password for a service."
+)
+subparser = service_subparsers.add_parser(
+    'add-permissions', parents=[service_arg_parser],
     help="Add permissions to a service.",
-    description="""Add permissions to a service. This command supports shell wildcard style
-        expansions, so 'user*' will add all user permissions.""",
-    epilog='Please see the man-page for available permissions.')
-subparser.add_argument('permissions', metavar='PERM', nargs='+',
-    help="Permissions to add to the specified service.")
-subparser = service_subparsers.add_parser('rm-permissions', parents=[service_arg_parser],
+    description='Add permissions to a service. This command supports shell '
+    "wildcard style expansions, so 'user*' will add all user permissions.",
+    epilog='Please see the man-page for available permissions.'
+)
+subparser.add_argument(
+    'permissions', metavar='PERM', nargs='+',
+    help="Permissions to add to the specified service."
+)
+subparser = service_subparsers.add_parser(
+    'rm-permissions', parents=[service_arg_parser],
     help="Remove permissions from a service.",
-    description="""Remove permissions from a service. This command supports shell wildcard style
-        expansions, so 'user*' will remove all user permissions.""",
-    epilog='Please see the man-page for available permissions.')
-subparser.add_argument('permissions', metavar='PERM', nargs='+',
-    help="Permissions to remove from the specified service. Possible permissions are: %s")
-subparser = service_subparsers.add_parser('set-permissions', parents=[service_arg_parser],
-    help="Set permissions of a service, removes any previous permissions.",
-    description="""Set permissions of a service, removes any previous permissions. This command
-        supports shell wildcard style expansions, so 'user*' will set all user permissions.""",
-    epilog='Please see the man-page for available permissions.')
-subparser.add_argument('permissions', metavar='PERM', nargs='*',
-    help="Set the permissions of the specified service. Possible permissions are: %s")
+    description='Remove permissions from a service. This command supports '
+    'shellwildcard style expansions, so "user*" will remove all user '
+    'permissions.',
+    epilog='Please see the man-page for available permissions.'
+)
+subparser.add_argument(
+    'permissions', metavar='PERM', nargs='+',
+    help='Permissions to remove from the specified service. Possible '
+    'permissions are: %s'
+)
+subparser = service_subparsers.add_parser(
+    'set-permissions', parents=[service_arg_parser],
+    help='Set permissions of a service, removes any previous permissions.',
+    description='Set permissions of a service, removes any previous '
+    'permissions. This command supports shell wildcard style expansions, so '
+    '"user*" will set all user permissions.',
+    epilog='Please see the man-page for available permissions.'
+)
+subparser.add_argument(
+    'permissions', metavar='PERM', nargs='*',
+    help="Set the permissions of the specified service. Possible permissions "
+    "are: %s"
+)
 
 
 ############################
 ### restauth-user parser ###
 ############################
-user_desc = """Manages users in RestAuth. Users are clients that want to authenticate with services
-that use RestAuth."""
+user_desc = """Manages users in RestAuth. Users are clients that want to
+authenticate with services that use RestAuth."""
 user_parser = ArgumentParser(description=user_desc)
 
-user_subparsers = user_parser.add_subparsers(title="Available actions", dest='action',
-    description="""Use '%(prog)s action --help' for more help on each action.""")
-user_subparsers.add_parser('add', help="Add a new user.",
+user_subparsers = user_parser.add_subparsers(
+    title="Available actions", dest='action',
+    description="Use '%(prog)s action --help' for more help on each action."
+)
+user_subparsers.add_parser(
+    'add', help="Add a new user.", parents=[username_arg_parser, pwd_parser],
+    description="Add a new user."
+)
+user_subparsers.add_parser(
+    'ls', help="List all users.", description="List all users.")
+user_subparsers.add_parser(
+    'verify', help="Verify a users password.",
     parents=[username_arg_parser, pwd_parser],
-    description="Add a new user.")
-user_subparsers.add_parser('ls', help="List all users.", description="List all users.")
-user_subparsers.add_parser('verify', help="Verify a users password.",
-    parents=[username_arg_parser, pwd_parser],
-    description="Verify the password of a user.") 
-user_subparsers.add_parser('set-password', help="Set the password of a user.",
-    parents=[username_arg_parser, pwd_parser],
-    description="Set the password of a user.")
-user_subparsers.add_parser('rm', help="Remove a user.", parents=[username_arg_parser],
-    description="Remove a user.")
+    description="Verify the password of a user."
+)
+user_subparsers.add_parser(
+    'set-password', parents=[username_arg_parser, pwd_parser],
+    help="Set the password of a user.",
+    description="Set the password of a user."
+)
+user_subparsers.add_parser(
+    'rm', help="Remove a user.", parents=[username_arg_parser],
+    description="Remove a user."
+)
 
-user_view_p = user_subparsers.add_parser('view', help="View details of a user.",
-    parents=[username_arg_parser ], description="View details of a user.")
-user_view_p.add_argument('--service', help="View information as SERVICE would see it.")
+user_view_p = user_subparsers.add_parser(
+    'view', parents=[username_arg_parser],
+    help="View details of a user.", description="View details of a user."
+)
+user_view_p.add_argument(
+    '--service', help="View information as SERVICE would see it.")
 
 #############################
 ### restauth-group parser ###
 #############################
-group_desc = """%(prog)s manages groups in RestAuth. Groups can have users and groups as members, handing
-down users to member groups. For a group to be visible to a service, it must be associated with it.
-It is possible for a group to not be associated with any service, which is usefull for e.g. a group
-containing global super-users. Valid actions are help, add, list, view, add-user, add-group, remove,
-remove-user, and remove-group."""
+group_desc = """%(prog)s manages groups in RestAuth. Groups can have users and
+groups as members, handing down users to member groups. For a group to be
+visible to a service, it must be associated with it. It is possible for a group
+to not be associated with any service, which is usefull for e.g. a group
+containing global super-users. Valid actions are help, add, list, view,
+add-user, add-group, remove, remove-user, and remove-group."""
 group_parser = ArgumentParser(description=group_desc)
 
-group_subparsers = group_parser.add_subparsers(title="Available actions", dest='action',
-    description="""Use '%(prog)s action --help' for more help on each action.""")
-group_subparsers.add_parser('add', help="Add a new group.", parents=[group_arg_parser],
+group_subparsers = group_parser.add_subparsers(
+    title="Available actions", dest='action',
+    description="Use '%(prog)s action --help' for more help on each action.")
+group_subparsers.add_parser(
+    'add', help="Add a new group.", parents=[group_arg_parser],
     description="Add a new group.")
-group_ls_parser = group_subparsers.add_parser('ls', help="List all groups.",
-    description="List all groups.")
-group_ls_parser.add_argument('--service', help="""Act as if %(prog)s was the
-service named SERVICE. If ommitted, act on groups that are not associated with any service.""")
-group_subparsers.add_parser('view', help="View details of a group.", parents=[group_arg_parser],
-    description="View details of a group.")
-group_subparsers.add_parser('add-user', parents=[group_arg_parser, username_arg_parser],
-    help="Add a user to a group.", description="Add a user to a group.")
-group_subparsers.add_parser('add-group', parents=[group_arg_parser, subgroup_parser],
+group_ls_parser = group_subparsers.add_parser(
+    'ls', help="List all groups.", description="List all groups.")
+group_ls_parser.add_argument(
+    '--service', help='Act as if %(prog)s was the service named SERVICE. If '
+    'ommitted, act on groups that are not associated with any service.'
+)
+group_subparsers.add_parser(
+    'view', help="View details of a group.", parents=[group_arg_parser],
+    description="View details of a group."
+)
+group_subparsers.add_parser(
+    'add-user', parents=[group_arg_parser, username_arg_parser],
+    help="Add a user to a group.", description="Add a user to a group."
+)
+group_subparsers.add_parser(
+    'add-group', parents=[group_arg_parser, subgroup_parser],
     help="""Make a group a subgroup to another group.""",
-    description="""Make a group a subgroup of another group. The subgroup will inherit all
-        memberships from the parent group.""")
-group_subparsers.add_parser('rm-user', parents=[group_arg_parser, username_arg_parser],
-    help="Remove a user from a group.", description="Remove a user from a group.")
-group_subparsers.add_parser('rm-group', parents=[group_arg_parser, subgroup_parser],
-    help="""Remove a subgroup from a group.""",
-    description="""Remove a subgroup from a group. The subgroup will no longer inherit all
-        memberships from a parent group.""")
-group_subparsers.add_parser('rm', parents=[group_arg_parser], help="Remove a group.",
-    description="Remove a group.")
+    description='Make a group a subgroup of another group. The subgroup will '
+    'inherit all memberships from the parent group.'
+)
+group_subparsers.add_parser(
+    'rm-user', parents=[group_arg_parser, username_arg_parser],
+    help="Remove a user from a group.",
+    description="Remove a user from a group."
+)
+group_subparsers.add_parser(
+    'rm-group', parents=[group_arg_parser, subgroup_parser],
+    help='Remove a subgroup from a group.',
+    description='Remove a subgroup from a group. The subgroup will no longer '
+    'inherit all memberships from a parent group.'
+)
+group_subparsers.add_parser(
+    'rm', parents=[group_arg_parser], help="Remove a group.",
+    description="Remove a group."
+)
 
 ##############################
 ### restauth-import parser ###
@@ -186,23 +276,40 @@ group_subparsers.add_parser('rm', parents=[group_arg_parser], help="Remove a gro
 import_desc = "Import user data from another system."
 import_parser = ArgumentParser(description=import_desc)
 
-import_parser.add_argument('--gen-passwords', action='store_true', default=False,
-    help="Generate passwords where missing in input data and print them to stdout.")
-import_parser.add_argument('--overwrite-passwords', action='store_true', default=False,
-    help="""Overwrite passwords of already existing services or users if the input data contains
-a password. (default: %(default)s)""")
-import_parser.add_argument('--overwrite-properties', action='store_true', default=False,
-    help="""Overwrite already existing properties of users. (default: %(default)s)""")
-import_parser.add_argument('--skip-existing-users', action='store_true', default=False, help=
-    """Skip users completely if they already exist. If not set, passwords and properties are
-overwritten if their respective --overwrite-... argument is given.""")
-import_parser.add_argument('--skip-existing-groups', action='store_true', default=False, help=
-    """Skip groups completely if they already exist. If not set, users and subgroups will be
-added to the list.""")
-import_parser.add_argument('--using', default=None, metavar="ALIAS",
-    help="Use different database alias. (UNTESTED!)")
+import_parser.add_argument(
+    '--gen-passwords', action='store_true', default=False,
+    help="Generate passwords where missing in input data and print them to "
+    "stdout."
+)
+import_parser.add_argument(
+    '--overwrite-passwords', action='store_true', default=False,
+    help='Overwrite passwords of already existing services or users if the'
+    'input data contains a password. (default: %(default)s)'
+)
+import_parser.add_argument(
+    '--overwrite-properties', action='store_true', default=False,
+    help='Overwrite already existing properties of users. (default: '
+    '%(default)s)'
+)
+import_parser.add_argument(
+    '--skip-existing-users', action='store_true', default=False, help=
+    'Skip users completely if they already exist. If not set, passwords and '
+    'properties are overwritten if their respective --overwrite-... argument '
+    'is given.'
+)
+import_parser.add_argument(
+    '--skip-existing-groups', action='store_true', default=False, help=
+    'Skip groups completely if they already exist. If not set, users and '
+    'subgroups will be added to the list.'
+)
+import_parser.add_argument(
+    '--using', default=None, metavar="ALIAS",
+    help="Use different database alias. (UNTESTED!)"
+)
 
-import_parser.add_argument('file', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+import_parser.add_argument(
+    'file', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+
 
 ########################
 ### helper functions ###
@@ -215,7 +322,7 @@ def _metavar_formatter(action, default_metavar):
         result = '{%s}' % ','.join(choice_strs)
     else:
         result = default_metavar
-    
+
     def format(tuple_size):
         if isinstance(result, tuple):
             return result
@@ -223,13 +330,14 @@ def _metavar_formatter(action, default_metavar):
             return (result,) * tuple_size
     return format
 
+
 def _format_args(action, default_metavar, format=True):
     OPTIONAL = '?'
     ZERO_OR_MORE = '*'
     ONE_OR_MORE = '+'
     PARSER = 'A...'
     REMAINDER = '...'
-    
+
     get_metavar = _metavar_formatter(action, default_metavar)
     if action.nargs is None:
         if format:
@@ -260,33 +368,35 @@ def _format_args(action, default_metavar, format=True):
         result = ' '.join(formats) % get_metavar(action.nargs)
     return result
 
+
 def format_action(action, format=True):
     if action.metavar:
         metavar = _format_args(action, action.metavar, format)
     else:
         metavar = _format_args(action, action.dest.upper(), format)
-    
+
     if action.option_strings:
-        strings = [ '%s %s'%(name, metavar) for name in action.option_strings ]
+        strings = ['%s %s' % (name, metavar) for name in action.option_strings]
         return ', '.join(strings)
     else:
         return metavar
 
+
 def format_man_usage(parser):
     """
-    Get a man-page compatible usage string. This function and its nested functions are mostly
-    directly copied from the argparse module.
+    Get a man-page compatible usage string. This function and its nested
+    functions are mostly directly copied from the argparse module.
     """
     opts = []
     args = []
-    
+
     for action in parser._actions:
         if action.option_strings:
             opts.append(action)
         else:
             args.append(action)
     actions = opts + args
-    
+
     group_actions = set()
     inserts = {}
     for group in parser._mutually_exclusive_groups:
@@ -307,7 +417,7 @@ def format_man_usage(parser):
                     inserts[end] = ')'
                 for i in range(start + 1, end):
                     inserts[i] = '|'
-    
+
     parts = []
     for i, action in enumerate(opts + args):
         if action.help is argparse.SUPPRESS:
@@ -316,9 +426,9 @@ def format_man_usage(parser):
                 inserts.pop(i)
             elif inserts.get(i + 1) == '|':
                 inserts.pop(i + 1)
-        elif not action.option_strings: # args
+        elif not action.option_strings:  # args
             part = _format_args(action, action.dest)
-            
+
             # if it's in a group, strip the outer []
             if action in group_actions:
                 if part[0] == '[' and part[-1] == ']':
@@ -328,7 +438,7 @@ def format_man_usage(parser):
             parts.append(part)
         else:
             option_string = action.option_strings[0]
-            
+
             # if the Optional doesn't take a value, format is:
             #    -s or --long
             if action.nargs == 0:
@@ -340,18 +450,18 @@ def format_man_usage(parser):
                 default = action.dest.upper()
                 args_string = _format_args(action, default)
                 part = '**%s** %s' % (option_string, args_string)
-            
-            # make it look optional if it's not required or in a group                
+
+            # make it look optional if it's not required or in a group
             if not action.required and action not in group_actions:
                 part = '[%s]' % part
-                
+
             parts.append(part)
 
     for i in sorted(inserts, reverse=True):
         parts[i:i] = [inserts[i]]
-        
+
     text = ' '.join([item for item in parts if item is not None])
-    
+
     # clean up separators for mutually exclusive groups
     open = r'[\[(]'
     close = r'[\])]'
@@ -360,87 +470,94 @@ def format_man_usage(parser):
     text = re.sub(r'%s *%s' % (open, close), r'', text)
     text = re.sub(r'\(([^|]*)\)', r'\1', text)
     text = text.strip()
-    
-    return ' %s'%text
+
+    return ' %s' % text
+
 
 def split_opts_and_args(parser, format_dict={}, skip_help=False):
     opts, args = [], []
-    
+
     for action in parser._positionals._actions:
         if skip_help and type(action) == argparse._HelpAction:
             continue
-        
+
         if not action.option_strings:
             args.append(action)
         else:
             opts.append(action)
-        
+
     return opts, args
+
 
 def write_parameters(parser, path, cmd):
     f = open(path, 'w')
-    format_dict = { 'prog': parser.prog }
+    format_dict = {'prog': parser.prog}
     opts, args = split_opts_and_args(parser, format_dict)
-    
+
     if opts:
-        f.write('.. program:: %s\n\n'%(cmd)) 
-            
+        f.write('.. program:: %s\n\n' % (cmd))
+
     for action in opts:
-        if action.default != None:
+        if action.default is not None:
             format_dict['default'] = action.default
-        f.write('.. option:: %s\n'%(format_action(action, False)))
+        f.write('.. option:: %s\n' % (format_action(action, False)))
         f.write('   \n')
-        f.write('   %s\n'%(' '.join(action.help.split())%format_dict))
+        f.write('   %s\n' % (' '.join(action.help.split()) % format_dict))
         f.write('   \n')
         format_dict.pop('default', None)
+
 
 def write_commands(parser, path, cmd):
     if not parser._subparsers:
         return
-    
+
     f = open(path, 'w')
     commands = sorted(parser._subparsers._actions[1].choices)
-    format_dict = { 'prog': parser.prog }
+    format_dict = {'prog': parser.prog}
     for sub_cmd in commands:
         # TODO: cleanup mess in HTML output
         subparser = parser._subparsers._actions[1].choices[sub_cmd]
-        subparser.prog = '%s %s'%(cmd, sub_cmd)
-        
+        subparser.prog = '%s %s' % (cmd, sub_cmd)
+
         # add name of command as header everywhere except on man pages
         f.write('.. only:: not man\n')
         f.write('   \n')
-        f.write("   %s\n"%sub_cmd)
-        f.write('   %s\n\n'%('^'*(len(sub_cmd))))
+        f.write("   %s\n" % sub_cmd)
+        f.write('   %s\n\n' % ('^' * (len(sub_cmd))))
         f.write('   \n')
-        
+
         # start writing the example:
         f.write('.. example:: ')
-        f.write('**%s**%s\n'%(sub_cmd, format_man_usage(subparser)))
+        f.write('**%s**%s\n' % (sub_cmd, format_man_usage(subparser)))
         f.write('   \n')
-        f.write('   %s\n'%(' '.join(subparser.description.split())))
+        f.write('   %s\n' % (' '.join(subparser.description.split())))
         f.write('   \n')
-        
+
         # write options and arguments:
         opts, args = split_opts_and_args(subparser, format_dict, True)
         if opts or args:
-            f.write('   .. program:: %s-%s\n\n'%(cmd, sub_cmd)) 
-                
+            f.write('   .. program:: %s-%s\n\n' % (cmd, sub_cmd))
+
         for action in opts:
-            f.write('   .. option:: %s\n'%(format_action(action, False)))
+            help = ' '.join(action.help.split()) % format_dict
+            f.write('   .. option:: %s\n' % (format_action(action, False)))
             f.write('      \n')
-            f.write('      %s\n'%(' '.join(action.help.split())%format_dict))
+            f.write('      %s\n' % (help))
             f.write('      \n')
-            
+
         for arg in args:
-            f.write('   .. option:: %s\n'%format_action(arg, False))
+            f.write('   .. option:: %s\n' % format_action(arg, False))
             f.write('      \n')
-            f.write('      %s\n'%(' '.join(arg.help.split())))
+            f.write('      %s\n' % (' '.join(arg.help.split())))
             f.write('      \n')
-        
+
     f.close()
 
-def write_usage(parser, path):
+
+def write_usage(parser, path, cmd=None):
     f = open(path, 'w')
     usage = parser.format_usage().replace('usage: ', '')
-    f.write(usage)    
+    usage = usage.replace("\n", '')
+    usage = re.sub('\s{2,}', ' ', usage)
+    f.write('.. parsed-literal:: %s' % usage)
     f.close()

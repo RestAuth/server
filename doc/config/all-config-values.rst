@@ -1,14 +1,42 @@
 Settings reference
 ------------------
 
-Since RestAuth is implemented as a Django project, RestAuth not only uses all `settings available in
-Django <https://docs.djangoproject.com/en/dev/ref/settings/>`_, but also features a few additional
-settings that ease administration and configure RestAuth. This document is a complete reference of
-settings that are either specific to RestAuth or are normal Django settings that RestAuth handles
-in a different way.
+Since RestAuth is implemented as a Django project, RestAuth not only uses
+`all settings available in Django
+<https://docs.djangoproject.com/en/dev/ref/settings/>`__, but also features a
+few additional settings that ease administration and configure RestAuth. This
+document is a complete reference of settings that are either specific to
+RestAuth or are normal Django settings that RestAuth handles in a different way.
 
-The config-file you should edit is actually called :file:`localsettings.py`. If you used our
-Debian/Ubuntu packages for installation, the file is called :file:`/etc/restauth/settings.py`.
+.. only:: homepage
+
+   .. _dist-specific-file-settings:
+
+   Location of |file-settings-as-file|
+   ===================================
+
+   The file |file-settings-as-file| is referenced throughout the documentation.
+   The name and location of this file varies depending on how you installed
+   RestAuth. Here is an overview of known locations:
+
+   ============================================= =========================
+   Installation method                           Location
+   ============================================= =========================
+   :doc:`from source </install/from-source>`     RestAuth/localsettings.py
+   :doc:`Debian/Ubuntu </install/debian-ubuntu>` /etc/restauth/settings.py
+   :doc:`Fedora </install/redhat-fedora>`        Unknown
+   :doc:`Archlinux </install/archlinux>`         Unknown
+   ============================================= =========================
+
+   .. TODO:: Research locations on Fedora and Archlinux
+
+.. NOTE:: If you start digging deeper into RestAuth and Django configuration,
+   you will notice, that many configuration variables
+   `normally present in a Django settings file
+   <https://docs.djangoproject.com/en/dev/topics/settings/>`_ are missing from
+   that file. This is because the file is only included in the
+   real :file:`settings.py` file. This is why you can set any Django setting in
+   your |file-settings-as-file| and overwrite any existing Django setting.
 
 .. setting:: CACHES
 
@@ -18,12 +46,14 @@ CACHES
 Default: ``{}``
 
 This setting is `available in Django
-<https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`_. Please see the `official
-documentation <https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this setting.
+<https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`__.
+Please see the `official documentation
+<https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this
+setting.
 
-RestAuth automatically adjusts :setting:`MIDDLEWARE_CLASSES` (as documented `here
-<https://docs.djangoproject.com/en/dev/topics/cache/#the-per-site-cache>`_) if you configure any
-caches.
+RestAuth automatically adjusts :setting:`MIDDLEWARE_CLASSES` (as documented
+`here <https://docs.djangoproject.com/en/dev/topics/cache/#the-per-site-cache>`_ ) if
+you configure any caches.
 
 .. setting:: ENABLE_SESSIONS
 
@@ -32,12 +62,13 @@ ENABLE_SESSIONS
 
 Default: ``False``
 
-The RestAuth protocol by default does not use HTTP sessions, since every request is authenticated
-using HTTP Basic Authentication. Sessions are thus disabled in RestAuth, because they come with a
-considerable performance penalty.
+The RestAuth protocol by default does not use HTTP sessions, since every request
+is authenticated using HTTP Basic Authentication. Sessions are thus disabled in
+RestAuth, because they come with a considerable performance penalty.
 
-If a client still uses HTTP sessions, you can set this configuarion variable to ``True``. This has
-the effect of adding the appropriate middleware classes to :setting:`MIDDLEWARE_CLASSES`.
+If a client still uses HTTP sessions, you can set this configuarion variable to
+``True``. This has the effect of adding the appropriate middleware classes to
+:setting:`MIDDLEWARE_CLASSES`.
 
 .. setting:: HASH_ALGORITHM
 
@@ -46,12 +77,13 @@ HASH_ALGORITHM
 
 Default: ``sha512``
 
-The :setting:`HASH_ALGORITHM` setting configures which algorithm is used for hashing new passwords.
-If you set this to a new algorithm, old password hashes will be updated whenever a user logs in.
+The :setting:`HASH_ALGORITHM` setting configures which algorithm is used for
+hashing new passwords.  If you set this to a new algorithm, old password hashes
+will be updated whenever a user logs in.
 
 RestAuth supports all algorithms supported by the `hashlib module
-<http://docs.python.org/library/hashlib.html>`_. Additionally, you can add more algorithms using
-:setting:`HASH_FUNCTIONS`.
+<http://docs.python.org/library/hashlib.html>`_. Additionally, you can add more
+algorithms using :setting:`HASH_FUNCTIONS`.
 
 .. setting:: HASH_FUNCTIONS
 
@@ -68,20 +100,22 @@ Default::
        'RestAuth.Users.hashes.apr1',
    ]
 
-RestAuth can understand custom hashing algorithms in addition to those provided by the hashlib
-module shipping with your Python version. This is useful if you want to import userdata
-from a different system that stores passwords using an unusual hashing algorithm. RestAuth
-:ref:`ships with a few hash functions <available-hash-functions>` used by common systems, all are
-enabled by default.
+RestAuth can understand custom hashing algorithms in addition to those provided
+by the hashlib module shipping with your Python version. This is useful if you
+want to import userdata from a different system that stores passwords using an
+unusual hashing algorithm. RestAuth :ref:`ships with a few hash functions
+<available-hash-functions>` used by common systems, all are enabled by default.
 
-You can :ref:`implement your own hashing algorithm <own-hash-functions>` if you intend to import
-data from a system not supported by RestAuth. If you set :setting:`HASH_ALGORITHM` to one of the
-algorithms you add to this setting, RestAuth will also store hashes using this algorithm. This is
-useful if you plan to later export data to such a system.
+You can :ref:`implement your own hashing algorithm <own-hash-functions>` if you
+intend to import data from a system not supported by RestAuth. If you set
+:setting:`HASH_ALGORITHM` to one of the algorithms you add to this setting,
+RestAuth will also store hashes using this algorithm. This is useful if you plan
+to later export data to such a system.
 
-.. NOTE:: If all password hashes use the hash-functions included in the hashlib module, this setting
-   is effectively not used at all. If you however have some custom hashes, it is recommended to
-   include only those validators that actually occur in your database to improve performance.
+.. NOTE:: If all password hashes use the hash-functions included in the hashlib
+   module, this setting is effectively not used at all. If you however have some
+   custom hashes, it is recommended to include only those validators that
+   actually occur in your database to improve performance.
 
 .. setting:: LOGGING
 
@@ -91,10 +125,11 @@ LOGGING
 Default: please see source-code
 
 This setting is `available in Django
-<https://docs.djangoproject.com/en/dev/ref/settings/#logging>`_. RestAuth has (unlike Django) an
-extensive default. Various views assume the presence of configured loggers, so it is not recommended
-to change this setting yourself. If you really know what you are doing, read :file:`settings.py`
-on how to imitate the required loggers.
+<https://docs.djangoproject.com/en/dev/ref/settings/#logging>`_. RestAuth has
+(unlike Django) an extensive default. Various views assume the presence of
+configured loggers, so it is not recommended to change this setting yourself.
+If you really know what you are doing, read the real :file:`settings.py` on how
+to imitate the required loggers.
 
 .. setting:: LOG_HANDLER
 
@@ -103,10 +138,11 @@ LOG_HANDLER
 
 Default: ``'logging.StreamHandler'``
 
-You can define a different destination of any log messages using :setting:`LOG_HANDLER`. The setting
-should be a string containing the classname of any available handler. See `logging.handlers
-<http://docs.python.org/library/logging.handlers.html>`_ for whats available. Of course nothing
-stops you from implementing your own handler.
+You can define a different destination of any log messages using
+:setting:`LOG_HANDLER`. The setting should be a string containing the classname
+of any available handler. See `logging.handlers
+<http://docs.python.org/library/logging.handlers.html>`_ for whats available. Of
+course nothing stops you from implementing your own handler.
 
 .. setting:: LOG_HANDLER_KWARGS
 
@@ -115,9 +151,9 @@ LOG_HANDLER_KWARGS
 
 Default: ``{}``
 
-Any additional keyword arguments the log handler defined in :setting:`LOG_HANDLER` LoggingHandler
-will get.
-  
+Any additional keyword arguments the log handler defined in
+:setting:`LOG_HANDLER` LoggingHandler will get.
+
 Here is an example for a `SocketHandler
 <http://docs.python.org/library/logging.handlers.html#sockethandler>`_:
 
@@ -134,16 +170,17 @@ Default: ``'ERROR'``
 
 The default log-level to use. Available values are:
 
-============= =====================================================================
+============= =================================================================
 Level         Description
-============= =====================================================================
+============= =================================================================
 ``CRITICAL``  Only log errors due to an internal malfunction.
 ``ERROR``     Also log errors due to misbehaving clients.
 ``WARNING``   Also log requests where an implicit assumption doesn't hold.
-              (i.e. when a client assumes that a user exists that in fact does not)
+              (i.e. when a client assumes that a user exists that in fact does
+              not)
 ``INFO``      Also log successfully processed requests that change data.
 ``DEBUG``     Also log idempotent requests, i.e. if a user exists, etc.
-============= =====================================================================
+============= =================================================================
 
 .. setting:: MAX_USERNAME_LENGTH
 
@@ -152,8 +189,8 @@ MAX_USERNAME_LENGTH
 
 Default: ``255``
 
-The maximum length of new usernames. Note that this setting might have any effect if a validator
-restricts the maximum length even further.
+The maximum length of new usernames. Note that this setting might have any
+effect if a validator restricts the maximum length even further.
 
 
 .. setting:: MIDDLEWARE_CLASSES
@@ -162,21 +199,25 @@ MIDDLEWARE_CLASSES
 ==================
 
 Default::
-   
-   ['django.middleware.common.CommonMiddleware',
-    'RestAuth.common.middleware.ExceptionMiddleware',
-    'RestAuth.common.middleware.HeaderMiddleware',]
-    
-RestAuth uses `middlewares <https://docs.djangoproject.com/en/dev/topics/http/middleware/>`_ like
-any other Django project. The default however only contains the bare minimum of required
-middlewares. Various settings (currently :setting:`CACHES` and :setting:`ENABLE_SESSIONS`) influence
-the effective value of this setting.
 
-Additionally, :setting:`MIDDLEWARE_CLASSES` is a list and not a tuple. This allows you to add your
-own middleware at any position without having to reconfigure the entire setting. If you do, please
-consult :setting:`CACHES` and :setting:`ENABLE_SESSIONS` to see how they manipulate
-:setting:`MIDDLEWARE_CLASSES` to get the effective value. 
-    
+   [
+       'django.middleware.common.CommonMiddleware',
+       'RestAuth.common.middleware.ExceptionMiddleware',
+       'RestAuth.common.middleware.HeaderMiddleware',
+   ]
+
+RestAuth uses `middlewares
+<https://docs.djangoproject.com/en/dev/topics/http/middleware/>`_ like any other
+Django project. The default however only contains the bare minimum of required
+middlewares. Various settings (currently :setting:`CACHES` and
+:setting:`ENABLE_SESSIONS`) influence the effective value of this setting.
+
+Additionally, :setting:`MIDDLEWARE_CLASSES` is a list and not a tuple. This
+allows you to add your own middleware at any position without having to
+reconfigure the entire setting. If you do, please consult :setting:`CACHES` and
+:setting:`ENABLE_SESSIONS` to see how they manipulate
+:setting:`MIDDLEWARE_CLASSES` to get the effective value.
+
 .. setting:: MIN_PASSWORD_LENGTH
 
 MIN_PASSWORD_LENGTH
@@ -193,8 +234,8 @@ MIN_USERNAME_LENGTH
 
 Default: ``3``
 
-The minimum length of new usernames. Note that this setting might have any effect if a validator
-restricts the minimum length even further.
+The minimum length of new usernames. Note that this setting might have any
+effect if a validator restricts the minimum length even further.
 
 .. setting:: RELAXED_LINUX_CHECKS
 
@@ -203,16 +244,17 @@ RELAXED_LINUX_CHECKS
 
 Default: ``False``
 
-When this variable is set to ``True``, the validator will apply a more relaxed check. Please see
-the :py:class:`linux validator <.linux>` for more information.
+When this variable is set to ``True``, the validator will apply a more relaxed
+check. Please see the :py:class:`linux validator <.linux>` for more information.
 
 .. setting:: SECRET_KEY
 
 SECRET_KEY
 ==========
 
-Never forget to set a `SECRET_KEY <https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>`_
-in :file:`localsettings.py`.
+Never forget to set a `SECRET_KEY
+<https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>`_ in
+|file-settings-link|.
 
 .. setting:: VALIDATORS
 
@@ -220,28 +262,30 @@ VALIDATORS
 ==========
 
 .. versionadded:: 0.5.3
-   In version 0.5.2 and earlier ``SKIP_VALIDATORS`` configured roughly the inverse. Please see the
-   :ref:`upgrade notes <upgrade_0.5.2_settings>` if you still use the old setting.
+   In version 0.5.2 and earlier ``SKIP_VALIDATORS`` configured roughly the
+   inverse. Please see the :ref:`upgrade notes <update_settings_0.5.3>` if you
+   still use the old setting.
 
 Default: ``[]``
 
-By default, usernames in RestAuth can contain any UTF-8 character except a slash ('/'), a backslash
-('\\') and a colon (':'). You can add additional validators to restrict usernames further to ensure
-that new usernames are compatible with all systems you use.
+By default, usernames in RestAuth can contain any UTF-8 character except a slash
+('/'), a backslash ('\\') and a colon (':'). You can add additional validators
+to restrict usernames further to ensure that new usernames are compatible with
+all systems you use.
 
-.. NOTE:: Validators are only used when creating new accounts. This way existing users can still
-   login to existing systems if you enable additional validators later on, even if their username
-   is illegal in a new system.
+.. NOTE:: Validators are only used when creating new accounts. This way existing
+   users can still login to existing systems if you enable additional validators
+   later on, even if their username is illegal in a new system.
 
-Example configuration for disabling the registration of accounts incompatible with either MediaWiki
-or XMPP:
+Example configuration for disabling the registration of accounts incompatible
+with either MediaWiki or XMPP:
 
 .. code-block:: python
-   
+
    VALIDATORS = [
        'RestAuth.Users.validators.mediawiki',
        'RestAuth.Users.validators.xmpp',
    ]
 
-Please see :doc:`/config/username-validation` for information on what validators exist and how to
-write your own validators.
+Please see :doc:`/config/username-validation` for information on what validators
+exist and how to write your own validators.

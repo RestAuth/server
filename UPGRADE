@@ -6,4 +6,4 @@ generate the most recent version of the upgrade notes if you run:
 and point your browser to doc/_build/html/index.html in your local filesystem
 hierarchy. There also is an online version available here:
 
-	https://server.restauth.net/install/upgrade.html
+    https://server.restauth.net/install/update.html

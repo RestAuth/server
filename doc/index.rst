@@ -6,27 +6,31 @@
 Welcome to RestAuth!
 ====================
 
-Welcome to **RestAuth**, a lightweight webservice that provides shared authentication, authorization
-and preferences. RestAuth does not attempt to provide "one account for the web" like `OpenId
-<http://en.wikipedia.org/wiki/OpenID>`_ or `OAuth <http://en.wikipedia.org/wiki/OAuth>`_ but instead
-allows multiple systems to directly use the same userbase, much like the way LDAP or Kerberos
-is commonly used. Since RestAuth is Free Software, please feel free to :doc:`contribute
+Welcome to **RestAuth**, a lightweight webservice that provides shared
+authentication, authorization and preferences. RestAuth does not attempt to
+provide "one account for the web" like `OpenId
+<http://en.wikipedia.org/wiki/OpenID>`_ or `OAuth
+<http://en.wikipedia.org/wiki/OAuth>`_ but instead allows multiple systems to
+directly use the same userbase, much like the way LDAP or Kerberos is commonly
+used. Since RestAuth is Free Software, please feel free to :doc:`contribute
 </developer/contribute>`.
 
-RestAuth focuses on being very easy to setup and maintain. Installation is possible within just a
-few minutes, if you have some system administration experience. RestAuth is also very flexible,
-allowing you to import and use accounts from many other systems. You can also block registrations of
-accounts where the username is not compatible with some systems you use. 
+RestAuth focuses on being very easy to setup and maintain. Installation is
+possible within just a few minutes, if you have some system administration
+experience. RestAuth is also very flexible, allowing you to import and use
+accounts from many other systems. You can also block registrations of accounts
+where the username is not compatible with some systems you use.
 
 RestAuth is the server-side reference implementation of the `RestAuth protocol
-<https://restauth.net/Specification>`_. RestAuth is written in `Python
-<http://www.python.org>`_ and is uses the `Django webframework <http://djangoproject.com/>`_. As
-such, it can run on a variety of operating systems, using any webserver and database system
-supported by Django (see the `Django installation instructions
-<https://docs.djangoproject.com/en/dev/topics/install/>`_ for a list of supported systems). 
+<https://restauth.net/Specification>`_. RestAuth is written in Python_ and is
+uses the `Django`_ webframework. As such, it can run on a variety of operating
+systems, using any webserver and database system supported by Django (see the
+`Django installation instructions
+<https://docs.djangoproject.com/en/dev/topics/install/>`_ for a list of
+supported systems).
 
-RestAuth is Free Software, licensed unter the `GNU General Public Licence, version 3
-<http://www.gnu.org/licenses/gpl.html>`_. 
+RestAuth is Free Software, licensed unter the `GNU General Public Licence,
+version 3 <http://www.gnu.org/licenses/gpl.html>`_.
 
 
 .. Contents:
@@ -45,7 +49,7 @@ Installation
    install/debian-ubuntu
    install/redhat-fedora
    install/archlinux
-   install/upgrade
+   install/update
 
 Getting started
 ===============
@@ -64,13 +68,13 @@ Advanced configuration
 
 .. toctree::
    :maxdepth: 1
-   
+
    config/all-config-values
    config/username-validation
    config/custom-hashes
    config/multiple-instances
    config/database-replication
-   
+
 Migrating to RestAuth
 =====================
 
@@ -79,20 +83,21 @@ user databases. This section documents scripts and notes vor various systems.
 
 .. toctree::
    :maxdepth: 1
-   
+
    migrate/import-format
    migrate/overview
    restauth-import
-   
+
 Developers
 ==========
 
 .. toctree::
    :maxdepth: 1
-   
+
    developer/contribute
    developer/testserver
-   
+   developer/views
+
 Indices and tables
 ==================
 

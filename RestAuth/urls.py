@@ -15,18 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import include
+from django.conf.urls.defaults import patterns
 
-urlpatterns = patterns('',
-    # Example:
-    # (r'^RestAuth/', include('RestAuth.foo.urls')),
-
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
-    # to INSTALLED_APPS to enable admin documentation:
-    # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    (r'^/?$', 'RestAuth.views.index' ),
+urlpatterns = patterns(
+    '',
+    (r'^/?$', 'RestAuth.views.index'),
     (r'^users/',  include('RestAuth.Users.urls')),
     (r'^groups/', include('RestAuth.Groups.urls')),
     (r'^test/', include('RestAuth.Test.urls')),

@@ -19,15 +19,23 @@
 The ExceptionMiddleware is located in its own class to avoid circular imports.
 """
 
-import sys, logging
+import logging
+import sys
+import traceback
 
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse
+from django.http import HttpResponseServerError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from RestAuthCommon.error import RestAuthException
-from RestAuth.Users.models import ServiceUser, Property
+
+from RestAuth.Users.models import Property
+from RestAuth.Users.models import ServiceUser
 from RestAuth.Groups.models import Group
+
+CONTENT_TYPE_METHODS = ['POST', 'PUT']
+
 
 class ExceptionMiddleware:
     """
@@ -49,18 +57,23 @@ class ExceptionMiddleware:
 
         if isinstance(ex, RestAuthException):
             return HttpResponse(ex.message, status=ex.response_code)
-        else: # pragma: no cover
-            import traceback
+        else:  # pragma: no cover
             logging.critical(traceback.format_exc())
-            return HttpResponseServerError("Internal Server Error. Please see server log for details.\n")
+            return HttpResponseServerError(
+                "Internal Server Error. Please see server log for details.\n")
+
 
 class HeaderMiddleware:
     """
     Middleware to ensure required headers are present.
     """
     def process_request(self, request):
-        if request.method in ['POST', 'PUT'] and 'CONTENT_TYPE' not in request.META:
-            return HttpResponse('POST/PUT requests must include a Content-Type header.', status=415)
+        if request.method in CONTENT_TYPE_METHODS and \
+                'CONTENT_TYPE' not in request.META:
+            return HttpResponse(
+                'POST/PUT requests must include a Content-Type header.',
+                status=415
+            )
 
-        if 'HTTP_ACCEPT' not in request.META: # pragma: no cover
+        if 'HTTP_ACCEPT' not in request.META:  # pragma: no cover
             logging.warn('Accept header is recommended in all requests.')

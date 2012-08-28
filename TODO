@@ -1,3 +1,10 @@
-This is a prioritized list of TODOs:
+0.6.0:
 
-1. add support for /users/<user>/blobs
+Future:
+
+* add support for /users/<user>/blobs
+
+When Django >= 1.4 is required:
+* Remove backported override_settings decorator
+* Use Django password hashers
+* Remove custom implementation of get_random_string in Users.models

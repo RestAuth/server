@@ -15,14 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, base64
-from RestAuth.Services.models import Service
+import base64
+import sys
+
 from django.contrib.auth.models import User
+
+from RestAuth.Services.models import Service
+
 
 class InternalAuthenticationBackend:
     supports_anonymous_user = False
     supports_object_permissions = False
-    
+
     def authenticate(self, header, host):
         """
         Authenticate against a header as send by HTTP basic
@@ -30,8 +34,8 @@ class InternalAuthenticationBackend:
         the header.
         """
         method, data = header.split()
-        if method.lower() != 'basic': # pragma: no cover
-            return None # we only support basic authentication
+        if method.lower() != 'basic':  # pragma: no cover
+            return None  # we only support basic authentication
 
         name, password = base64.b64decode(data).split(':', 1)
 
@@ -44,7 +48,7 @@ class InternalAuthenticationBackend:
             # service does not exist
             return None
 
-    def get_user(self, user_id): # pragma: no cover
+    def get_user(self, user_id):  # pragma: no cover
         """
         Get the user by id. This is used by clients that implement
         sessions.

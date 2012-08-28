@@ -15,18 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import base64, httplib, logging
-
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.test import TransactionTestCase
+from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
 from django.conf import settings
 
-import RestAuthCommon
+from RestAuthCommon import handlers
 
 from Services.models import Service, service_create
-from Users.models import ServiceUser, user_create, user_permissions, prop_permissions
+from Users.models import prop_permissions
+from Users.models import ServiceUser
+from Users.models import user_create
+from Users.models import user_permissions
 from Groups.models import group_permissions
 
 from middleware import ExceptionMiddleware
@@ -66,57 +67,64 @@ propval4 = u"propval \u6154"
 propval5 = u"propval \u6155"
 
 
-class RestAuthTest(TransactionTestCase):
+class RestAuthTestBase(object):
     def setUp(self):
-        if hasattr(self, 'settings'): # requires django-1.4:
+        if hasattr(self, 'settings'):  # requires django-1.4:
             self.settings(LOGGING_CONFIG=None)
-        
+
         self.c = Client()
-        self.handler = RestAuthCommon.handlers.json()
+        self.handler = handlers.json()
         self.extra = {
             'HTTP_ACCEPT': self.handler.mime,
             'REMOTE_USER': 'vowi',
             'content_type': self.handler.mime,
         }
-        self.service = service_create('vowi', 'vowi', [ '127.0.0.1', '::1' ])
-        
+        self.service = service_create('vowi', 'vowi', ['127.0.0.1', '::1'])
+
         # add permissions:
         u_ct = ContentType.objects.get(app_label="Users", model="serviceuser")
         p_ct = ContentType.objects.get(app_label="Users", model="property")
         g_ct = ContentType.objects.get(app_label="Groups", model="group")
-        
+
         # add user-permissions:
         for codename, name in user_permissions:
-            p, c = Permission.objects.get_or_create(codename=codename, content_type=u_ct,
-                                                    defaults={'name': name})
+            p, c = Permission.objects.get_or_create(
+                codename=codename, content_type=u_ct, defaults={'name': name})
             self.service.user_permissions.add(p)
-            
+
         for codename, name in prop_permissions:
-            p, c = Permission.objects.get_or_create(codename=codename, content_type=p_ct,
-                                                    defaults={'name': name})
+            p, c = Permission.objects.get_or_create(
+                codename=codename, content_type=p_ct, defaults={'name': name})
             self.service.user_permissions.add(p)
-            
+
         for codename, name in group_permissions:
-            p, c = Permission.objects.get_or_create(codename=codename, content_type=g_ct,
-                                                    defaults={'name': name})
+            p, c = Permission.objects.get_or_create(
+                codename=codename, content_type=g_ct, defaults={'name': name})
             self.service.user_permissions.add(p)
-        
-   
+
     def get(self, url, data={}):
         return self.c.get(url, data, **self.extra)
-    
+
     def post(self, url, data):
         post_data = self.handler.marshal_dict(data)
         return self.c.post(url, post_data, **self.extra)
-    
+
     def put(self, url, data):
         data = self.handler.marshal_dict(data)
         return self.c.put(url, data, **self.extra)
-    
+
     def delete(self, url):
         return self.c.delete(url, **self.extra)
-    
+
     def parse(self, response, typ):
         body = response.content.decode('utf-8')
         func = getattr(self.handler, 'unmarshal_%s' % typ)
         return func(body)
+
+
+class RestAuthTest(RestAuthTestBase, TestCase):
+    pass
+
+
+class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
+    pass

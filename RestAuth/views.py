@@ -17,12 +17,12 @@
 
 from django.http import HttpResponse
 
-def index( request ):
-	return HttpResponse( """<html>
+def index(request):
+    return HttpResponse("""<html>
 <head>
 <title>Welcome to RestAuth</title>
 </head>
 <body>
 Welcome to <a href="https://restauth.net">RestAuth</a>.
 </body>
-</html>""" )
+</html>""")

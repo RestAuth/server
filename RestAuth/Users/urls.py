@@ -17,9 +17,29 @@
 
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns( 'RestAuth.Users.views',
-    (r'^$', 'index'),
-    (r'^(?P<username>[^/]+)/$', 'user_handler' ),
-    (r'^(?P<username>[^/]+)/props/$', 'userprops_index' ),
-    (r'^(?P<username>[^/]+)/props/(?P<prop>.+)/$', 'userprops_prop' ),
+from Services.decorator import login_required
+from Users.views import (UsersView, UserHandlerView,
+                         UserPropsIndex, UserPropHandler)
+
+urlpatterns = patterns(
+    'RestAuth.Users.views',
+
+    (
+        r'^$', login_required(realm='/users/')(UsersView.as_view())
+    ),
+    (
+        r'^(?P<name>[^/]+)/$',
+        login_required(realm='/users/<user>/')(
+            UserHandlerView.as_view())
+    ),
+    (
+        r'^(?P<name>[^/]+)/props/$',
+        login_required(realm='/users/<user>/props/')(
+            UserPropsIndex.as_view())
+    ),
+    (
+        r'^(?P<name>[^/]+)/props/(?P<subname>.+)/$',
+        login_required(realm='/users/<user>/props/<prop>/')(
+            UserPropHandler.as_view())
+    ),
 )

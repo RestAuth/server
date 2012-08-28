@@ -28,15 +28,15 @@ Here is an example shell session for creating a `MySQL <http://www.mysql.com>`_ 
    
    mysql -uroot -pYOUR_PASSWORD -e "CREATE DATABASE restauth CHARACTER SET utf8;"
    mysql -uroot -pYOUR_PASSWORD -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost'
-       IDENTIFIED BY 'MYSQL_PASSWORD'"
+       IDENTIFIED BY 'MYSQL_PASSWORD';"
 
-The correct ``DATABASES`` setting then would be:
+The correct ``DATABASES`` setting in |file-settings-link| then would be:
 
 .. code-block:: python
    
    DATABASES = {
        'default': {
-           'ENGINE': 'mysql',
+           'ENGINE': 'django.db.backends.mysql',
            'NAME': 'restauth',
            'USER': 'restauth',
            'PASSWORD': 'MYSQL_PASSWORD', # you really should change this!
@@ -65,13 +65,13 @@ assuming you are already the user ``postgres``:
    createuser -P restauth
    psql template1 CREATE DATABASE restauth OWNER restauth ENCODING ‘UTF8’;
    
-The correct ``DATABASES`` setting then would be:
+The correct ``DATABASES`` setting in |file-settings-link| then would be:
 
 .. code-block:: python
    
    DATABASES = {
        'default': {
-           DATABASE_ENGINE = 'postgresql_psycopg2',
+           DATABASE_ENGINE = 'django.db.backends.postgresql_psycopg2',
            DATABASE_NAME = 'restauth',
            DATABASE_USER = 'restauth',
            DATABASE_PASSWORD = 'POSTGRES_PASSWORD', # you really should change this!
@@ -100,8 +100,7 @@ RestAuth uses the standard `DATABASES setting
 <https://docs.djangoproject.com/en/dev/ref/settings/#databases>`_ of Django. Please also see the
 `notes for specific database systems <https://docs.djangoproject.com/en/dev/ref/databases/>`_.
 
-To configure your database, just open :file:`localsettings.py` (or :file:`/etc/restauth/settings.py`
-if you installed using our Debian/Ubuntu packages) and edit the DATABASES section near
+To configure your database, just open |file-settings-link| and edit the DATABASES section near
 the top of that file.
 
 .. _config_restauth_initializing_the_database:
@@ -109,18 +108,11 @@ the top of that file.
 Initialization
 """"""""""""""
 
-Once you have created your database and configured it in :file:`localsettings.py`, you can easily
-create the necessary tables using the ``syncdb`` command of :command:`manage.py`. If you installed
-from source, you can simply run this inside the :file:`RestAuth/` directory found in the source
-code:
+Once you have created your database and configured it in |file-settings-link|, you can easily
+create the necessary tables using the ``syncdb`` and ``migrate`` commands of
+|bin-restauth-manage-link|:
 
-.. code-block:: bash
+.. parsed-literal:: 
    
-   python manage.py syncdb
-   
-If you used a distribution-specific way to install RestAuth, the command is most likely called
-:command:`restauth-manage`:
-
-.. code-block:: bash
-   
-   restauth-manage syncdb
+   |bin-restauth-manage| syncdb
+   |bin-restauth-manage| migrate

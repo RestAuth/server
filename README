@@ -1,0 +1,18 @@
+RestAuth
+========
+
+RestAuth[1] is a project providing shared authentication, authorization and
+preferences. Shared authentication and preferences allow users to use a single
+account on multiple services (such as websites, mail, system accounts, ...),
+sharing preferences among those systems. Shared authorization allows
+administrators to manage permissions for users in a central and easy way.
+
+This project is the server-side reference implementation of RestAuth. The most
+up-to-date documentation can be found on this projects homepage[1]. Our git
+repository can be found at git.fsinf.at[3], a github mirror is available
+here[4].
+
+[1] https://restauth.net
+[2] https://server.restauth.net
+[3] https://git.fsinf.at/restauth/server
+[4] https://github.com/matigit/restauth
