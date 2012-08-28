@@ -26,7 +26,7 @@ PATHS = [
     (['get', 'delete'], '/groups/group/'),
     (['get', 'post'], '/groups/group/users/'),
     (['get', 'delete'], '/groups/group/users/user/'),
-    (['get', ], '/groups/group/groups/'),
+    (['get', 'post'], '/groups/group/groups/'),
     (['delete'], '/groups/group/groups/group/'),
 ]
 
@@ -77,6 +77,23 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
                 else:
                     resp = getattr(self, method)(path)
                 self.assertEquals(resp.status_code, httplib.FORBIDDEN)
+
+        # manually handle /groups/?user=foobar
+        resp = self.get('/groups/', {'user': 'whatever'})
+        self.assertEquals(resp.status_code, httplib.FORBIDDEN)
+
+    def test_method_now_allowed(self):
+        self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
+        self.set_auth('vowi', 'vowi')
+
+        for good_methods, path in PATHS:
+            for method in ['get', 'post', 'put', 'delete']:
+                if method not in good_methods:
+                    if method in ['post', 'put']:
+                        resp = getattr(self, method)(path, {})
+                    else:
+                        resp = getattr(self, method)(path)
+                    self.assertEquals(resp.status_code, httplib.METHOD_NOT_ALLOWED)
 
     def test_wrong_user(self):
         service_create('vowi', 'vowi', '127.0.0.1', '::1')
