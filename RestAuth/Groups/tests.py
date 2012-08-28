@@ -149,6 +149,28 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEquals(resp.status_code, httplib.OK)
         self.assertItemsEqual(self.parse(resp, 'list'), [groupname3])
 
+    def test_distinct_inheritance(self):
+        """
+        This test checks if the call may return groups several times.
+        This may occur if a user is member in several groups.
+        """
+        group1 = group_create(groupname1, self.vowi)
+        group2 = group_create(groupname2, self.vowi)
+        group3 = group_create(groupname3, self.vowi)
+
+        group1.users.add(self.user1)
+        group2.users.add(self.user1)
+        group3.users.add(self.user1)
+
+        group1.groups.add(group2)
+        group2.groups.add(group3)
+
+        resp = self.get('/groups/', {'user': username1})
+        self.assertEquals(resp.status_code, httplib.OK)
+        actual = self.parse(resp, 'list')
+        self.assertItemsEqual(self.parse(resp, 'list'),
+                              [groupname1, groupname2, groupname3])
+
     def test_hidden_intermediate_dependencies(self):
         # membership to group2 is invisible, because it belongs to a different
         # service.
