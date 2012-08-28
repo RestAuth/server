@@ -83,18 +83,21 @@ def user_create(name, password):
         raise UserExists("A user with the given name already exists.")
 
 
-def load_username_validators():
+def load_username_validators(validators=None):
     global USERNAME_VALIDATORS
     global USERNAME_ILLEGAL_CHARS
     global USERNAME_RESERVED
     global USERNAME_FORCE_ASCII
     global USERNAME_NO_WHITESPACE
 
+    if validators is None:
+        validators = settings.VALIDATORS
+
     USERNAME_VALIDATORS = []
     force_ascii = False
     allow_whitespace = True
 
-    for validator_path in settings.VALIDATORS:
+    for validator_path in validators:
         validator = import_path(validator_path)[0]
 
         if hasattr(validator, 'check'):
@@ -103,16 +106,19 @@ def load_username_validators():
         USERNAME_ILLEGAL_CHARS |= validator.ILLEGAL_CHARACTERS
         USERNAME_RESERVED |= validator.RESERVED
         if validator.FORCE_ASCII:
-            USERNAME_FORCE_ASCII = True
+            force_ascii = True
         if not validator.ALLOW_WHITESPACE:
             allow_whitespace = False
 
+    USERNAME_FORCE_ASCII = force_ascii
     # use different regular expressions, depending on if we force ASCII
     if not allow_whitespace:
         if force_ascii:
             USERNAME_NO_WHITESPACE = re.compile('\s')
         else:
             USERNAME_NO_WHITESPACE = re.compile('\s', re.UNICODE)
+    else:
+        USERNAME_NO_WHITESPACE = False
 
 
 def validate_username(username):
@@ -138,14 +144,13 @@ def validate_username(username):
     if USERNAME_FORCE_ASCII:
         try:
             username.decode('ascii')
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, UnicodeEncodeError):
             raise UsernameInvalid(
                 "Username must only contain ASCII characters")
 
     # check for whitespace
     if USERNAME_NO_WHITESPACE is not False:
-        USERNAME_NO_WHITESPACE.search(username)
-        if whitespace_regex.search(username):
+        if USERNAME_NO_WHITESPACE.search(username):
             raise UsernameInvalid("Username must not contain any whitespace")
 
     for validator in USERNAME_VALIDATORS:
