@@ -21,6 +21,8 @@ RestAuth 0.6.0 (XX XX 20XX)
   Testing:
   * Most testcases no longer use transactions speeding up testruns a bit
   * Hashing tests for custom hashes also check shorter usernames
+  * The @override_settings decorator now ships with RestAuth and is used with
+    Django 1.3.
 
 RestAuth 0.5.3 (11 August 2012)
 
