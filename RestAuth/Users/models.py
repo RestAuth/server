@@ -17,7 +17,6 @@
 
 import datetime
 import hashlib
-from random import random
 import re
 import stringprep
 
@@ -159,8 +158,10 @@ def validate_username(username):
 
 if django.get_version() >= '1.4':
     from django.utils.crypto import get_random_string
-else:
-    def get_random_string(length=12):  # pragma: no cover
+else:  # pragma: no cover
+    from random import random
+
+    def get_random_string(length=12):
         """
         Get a very random salt. The salt is the first *length* characters of a
         sha512 hash of 5 random numbers concatenated.

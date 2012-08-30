@@ -46,8 +46,10 @@ def sql_profile(function=None):  # pragma: no cover
 
 if django.get_version >= '1.4':
     from django.test.utils import override_settings
-else:
-    class override_settings(object):  # pragma: no cover
+else:  # pragma: no cover
+    from django.conf import settings
+
+    class override_settings(object):
         """
         This class is an exact copy of the decorator introduced in Django 1.4
         and is subject to the same license.
