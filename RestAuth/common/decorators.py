@@ -49,6 +49,7 @@ if django.get_version() >= '1.4':
     from django.test.utils import override_settings
 else:  # pragma: no cover
     from django.conf import settings
+    from functools import wraps
 
     class override_settings(object):
         """
