@@ -23,7 +23,7 @@ build-python%:
 
 override_dh_auto_build: ${PYVERS:%=build-python%}
 	dh_testdir
-	python setup.py build_doc
+	python setup.py build_doc -t debian
 	rm doc/_build/html/_static/underscore.js
 	rm doc/_build/html/_static/jquery.js
 

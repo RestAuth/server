@@ -2,6 +2,7 @@ restauth (0.5.3-161-gb0985dc-1) unstable; urgency=low
 
   * bump from upstream
   * add python-django-south as dependencies
+  * Generate Debian-specific documentation
 
  -- Mathias Ertl <apt-repository@fsinf.at>  Tue, 28 Aug 2012 20:16:14 +0200
 
