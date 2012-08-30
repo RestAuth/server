@@ -48,8 +48,9 @@ def sql_profile(function=None):  # pragma: no cover
 if django.get_version() >= '1.4':
     from django.test.utils import override_settings
 else:  # pragma: no cover
-    from django.conf import settings
     from functools import wraps
+
+    from django.conf import settings, UserSettingsHolder
 
     class override_settings(object):
         """
