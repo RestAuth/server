@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Mathias Ertl <apt-repository@fsinf.at>
 Build-Depends: debhelper (>= 8), 
  python-all (>= 2.6.6-3~), 
- git-core, python-restauth-common | restauth-common (>= 0.5.1), python-sphinx, python-argparse, python-django, python-mimeparse
+ git-core, python-restauth-common | restauth-common (>= 0.5.1), python-sphinx, python-argparse, python-django, python-mimeparse, python-django-south
 Standards-Version: 3.9.2
 X-Python-Version: >= 2.6
 Homepage: https://restauth.net
