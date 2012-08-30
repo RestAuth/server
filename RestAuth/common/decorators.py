@@ -51,6 +51,7 @@ else:  # pragma: no cover
     from functools import wraps
 
     from django.conf import settings, UserSettingsHolder
+    from django.test.signals import setting_changed
 
     class override_settings(object):
         """
