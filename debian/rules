@@ -34,7 +34,7 @@ override_dh_fixperms:
 	find debian/restauth/usr/ -type f -name manage.py | tee | xargs chmod a+rx
 
 override_dh_auto_install: ${PYVERS:%=install-python%}
-	rm ${BINPKGDIR}usr/share/doc/restauth/COPYING
+	rm -f ${BINPKGDIR}usr/share/doc/restauth/COPYING
 	dh_auto_install
 	
 	rm debian/restauth/usr/bin/*.py
