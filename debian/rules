@@ -36,8 +36,8 @@ override_dh_fixperms:
 override_dh_auto_install: ${PYVERS:%=install-python%}
 	rm ${BINPKGDIR}usr/share/doc/restauth/COPYING
 	dh_auto_install
-	find debian | grep COPYING
 	
+	rm debian/restauth/usr/bin/*.py
 	cp bin/restauth-service.py debian/restauth/usr/bin/restauth-service
 	cp bin/restauth-user.py debian/restauth/usr/bin/restauth-user
 	cp bin/restauth-group.py debian/restauth/usr/bin/restauth-group
