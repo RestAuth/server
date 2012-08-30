@@ -157,7 +157,7 @@ def validate_username(username):
         validator.check(username)
 
 
-if django.get_version() >= 1.4:
+if django.get_version() >= '1.4':
     from django.utils.crypto import get_random_string
 else:
     def get_random_string(length=12):  # pragma: no cover
