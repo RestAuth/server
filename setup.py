@@ -106,11 +106,11 @@ class install(_install):
 
         # write symlink for restauth-manage.py
         target = os.path.join(self.install_scripts, 'restauth-manage.py')
+        source = os.path.join(
+            os.path.abspath(self.install_purelib),
+            'RestAuth', 'manage.py'
+        )
 	if not os.path.exists(target):
-            source = os.path.join(
-                os.path.abspath(self.install_purelib),
-                'RestAuth', 'manage.py'
-            )
             os.symlink(source, target)
 
         # set execute permissions:
