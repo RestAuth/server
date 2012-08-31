@@ -15,7 +15,7 @@ override_dh_installchangelogs:
 
 install-python%:
 	dh_testdir
-	python$* setup.py install --force --root debian/restauth --no-compile -O0 --install-layout=deb
+	python$* setup.py install --force --root ${BINPKGDIR} --no-compile -O0 --install-layout=deb
 
 build-python%:
 	dh_testdir
