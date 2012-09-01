@@ -17,8 +17,8 @@
 
 from django.conf.urls.defaults import patterns
 
-from Services.decorator import login_required
-from Groups.views import (GroupsView, GroupHandlerView,
+from RestAuth.Services.decorator import login_required
+from RestAuth.Groups.views import (GroupsView, GroupHandlerView,
                           GroupUsersIndex, GroupUserHandler,
                           GroupGroupsIndex, GroupGroupHandler)
 
