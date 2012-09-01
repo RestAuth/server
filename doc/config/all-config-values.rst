@@ -70,6 +70,48 @@ If a client still uses HTTP sessions, you can set this configuarion variable to
 ``True``. This has the effect of adding the appropriate middleware classes to
 :setting:`MIDDLEWARE_CLASSES`.
 
+.. setting:: GROUP_RECURSION_DEPTH
+
+GROUP_RECURSION_DEPTH
+=====================
+
+.. versionadded:: 0.6.0
+   In version 0.5.3 and earlier the recursion depth was hard-coded to 10.
+
+Default: ``3``
+
+When calculating group memberships RestAuth supports *nested groups*, where a
+group may have parent groups and inherit additional memberships from its parent
+groups.
+
+.. NOTE:: Parent groups do not have to belong to the same service if you
+   configure them using |bin-restauth-group|. This lets you, for example,
+   configure an administration service that can define memberships for its own
+   groups and other, lesser privileged services, automatically inherit
+   memberships from the groups of the administration service.
+
+A :setting:`GROUP_RECURSION_DEPTH` of 3 means, that RestAuth will check 3 levels
+of parent groups. Take this example, where ``Group A`` is a parent group of
+``Group B`` and so on::
+
+   Group A
+   |- Group B
+     |- Group C
+        |- Group D
+           |- Group E
+
+If a user is a member of ``Group A``, he will also be considered a member of
+``Group B``, ``Group C`` and ``Group D`` but no longer a member of ``Group E``,
+because the third level of parent-groups above is ``Group B``, where the user is
+not a "direct" member.
+
+Setting :setting:`GROUP_RECURSION_DEPTH` to ``0`` will disable nested groups
+entirely.
+
+.. WARNING:: Do not set this setting to a value greater then necessary. Checking
+   nested groups is relatively performance intensive. Set this setting to a
+   value as low as possible.
+
 .. setting:: HASH_ALGORITHM
 
 HASH_ALGORITHM
