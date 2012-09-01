@@ -35,9 +35,9 @@ If you update from 0.5.2 or earlier, you need a few more |bin-restauth-manage-li
 
    |bin-restauth-manage| syncdb
 
-   |bin-restauth-manage| Services 0001 --fake
-   |bin-restauth-manage| Users 0001 --fake
-   |bin-restauth-manage| Groups 0001 --fake
+   |bin-restauth-manage| migrate Services 0001 --fake
+   |bin-restauth-manage| migrate Users 0001 --fake
+   |bin-restauth-manage| migrate Groups 0001 --fake
 
    |bin-restauth-manage| migrate
 
