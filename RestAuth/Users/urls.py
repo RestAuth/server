@@ -17,8 +17,8 @@
 
 from django.conf.urls.defaults import *
 
-from Services.decorator import login_required
-from Users.views import (UsersView, UserHandlerView,
+from RestAuth.Services.decorator import login_required
+from RestAuth.Users.views import (UsersView, UserHandlerView,
                          UserPropsIndex, UserPropHandler)
 
 urlpatterns = patterns(
