@@ -51,10 +51,25 @@ There are no schema changes in earlier releases.
 Use new settings
 ================
 
+.. _update_settings_0.6.0:
+
+New settings in 0.6.0
++++++++++++++++++++++
+
+In 0.5.3 and earlier, nested group membership was determined by a rather complex
+algorithm with many database queries. The check is now done entirely within the
+database and is much faster. As a side-effect, the recursion depth is now
+configurable, with the new :setting:`GROUP_RECURSION_DEPTH` setting.
+
+The new default is 3, while the old code used the hard-coded recursion depth of
+10. Feel free to increase this value, but note that greater recursion depth
+decreases performance. If you do not use nested groups at all, you can set
+:setting:`GROUP_RECURSION_DEPTH` to 0 to completely disable nested groups.
+
 .. _update_settings_0.5.3:
 
-New Settings in  0.5.3
-++++++++++++++++++++++
+New settings in 0.5.3
++++++++++++++++++++++
 
 HASH_FUNCTIONS and HASH_ALGORITHM
 _________________________________
