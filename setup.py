@@ -55,6 +55,7 @@ LATEST_RELEASE = '0.5.3'
 if os.path.exists('RestAuth'):
     sys.path.insert(0, 'RestAuth')
 
+
 def get_version():
     """
     Dynamically get the current version.
@@ -110,7 +111,7 @@ class install(_install):
             os.path.abspath(self.install_purelib),
             'RestAuth', 'manage.py'
         )
-	if not os.path.exists(target):
+        if not os.path.exists(target):
             os.symlink(source, target)
 
         # set execute permissions:
@@ -311,7 +312,8 @@ class test(Command):
             print(self.app)
             call_command('test', self.app)
         else:
-            call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common')
+            call_command('test', 'Users', 'Groups', 'Test', 'Services',
+                         'common')
 
 
 class coverage(Command):
@@ -414,8 +416,11 @@ setup(
     author='Mathias Ertl',
     author_email='mati@restauth.net',
     url='https://restauth.net',
-    packages=['RestAuth', 'RestAuth.Services', 'RestAuth.common',
-        'RestAuth.Groups', 'RestAuth.Users', 'RestAuth.Test'],
+    packages=['RestAuth', 'RestAuth.common',
+    'RestAuth.Services', 'RestAuth.Services.migrations',
+        'RestAuth.Groups', 'RestAuth.Groups.migrations',
+        'RestAuth.Users', 'RestAuth.Users.migrations',
+        'RestAuth.common', 'RestAuth.Test'],
     scripts=[
         'bin/restauth-service.py', 'bin/restauth-user.py',
         'bin/restauth-group.py', 'bin/restauth-import.py',
