@@ -1,4 +1,4 @@
-restauth (0.5.3-170-gef76293-1) unstable; urgency=low
+restauth (0.5.3-171-g32dbebb-1) unstable; urgency=low
 
   * bump from upstream
   * add python-django-south as dependencies
