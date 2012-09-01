@@ -111,6 +111,15 @@ SECRET_KEY=''
 #       https://server.restauth.net/config/all-config-values.html
 #HASH_ALGORITHM = 'sha512'
 
+##############
+### GROUPS ###
+##############
+# RestAuth supports nested groups where memberships of a group may be inherited
+# from parent groups. You can configure how many levels of groups RestAuth
+# checks. A recursion depth of 3 (=default) means that up to three levels of
+# parent groups are checked.
+#GROUP_RECURSION_DEPTH=3
+
 ###############
 ### CACHING ###
 ###############
