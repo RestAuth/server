@@ -22,6 +22,7 @@ import logging
 from datetime import datetime
 
 from django.http import HttpResponseForbidden
+from django.db import transaction
 
 from RestAuthCommon.error import BadRequest
 from RestAuth.Users.models import ServiceUser, Property, user_create
@@ -214,8 +215,9 @@ class UserPropsIndex(RestAuthResourceView):
         # If User.DoesNotExist: 404 Not Found
         user = ServiceUser.objects.only('id').get(username=name)
 
-        for key, value in get_freeform_dict(request).iteritems():
-            user.set_property(key, value)
+        with transaction.commit_on_success():
+            for key, value in get_freeform_dict(request).iteritems():
+                user.set_property(key, value)
         return HttpResponseNoContent()
 
 
