@@ -27,7 +27,7 @@ sys.path.append(os.getcwd())
 
 try:
     from RestAuth.Groups.models import Group, group_create
-    from RestAuth.Users.models import ServiceUser, user_get
+    from RestAuth.Users.models import ServiceUser
     from RestAuth.Services.models import Service
     from RestAuth.common.cli import group_parser
 except ImportError:
@@ -87,8 +87,9 @@ except Group.DoesNotExist:
 
 # Actions that act on an existing group:
 if args.action == 'view':
-    explicit_users = group.get_members(depth=0)
-    effective_users = group.get_members()
+    explicit_users = group.get_members(depth=0).values_list(
+        'username', flat=True)
+    effective_users = group.get_members().values_list('username', flat=True)
     parent_groups = list(group.parent_groups.all())
     sub_groups = list(group.groups.all())
     if explicit_users:
