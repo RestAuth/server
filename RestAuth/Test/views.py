@@ -4,7 +4,7 @@ from RestAuth.Users.views import UsersView, UserPropsIndex
 from RestAuth.Groups.views import GroupsView
 from RestAuth.Services.decorator import login_required
 
-users_view = UsersView.as_view()
+users_view = UsersView.as_view(manage_transactions=False)
 props_view = UserPropsIndex.as_view()
 groups_view = GroupsView.as_view()
 

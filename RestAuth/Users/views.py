@@ -22,6 +22,7 @@ import logging
 from datetime import datetime
 
 from django.http import HttpResponseForbidden
+from django.db import transaction
 
 from RestAuthCommon.error import BadRequest
 from RestAuth.Users.models import ServiceUser, Property, user_create
@@ -39,6 +40,7 @@ class UsersView(RestAuthView):
     """
     http_method_names = ['get', 'post']
     log = logging.getLogger('users')
+    manage_transactions = True
 
     def get(self, request, largs, *args, **kwargs):
         """
@@ -51,6 +53,18 @@ class UsersView(RestAuthView):
 
         self.log.debug("Got list of users", extra=largs)
         return HttpRestAuthResponse(request, list(names))
+
+    def create_user(self, name, password, props):
+        user = user_create(name, password)
+        if props:
+            if props.__class__ != dict:
+                raise BadRequest('Properties not a dictionary!')
+            [user.set_property(key, value) for key, value in props.iteritems()]
+
+        if not props or 'date joined' not in props:
+            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            user.set_property('date joined', stamp)
+        return user
 
     def post(self, request, largs, *args, **kwargs):
         """
@@ -66,15 +80,11 @@ class UsersView(RestAuthView):
         # If ResourceExists: 409 Conflict
         # If UsernameInvalid: 412 Precondition Failed
         # If PasswordInvalid: 412 Precondition Failed
-        user = user_create(name, password)
-        if props:
-            if props.__class__ != dict:
-                raise BadRequest('Properties not a dictionary!')
-            [user.set_property(key, value) for key, value in props.iteritems()]
-
-        if not props or 'date joined' not in props:
-            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            user.set_property('date joined', stamp)
+        if self.manage_transactions:
+            with transaction.commit_on_success():
+                user = self.create_user(name, password, props)
+        else:
+            user = self.create_user(name, password, props)
 
         self.log.info('%s: Created user', name, extra=largs)
         return HttpResponseCreated(request, user)
@@ -214,8 +224,9 @@ class UserPropsIndex(RestAuthResourceView):
         # If User.DoesNotExist: 404 Not Found
         user = ServiceUser.objects.only('id').get(username=name)
 
-        for key, value in get_freeform_dict(request).iteritems():
-            user.set_property(key, value)
+        with transaction.commit_on_success():
+            for key, value in get_freeform_dict(request).iteritems():
+                user.set_property(key, value)
         return HttpResponseNoContent()
 
 
