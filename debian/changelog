@@ -1,4 +1,10 @@
-restauth (0.5.3-171-g32dbebb-1) unstable; urgency=low
+restauth (0.6.0-1) unstable; urgency=low
+
+  * Version bump from upstream
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 15 Sep 2012 10:32:56 +0200
+
+restauth (0.5.3-1) unstable; urgency=low
 
   * bump from upstream
   * add python-django-south as dependencies
@@ -6,7 +12,7 @@ restauth (0.5.3-171-g32dbebb-1) unstable; urgency=low
 
  -- Mathias Ertl <apt-repository@fsinf.at>  Tue, 28 Aug 2012 20:16:14 +0200
 
-restauth (0.5.2-72-g6d327bb-1) unstable; urgency=low
+restauth (0.5.2-1) unstable; urgency=low
 
   * bump from upstream
 
