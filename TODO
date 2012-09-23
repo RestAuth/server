@@ -1,4 +1,7 @@
-0.6.0:
+0.6.1:
+* Implement CLI script actions as argparse.Action, see
+    http://docs.python.org/dev/library/argparse.html#action
+  * write tests for that
 
 Future:
 
