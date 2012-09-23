@@ -86,7 +86,7 @@ class Service(User):
 
 class ServiceAddress(models.Model):
     address = models.CharField(max_length=39, unique=True)
-    services = models.ManyToManyField(Service, related_name='hosts')
+    services = models.ManyToManyField(User, related_name='hosts')
 
     def __unicode__(self):  # pragma: no cover
         return self.address

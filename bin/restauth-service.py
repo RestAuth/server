@@ -102,7 +102,7 @@ elif args.action in [ 'remove', 'rm', 'del', 'delete' ]:
         print("Error: %s: Service not found."%args.service)
         sys.exit(1)
 elif args.action in [ 'list', 'ls' ]:
-    for service in Service.objects.all():
+    for service in Service.objects.all().order_by('username'):
         hosts = [ str(host.address) for host in service.hosts.all() ]
         print('%s: %s'%(service.username, ', '.join(hosts)))
 elif args.action == 'view':
