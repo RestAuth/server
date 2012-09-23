@@ -1,3 +1,9 @@
+restauth (0.6.0-4-g419dcb8-1) unstable; urgency=low
+
+  * Minor improvements from git
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 23 Sep 2012 20:33:45 +0200
+
 restauth (0.6.0-1) unstable; urgency=low
 
   * Version bump from upstream
