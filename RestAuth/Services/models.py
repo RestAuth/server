@@ -64,21 +64,24 @@ class Service(User):
             return False
 
     def set_hosts(self, *raw_hosts):
+        cleaned_hosts = [h.strip(', ') for h in raw_hosts]
         hosts = [ServiceAddress.objects.get_or_create(address=raw)[0]
-                 for raw in raw_hosts]
+                 for raw in cleaned_hosts]
         self.hosts.clear()
         self.hosts.add(*hosts)
 
     def add_hosts(self, *raw_hosts):
+        cleaned_hosts = [h.strip(', ') for h in raw_hosts]
         hosts = [ServiceAddress.objects.get_or_create(address=raw)[0]
-                 for raw in raw_hosts]
+                 for raw in cleaned_hosts]
         self.hosts.add(*hosts)
 
     def del_hosts(self, *raw_hosts):
         hosts = []
         for raw_host in raw_hosts:
+            host = raw_host.strip(', ')
             try:
-                hosts.append(ServiceAddress.objects.get(address=raw_host))
+                hosts.append(ServiceAddress.objects.get(address=host))
             except ServiceAddress.DoesNotExist:
                 pass
         self.hosts.remove(*hosts)
