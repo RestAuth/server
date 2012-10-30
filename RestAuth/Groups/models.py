@@ -96,7 +96,7 @@ class Group(models.Model):
         for i in range(depth):
             kwarg += '__groups'
             expr |= models.Q(**{kwarg: self})
-        return User.objects.filter(expr)
+        return User.objects.filter(expr).distinct()
 
     def is_member(self, username):
         return self.get_members().filter(username=username).exists()

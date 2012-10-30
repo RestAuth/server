@@ -3,6 +3,8 @@ RestAuth 0.6.1 (DD MMMM YYYY)
   * Fix a broken Foreign Key constraint that broke adding IP-Adresses to
     services.
   * Display services in alphabetical order
+  * Bugfix: When calling group members, users were returned multiple times
+    under certain conditions.
 
 
 RestAuth 0.6.0 (15 September 2012)
