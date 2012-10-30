@@ -14,4 +14,4 @@ class GroupQuerySet(models.query.QuerySet):
             kwarg = 'parent_groups__%s' % kwarg
             expr |= models.Q(**{kwarg: user, 'service': service})
 
-        return self.filter(expr)
+        return self.filter(expr).distinct()
