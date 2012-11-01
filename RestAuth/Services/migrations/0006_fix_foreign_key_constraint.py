@@ -8,12 +8,18 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        if db.backend_name == 'sqlite3':
+            return
+
         db.delete_foreign_key('Services_serviceaddress_services', 'service_id')
 
         sql = db.foreign_key_sql('Services_serviceaddress_services', 'service_id', 'auth_user', 'id')
         db.execute(sql)
 
     def backwards(self, orm):
+        if db.current_orm == 'sqlite3':
+            return
+
         db.delete_foreign_key('Services_serviceaddress_services', 'service_id')
 
         sql = db.foreign_key_sql('Services_serviceaddress_services', 'service_id', 'Service_services', 'id')
