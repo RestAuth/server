@@ -2,9 +2,11 @@ RestAuth 0.6.1 (DD MMMM YYYY)
 
   * Fix a broken Foreign Key constraint that broke adding IP-Adresses to
     services.
-  * Display services in alphabetical order
+  * Display services in alphabetical order in cli scripts
   * Bugfix: When calling group members, users were returned multiple times
     under certain conditions.
+  * Fix migrations on a bare SQLite3 database
+  * Update testerver fixture to include example.{com,net,org} services.
 
 
 RestAuth 0.6.0 (15 September 2012)
