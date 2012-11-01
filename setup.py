@@ -351,6 +351,7 @@ class coverage(Command):
 
 
 class testserver(Command):
+    description = "Run a testserver on http://[::1]:8000"
     user_options = []
 
     def initialize_options(self):
