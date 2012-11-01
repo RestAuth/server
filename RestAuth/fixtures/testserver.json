@@ -629,7 +629,7 @@
                     "serviceuser"
                 ]
             ],
-            "password": "",
+            "password": "pbkdf2_sha256$10000$b08yODvdTcMR$nRtxOOjlaUgr4izFff3LqCEklet+oQgxqMvkaV3I9+Q=",
             "email": "",
             "date_joined": "2012-11-01T18:53:20.454"
         }

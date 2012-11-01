@@ -8,7 +8,6 @@ RestAuth 0.6.1 (DD MMMM YYYY)
   * Fix migrations on a bare SQLite3 database
   * Update testerver fixture to include example.{com,net,org} services.
 
-
 RestAuth 0.6.0 (15 September 2012)
 
   General:
