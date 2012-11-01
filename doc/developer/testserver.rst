@@ -27,11 +27,11 @@ vowi                nopass   Used by most unittests in client libraries.
                              historical reasons, use example.* services
                              instead.
 example.com         nopass   Has all permissions.
-example.net         nopass   Has all permissions and the group ``netgroup``
+example.org         nopass   Has all permissions and the group ``orggroup``
                              predefined.
-example.org         nopass   Only has group-permissions and the predefined
-                             group ``orggroup``, which is a subgroup of the
-                             group ``netgroup`` in the ``example.net`` service.
+example.net         nopass   Only has group-permissions and the predefined
+                             group ``netgroup``, which is a subgroup of the
+                             group ``orggroup`` in the ``example.org`` service.
 nohosts.example.org nopass   Does have all permissions, but you can't connect
                              to it from anywhere, because no hosts are defined
                              for it.
