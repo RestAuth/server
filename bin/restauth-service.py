@@ -23,12 +23,16 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
-    from RestAuth.Services.models import *
-    from RestAuth.common.cli import pwd_parser, service_parser
+    from django.db import IntegrityError
+    from django.contrib.auth.models import Permission
+    from django.contrib.contenttypes.models import ContentType
+
+    from RestAuth.Services.models import check_service_username, Service, ServiceUsernameNotValid
+    from RestAuth.Services.cli import service_parser
 
     from RestAuth.Users.models import user_permissions, prop_permissions
     from RestAuth.Groups.models import group_permissions
-except ImportError, e:
+except ImportError as e:
     print(e)
     sys.stderr.write('Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
