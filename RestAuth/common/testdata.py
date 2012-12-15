@@ -79,7 +79,7 @@ class RestAuthTestBase(object):
             'REMOTE_USER': 'vowi',
             'content_type': self.handler.mime,
         }
-        self.service = service_create('vowi', 'vowi', ['127.0.0.1', '::1'])
+        self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
 
         # add permissions:
         u_ct = ContentType.objects.get(app_label="Users", model="serviceuser")
