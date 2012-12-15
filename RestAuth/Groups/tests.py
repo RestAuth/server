@@ -34,7 +34,7 @@ class GroupTests(RestAuthTest):
         self.user3 = user_create(username3, password3)
 
         self.vowi = Service.objects.get(username='vowi')
-        self.fsinf = service_create('fsinf', 'fsinf', ['127.0.0.1', '::1'])
+        self.fsinf = service_create('fsinf', 'fsinf', '127.0.0.1', '::1')
 
     def get_grp(self, name, service=None):
         return Group.objects.get(name=name, service=service)

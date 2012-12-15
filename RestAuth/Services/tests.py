@@ -102,7 +102,7 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
         self.assertEquals(resp.status_code, httplib.UNAUTHORIZED)
 
     def test_wrong_password(self):
-        service_create('vowi', 'vowi', ['127.0.0.1', '::1'])
+        service_create('vowi', 'vowi', '127.0.0.1', '::1')
         self.set_auth('vowi', 'fsinf')
 
         resp = self.get('/users/')
@@ -115,8 +115,7 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
         resp = self.get('/users/')
         self.assertEquals(resp.status_code, httplib.UNAUTHORIZED)
 
-        service.add_hosts(
-            [ServiceAddress.objects.get_or_create(address='127.0.0.1')[0]])
+        service.add_hosts('127.0.0.1')
 
         self.set_auth('vowi', 'vowi')
         self.extra['REMOTE_ADDR'] = '127.0.0.2'
