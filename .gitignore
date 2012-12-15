@@ -12,3 +12,12 @@ doc/coverage
 Makefile.local
 .pc
 profile.py
+include/
+src/
+lib/
+local/
+bin/python
+bin/pip*
+bin/easy_install*
+bin/activate*
+bin/django-admin.py
