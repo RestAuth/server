@@ -16,9 +16,7 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.db import models
-from django.db.utils import IntegrityError
-from django.contrib.auth.models import User, Permission
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 
 
 class ServiceUsernameNotValid(BaseException):
