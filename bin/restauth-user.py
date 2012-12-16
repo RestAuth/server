@@ -18,7 +18,6 @@
 import os
 import sys
 import getpass
-from argparse import ArgumentParser
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -26,21 +25,18 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
-    from RestAuth.Users.models import (ServiceUser, Property,
-                                       validate_username)
+    from RestAuth.Groups.models import Group
+    from RestAuth.Users.models import ServiceUser, Property
     from RestAuth.Services.models import Service
     from RestAuth.common import errors
-    from RestAuth.common.cli import user_parser
-    from django.db.utils import IntegrityError
-except ImportError, e:
+    from RestAuth.Users.cli import parser
+except ImportError as e:
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
                      'sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
 # parse arguments
-args = user_parser.parse_args()
-if hasattr(args, 'user'):
-    args.user = args.user.lower()
+args = parser.parse_args()
 
 
 def get_password(options):
@@ -55,18 +51,11 @@ def get_password(options):
     else:
         return password
 
-if args.action in ['create', 'add']:
-    username = args.user.decode('utf-8')
-
+if args.action == 'add':
     try:
-        validate_username(username)
-        user = ServiceUser(username=username)
         password = get_password(args)
-        user.set_password(password)
-        user.save()
-    except IntegrityError as e:
-        print("Error: %s: User already exists." % username)
-        sys.exit(1)
+        args.user.set_password(password)
+        args.user.save()
     except errors.PreconditionFailed as e:
         print("Error: %s" % e)
         sys.exit(1)
@@ -74,52 +63,43 @@ elif args.action in ['ls', 'list']:
     for user in ServiceUser.objects.values_list('username', flat=True):
         print(user.encode('utf-8'))
 elif args.action == 'verify':
-    try:
-        user = ServiceUser.objects.get(username=args.user)
-        if not args.pwd:
-            args.pwd = getpass.getpass('password: ')
-        if user.check_password(args.pwd):
-            print('Ok.')
-        else:
-            print('Failed.')
-            sys.exit(1)
-    except ServiceUser.DoesNotExist:
-        print("Error: %s: User does not exist." % args.user)
+    if not args.pwd:
+        args.pwd = getpass.getpass('password: ')
+    if args.user.check_password(args.pwd):
+        print('Ok.')
+    else:
+        print('Failed.')
         sys.exit(1)
 elif args.action == 'set-password':
     try:
-        user = ServiceUser.objects.get(username=args.user)
         password = get_password(args)
-        user.set_password(password)
-        user.save()
-    except ServiceUser.DoesNotExist:
-        print("Error: %s: User does not exist." % args.user)
-        sys.exit(1)
+        args.user.set_password(password)
+        args.user.save()
     except errors.PasswordInvalid as e:
         print("Error: %s" % e)
         sys.exit(1)
 elif args.action == 'view':
     try:
-        user = ServiceUser.objects.get(username=args.user)
-
         try:
-            print('Joined: %s' % user.property_set.get(key='date joined'))
+            joined = args.user.property_set.get(key='date joined')
+            print('Joined: %s' % joined)
         except Property.DoesNotExist:
             pass
 
         try:
-            print('Last login: %s' % user.property_set.get(key='last login'))
+            last_login = args.user.property_set.get(key='last login')
+            print('Last login: %s' % last_login)
         except Property.DoesNotExist:
             pass
 
         if args.service:
             service = Service.objects.get(username=args.service)
-            groups = user.group_set.filter(service=service)
-            groups = groups.values_list('service__username', flat=True)
+            groups = Group.objects.member(user=args.user, service=service)
+            groups = groups.values_list('name', flat=True)
             print('Groups: %s' % ', '.join(groups))
         else:
             groups_dict = {}
-            qs = user.group_set.values_list('service__username', 'name')
+            qs = args.user.group_set.values_list('service__username', 'name')
             for service, name in qs:
                 if service in groups_dict:
                     groups_dict[service].append(name)
@@ -136,12 +116,5 @@ elif args.action == 'view':
     except Service.DoesNotExist:
         print("Error: %s: Service does not exist." % args.service)
         sys.exit(1)
-    except ServiceUser.DoesNotExist:
-        print("Error: %s: User does not exist." % args.user)
-        sys.exit(1)
 elif args.action in ['delete', 'rm', 'remove']:
-    try:
-        ServiceUser.objects.get(username=args.user).delete()
-    except ServiceUser.DoesNotExist:
-        print("Error: %s: User does not exist." % args.user)
-        sys.exit(1)
+    args.user.delete()

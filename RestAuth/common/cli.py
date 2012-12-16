@@ -26,7 +26,8 @@ import sys
 from django.db.utils import IntegrityError
 
 from RestAuth.Services.models import Service, check_service_username, ServiceUsernameNotValid
-
+from RestAuth.Users.models import ServiceUser as User
+from RestAuth.common.errors import PreconditionFailed
 
 class ServiceParser(Action):
     def __call__(self, parser, namespace, value, option_string):
@@ -42,9 +43,27 @@ class ServiceParser(Action):
             try:
                 service = Service.objects.get(username=value)
             except Service.DoesNotExist:
-                raise ArgumentError(self, "No such service.")
+                raise ArgumentError(self, "Service does not exist.")
 
         setattr(namespace, self.dest, service)
+
+
+class UsernameParser(Action):
+    def __call__(self, parser, namespace, value, option_string):
+        username = value.lower().decode('utf-8')
+        if namespace.create:
+            try:
+                user = User.objects.create(username=username)
+            except IntegrityError:
+                raise ArgumentError(self, 'User already exists.')
+            except PreconditionFailed as e:
+                raise ArgumentError(self, e)
+        else:
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                raise ArgumentError(self, 'User does not exist.')
+        setattr(namespace, self.dest, user)
 
 
 class PasswordGenerator(Action):
@@ -55,6 +74,7 @@ class PasswordGenerator(Action):
         passwd = ''.join(random.choice(chars) for x in range(30))
         print(passwd)
         setattr(namespace, self.dest, passwd)
+
 
 pwd_parser = ArgumentParser(add_help=False)
 pwd_group = pwd_parser.add_mutually_exclusive_group()
@@ -75,8 +95,9 @@ host_arg_parser.add_argument(
     'multiple hosts as additional positional arguments. If ommitted, this '
     'service cannot be used from anywhere.'
 )
-username_arg_parser = ArgumentParser(add_help=False)
-username_arg_parser.add_argument('user', help="The name of the user.")
+user_parser = ArgumentParser(add_help=False)
+user_parser.set_defaults(create=False)
+user_parser.add_argument('user', action=UsernameParser, help="The name of the user.")
 
 group_arg_parser = ArgumentParser(add_help=False)
 group_arg_parser.add_argument('group', help="The name of the group.")
@@ -92,45 +113,6 @@ subgroup_parser.add_argument(
     '--sub-service', metavar='SUBSERVICE',
     help='Assume that the named subgroup is from SUBSERVICE.'
 )
-
-############################
-### restauth-user parser ###
-############################
-user_desc = """Manages users in RestAuth. Users are clients that want to
-authenticate with services that use RestAuth."""
-user_parser = ArgumentParser(description=user_desc)
-
-user_subparsers = user_parser.add_subparsers(
-    title="Available actions", dest='action',
-    description="Use '%(prog)s action --help' for more help on each action."
-)
-user_subparsers.add_parser(
-    'add', help="Add a new user.", parents=[username_arg_parser, pwd_parser],
-    description="Add a new user."
-)
-user_subparsers.add_parser(
-    'ls', help="List all users.", description="List all users.")
-user_subparsers.add_parser(
-    'verify', help="Verify a users password.",
-    parents=[username_arg_parser, pwd_parser],
-    description="Verify the password of a user."
-)
-user_subparsers.add_parser(
-    'set-password', parents=[username_arg_parser, pwd_parser],
-    help="Set the password of a user.",
-    description="Set the password of a user."
-)
-user_subparsers.add_parser(
-    'rm', help="Remove a user.", parents=[username_arg_parser],
-    description="Remove a user."
-)
-
-user_view_p = user_subparsers.add_parser(
-    'view', parents=[username_arg_parser],
-    help="View details of a user.", description="View details of a user."
-)
-user_view_p.add_argument(
-    '--service', help="View information as SERVICE would see it.")
 
 #############################
 ### restauth-group parser ###
@@ -160,7 +142,7 @@ group_subparsers.add_parser(
     description="View details of a group."
 )
 group_subparsers.add_parser(
-    'add-user', parents=[group_arg_parser, username_arg_parser],
+    'add-user', parents=[group_arg_parser, user_parser],
     help="Add a user to a group.", description="Add a user to a group."
 )
 group_subparsers.add_parser(
@@ -170,7 +152,7 @@ group_subparsers.add_parser(
     'inherit all memberships from the parent group.'
 )
 group_subparsers.add_parser(
-    'rm-user', parents=[group_arg_parser, username_arg_parser],
+    'rm-user', parents=[group_arg_parser, user_parser],
     help="Remove a user from a group.",
     description="Remove a user from a group."
 )

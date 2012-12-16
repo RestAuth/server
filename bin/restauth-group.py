@@ -17,7 +17,6 @@
 
 import os
 import sys
-from argparse import ArgumentParser
 from operator import attrgetter
 
 # Setup environment
@@ -27,7 +26,6 @@ sys.path.append(os.getcwd())
 
 try:
     from RestAuth.Groups.models import Group, group_create
-    from RestAuth.Users.models import ServiceUser
     from RestAuth.Services.models import Service
     from RestAuth.common.cli import group_parser
 except ImportError:
@@ -111,9 +109,7 @@ if args.action == 'view':
     else:
         print('* No subgroups')
 elif args.action == 'add-user':
-    user = ServiceUser.objects.get(username=args.user.lower())
-
-    group.users.add(user)
+    group.users.add(args.user)
 elif args.action == 'add-group':
     if args.sub_service:
         sub_service = Service.objects.get(username=args.sub_service)
@@ -125,9 +121,8 @@ elif args.action == 'add-group':
 elif args.action in ['delete', 'del', 'rm']:
     group.delete()
 elif args.action in ['remove-user', 'rm-user', 'del-user']:
-    user = ServiceUser.objects.get(username=args.user.lower())
-    if user in group.users.all():
-        group.users.remove(user)
+    if args.user in group.users.all():
+        group.users.remove(args.user)
 elif args.action in ['remove-group', 'rm-group', 'del-group']:
     try:
         if args.sub_service:
