@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, getpass, fnmatch
+import os, sys, getpass
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -23,21 +23,15 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
-    from django.db import IntegrityError
-    from django.contrib.auth.models import Permission
-    from django.contrib.contenttypes.models import ContentType
-
-    from RestAuth.Services.models import check_service_username, Service, ServiceUsernameNotValid
+    from RestAuth.Services.models import Service
     from RestAuth.Services.cli import service_parser
-
-    from RestAuth.Users.models import user_permissions, prop_permissions
-    from RestAuth.Groups.models import group_permissions
 except ImportError as e:
     print(e)
     sys.stderr.write('Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
 args = service_parser.parse_args()
+
 
 def get_password(args):
     if args.pwd:
@@ -51,127 +45,36 @@ def get_password(args):
     else:
         return password
 
-def parse_permissions(raw_permissions):
-    user_ct = ContentType.objects.get(app_label='Users', model='serviceuser')
-    prop_ct = ContentType.objects.get(app_label='Users', model='property')
-    group_ct = ContentType.objects.get(app_label='Groups', model='group')
-
-    user_permissions_dict = dict(user_permissions)
-    prop_permissions_dict = dict(prop_permissions)
-    group_permissions_dict = dict(group_permissions)
-
-    permissions = []
-    for raw_permission in raw_permissions:
-        for codename in fnmatch.filter(user_permissions_dict.keys(), raw_permission):
-            perm, c = Permission.objects.get_or_create(
-                content_type=user_ct, codename=codename,
-                defaults={'name': user_permissions_dict[codename]}
-            )
-            permissions.append(perm)
-
-        for codename in fnmatch.filter(prop_permissions_dict.keys(), raw_permission):
-            perm, c = Permission.objects.get_or_create(
-                content_type=prop_ct, codename=codename,
-                defaults={'name': prop_permissions_dict[codename]}
-            )
-            permissions.append(perm)
-
-        for codename in fnmatch.filter(group_permissions_dict.keys(), raw_permission):
-            perm, c = Permission.objects.get_or_create(
-                content_type=group_ct, codename=codename,
-                defaults={'name': group_permissions_dict[codename]}
-            )
-            permissions.append(perm)
-
-    return permissions
 
 if args.action in ['create', 'add']:
-    try:
-        check_service_username(args.service)
-        service = Service(username=args.service)
-        service.save()
-        service.set_password(get_password(args))
-        service.save()
-    except IntegrityError as e:
-        print("Error: %s: Service already exists."%args.service)
-        sys.exit(1)
-    except ServiceUsernameNotValid as e:
-        print(e)
-        sys.exit(1)
+    args.service.set_password(get_password(args))
+    args.service.save()
 elif args.action in [ 'remove', 'rm', 'del', 'delete' ]:
-    try:
-        service = Service.objects.get(username=args.service)
-        service.delete()
-    except Service.DoesNotExist:
-        print("Error: %s: Service not found."%args.service)
-        sys.exit(1)
+    args.service.delete()
 elif args.action in [ 'list', 'ls' ]:
     for service in Service.objects.all().order_by('username'):
-        hosts = [ str(host.address) for host in service.hosts.all() ]
+        hosts = [str(host.address) for host in service.hosts.all()]
         print('%s: %s'%(service.username, ', '.join(hosts)))
 elif args.action == 'view':
-    try:
-        service = Service.objects.get(username=args.service)
-        print(service.username)
-        print('Last used: %s' % (service.last_login))
-        hosts = [ str(host.address) for host in service.hosts.all()]
-        print('Hosts: %s' % (', '.join(hosts)))
-        perms = [p.codename for p in service.user_permissions.all()]
-        print('Permissions: %s' % (', '.join(perms)))
-    except Service.DoesNotExist:
-        print("Error: %s: Service not found."%args.service)
-        sys.exit(1)
+    print(args.service.username)
+    print('Last used: %s' % (args.service.last_login))
+    hosts = [str(host.address) for host in args.service.hosts.all()]
+    print('Hosts: %s' % (', '.join(hosts)))
+    perms = [p.codename for p in args.service.user_permissions.all()]
+    print('Permissions: %s' % (', '.join(perms)))
 elif args.action == 'set-hosts':
-    try:
-        service = Service.objects.get(username=args.service)
-        service.set_hosts(*args.hosts)
-    except Service.DoesNotExist:
-        print("Error: %s: Service not found."%args.service)
-        sys.exit(1)
+    args.service.set_hosts(*args.hosts)
 elif args.action == 'add-hosts':
-    try:
-        service = Service.objects.get(username=args.service)
-        service.add_hosts(*args.hosts)
-    except Service.DoesNotExist:
-        print("Error: %s: Service not found."%args.service)
-        sys.exit(1)
+    args.service.add_hosts(*args.hosts)
 elif args.action == 'rm-hosts':
-    try:
-        service = Service.objects.get(username=args.service)
-        service.del_hosts(*args.hosts)
-    except Service.DoesNotExist:
-        print("Error: %s: Service not found."%args.service)
-        sys.exit(1)
+    args.service.del_hosts(*args.hosts)
 elif args.action == 'set-password':
-    try:
-        service = Service.objects.get(username=args.service)
-        service.set_password(get_password(args))
-        service.save()
-    except Service.DoesNotExist:
-        print("Error: %s: Service not found."%args.service)
-        sys.exit(1)
+    args.service.set_password(get_password(args))
+    args.service.save()
 elif args.action == 'set-permissions':
-    try:
-        service = Service.objects.get(username=args.service)
-        perms = parse_permissions(args.permissions)
-        service.user_permissions.clear()
-        service.user_permissions.add(*perms)
-    except Service.DoesNotExist:
-        print("Error: %s: Service not found." % args.service)
-        sys.exit(1)
+    args.service.user_permissions.clear()
+    args.service.user_permissions.add(*args.permissions)
 elif args.action == 'add-permissions':
-    try:
-        service = Service.objects.get(username=args.service)
-        perms = parse_permissions(args.permissions)
-        service.user_permissions.add(*perms)
-    except Service.DoesNotExist:
-        print("Error: %s: Service not found." % args.service)
-        sys.exit(1)
+    args.service.user_permissions.add(*args.permissions)
 elif args.action == 'rm-permissions':
-    try:
-        service = Service.objects.get(username=args.service)
-        perms = parse_permissions(args.permissions)
-        service.user_permissions.remove(*perms)
-    except Service.DoesNotExist:
-        print("Error: %s: Service not found." % args.service)
-        sys.exit(1)
+    args.service.user_permissions.remove(*args.permissions)

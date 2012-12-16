@@ -15,10 +15,60 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from argparse import ArgumentParser
+import fnmatch
 
-from RestAuth.common.cli import pwd_parser, service_arg_parser
+from argparse import Action, ArgumentParser
 
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+
+from RestAuth.common.cli import pwd_parser, ServiceParser
+from RestAuth.Users.models import user_permissions, prop_permissions
+from RestAuth.Groups.models import group_permissions
+
+
+class PermissionParser(Action):
+    def __call__(self, parser, namespace, values, option_string):
+        user_ct = ContentType.objects.get(app_label='Users',
+                                          model='serviceuser')
+        prop_ct = ContentType.objects.get(app_label='Users', model='property')
+        group_ct = ContentType.objects.get(app_label='Groups', model='group')
+
+        user_permissions_dict = dict(user_permissions)
+        prop_permissions_dict = dict(prop_permissions)
+        group_permissions_dict = dict(group_permissions)
+
+        permissions = []
+        for value in values:
+            for codename in fnmatch.filter(user_permissions_dict.keys(), value):
+                perm, c = Permission.objects.get_or_create(
+                    content_type=user_ct, codename=codename,
+                    defaults={'name': user_permissions_dict[codename]}
+                )
+                permissions.append(perm)
+
+            for codename in fnmatch.filter(prop_permissions_dict.keys(), value):
+                perm, c = Permission.objects.get_or_create(
+                    content_type=prop_ct, codename=codename,
+                    defaults={'name': prop_permissions_dict[codename]}
+                )
+                permissions.append(perm)
+
+            for codename in fnmatch.filter(group_permissions_dict.keys(), value):
+                perm, c = Permission.objects.get_or_create(
+                    content_type=group_ct, codename=codename,
+                    defaults={'name': group_permissions_dict[codename]}
+                )
+                permissions.append(perm)
+
+        setattr(namespace, self.dest, permissions)
+
+
+# reused positional arguments:
+service_arg_parser = ArgumentParser(add_help=False)
+service_arg_parser.set_defaults(create=False)
+service_arg_parser.add_argument(
+        'service', action=ServiceParser, metavar="SERVICE", help="The name of the service.")
 
 desc = """%(prog)s manages services in RestAuth. Services are websites,
 hosts, etc. that use RestAuth as authentication service."""
@@ -27,10 +77,14 @@ service_parser = ArgumentParser(description=desc)
 subparsers = service_parser.add_subparsers(
     title='Available actions', dest='action',
     description='Use "%(prog)s action --help" for more help on each action.')
-subparsers.add_parser(
+
+# add:
+subparser = subparsers.add_parser(
     'add', help="Add a new service.", description="Add a new service.",
     parents=[pwd_parser, service_arg_parser]
 )
+subparser.set_defaults(create=True)
+
 subparsers.add_parser(
     'ls', help="List all services.",
     description="""List all available services."""
@@ -82,6 +136,8 @@ subparsers.add_parser(
     help="Set the password for a service.",
     description="Set the password for a service."
 )
+
+# add-permissions:
 subparser = subparsers.add_parser(
     'add-permissions', parents=[service_arg_parser],
     help="Add permissions to a service.",
@@ -90,9 +146,11 @@ subparser = subparsers.add_parser(
     epilog='Please see the man-page for available permissions.'
 )
 subparser.add_argument(
-    'permissions', metavar='PERM', nargs='+',
+    'permissions', metavar='PERM', nargs='+', action=PermissionParser,
     help="Permissions to add to the specified service."
 )
+
+# rm-permissions:
 subparser = subparsers.add_parser(
     'rm-permissions', parents=[service_arg_parser],
     help="Remove permissions from a service.",
@@ -102,10 +160,11 @@ subparser = subparsers.add_parser(
     epilog='Please see the man-page for available permissions.'
 )
 subparser.add_argument(
-    'permissions', metavar='PERM', nargs='+',
-    help='Permissions to remove from the specified service. Possible '
-    'permissions are: %s'
+    'permissions', metavar='PERM', nargs='+', action=PermissionParser,
+    help='Permissions to remove from the specified service.'
 )
+
+# set-permissions:
 subparser = subparsers.add_parser(
     'set-permissions', parents=[service_arg_parser],
     help='Set permissions of a service, removes any previous permissions.',
@@ -115,7 +174,6 @@ subparser = subparsers.add_parser(
     epilog='Please see the man-page for available permissions.'
 )
 subparser.add_argument(
-    'permissions', metavar='PERM', nargs='*',
-    help="Set the permissions of the specified service. Possible permissions "
-    "are: %s"
+    'permissions', metavar='PERM', nargs='*', action=PermissionParser,
+    help="Set the permissions of the specified service."
 )

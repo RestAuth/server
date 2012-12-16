@@ -16,12 +16,35 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 from argparse import ArgumentParser
-from argparse import Action
+from argparse import Action, ArgumentError
 import argparse
 import random
 import re
 import string
 import sys
+
+from django.db.utils import IntegrityError
+
+from RestAuth.Services.models import Service, check_service_username, ServiceUsernameNotValid
+
+
+class ServiceParser(Action):
+    def __call__(self, parser, namespace, value, option_string):
+        if namespace.create:
+            try:
+                check_service_username(value)
+                service = Service.objects.create(username=value)
+            except IntegrityError:
+                raise ArgumentError(self, 'Service already exists.')
+            except ServiceUsernameNotValid as e:
+                raise ArgumentError(self, e)
+        else:
+            try:
+                service = Service.objects.get(username=value)
+            except Service.DoesNotExist:
+                raise ArgumentError(self, "No such service.")
+
+        setattr(namespace, self.dest, service)
 
 
 class PasswordGenerator(Action):
@@ -45,10 +68,6 @@ pwd_group.add_argument(
 ####################################
 ### Various positional arguments ###
 ####################################
-service_arg_parser = ArgumentParser(add_help=False)
-service_arg_parser.add_argument(
-    'service', metavar="SERVICE", help="The name of the service.")
-
 host_arg_parser = ArgumentParser(add_help=False)
 host_arg_parser.add_argument(
     'hosts', metavar='HOST', nargs='*',
