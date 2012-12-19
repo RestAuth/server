@@ -17,74 +17,42 @@
 
 import os
 import sys
-from operator import attrgetter
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 sys.path.append(os.getcwd())
 
+from django.db.utils import IntegrityError
+
 try:
-    from RestAuth.Groups.models import Group, group_create
-    from RestAuth.Services.models import Service
-    from RestAuth.common.cli import group_parser
-except ImportError:
+    from RestAuth.Groups.models import Group
+    from RestAuth.Groups.cli import parser, get_group, print_by_service
+except ImportError as e:
+    print(e)
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
 # parse arguments
-args = group_parser.parse_args()
-
-
-def print_groups_by_service(groups, indent=''):
-    servs = {}
-    for group in groups:
-        if group.service in servs:
-            servs[group.service].append(group)
-        else:
-            servs[group.service] = [group]
-
-    if None in servs:
-        none_names = [service.name.encode('utf-8') for service in servs[None]]
-        none_names.sort()
-        print('%sNone: %s' % (indent, ', '.join(none_names)))
-        del servs[None]
-
-    service_names = sorted(servs.keys(), key=attrgetter('username'))
-
-    for name in service_names:
-        names = [service.name.encode('utf-8') for service in servs[name]]
-        names.sort()
-        print('%s%s: %s' % (indent, name, ', '.join(names)))
-
-if args.service:
-    service = Service.objects.get(username=args.service)
-else:
-    service = None
+args = parser.parse_args()
 
 # Actions that do not act on an existing group:
-if args.action in ['create', 'add']:
-    group_create(args.group.decode('utf-8'), service)
-    sys.exit()
+if args.action == 'add':
+    try:
+        Group.objects.create(name=args.group, service=args.service)
+    except IntegrityError:
+        parser.error('Group already exists.')
 elif args.action in ['list', 'ls']:
     qs = Group.objects.values_list('name', flat=True).order_by('name')
     if args.service:
-        groups = qs.filter(service__username=args.service)
+        groups = qs.filter(service=args.service)
     else:
         groups = qs.filter(service=None)
     for group in groups:
         print(group.encode('utf-8'))
-    sys.exit()
-
-try:
-    group = Group.objects.get(name=args.group, service=service)
-except Group.DoesNotExist:
-    print('Error: %s: Group does not exist' % args.group)
-    sys.exit(1)
-
-# Actions that act on an existing group:
-if args.action == 'view':
+elif args.action == 'view':
+    group = get_group(parser, args.group, args.service)
     explicit_users = group.get_members(depth=0).values_list(
         'username', flat=True)
     effective_users = group.get_members().values_list('username', flat=True)
@@ -100,40 +68,32 @@ if args.action == 'view':
         print('* No effective members')
     if parent_groups:
         print('* Parent groups:')
-        print_groups_by_service(parent_groups, '    ')
+        print_by_service(parent_groups, '    ')
     else:
         print('* No parent groups')
     if sub_groups:
         print('* Subgroups:')
-        print_groups_by_service(sub_groups, '    ')
+        print_by_service(sub_groups, '    ')
     else:
         print('* No subgroups')
 elif args.action == 'add-user':
+    group = get_group(parser, args.group, args.service)
     group.users.add(args.user)
 elif args.action == 'add-group':
-    if args.sub_service:
-        sub_service = Service.objects.get(username=args.sub_service)
-    else:
-        sub_service = None
-    sub_group = Group.objects.get(name=args.subgroup, service=sub_service)
+    group = get_group(parser, args.group, args.service)
+    sub_group = get_group(parser, args.subgroup, args.sub_service)
 
     sub_group.parent_groups.add(group)
 elif args.action in ['delete', 'del', 'rm']:
+    group = get_group(parser, args.group, args.service)
     group.delete()
 elif args.action in ['remove-user', 'rm-user', 'del-user']:
+    group = get_group(parser, args.group, args.service)
     if args.user in group.users.all():
         group.users.remove(args.user)
 elif args.action in ['remove-group', 'rm-group', 'del-group']:
-    try:
-        if args.sub_service:
-            sub_service = Service.objects.get(username=args.sub_service)
-            sub_group = Group.objects.get(
-                name=args.subgroup, service=sub_service)
-        else:
-            sub_group = Group.objects.get(name=args.subgroup, service=None)
-    except Group.DoesNotExist:
-        print('Error: %s: Does not exist' % args.subgroup)
-        sys.exit(1)
+    group = get_group(parser, args.group, args.service)
+    sub_group = get_group(parser, args.subgroup, args.sub_service)
 
     if sub_group in group.groups.all():
         sub_group.parent_groups.remove(group)

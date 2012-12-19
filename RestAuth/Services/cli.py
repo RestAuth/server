@@ -66,7 +66,7 @@ class PermissionParser(Action):
 
 # reused positional arguments:
 service_arg_parser = ArgumentParser(add_help=False)
-service_arg_parser.set_defaults(create=False)
+service_arg_parser.set_defaults(service_create=False)
 service_arg_parser.add_argument(
         'service', action=ServiceParser, metavar="SERVICE", help="The name of the service.")
 
@@ -83,7 +83,7 @@ subparser = subparsers.add_parser(
     'add', help="Add a new service.", description="Add a new service.",
     parents=[pwd_parser, service_arg_parser]
 )
-subparser.set_defaults(create=True)
+subparser.set_defaults(service_create=True)
 
 subparsers.add_parser(
     'ls', help="List all services.",

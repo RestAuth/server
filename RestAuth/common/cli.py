@@ -31,7 +31,7 @@ from RestAuth.common.errors import PreconditionFailed
 
 class ServiceParser(Action):
     def __call__(self, parser, namespace, value, option_string):
-        if namespace.create:
+        if namespace.create_service:
             try:
                 check_service_username(value)
                 service = Service.objects.create(username=value)
@@ -51,7 +51,7 @@ class ServiceParser(Action):
 class UsernameParser(Action):
     def __call__(self, parser, namespace, value, option_string):
         username = value.lower().decode('utf-8')
-        if namespace.create:
+        if namespace.create_user:
             try:
                 user = User.objects.create(username=username)
             except IntegrityError:
@@ -64,6 +64,14 @@ class UsernameParser(Action):
             except User.DoesNotExist:
                 raise ArgumentError(self, 'User does not exist.')
         setattr(namespace, self.dest, user)
+
+
+class GroupnameParser(Action):
+    def __call__(self, parser, namespace, value, option_string):
+        # NOTE: we do not get/create database, because --service might be given
+        #   afterwards and then we'd get the group with no service.
+        groupname = value.lower().decode('utf-8')
+        setattr(namespace, self.dest, groupname)
 
 
 class PasswordGenerator(Action):
@@ -88,84 +96,10 @@ pwd_group.add_argument(
 ####################################
 ### Various positional arguments ###
 ####################################
-host_arg_parser = ArgumentParser(add_help=False)
-host_arg_parser.add_argument(
-    'hosts', metavar='HOST', nargs='*',
-    help='A host that the service is able to connect from. You can name '
-    'multiple hosts as additional positional arguments. If ommitted, this '
-    'service cannot be used from anywhere.'
-)
 user_parser = ArgumentParser(add_help=False)
-user_parser.set_defaults(create=False)
+user_parser.set_defaults(create_user=False)
 user_parser.add_argument('user', action=UsernameParser, help="The name of the user.")
 
-group_arg_parser = ArgumentParser(add_help=False)
-group_arg_parser.add_argument('group', help="The name of the group.")
-group_arg_parser.add_argument(
-    '--service', metavar="SERVICE",
-    help='Act as if %(prog)s was the service named SERVICE. If ommitted, act '
-    'on groups that are not associated with any service.'
-)
-
-subgroup_parser = ArgumentParser(add_help=False)
-subgroup_parser.add_argument('subgroup', help='The name of the subgroup.')
-subgroup_parser.add_argument(
-    '--sub-service', metavar='SUBSERVICE',
-    help='Assume that the named subgroup is from SUBSERVICE.'
-)
-
-#############################
-### restauth-group parser ###
-#############################
-group_desc = """%(prog)s manages groups in RestAuth. Groups can have users and
-groups as members, handing down users to member groups. For a group to be
-visible to a service, it must be associated with it. It is possible for a group
-to not be associated with any service, which is usefull for e.g. a group
-containing global super-users. Valid actions are help, add, list, view,
-add-user, add-group, remove, remove-user, and remove-group."""
-group_parser = ArgumentParser(description=group_desc)
-
-group_subparsers = group_parser.add_subparsers(
-    title="Available actions", dest='action',
-    description="Use '%(prog)s action --help' for more help on each action.")
-group_subparsers.add_parser(
-    'add', help="Add a new group.", parents=[group_arg_parser],
-    description="Add a new group.")
-group_ls_parser = group_subparsers.add_parser(
-    'ls', help="List all groups.", description="List all groups.")
-group_ls_parser.add_argument(
-    '--service', help='Act as if %(prog)s was the service named SERVICE. If '
-    'ommitted, act on groups that are not associated with any service.'
-)
-group_subparsers.add_parser(
-    'view', help="View details of a group.", parents=[group_arg_parser],
-    description="View details of a group."
-)
-group_subparsers.add_parser(
-    'add-user', parents=[group_arg_parser, user_parser],
-    help="Add a user to a group.", description="Add a user to a group."
-)
-group_subparsers.add_parser(
-    'add-group', parents=[group_arg_parser, subgroup_parser],
-    help="""Make a group a subgroup to another group.""",
-    description='Make a group a subgroup of another group. The subgroup will '
-    'inherit all memberships from the parent group.'
-)
-group_subparsers.add_parser(
-    'rm-user', parents=[group_arg_parser, user_parser],
-    help="Remove a user from a group.",
-    description="Remove a user from a group."
-)
-group_subparsers.add_parser(
-    'rm-group', parents=[group_arg_parser, subgroup_parser],
-    help='Remove a subgroup from a group.',
-    description='Remove a subgroup from a group. The subgroup will no longer '
-    'inherit all memberships from a parent group.'
-)
-group_subparsers.add_parser(
-    'rm', parents=[group_arg_parser], help="Remove a group.",
-    description="Remove a group."
-)
 
 ##############################
 ### restauth-import parser ###
