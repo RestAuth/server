@@ -29,7 +29,6 @@ try:
     from RestAuth.Groups.models import Group
     from RestAuth.Groups.cli import parser, get_group, print_by_service
 except ImportError as e:
-    print(e)
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
