@@ -17,7 +17,7 @@
 
 from argparse import ArgumentParser
 
-from RestAuth.common.cli import user_parser, pwd_parser
+from RestAuth.common.cli.parsers import user_parser, pwd_parser
 
 
 desc = """Manages users in RestAuth. Users are clients that want to
