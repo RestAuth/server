@@ -68,7 +68,7 @@ class UsernameAction(Action):
 class PasswordGeneratorAction(Action):
     def __call__(self, parser, namespace, values, option_string):
         chars = string.digits + string.letters + string.punctuation
-        chars = chars.translate(None, '\\\'"')
+        chars = chars.translate(None, '\\\'"`')
 
         passwd = ''.join(random.choice(chars) for x in range(30))
         setattr(namespace, 'password_generated', True)
