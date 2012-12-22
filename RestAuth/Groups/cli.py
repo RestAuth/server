@@ -19,7 +19,7 @@ from argparse import Action, ArgumentParser
 from operator import attrgetter
 
 from RestAuth.Groups.models import Group
-from RestAuth.common.cli import ServiceParser, service_opt_parser, user_parser
+from RestAuth.common.cli.parsers import ServiceParser, user_parser
 
 
 def print_by_service(groups, indent=''):
@@ -58,6 +58,11 @@ class GroupnameParser(Action):
         #   afterwards and then we'd get the group with no service.
         groupname = value.lower().decode('utf-8')
         setattr(namespace, self.dest, groupname)
+
+service_opt_parser = ArgumentParser(add_help=False)
+service_opt_parser.set_defaults(create_service=False)
+service_opt_parser.add_argument('--service', action=ServiceParser,
+                                help="Act as if %(prog)s was SERVICE.")
 
 group_arg_parser = ArgumentParser(add_help=False, parents=[service_opt_parser])
 group_arg_parser.add_argument('group', action=GroupnameParser,
