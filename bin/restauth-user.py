@@ -52,6 +52,9 @@ def get_password(options):
         return password
 
 if args.action == 'add':
+    if args.password_generated:
+        print(args.pwd)
+
     try:
         password = get_password(args)
         args.user.set_password(password)
@@ -71,6 +74,9 @@ elif args.action == 'verify':
         print('Failed.')
         sys.exit(1)
 elif args.action == 'set-password':
+    if args.password_generated:
+        print(args.pwd)
+
     try:
         password = get_password(args)
         args.user.set_password(password)
