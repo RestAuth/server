@@ -21,3 +21,12 @@ bin/pip*
 bin/easy_install*
 bin/activate*
 bin/django-admin.py
+share/
+bin/ipcluster
+bin/ipcontroller
+bin/ipengine
+bin/iplogger
+bin/iptest
+bin/ipython
+bin/irunner
+bin/pycolor
