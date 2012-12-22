@@ -20,8 +20,8 @@ with dependencies. Setting up a virtualenv is very simple:
    source bin/activate
    pip install -r requirements.txt
 
-.. NOTE:: If you don't have :cmd:`pip` installed, you have to install it using
-   :cmd:`easy_install pip`.
+.. NOTE:: If you don't have :cmd:`pip` installed, you have to install it
+   using :cmd:`easy_install pip`.
 
 Run default testserver
 ======================
