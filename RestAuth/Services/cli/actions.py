@@ -33,30 +33,30 @@ class PermissionParser(Action):
         prop_ct = ContentType.objects.get(app_label='Users', model='property')
         group_ct = ContentType.objects.get(app_label='Groups', model='group')
 
-        user_permissions_dict = dict(user_permissions)
-        prop_permissions_dict = dict(prop_permissions)
-        group_permissions_dict = dict(group_permissions)
+        user_perms = dict(user_permissions)
+        prop_perms = dict(prop_permissions)
+        group_perms = dict(group_permissions)
 
         permissions = []
         for value in values:
-            for codename in fnmatch.filter(user_permissions_dict.keys(), value):
+            for codename in fnmatch.filter(user_perms.keys(), value):
                 perm, c = Permission.objects.get_or_create(
                     content_type=user_ct, codename=codename,
-                    defaults={'name': user_permissions_dict[codename]}
+                    defaults={'name': user_perms[codename]}
                 )
                 permissions.append(perm)
 
-            for codename in fnmatch.filter(prop_permissions_dict.keys(), value):
+            for codename in fnmatch.filter(prop_perms.keys(), value):
                 perm, c = Permission.objects.get_or_create(
                     content_type=prop_ct, codename=codename,
-                    defaults={'name': prop_permissions_dict[codename]}
+                    defaults={'name': prop_perms[codename]}
                 )
                 permissions.append(perm)
 
-            for codename in fnmatch.filter(group_permissions_dict.keys(), value):
+            for codename in fnmatch.filter(group_perms.keys(), value):
                 perm, c = Permission.objects.get_or_create(
                     content_type=group_ct, codename=codename,
-                    defaults={'name': group_permissions_dict[codename]}
+                    defaults={'name': group_perms[codename]}
                 )
                 permissions.append(perm)
 
