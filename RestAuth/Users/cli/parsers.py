@@ -34,7 +34,7 @@ subparser = subparsers.add_parser(
     'add', help="Add a new user.", parents=[user_parser, pwd_parser],
     description="Add a new user."
 )
-subparser.set_defaults(user_create=True)
+subparser.set_defaults(create_user=True)
 
 # ls:
 subparsers.add_parser(
