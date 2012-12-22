@@ -33,7 +33,7 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
-    from RestAuth.common.cli import import_parser
+    from RestAuth.common.cli.parsers import parser
 
     from RestAuth.Services.models import Service, ServiceAddress
     from RestAuth.Users.models import ServiceUser, Property
@@ -45,7 +45,7 @@ except ImportError, e:
     )
     sys.exit(1)
 
-args = import_parser.parse_args()
+args = parser.parse_args()
 
 data = json.load(args.file)
 services = data.pop('services', None)
