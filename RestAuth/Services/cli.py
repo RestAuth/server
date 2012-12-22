@@ -22,7 +22,8 @@ from argparse import Action, ArgumentParser
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
-from RestAuth.common.cli import pwd_parser, ServiceParser
+from RestAuth.common.cli.parsers import pwd_parser
+from RestAuth.common.cli.actions import ServiceAction
 from RestAuth.Users.models import user_permissions, prop_permissions
 from RestAuth.Groups.models import group_permissions
 
@@ -66,9 +67,9 @@ class PermissionParser(Action):
 
 # reused positional arguments:
 service_arg_parser = ArgumentParser(add_help=False)
-service_arg_parser.set_defaults(service_create=False)
+service_arg_parser.set_defaults(create_service=False)
 service_arg_parser.add_argument(
-        'service', action=ServiceParser, metavar="SERVICE", help="The name of the service.")
+        'service', action=ServiceAction, metavar="SERVICE", help="The name of the service.")
 
 desc = """%(prog)s manages services in RestAuth. Services are websites,
 hosts, etc. that use RestAuth as authentication service."""
@@ -83,7 +84,8 @@ subparser = subparsers.add_parser(
     'add', help="Add a new service.", description="Add a new service.",
     parents=[pwd_parser, service_arg_parser]
 )
-subparser.set_defaults(service_create=True)
+subparser.set_defaults(create_service=True)
+subparser.set_defaults(password_generated=False)
 
 subparsers.add_parser(
     'ls', help="List all services.",
@@ -94,6 +96,7 @@ subparsers.add_parser(
     description='Completely remove a service. This will also remove any '
     'groups associated with that service.'
 )
+
 subparsers.add_parser(
     'view', help="View details of a service.", parents=[service_arg_parser],
     description="View details of a service."
