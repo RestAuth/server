@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #
+#
 # This file is part of RestAuth (https://restauth.net).
 #
 # RestAuth is free software: you can redistribute it and/or modify
@@ -25,7 +26,8 @@ from RestAuth.Services.cli.actions import PermissionParser
 service_arg_parser = ArgumentParser(add_help=False)
 service_arg_parser.set_defaults(create_service=False)
 service_arg_parser.add_argument(
-        'service', action=ServiceAction, metavar="SERVICE", help="The name of the service.")
+    'service', action=ServiceAction, metavar="SERVICE",
+    help="The name of the service.")
 
 desc = """%(prog)s manages services in RestAuth. Services are websites,
 hosts, etc. that use RestAuth as authentication service."""
