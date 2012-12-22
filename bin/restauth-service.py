@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, getpass
+import getpass
+import os
+import sys
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -24,13 +26,13 @@ sys.path.append(os.getcwd())
 
 try:
     from RestAuth.Services.models import Service
-    from RestAuth.Services.cli import service_parser
+    from RestAuth.Services.cli import parser
 except ImportError as e:
     print(e)
     sys.stderr.write('Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
-args = service_parser.parse_args()
+args = parser.parse_args()
 
 
 def get_password(args):

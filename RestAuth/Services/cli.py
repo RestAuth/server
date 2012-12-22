@@ -73,9 +73,9 @@ service_arg_parser.add_argument(
 
 desc = """%(prog)s manages services in RestAuth. Services are websites,
 hosts, etc. that use RestAuth as authentication service."""
-service_parser = ArgumentParser(description=desc)
+parser = ArgumentParser(description=desc)
 
-subparsers = service_parser.add_subparsers(
+subparsers = parser.add_subparsers(
     title='Available actions', dest='action',
     description='Use "%(prog)s action --help" for more help on each action.')
 
