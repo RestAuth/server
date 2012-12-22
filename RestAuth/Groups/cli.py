@@ -19,7 +19,8 @@ from argparse import Action, ArgumentParser
 from operator import attrgetter
 
 from RestAuth.Groups.models import Group
-from RestAuth.common.cli.parsers import ServiceParser, user_parser
+from RestAuth.common.cli.parsers import user_parser
+from RestAuth.common.cli.actions import ServiceAction
 
 
 def print_by_service(groups, indent=''):
@@ -61,7 +62,7 @@ class GroupnameParser(Action):
 
 service_opt_parser = ArgumentParser(add_help=False)
 service_opt_parser.set_defaults(create_service=False)
-service_opt_parser.add_argument('--service', action=ServiceParser,
+service_opt_parser.add_argument('--service', action=ServiceAction,
                                 help="Act as if %(prog)s was SERVICE.")
 
 group_arg_parser = ArgumentParser(add_help=False, parents=[service_opt_parser])
@@ -72,7 +73,7 @@ group_arg_parser.set_defaults(create_group=False)
 subgroup_parser = ArgumentParser(add_help=False)
 subgroup_parser.add_argument('subgroup', help='The name of the subgroup.')
 subgroup_parser.add_argument(
-    '--sub-service', metavar='SUBSERVICE', action=ServiceParser,
+    '--sub-service', metavar='SUBSERVICE', action=ServiceAction,
     help='Assume that the named subgroup is from SUBSERVICE.'
 )
 
