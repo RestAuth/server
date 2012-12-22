@@ -46,15 +46,18 @@ def get_password(args):
         return password
 
 
-if args.action in ['create', 'add']:
+if args.action == 'add':
+    if args.password_generated:
+        print(args.pwd)
+
     args.service.set_password(get_password(args))
     args.service.save()
-elif args.action in [ 'remove', 'rm', 'del', 'delete' ]:
+elif args.action == 'rm':
     args.service.delete()
-elif args.action in [ 'list', 'ls' ]:
+elif args.action == 'ls':
     for service in Service.objects.all().order_by('username'):
-        hosts = [str(host.address) for host in service.hosts.all()]
-        print('%s: %s'%(service.username, ', '.join(hosts)))
+        hosts = [host.address for host in service.hosts.all()]
+        print('%s: %s' % (service.username, ', '.join(hosts)))
 elif args.action == 'view':
     print(args.service.username)
     print('Last used: %s' % (args.service.last_login))
@@ -69,6 +72,9 @@ elif args.action == 'add-hosts':
 elif args.action == 'rm-hosts':
     args.service.del_hosts(*args.hosts)
 elif args.action == 'set-password':
+    if args.password_generated:
+        print(args.pwd)
+
     args.service.set_password(get_password(args))
     args.service.save()
 elif args.action == 'set-permissions':
