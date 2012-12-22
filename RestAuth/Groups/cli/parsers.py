@@ -15,50 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from argparse import Action, ArgumentParser
-from operator import attrgetter
+from argparse import ArgumentParser
 
-from RestAuth.Groups.models import Group
 from RestAuth.common.cli.parsers import user_parser
 from RestAuth.common.cli.actions import ServiceAction
+from RestAuth.Groups.cli.actions import GroupnameAction
+from RestAuth.Groups.cli.helpers import print_by_service, get_group
 
-
-def print_by_service(groups, indent=''):
-    servs = {}
-    for group in groups:
-        if group.service in servs:
-            servs[group.service].append(group)
-        else:
-            servs[group.service] = [group]
-
-    if None in servs:
-        none_names = [service.name.encode('utf-8') for service in servs[None]]
-        none_names.sort()
-        print('%sNone: %s' % (indent, ', '.join(none_names)))
-        del servs[None]
-
-    service_names = sorted(servs.keys(), key=attrgetter('username'))
-
-    for name in service_names:
-        names = [service.name.encode('utf-8') for service in servs[name]]
-        names.sort()
-        print('%s%s: %s' % (indent, name, ', '.join(names)))
-
-
-def get_group(parser, name, service):
-    try:
-        return Group.objects.get(name=name, service=service)
-    except Group.DoesNotExist:
-        parser.error('%s at service %s: Group does not exist.' %
-                     (name, service))
-
-# Subparsers:
-class GroupnameParser(Action):
-    def __call__(self, parser, namespace, value, option_string):
-        # NOTE: we do not get/create database, because --service might be given
-        #   afterwards and then we'd get the group with no service.
-        groupname = value.lower().decode('utf-8')
-        setattr(namespace, self.dest, groupname)
 
 service_opt_parser = ArgumentParser(add_help=False)
 service_opt_parser.set_defaults(create_service=False)
@@ -66,7 +29,7 @@ service_opt_parser.add_argument('--service', action=ServiceAction,
                                 help="Act as if %(prog)s was SERVICE.")
 
 group_arg_parser = ArgumentParser(add_help=False, parents=[service_opt_parser])
-group_arg_parser.add_argument('group', action=GroupnameParser,
+group_arg_parser.add_argument('group', action=GroupnameAction,
                               help="The name of the group.")
 group_arg_parser.set_defaults(create_group=False)
 
