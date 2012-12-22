@@ -71,5 +71,5 @@ class PasswordGeneratorAction(Action):
         chars = chars.translate(None, '\\\'"')
 
         passwd = ''.join(random.choice(chars) for x in range(30))
-        print(passwd)
+        setattr(namespace, 'password_generated', True)
         setattr(namespace, self.dest, passwd)
