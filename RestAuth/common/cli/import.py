@@ -41,15 +41,15 @@ import_parser.add_argument(
     '%(default)s)'
 )
 import_parser.add_argument(
-    '--skip-existing-users', action='store_true', default=False, help=
-    'Skip users completely if they already exist. If not set, passwords and '
-    'properties are overwritten if their respective --overwrite-... argument '
-    'is given.'
+    '--skip-existing-users', action='store_true', default=False,
+    help='Skip users completely if they already exist. If not set, passwords '
+    'and properties are overwritten if their respective --overwrite-... '
+    'argument is given.'
 )
 import_parser.add_argument(
-    '--skip-existing-groups', action='store_true', default=False, help=
-    'Skip groups completely if they already exist. If not set, users and '
-    'subgroups will be added to the list.'
+    '--skip-existing-groups', action='store_true', default=False,
+    help='Skip groups completely if they already exist. If not set, users '
+    'and subgroups will be added to the list.'
 )
 import_parser.add_argument(
     '--using', default=None, metavar="ALIAS",
