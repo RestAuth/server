@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
+import sys
+
 from argparse import ArgumentParser
 
 from RestAuth.common.cli.actions import UsernameAction, PasswordGeneratorAction
@@ -32,3 +35,43 @@ pwd_group.add_argument(
     '--gen-password', action=PasswordGeneratorAction, nargs=0, dest='pwd',
     help="Generate a password and print it to stdout."
 )
+
+##############################
+### restauth-import parser ###
+##############################
+import_desc = "Import user data from another system."
+import_parser = ArgumentParser(description=import_desc)
+
+import_parser.add_argument(
+    '--gen-passwords', action='store_true', default=False,
+    help="Generate passwords where missing in input data and print them to "
+    "stdout."
+)
+import_parser.add_argument(
+    '--overwrite-passwords', action='store_true', default=False,
+    help='Overwrite passwords of already existing services or users if the'
+    'input data contains a password. (default: %(default)s)'
+)
+import_parser.add_argument(
+    '--overwrite-properties', action='store_true', default=False,
+    help='Overwrite already existing properties of users. (default: '
+    '%(default)s)'
+)
+import_parser.add_argument(
+    '--skip-existing-users', action='store_true', default=False,
+    help='Skip users completely if they already exist. If not set, passwords '
+    'and properties are overwritten if their respective --overwrite-... '
+    'argument is given.'
+)
+import_parser.add_argument(
+    '--skip-existing-groups', action='store_true', default=False,
+    help='Skip groups completely if they already exist. If not set, users '
+    'and subgroups will be added to the list.'
+)
+import_parser.add_argument(
+    '--using', default=None, metavar="ALIAS",
+    help="Use different database alias. (UNTESTED!)"
+)
+
+import_parser.add_argument(
+    'file', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
