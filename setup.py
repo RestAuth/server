@@ -15,15 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-import glob
 import os
 import re
 import shutil
 import stat
 from subprocess import Popen, PIPE
 import sys
-import time
 
 from distutils.core import setup, Command
 from distutils.command.install_data import install_data as _install_data
@@ -46,7 +43,11 @@ if os.path.exists(common_path):
 
 from django.core.management import call_command
 
-from RestAuth.common import cli
+from RestAuth.Services.cli import parsers as service_parser
+from RestAuth.Users.cli import parsers as user_parser
+from RestAuth.Groups.cli import parsers as group_parser
+from RestAuth.common.cli import parsers as import_parser
+from RestAuth.common.cli import helpers
 from RestAuth.Users.models import user_permissions, prop_permissions
 from RestAuth.Groups.models import group_permissions
 
@@ -64,7 +65,6 @@ def get_version():
     if os.path.exists('.version'):  # get from file
         version = open('.version').readlines()[0]
     elif os.path.exists('.git'):  # get from git
-        date = time.strftime('%Y.%m.%d')
         cmd = ['git', 'describe', 'master']
         p = Popen(cmd, stdout=PIPE)
         version = p.communicate()[0].decode('utf-8')
@@ -172,10 +172,10 @@ class build_doc_meta(Command):
         Command.__init__(self, *args, **kwargs)
 
         # generate files for cli-scripts:
-        cli.service_parser.prog = '|bin-restauth-service|'
-        cli.user_parser.prog = '|bin-restauth-user|'
-        cli.group_parser.prog = '|bin-restauth-group|'
-        cli.import_parser.prog = '|bin-restauth-import|'
+        service_parser.parser.prog = '|bin-restauth-service|'
+        user_parser.parser.prog = '|bin-restauth-user|'
+        group_parser.parser.prog = '|bin-restauth-group|'
+        import_parser.parser.prog = '|bin-restauth-import|'
 
         # create necesarry folders:
         if not os.path.exists('doc/_static'):
@@ -183,16 +183,16 @@ class build_doc_meta(Command):
         if not os.path.exists('doc/gen'):
             os.mkdir('doc/gen')
 
-        for parser, name in [(cli.service_parser, 'restauth-service'),
-                             (cli.user_parser, 'restauth-user'),
-                             (cli.group_parser, 'restauth-group'),
-                             (cli.import_parser, 'restauth-import')]:
+        for parser, name in [(service_parser, 'restauth-service'),
+                             (user_parser, 'restauth-user'),
+                             (group_parser, 'restauth-group'),
+                             (import_parser, 'restauth-import')]:
 
             for suffix in ['usage', 'commands', 'parameters']:
                 filename = 'doc/gen/%s-%s.rst' % (name, suffix)
-                if self.should_generate(cli.__file__, filename):
-                    func = getattr(cli, 'write_%s' % suffix)
-                    func(parser, filename, name)
+                if self.should_generate(parser.__file__, filename):
+                    func = getattr(helpers, 'write_%s' % suffix)
+                    func(parser.parser, filename, name)
 
         # generate permissions:
         self.write_perm_table('users', user_permissions)
@@ -374,7 +374,7 @@ class testserver(Command):
             from django.db import connection as conn
 
             # Create a test database.
-            db_name = conn.creation.create_test_db()
+            conn.creation.create_test_db()
 
             # Import the fixture data into the test database.
             call_command('loaddata', fixture)
