@@ -29,7 +29,7 @@ try:
     from RestAuth.Users.models import ServiceUser, Property
     from RestAuth.Services.models import Service
     from RestAuth.common import errors
-    from RestAuth.Users.cli import parser
+    from RestAuth.Users.cli.parsers import parser
 except ImportError as e:
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
                      'sure RestAuth is in your PYTHONPATH.\n')
