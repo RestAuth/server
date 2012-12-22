@@ -26,9 +26,8 @@ sys.path.append(os.getcwd())
 
 try:
     from RestAuth.Services.models import Service
-    from RestAuth.Services.cli import parser
+    from RestAuth.Services.cli.parsers import parser
 except ImportError as e:
-    print(e)
     sys.stderr.write('Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
