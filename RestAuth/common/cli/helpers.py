@@ -16,8 +16,21 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import getpass
 import re
 
+def get_password(args):
+    if args.pwd:
+        return args.pwd
+
+    password = getpass.getpass('password: ')
+    confirm = getpass.getpass('confirm: ')
+    if password != confirm:
+        print("Passwords do not match, please try again.")
+        setattr(args, 'pwd', get_password(args))
+    else:
+        setattr(args, 'pwd', password)
+    return args.pwd
 
 ########################
 ### helper functions ###

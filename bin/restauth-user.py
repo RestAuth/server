@@ -38,25 +38,12 @@ except ImportError as e:
 # parse arguments
 args = parser.parse_args()
 
-
-def get_password(options):
-    if options.pwd:
-        return options.pwd
-
-    password = getpass.getpass('password: ')
-    confirm = getpass.getpass('confirm: ')
-    if password != confirm:
-        print("Passwords do not match, please try again.")
-        return get_password(options)
-    else:
-        return password
-
 if args.action == 'add':
-    if args.password_generated:
-        print(args.pwd)
-
     try:
-        password = get_password(args)
+        password = args.get_password(args)
+        if args.password_generated:
+            print(args.pwd)
+
         args.user.set_password(password)
         args.user.save()
     except errors.PreconditionFailed as e:
@@ -74,11 +61,11 @@ elif args.action == 'verify':
         print('Failed.')
         sys.exit(1)
 elif args.action == 'set-password':
-    if args.password_generated:
-        print(args.pwd)
-
     try:
-        password = get_password(args)
+        password = args.get_password(args)
+        if args.password_generated:
+            print(args.pwd)
+
         args.user.set_password(password)
         args.user.save()
     except errors.PasswordInvalid as e:

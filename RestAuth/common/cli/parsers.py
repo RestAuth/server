@@ -21,6 +21,7 @@ import sys
 from argparse import ArgumentParser
 
 from RestAuth.common.cli.actions import UsernameAction, PasswordGeneratorAction
+from RestAuth.common.cli.helpers import get_password
 
 user_parser = ArgumentParser(add_help=False)
 user_parser.set_defaults(create_user=False)
@@ -28,6 +29,7 @@ user_parser.add_argument('user', action=UsernameAction,
                          help="The name of the user.")
 
 pwd_parser = ArgumentParser(add_help=False)
+pwd_parser.set_defaults(get_password=get_password, password_generated=False)
 pwd_group = pwd_parser.add_mutually_exclusive_group()
 pwd_group.add_argument(
     '--password', dest='pwd', metavar='PWD', help="The password to use.")

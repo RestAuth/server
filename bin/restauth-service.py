@@ -33,25 +33,12 @@ except ImportError as e:
 
 args = parser.parse_args()
 
-
-def get_password(args):
-    if args.pwd:
-        return args.pwd
-
-    password = getpass.getpass('password: ')
-    confirm = getpass.getpass('confirm: ')
-    if password != confirm:
-        print("Passwords do not match, please try again.")
-        return get_password(args)
-    else:
-        return password
-
-
 if args.action == 'add':
+    password = args.get_password(args)
     if args.password_generated:
         print(args.pwd)
 
-    args.service.set_password(get_password(args))
+    args.service.set_password(password)
     args.service.save()
 elif args.action == 'rm':
     args.service.delete()
@@ -73,10 +60,11 @@ elif args.action == 'add-hosts':
 elif args.action == 'rm-hosts':
     args.service.del_hosts(*args.hosts)
 elif args.action == 'set-password':
+    password = args.get_password(args)
     if args.password_generated:
         print(args.pwd)
 
-    args.service.set_password(get_password(args))
+    args.service.set_password(password)
     args.service.save()
 elif args.action == 'set-permissions':
     args.service.user_permissions.clear()
