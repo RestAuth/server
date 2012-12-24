@@ -96,6 +96,7 @@ def get_dict(request, keys=[], optional=[]):
         optional = [data.pop(key, None) for key in optional]
         return mandatory + optional
 
+
 def get_freeform_dict(request):
     try:
         mime_type = get_request_type(request)

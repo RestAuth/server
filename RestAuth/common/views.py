@@ -36,6 +36,7 @@ class RestAuthView(View):
         return super(RestAuthView, self).dispatch(
             request, largs=largs, **kwargs)
 
+
 class RestAuthResourceView(RestAuthView):
     """
     Class for all views that have one variable in the path, i.e.
@@ -52,6 +53,7 @@ class RestAuthResourceView(RestAuthView):
 
         return super(RestAuthResourceView, self).dispatch(
             request, largs=largs, name=name)
+
 
 class RestAuthSubResourceView(RestAuthView):
     """

@@ -17,11 +17,15 @@
 
 import httplib
 
+from RestAuth.common.testdata import RestAuthTest
+from RestAuth.common.testdata import (
+    username1, username2, username3, username4, username5,
+    password1, password2, password3, password4, password5,
+    groupname1, groupname2, groupname3, groupname4, groupname5, groupname6,
+)
 from RestAuth.Services.models import Service, service_create
-from RestAuth.common.testdata import *
-from RestAuth.Users.models import ServiceUser
-from Groups import views
-from Groups.models import *
+from RestAuth.Users.models import user_create
+from RestAuth.Groups.models import Group, group_create
 
 
 class GroupTests(RestAuthTest):
@@ -81,7 +85,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
 
     def test_no_memberships(self):
         # we add a group where user1 is NOT a member:
-        group1 = group_create(groupname1, self.vowi)
+        group_create(groupname1, self.vowi)
 
         resp = self.get('/groups/', {'user': username1})
         self.assertEquals(resp.status_code, httplib.OK)
@@ -167,7 +171,6 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
 
         resp = self.get('/groups/', {'user': username1})
         self.assertEquals(resp.status_code, httplib.OK)
-        actual = self.parse(resp, 'list')
         self.assertItemsEqual(self.parse(resp, 'list'),
                               [groupname1, groupname2, groupname3])
 
@@ -229,8 +232,8 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
         self.assertEquals(Group.objects.all().count(), 0)
 
     def test_service_isolation(self):
-        group1 = group_create(groupname1, self.fsinf)
-        group2 = group_create(groupname2, None)
+        group_create(groupname1, self.fsinf)
+        group_create(groupname2, None)
 
         resp = self.delete('/groups/%s/' % groupname1)
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
@@ -430,7 +433,7 @@ class AddUserToGroupTests(GroupUserTests):  # POST /groups/<group>/users/
 
 # GET /groups/<group>/users/<user>/
 class VerifyUserInGroupTests(GroupUserTests):
-    def  is_member(self, groupname, username):
+    def is_member(self, groupname, username):
         """
         Test if user is a member. Throws assertion error if the group doesn't
         exist.

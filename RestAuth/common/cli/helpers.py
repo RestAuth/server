@@ -19,6 +19,7 @@ import argparse
 import getpass
 import re
 
+
 def get_password(args):
     if args.pwd:
         return args.pwd
@@ -32,9 +33,10 @@ def get_password(args):
         setattr(args, 'pwd', password)
     return args.pwd
 
-########################
-### helper functions ###
-########################
+
+###########################################
+### helper functions for doc generation ###
+###########################################
 def _metavar_formatter(action, default_metavar):
     if action.metavar is not None:
         result = action.metavar

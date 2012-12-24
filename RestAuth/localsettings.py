@@ -24,15 +24,15 @@
 # the apropriate details below.
 
 # Since the RestAuth service is implemented as a Django project, you can
-# configure anything available in Django settings.py files. For more information
-# on available settings and more thorough documentation on the settings given
-# below, please see:
+# configure anything available in Django settings.py files. For more
+# information on available settings and more thorough documentation on the
+# settings given below, please see:
 # 	http://docs.djangoproject.com/en/dev/ref/settings/
 
 # Note: This file is imported from the real settings.py file, most settings are
-#     already defined there. Given here are some settings that are typically of
-#     interest for a system administrator, but you can always set any of the
-#     other settings available in django, if you know what you are doing.
+#   already defined there. Given here are some settings that are typically of
+#   interest for a system administrator, but you can always set any of the
+#   other settings available in django, if you know what you are doing.
 
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
 # to False, backtraces will be sent to the adresses listed in the ADMINS
@@ -48,22 +48,29 @@
 # Configure your database settings
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'RestAuth.sqlite3', # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        # Use 'postgresql_psycopg2', 'postgresql', 'mysql' or 'oracle' instead
+        # of 'sqlite3' to use a correct database backend:
+        'ENGINE': 'django.db.backends.sqlite3',
+        # Or path to database file if using sqlite3:
+        'NAME': 'RestAuth.sqlite3',
+        # Not used with sqlite3:
+        'USER': '',
+        # Not used with sqlite3:
+        'PASSWORD': '',
+        # Set to empty string for localhost. Not used with sqlite3:
+        'HOST': '',
+        # Set to empty string for default. Not used with sqlite3:
+        'PORT': '',
     }
 }
 
-# You may want to configure a database router if you use some sort of database replication. For more
-# information, please see:
+# You may want to configure a database router if you use some sort of database
+# replication. For more information, please see:
 #       https://server.restauth.net/config/database-replication.html
 #DATABASE_ROUTERS = []
 
 # Set your SECRET_KEY to some long random string:
-SECRET_KEY=''
+SECRET_KEY = ''
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -77,18 +84,19 @@ SECRET_KEY=''
 #################
 ### USERNAMES ###
 #################
-# By default usernames can contain any UTF-8 character except for a colon (':'), a slash ('/') or a
-# backslash ('\'). You can add validators to restrict usernames further to ensure compatibility with
-# systems you use. For futher information please see:
-#       https://server.restauth.net/config/username-validation.html
+# By default usernames can contain any UTF-8 character except for a colon
+# (':'), a slash ('/') or a backslash ('\'). You can add validators to restrict
+# usernames further to ensure compatibility with systems you use. For futher
+# information please see:
+#   https://server.restauth.net/config/username-validation.html
 #
 #VALIDATORS = [
 #    'RestAuth.common.validators.xmpp',
 #    'RestAuth.common.validators.mediawiki',
 #]
 
-# You can override the minimum and maximum username length. Note that this might be restricted even
-# further if you add validators (see above).
+# You can override the minimum and maximum username length. Note that this
+# might be restricted even further if you add validators (see above).
 #MIN_USERNAME_LENGTH = 3
 #MAX_USERNAME_LENGTH = 255
 
@@ -105,8 +113,8 @@ SECRET_KEY=''
 # created passwords, so you can safely change this at any time, old hashes will
 # still work.
 #
-# You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha512' is the
-# default and recommended. Additionally, RestAuth supports using hashes
+# You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha512' is
+# the default and recommended. Additionally, RestAuth supports using hashes
 # compatible with other systems, please see:
 #       https://server.restauth.net/config/all-config-values.html
 #HASH_ALGORITHM = 'sha512'
@@ -123,14 +131,14 @@ SECRET_KEY=''
 ###############
 ### CACHING ###
 ###############
-# Django can use memcached to considerably speed up some requests. Note that due
-# the Django caching implementation, the current performance improvement is not
-# that great.
-# For more information on caching, please see:
+# Django can use memcached to considerably speed up some requests. Note that
+# due the Django caching implementation, the current performance improvement is
+# not that great.  For more information on caching, please see:
 # 	https://docs.djangoproject.com/en/1.3/topics/cache/
 
-# Set your caching configuration here. Note that setting this will automatically
-# enable the caching Middlewares as described in the Django documentation.
+# Set your caching configuration here. Note that setting this will
+# automatically enable the caching Middlewares as described in the Django
+# documentation.
 #CACHES = {}
 
 ###############
@@ -141,8 +149,9 @@ SECRET_KEY=''
 #	https://docs.djangoproject.com/en/dev/topics/logging/
 # RestAuth uses a few settings that lets you have a good logging configuration
 # with very few simple settings. If you want to, you can also define your very
-# own logging config (see below). More information is also available in the settings reference:
-#       https://restauth.net/config/all-config-values.html
+# own logging config (see below). More information is also available in the
+# settings reference:
+#   https://restauth.net/config/all-config-values.html
 
 # You can define the LogLevel for RestAuth. There are several possible values:
 # * CRITICAL: Only log errors due to an internal malfunction.
@@ -153,16 +162,16 @@ SECRET_KEY=''
 # * DEBUG:    Also log idempotent requests, i.e. if a user exists, etc.
 #LOG_LEVEL = 'ERROR'
 
-# You may also want to define a log handler and keyword arguments for it. Please
-# see the python documentation on what this means:
+# You may also want to define a log handler and keyword arguments for it.
+# Please see the python documentation on what this means:
 # 	http://docs.python.org/library/logging.config.html#configuration-dictionary-schema
 # and possible handlers:
 #	http://docs.python.org/library/logging.handlers.html
 #LOG_HANDLER = 'logging.StreamHandler'
 #LOG_HANDLER_KWARGS = {}
 
-# If you absolutely know what you are doing, you can simply set your own LOGGING
-# config:
+# If you absolutely know what you are doing, you can simply set your own
+# LOGGING config:
 #LOGGING = { ... }
 
 ########################

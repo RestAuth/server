@@ -8,6 +8,7 @@ users_view = UsersView.as_view(manage_transactions=False)
 props_view = UserPropsIndex.as_view()
 groups_view = GroupsView.as_view()
 
+
 @login_required(realm="/test/users/")
 @transaction.commit_manually
 def users(request):

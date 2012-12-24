@@ -85,7 +85,7 @@ HASH_FUNCTIONS = [
     'RestAuth.Users.hashes.apr1',
 ]
 VALIDATORS = []
-GROUP_RECURSION_DEPTH=3
+GROUP_RECURSION_DEPTH = 3
 
 try:
     from localsettings import *

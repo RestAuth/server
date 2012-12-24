@@ -81,10 +81,11 @@ else:  # pragma: no cover
         This class is an exact copy of the decorator introduced in Django 1.4
         and is subject to the same license.
 
-        Acts as either a decorator, or a context manager. If it's a decorator it
-        takes a function and returns a wrapped function. If it's a contextmanager
-        it's used with the ``with`` statement. In either event entering/exiting
-        are called before and after, respectively, the function/block is executed.
+        Acts as either a decorator, or a context manager. If it's a decorator
+        it takes a function and returns a wrapped function. If it's a
+        contextmanager it's used with the ``with`` statement. In either event
+        entering/exiting are called before and after, respectively, the
+        function/block is executed.
         """
         def __init__(self, **kwargs):
             self.options = kwargs
@@ -98,12 +99,15 @@ else:  # pragma: no cover
 
         def __call__(self, test_func):
             from django.test import TransactionTestCase
-            if isinstance(test_func, type) and issubclass(test_func, TransactionTestCase):
+            if isinstance(test_func, type) and \
+                    issubclass(test_func, TransactionTestCase):
                 original_pre_setup = test_func._pre_setup
                 original_post_teardown = test_func._post_teardown
+
                 def _pre_setup(innerself):
                     self.enable()
                     original_pre_setup(innerself)
+
                 def _post_teardown(innerself):
                     original_post_teardown(innerself)
                     self.disable()
@@ -132,4 +136,3 @@ else:  # pragma: no cover
                 new_value = getattr(settings, key, None)
                 setting_changed.send(sender=settings._wrapped.__class__,
                                      setting=key, value=new_value)
-

@@ -45,7 +45,8 @@ def login_user(view, request, realm, *args, **kwargs):
     elif 'REMOTE_USER' in request.META:
         # The web-server already authenticated the remote user:
         user = authenticate(remote_user=request.META['REMOTE_USER'])
-    elif hasattr(request, 'user') and request.user.is_authenticated():  # pragma: no cover
+    elif hasattr(request, 'user') and \
+            request.user.is_authenticated():  # pragma: no cover
         return view(request, *args, **kwargs)
     else:
         logger.warn("Unable to get authentication source.")

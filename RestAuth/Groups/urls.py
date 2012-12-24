@@ -28,11 +28,15 @@ urlpatterns = patterns(
     (r'^(?P<name>[^/]+)/$',
      login_required(realm='/groups/<group>/')(GroupHandlerView.as_view())),
     (r'^(?P<name>[^/]+)/users/$',
-     login_required(realm='/groups/<group>/users/')(GroupUsersIndex.as_view())),
+     login_required(realm='/groups/<group>/users/')(
+         GroupUsersIndex.as_view())),
     (r'^(?P<name>[^/]+)/users/(?P<subname>[^/]+)/$',
-     login_required(realm='/groups/<group>/users/<username>')(GroupUserHandler.as_view())),
+     login_required(realm='/groups/<group>/users/<username>')(
+         GroupUserHandler.as_view())),
     (r'^(?P<name>[^/]+)/groups/$',
-     login_required(realm='/groups/<group>/groups/')(GroupGroupsIndex.as_view())),
+     login_required(realm='/groups/<group>/groups/')(
+         GroupGroupsIndex.as_view())),
     (r'^(?P<name>[^/]+)/groups/(?P<subname>[^/]+)/$',
-     login_required(realm='/groups/<group>/groups/<subgroupname>')(GroupGroupHandler.as_view())),
+     login_required(realm='/groups/<group>/groups/<subgroupname>')(
+         GroupGroupHandler.as_view())),
 )

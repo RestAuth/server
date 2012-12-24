@@ -1,22 +1,18 @@
 from base64 import b64encode
 import httplib
 
-from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.test.client import RequestFactory, Client
+from django.test.client import Client
 from django.test import TestCase
 
 import RestAuthCommon
 
-from RestAuth.common import errors
 from RestAuth.common.testdata import RestAuthTest
 from RestAuth.common.decorators import override_settings
 from RestAuth.Services.models import Service
-from RestAuth.Services.models import ServiceAddress
 from RestAuth.Services.models import service_create
 from RestAuth.Services.models import ServiceUsernameNotValid
-from Users import views
 
 PATHS = [
     (['get', 'post'], '/users/'),
@@ -30,6 +26,7 @@ PATHS = [
     (['get', 'post'], '/groups/group/groups/'),
     (['delete'], '/groups/group/groups/group/'),
 ]
+
 
 @override_settings(LOGGING_CONFIG=None)
 class BasicAuthTests(RestAuthTest):  # GET /users/
@@ -92,7 +89,8 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
                         resp = getattr(self, method)(path, {})
                     else:
                         resp = getattr(self, method)(path)
-                    self.assertEquals(resp.status_code, httplib.METHOD_NOT_ALLOWED)
+                    self.assertEquals(resp.status_code,
+                                      httplib.METHOD_NOT_ALLOWED)
 
     def test_wrong_user(self):
         service_create('vowi', 'vowi', '127.0.0.1', '::1')

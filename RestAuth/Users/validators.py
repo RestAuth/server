@@ -16,7 +16,6 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import stringprep
 from RestAuth.common.errors import UsernameInvalid
 
 from django.conf import settings

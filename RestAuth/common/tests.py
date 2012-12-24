@@ -1,22 +1,34 @@
-import base64
+# -*- coding: utf-8 -*-
+#
+# This file is part of RestAuth (https://restauth.net).
+#
+# RestAuth is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# RestAuth is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+
 import httplib
 
-from django.test.client import Client, RequestFactory
+from django.test.client import RequestFactory
 from django.utils.unittest import TestCase
 
 from RestAuthCommon import handlers
-from RestAuthCommon.error import NotAcceptable
-from RestAuthCommon.error import UnsupportedMediaType
 
 from RestAuth.Services.models import Service
-from RestAuth.Services.models import service_create
-from RestAuth.Users.models import ServiceUser as User, validate_username, load_username_validators
+from RestAuth.Users.models import ServiceUser as User
+from RestAuth.Users.models import validate_username, load_username_validators
 from RestAuth.common.errors import UsernameInvalid
-from RestAuth.common.testdata import password1
 from RestAuth.common.testdata import RestAuthTest
 from RestAuth.common.testdata import username1
 from RestAuth.common.middleware import HeaderMiddleware
-from RestAuth.common.decorators import override_settings
 
 
 class HeaderMiddlewareTests(TestCase):
@@ -83,6 +95,7 @@ validators = (
     'RestAuth.Users.validators.xmpp',
 )
 
+
 class ValidatorTests(RestAuthTest):
     def setUp(self):
         load_username_validators(validators)
@@ -96,7 +109,8 @@ class ValidatorTests(RestAuthTest):
         self.assertRaises(UsernameInvalid, validate_username, *['foo>bar'])
 
     def test_reserved_username(self):
-        self.assertRaises(UsernameInvalid, validate_username, *['mediawiki default'])
+        self.assertRaises(UsernameInvalid, validate_username,
+                          *['mediawiki default'])
 
     def test_force_ascii(self):
         self.assertRaises(UsernameInvalid, validate_username, *[username1])
