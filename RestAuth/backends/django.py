@@ -2,7 +2,6 @@ from RestAuth.backends.base import GroupBackend
 from RestAuth.backends.base import PropertyBackend
 from RestAuth.backends.base import UserBackend
 
-from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.Users.models import ServiceUser
 
 
@@ -14,11 +13,7 @@ class DjangoUserBackend(UserBackend):
         # If User.DoesNotExist: 404 Not Found
         user = ServiceUser.objects.only('password').get(username=username)
 
-        if not user.check_password(password):
-            # password does not match - raises 404
-            raise ServiceUser.DoesNotExist("Password invalid for this user.")
-
-        return HttpResponseNoContent()  # Ok
+        return user.check_password(password)
 
 class DjangoPropertyBackend(PropertyBackend):
     pass
