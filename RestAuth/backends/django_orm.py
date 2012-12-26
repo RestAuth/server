@@ -46,6 +46,9 @@ class DjangoUserBackend(UserBackend):
 
         return user.check_password(password)
 
+    def exists(self, username):
+        return User.objects.filter(username=username).exists()
+
 class DjangoPropertyBackend(PropertyBackend):
     pass
 
