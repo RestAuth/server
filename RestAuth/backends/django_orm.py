@@ -79,7 +79,7 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
 
     def create(self, username, key, value):
         user = self._get_user(username, 'id')
-        raise NotImplementedError
+        return user.add_property(key, value)
 
     def get(self, username, key):
         user = self._get_user(username, 'id')
@@ -91,7 +91,9 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
 
     def set_multiple(self, username, props):
         user = self._get_user(username, 'id')
-        raise NotImplementedError
+        with transaction.commit_on_success():
+            for key, value in props.iteritems():
+                user.set_property(key, value)
 
     def remove(self, username, key):
         user = self._get_user(username, 'id')
