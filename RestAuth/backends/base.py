@@ -1,54 +1,54 @@
 class UserBackend(object):
-    def list(self, log, log_args):
+    def list(self):
         raise NotImplementedError
 
-    def create(self, username, password, properties, log, log_args):
+    def create(self, username, password, properties):
         raise NotImplementedError
 
-    def exists(self, username, log, log_args):
+    def exists(self, username):
         raise NotImplementedError
 
-    def check_password(self, username, password, log, log_args):
+    def check_password(self, username, password):
         raise NotImplementedError
 
-    def set_password(self, username, password, log, log_args):
+    def set_password(self, username, password):
         raise NotImplementedError
 
-    def remove(self, username, log, log_args):
+    def remove(self, username):
         raise NotImplementedError
 
 
 class PropertyBackend(object):
-    def list(self, username, log, log_args):
+    def list(self, username):
         raise NotImplementedError
 
-    def create(self, username, key, value, log, log_args):
+    def create(self, username, key, value):
         raise NotImplementedError
 
-    def get(self, username, key, log, log_args):
+    def get(self, username, key):
         raise NotImplementedError
 
-    def set(self, username, key, value, log, log_args):
+    def set(self, username, key, value):
         raise NotImplementedError
 
-    def set_multiple(self, username, props, log, log_args):
+    def set_multiple(self, username, props):
         raise NotImplementedError
 
-    def remove(self, username, key, log, log_args):
+    def remove(self, username, key):
         raise NotImplementedError
 
 
 class GroupBackend(object):
-    def create(self, service, groupname, log, log_args):
+    def create(self, service, groupname):
         raise NotImplementedError
 
-    def exists(self, service, groupname, log, log_args):
+    def exists(self, service, groupname):
         raise NotImplementedError
 
-    def add_user(self, service, groupname, username, log, log_args):
+    def add_user(self, service, groupname, username):
         raise NotImplementedError
 
-    def users(self, service, groupname, log, log_args):
+    def users(self, service, groupname):
         raise NotImplementedError
 
     def member(self, service, groupname, username):
@@ -57,17 +57,14 @@ class GroupBackend(object):
     def rm_user(self, service, groupname, username):
         raise NotImplementedError
 
-    def add_subgroup(self, service, groupname, subservice, subgroupname,
-                  log, log_args):
+    def add_subgroup(self, service, groupname, subservice, subgroupname):
         raise NotImplementedError
 
-    def subgroups(self, service, groupname, subservice, log, log_args):
+    def subgroups(self, service, groupname, subservice):
         raise NotImplementedError
 
-    def rm_subgroup(self, service, groupname, subservice, subgroupname,
-                 log, log_args):
+    def rm_subgroup(self, service, groupname, subservice, subgroupname):
         raise NotImplementedError
 
-    def remove(self, service, groupname, log, log_args):
+    def remove(self, service, groupname):
         raise NotImplementedError
-
