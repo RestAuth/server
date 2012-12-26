@@ -16,6 +16,7 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.http import HttpResponse as HttpResponseBase
+from django.http import HttpResponseNotFound
 from RestAuth.common.types import get_response_type
 from RestAuthCommon.handlers import CONTENT_HANDLERS
 
@@ -41,3 +42,8 @@ class HttpResponseCreated(HttpRestAuthResponse):
 
         HttpRestAuthResponse.__init__(self, request, [uri], 201)
         self['Location'] = uri
+
+class HttpResponseResourceNotFound(HttpResponseNotFound):
+    def __init__(self, typ):
+        super(HttpResponseResourceNotFound, self).__init__(status=404)
+        self['Resource-Type'] = typ
