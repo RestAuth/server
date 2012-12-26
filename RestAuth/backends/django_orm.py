@@ -49,6 +49,24 @@ class DjangoUserBackend(UserBackend):
     def exists(self, username):
         return User.objects.filter(username=username).exists()
 
+    def set_password(self, username, password):
+        # If User.DoesNotExist: 404 Not Found
+        user = User.objects.only('id').get(username=username)
+        if password is not None and password != '':
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+
+        user.save()
+
+    def remove(self, username):
+        qs = User.objects.filter(username=username)
+        if qs.exists():
+            qs.delete()
+        else:
+            raise User.DoesNotExist
+
+
 class DjangoPropertyBackend(PropertyBackend):
     pass
 
