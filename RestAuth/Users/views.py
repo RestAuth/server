@@ -26,7 +26,7 @@ from django.conf import settings
 from django.http import HttpResponseForbidden
 from django.db import transaction
 
-from RestAuthCommon.error import BadRequest
+from RestAuthCommon.error import BadRequest, ResourceNotFound
 from RestAuth.Users.models import ServiceUser, Property, user_create
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
@@ -130,7 +130,10 @@ class UserHandlerView(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         password = get_dict(request, [u'password'])
 
-        return user_backend.verify_password(name, password)
+        if user_backend.verify_password(name, password):
+            return HttpResponseNoContent()
+        else:
+            return HttpResponseResourceNotFound('user')
 
     def put(self, request, largs, name):
         """
