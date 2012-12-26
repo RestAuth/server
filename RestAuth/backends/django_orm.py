@@ -83,7 +83,7 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
 
     def get(self, username, key):
         user = self._get_user(username, 'id')
-        raise NotImplementedError
+        return user.get_property(key).value
 
     def set(self, username, key, value):
         user = self._get_user(username, 'id')
