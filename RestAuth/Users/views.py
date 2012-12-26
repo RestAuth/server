@@ -175,10 +175,7 @@ class UserPropsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
-        props = user.get_properties()
-
-        self.log.debug("Got properties", extra=largs)
+        props = property_backend.list(name)
         return HttpRestAuthResponse(request, props)
 
     def post(self, request, largs, name):
