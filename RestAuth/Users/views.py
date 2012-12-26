@@ -130,7 +130,7 @@ class UserHandlerView(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         password = get_dict(request, [u'password'])
 
-        if user_backend.verify_password(name, password):
+        if user_backend.check_password(name, password):
             return HttpResponseNoContent()
         else:
             return HttpResponseResourceNotFound('user')

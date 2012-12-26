@@ -40,7 +40,7 @@ class DjangoUserBackend(UserBackend):
             with transaction.commit_on_success():
                 return self._create(username, password, properties)
 
-    def verify_password(self, username, password):
+    def check_password(self, username, password):
         # If User.DoesNotExist: 404 Not Found
         user = User.objects.only('password').get(username=username)
 
