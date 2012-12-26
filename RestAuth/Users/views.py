@@ -24,9 +24,8 @@ from datetime import datetime
 
 from django.conf import settings
 from django.http import HttpResponseForbidden
-from django.db import transaction
 
-from RestAuthCommon.error import BadRequest, ResourceNotFound
+from RestAuthCommon.error import BadRequest
 from RestAuth.Users.models import ServiceUser, user_create, validate_username
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
@@ -87,10 +86,10 @@ class UsersView(RestAuthView):
         name, password, props = get_dict(
             request, [u'user'], [u'password', u'properties'])
 
+        # If UsernameInvalid: 412 Precondition Failed
         validate_username(name)
 
         # If ResourceExists: 409 Conflict
-        # If UsernameInvalid: 412 Precondition Failed
         # If PasswordInvalid: 412 Precondition Failed
         if self.manage_transactions:
             user = user_backend.create(name, password, props, dry=False)
@@ -257,10 +256,6 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
-
         # If Property.DoesNotExist: 404 Not Found
-        user.del_property(subname)
-
-        self.log.info('Delete property', extra=largs)
+        property_backend.remove(name, subname)
         return HttpResponseNoContent()
