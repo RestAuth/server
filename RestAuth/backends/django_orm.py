@@ -78,26 +78,33 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
         return user.get_properties()
 
     def create(self, username, key, value):
+        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
         return user.add_property(key, value)
 
     def get(self, username, key):
+        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
         return user.get_property(key).value
 
     def set(self, username, key, value):
+        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
         return user.set_property(key, value)
 
     def set_multiple(self, username, props):
+        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
         with transaction.commit_on_success():
             for key, value in props.iteritems():
                 user.set_property(key, value)
 
     def remove(self, username, key):
+        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
-        raise NotImplementedError
+
+        # If Property.DoesNotExist: 404 Not Found
+        user.del_property(key)
 
 class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
     def create(self, service, groupname):
