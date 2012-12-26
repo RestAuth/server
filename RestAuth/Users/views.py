@@ -61,10 +61,8 @@ class UsersView(RestAuthView):
         if not request.user.has_perm('Users.users_list'):
             return HttpResponseForbidden()
 
-        names = ServiceUser.objects.values_list('username', flat=True)
-
-        self.log.debug("Got list of users", extra=largs)
-        return HttpRestAuthResponse(request, list(names))
+        names = user_backend.list()
+        return HttpRestAuthResponse(request, names)
 
     def create_user(self, name, password, props):
         user = user_create(name, password)
@@ -132,7 +130,7 @@ class UserHandlerView(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         password = get_dict(request, [u'password'])
 
-        return user_backend.verify_password(self.log, largs, name, password)
+        return user_backend.verify_password(name, password)
 
     def put(self, request, largs, name):
         """
