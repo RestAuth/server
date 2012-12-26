@@ -1,5 +1,5 @@
 class UserBackend(object):
-    def check_password(self, username, password):
+    def check_password(self, logger, log_args, username, password):
         raise NotImplementedError
 
 class PropertyBackend(object):
