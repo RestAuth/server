@@ -11,7 +11,12 @@ from RestAuth.common.errors import UserExists
 from RestAuth.Users.models import ServiceUser as User
 
 
-class DjangoUserBackend(UserBackend):
+class DjangoBackendBase(object):
+    def _get_user(self, username, *fields):
+        return User.objects.only(*fields).get(username=username)
+
+
+class DjangoUserBackend(UserBackend, DjangoBackendBase):
     def list(self):
         return list(User.objects.values_list('username', flat=True))
 
@@ -42,8 +47,7 @@ class DjangoUserBackend(UserBackend):
 
     def check_password(self, username, password):
         # If User.DoesNotExist: 404 Not Found
-        user = User.objects.only('password').get(username=username)
-
+        user = self._get_user(username, 'password')
         return user.check_password(password)
 
     def exists(self, username):
@@ -51,7 +55,7 @@ class DjangoUserBackend(UserBackend):
 
     def set_password(self, username, password):
         # If User.DoesNotExist: 404 Not Found
-        user = User.objects.only('id').get(username=username)
+        user = self._get_user(username, 'id')
         if password is not None and password != '':
             user.set_password(password)
         else:
@@ -67,28 +71,33 @@ class DjangoUserBackend(UserBackend):
             raise User.DoesNotExist
 
 
-class DjangoPropertyBackend(PropertyBackend):
+class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
     def list(self, username):
         # If User.DoesNotExist: 404 Not Found
-        user = User.objects.only('id').get(username=name)
+        user = self._get_user(username, 'id')
         return user.get_properties()
 
     def create(self, username, key, value):
+        user = self._get_user(username, 'id')
         raise NotImplementedError
 
     def get(self, username, key):
+        user = self._get_user(username, 'id')
         raise NotImplementedError
 
     def set(self, username, key, value):
+        user = self._get_user(username, 'id')
         raise NotImplementedError
 
     def set_multiple(self, username, props):
+        user = self._get_user(username, 'id')
         raise NotImplementedError
 
     def remove(self, username, key):
+        user = self._get_user(username, 'id')
         raise NotImplementedError
 
-class DjangoGroupBackend(GroupBackend):
+class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
     def create(self, service, groupname):
         raise NotImplementedError
 
