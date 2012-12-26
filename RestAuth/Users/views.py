@@ -22,6 +22,7 @@ This module implements all HTTP queries to ``/user/*``.
 import logging
 from datetime import datetime
 
+from django.conf import settings
 from django.http import HttpResponseForbidden
 from django.db import transaction
 
@@ -35,7 +36,14 @@ from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
 
 from RestAuth.common.decorators import sql_profile
 
-user_backend = import_path('RestAuth.backends.django.DjangoBackend')[0]()
+user_backend = import_path(getattr(
+    settings, 'USER_BACKEND',
+    'RestAuth.backends.django.DjangoBackend'
+))[0]()
+property_backend = import_path(getattr(
+    settings, 'PROPERTY_BACKEND',
+    'RestAuth.backends.django.DjangoBackend'
+))[0]()
 
 
 class UsersView(RestAuthView):
