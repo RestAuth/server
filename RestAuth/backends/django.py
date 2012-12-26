@@ -8,6 +8,7 @@ from RestAuth.Users.models import ServiceUser
 
 class DjangoBackend(UserBackend, PropertyBackend, GroupBackend):
     def verify_password(self, logger, log_args, username, password):
+        # If User.DoesNotExist: 404 Not Found
         user = ServiceUser.objects.only('password').get(username=username)
 
         if not user.check_password(password):
