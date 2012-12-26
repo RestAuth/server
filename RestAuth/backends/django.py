@@ -6,7 +6,7 @@ from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.Users.models import ServiceUser
 
 
-class DjangoBackend(UserBackend, PropertyBackend, GroupBackend):
+class DjangoUserBackend(UserBackend):
     def verify_password(self, logger, log_args, username, password):
         # If User.DoesNotExist: 404 Not Found
         user = ServiceUser.objects.only('password').get(username=username)
@@ -18,3 +18,9 @@ class DjangoBackend(UserBackend, PropertyBackend, GroupBackend):
 
         logger.debug("Checked password (ok)", extra=log_args)
         return HttpResponseNoContent()  # Ok
+
+class DjangoPropertyBackend(PropertyBackend):
+    pass
+
+class DjangoGroupBackend(GroupBackend):
+    pass
