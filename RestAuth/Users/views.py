@@ -223,13 +223,10 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
-
         # If Property.DoesNotExist: 404 Not Found
-        prop = user.get_property(subname)
+        value = property_backend.get(name, subname)
 
-        self.log.debug('Got property', extra=largs)
-        return HttpRestAuthResponse(request, prop.value)
+        return HttpRestAuthResponse(request, value)
 
     def put(self, request, largs, name, subname):
         """
@@ -242,9 +239,8 @@ class UserPropHandler(RestAuthSubResourceView):
         value = get_dict(request, [u'value'])
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
+        prop, old_value = property_backend.set(name, subname, value)
 
-        prop, old_value = user.set_property(subname, value)
         if old_value is None:  # new property
             self.log.info('Set to "%s"', value, extra=largs)
             return HttpResponseCreated(request, prop)

@@ -87,7 +87,7 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
 
     def set(self, username, key, value):
         user = self._get_user(username, 'id')
-        raise NotImplementedError
+        return user.set_property(key, value)
 
     def set_multiple(self, username, props):
         user = self._get_user(username, 'id')
