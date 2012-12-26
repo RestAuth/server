@@ -29,10 +29,13 @@ from RestAuthCommon.error import BadRequest
 from RestAuth.Users.models import ServiceUser, Property, user_create
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
+from RestAuth.common.utils import import_path
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
 
 from RestAuth.common.decorators import sql_profile
+
+user_backend = import_path('RestAuth.backends.django.DjangoBackend')[0]()
 
 
 class UsersView(RestAuthView):
@@ -121,16 +124,7 @@ class UserHandlerView(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         password = get_dict(request, [u'password'])
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('password').get(username=name)
-
-        if not user.check_password(password):
-            # password does not match - raises 404
-            self.log.info("Wrong password checked", extra=largs)
-            raise ServiceUser.DoesNotExist("Password invalid for this user.")
-
-        self.log.debug("Checked password (ok)", extra=largs)
-        return HttpResponseNoContent()  # Ok
+        return user_backend.verify_password(self.log, largs, name, password)
 
     def put(self, request, largs, name):
         """
