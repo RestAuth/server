@@ -115,8 +115,7 @@ class UserHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Users.user_exists'):
             return HttpResponseForbidden()
 
-        self.log.debug("Check if user exists", extra=largs)
-        if ServiceUser.objects.filter(username=name).exists():
+        if user_backend.exists(name):
             return HttpResponseNoContent()
         else:
             raise ServiceUser.DoesNotExist()
