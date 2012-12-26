@@ -145,18 +145,7 @@ class UserHandlerView(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         password, = get_dict(request, optional=[u'password'])
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
-
-        # If UsernameInvalid: 412 Precondition Failed
-        if password:
-            user.set_password(password)
-        else:
-            user.set_unusable_password()
-
-        user.save()
-
-        self.log.info("Updated password", extra=largs)
+        user_backend.set_password(name, password)
         return HttpResponseNoContent()
 
     def delete(self, request, largs, name):
@@ -167,13 +156,7 @@ class UserHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        qs = ServiceUser.objects.filter(username=name)
-        if qs.exists():
-            qs.delete()
-        else:
-            raise ServiceUser.DoesNotExist
-
-        self.log.info("Deleted user", extra=largs)
+        user_backend.remove(name)
         return HttpResponseNoContent()
 
 
