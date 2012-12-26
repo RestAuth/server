@@ -38,11 +38,11 @@ from RestAuth.common.decorators import sql_profile
 
 user_backend = import_path(getattr(
     settings, 'USER_BACKEND',
-    'RestAuth.backends.django.DjangoBackend'
+    'RestAuth.backends.django.DjangoUserBackend'
 ))[0]()
 property_backend = import_path(getattr(
     settings, 'PROPERTY_BACKEND',
-    'RestAuth.backends.django.DjangoBackend'
+    'RestAuth.backends.django.DjangoPropertyBackend'
 ))[0]()
 
 
