@@ -189,10 +189,8 @@ class UserPropsIndex(RestAuthResourceView):
         prop, value = get_dict(request, [u'prop', u'value'])
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
-
         # If PropertyExists: 409 Conflict
-        property = user.add_property(prop, value)
+        property = property_backend.create(name, prop, value)
 
         self.log.info(
             'Created property "%s" as "%s"', prop, value, extra=largs)
@@ -206,11 +204,7 @@ class UserPropsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
-
-        with transaction.commit_on_success():
-            for key, value in get_freeform_dict(request).iteritems():
-                user.set_property(key, value)
+        property_backend.set_multiple(name, get_freeform_dict(request))
         return HttpResponseNoContent()
 
 
