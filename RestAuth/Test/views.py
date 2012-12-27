@@ -15,24 +15,43 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.conf import settings
 from django.db import transaction
 
-from RestAuth.Users.views import UsersView, UserPropsIndex
+from RestAuth.Users.views import UserPropsIndex
+from RestAuth.Users.models import validate_username
 from RestAuth.Groups.views import GroupsView
 from RestAuth.Services.decorator import login_required
+from RestAuth.common.types import get_dict
+from RestAuth.common.utils import import_path
+from RestAuth.common.responses import HttpResponseCreated
 
-users_view = UsersView.as_view(manage_transactions=False)
 props_view = UserPropsIndex.as_view()
 groups_view = GroupsView.as_view()
 
+user_backend = import_path(getattr(
+        settings, 'USER_BACKEND',
+        'RestAuth.backends.django_orm.DjangoUserBackend'
+))[0]()
+property_backend = import_path(getattr(
+        settings, 'PROPERTY_BACKEND',
+        'RestAuth.backends.django_orm.DjangoPropertyBackend'
+))[0]()
+group_backend = import_path(getattr(
+        settings, 'PROPERTY_BACKEND',
+        'RestAuth.backends.django_orm.DjangoGroupBackend'
+))[0]()
+
 
 @login_required(realm="/test/users/")
-@transaction.commit_manually
 def users(request):
-    try:
-        return users_view(request)
-    finally:
-        transaction.rollback()
+    # If BadRequest: 400 Bad Request
+    name, password, props = get_dict(
+        request, [u'user'], [u'password', u'properties'])
+    validate_username(name)
+
+    user = user_backend.create(name, password, props, dry=True)
+    return HttpResponseCreated(request, user)
 
 
 @login_required(realm="/test/users/<user>/props/")
