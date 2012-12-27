@@ -62,7 +62,7 @@ class UsersView(RestAuthView):
         names = user_backend.list()
         return HttpRestAuthResponse(request, names)
 
-    def post(self, request, largs, *args, **kwargs):
+    def post(self, request, largs, dry=False):
         """
         Create a new user.
         """
@@ -78,7 +78,7 @@ class UsersView(RestAuthView):
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
-        user = user_backend.create(name, password, props, dry=False)
+        user = user_backend.create(name, password, props, dry=dry)
 
         self.log.info('%s: Created user', name, extra=largs)
         return HttpResponseCreated(request, user)
@@ -161,7 +161,7 @@ class UserPropsIndex(RestAuthResourceView):
         props = property_backend.list(name)
         return HttpRestAuthResponse(request, props)
 
-    def post(self, request, largs, name):
+    def post(self, request, largs, name, dry=False):
         """
         Create a new property.
         """
@@ -173,7 +173,7 @@ class UserPropsIndex(RestAuthResourceView):
 
         # If User.DoesNotExist: 404 Not Found
         # If PropertyExists: 409 Conflict
-        prop = property_backend.create(name, key, value)
+        prop = property_backend.create(name, key, value, dry=dry)
 
         self.log.info(
             'Created property "%s" as "%s"', prop, value, extra=largs)
