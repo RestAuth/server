@@ -31,6 +31,11 @@ from RestAuth.common.responses import *
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
 
+group_backend = import_path(getattr(
+            settings, 'PROPERTY_BACKEND',
+            'RestAuth.backends.django_orm.DjangoGroupBackend'
+))[0]()
+
 
 class GroupsView(RestAuthView):
     """
