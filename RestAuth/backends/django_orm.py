@@ -40,7 +40,12 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
 
     def create(self, username, password=None, properties=None, dry=False):
         if dry:
-            raise NotImplementedError
+            with transaction.commit_manually():
+                try:
+                    user = self._create(username, password, properties)
+                    return user
+                finally:
+                    transaction.rollback()
         else:
             with transaction.commit_on_success():
                 return self._create(username, password, properties)
