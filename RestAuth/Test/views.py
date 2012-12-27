@@ -59,12 +59,14 @@ def users(request):
 
 
 @login_required(realm="/test/users/<user>/props/")
-@transaction.commit_manually
 def users_user_props(request, name):
-    try:
-        return props_view(request, name=name)
-    finally:
-        transaction.rollback()
+    # If BadRequest: 400 Bad Request
+    key, value = get_dict(request, [u'prop', u'value'])
+
+    # If User.DoesNotExist: 404 Not Found
+    # If PropertyExists: 409 Conflict
+    prop = property_backend.create(name, key, value, dry=True)
+    return HttpResponseCreated(request, prop)
 
 
 @login_required(realm="/test/groups/")
