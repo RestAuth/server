@@ -52,32 +52,21 @@ class GroupsView(RestAuthView):
         Get a list of groups or, if called with the 'user' query parameter,
         a list of groups where the user is a member of.
         """
-        if 'user' in request.GET:
+        username = request.GET.get('user', None)
+        if username is None or username == '':
+            if not request.user.has_perm('Groups.groups_list'):
+                return HttpResponseForbidden()
+
+            groups = group_backend.list(service=request.user)
+        else:
             if not request.user.has_perm('Groups.groups_for_user'):
                 return HttpResponseForbidden()
 
             # Get all groups of a user
-            username = request.GET['user'].lower()
+            username = username.lower()
+            groups = group_backend.list(service=request.user, username=username)
 
-            # If User.DoesNotExist: 404 Not Found
-            user = ServiceUser.objects.only('id').get(username=username)
-
-            groups = Group.objects.member(user=user, service=request.user)
-            groups = list(groups.only('id').values_list('name', flat=True))
-
-            self.log.debug('Get groups for user %s',
-                           username, extra=largs)
-            return HttpRestAuthResponse(request, groups)
-        else:  # Get a list of groups:
-            if not request.user.has_perm('Groups.groups_list'):
-                return HttpResponseForbidden()
-
-            # get all groups for this service
-            groups = Group.objects.filter(service=request.user)
-            groups = list(groups.only('name').values_list('name', flat=True))
-
-            self.log.debug('Get all groups', extra=largs)
-            return HttpRestAuthResponse(request, groups)
+        return HttpRestAuthResponse(request, groups)
 
     def post(self, request, largs):
         """
