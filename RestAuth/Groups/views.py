@@ -21,11 +21,13 @@ This module implements all HTTP queries to ``/group/*``.
 
 import logging
 
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseForbidden
 
 from RestAuth.Users.models import ServiceUser
 from RestAuth.Groups.models import Group, group_create
 from RestAuth.common.errors import GroupExists
+from RestAuth.common.utils import import_path
 from RestAuth.common.types import get_dict
 from RestAuth.common.responses import *
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
