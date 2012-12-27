@@ -39,7 +39,7 @@ class PropertyBackend(object):
     def list(self, username):
         raise NotImplementedError
 
-    def create(self, username, key, value):
+    def create(self, username, key, value, dry=False):
         raise NotImplementedError
 
     def get(self, username, key):
@@ -56,7 +56,7 @@ class PropertyBackend(object):
 
 
 class GroupBackend(object):
-    def create(self, service, groupname):
+    def create(self, service, groupname, dry=False):
         raise NotImplementedError
 
     def exists(self, service, groupname):
