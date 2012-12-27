@@ -139,6 +139,8 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
                 try:
                     return Group.objects.create(
                         name=groupname, service=service)
+                except IntegrityError:
+                    raise GroupExists('Group "%s" already exists' % groupname)
                 finally:
                     transaction.rollback()
         else:
