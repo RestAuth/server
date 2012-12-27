@@ -169,15 +169,15 @@ class UserPropsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        prop, value = get_dict(request, [u'prop', u'value'])
+        key, value = get_dict(request, [u'prop', u'value'])
 
         # If User.DoesNotExist: 404 Not Found
         # If PropertyExists: 409 Conflict
-        property = property_backend.create(name, prop, value)
+        prop = property_backend.create(name, key, value)
 
         self.log.info(
             'Created property "%s" as "%s"', prop, value, extra=largs)
-        return HttpResponseCreated(request, property)
+        return HttpResponseCreated(request, prop)
 
     def put(self, request, largs, name):
         """
