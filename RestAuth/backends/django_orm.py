@@ -6,7 +6,7 @@ from django.db.utils import IntegrityError
 from RestAuth.backends.base import GroupBackend
 from RestAuth.backends.base import PropertyBackend
 from RestAuth.backends.base import UserBackend
-from RestAuth.common.errors import UserExists
+from RestAuth.common.errors import UserExists, GroupExists
 
 from RestAuth.Users.models import ServiceUser as User
 from RestAuth.Groups.models import Group
@@ -133,8 +133,21 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
             groups = Group.objects.member(user=user, service=service)
         return list(groups.only('id').values_list('name', flat=True))
 
-    def create(self, service, groupname):
-        raise NotImplementedError
+    def create(self, service, groupname, dry=False):
+        if dry:
+            with transaction.commit_manually():
+                try:
+                    return Group.objects.create(
+                        name=groupname, service=service)
+                finally:
+                    transaction.rollback()
+        else:
+            with transaction.commit_on_success():
+                try:
+                    return Group.objects.create(
+                        name=groupname, service=service)
+                except IntegrityError:
+                    raise GroupExists('Group "%s" already exists' % groupname)
 
     def exists(self, service, groupname):
         raise NotImplementedError
