@@ -57,18 +57,18 @@ class GroupsView(RestAuthView):
             if not request.user.has_perm('Groups.groups_list'):
                 return HttpResponseForbidden()
 
-            groups = group_backend.list(service=request.user)
+            groups = group_backend.list(request.user)
         else:
             if not request.user.has_perm('Groups.groups_for_user'):
                 return HttpResponseForbidden()
 
             # Get all groups of a user
             username = username.lower()
-            groups = group_backend.list(service=request.user, username=username)
+            groups = group_backend.list(request.user, username)
 
         return HttpRestAuthResponse(request, groups)
 
-    def post(self, request, largs):
+    def post(self, request, largs, dry=False):
         """
         Create a new group.
         """
@@ -77,9 +77,10 @@ class GroupsView(RestAuthView):
 
         # If BadRequest: 400 Bad Request
         groupname = get_dict(request, [u'group'])
+        groupname = groupname.lower()
 
         # If ResourceExists: 409 Conflict
-        group = group_create(groupname, request.user)
+        group = group_backend.create(request.user, groupname, dry=dry)
 
         self.log.info('%s: Created group', groupname, extra=largs)
         return HttpResponseCreated(request, group)  # Created
