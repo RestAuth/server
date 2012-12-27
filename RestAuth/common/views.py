@@ -43,7 +43,7 @@ class RestAuthResourceView(RestAuthView):
     ``/users/<user>/props/``.
     """
 
-    def dispatch(self, request, name):
+    def dispatch(self, request, name, **kwargs):
         """
         Adds the 'name' logging argument, and passes that as extra
         keyword-argument to the parents dispatch method.
@@ -52,7 +52,7 @@ class RestAuthResourceView(RestAuthView):
         largs = {'name': name}
 
         return super(RestAuthResourceView, self).dispatch(
-            request, largs=largs, name=name)
+            request, largs=largs, name=name, **kwargs)
 
 
 class RestAuthSubResourceView(RestAuthView):
@@ -61,7 +61,7 @@ class RestAuthSubResourceView(RestAuthView):
     ``/users/<user>/props/<prop>/``.
     """
 
-    def dispatch(self, request, name, subname):
+    def dispatch(self, request, name, subname, **kwargs):
         """
         Adds the 'subname' logging argument, and passes that as extra
         keyword-argument to the parents dispatch method.
@@ -71,4 +71,4 @@ class RestAuthSubResourceView(RestAuthView):
         largs = {'name': name, 'subname': subname}
 
         return super(RestAuthSubResourceView, self).dispatch(
-            request, largs=largs, name=name, subname=subname)
+            request, largs=largs, name=name, subname=subname, **kwargs)
