@@ -56,7 +56,7 @@ class PropertyBackend(object):
 
 
 class GroupBackend(object):
-    def list(self, username=False):
+    def list(self, username=None):
         raise NotImplementedError
 
     def create(self, service, groupname, dry=False):
