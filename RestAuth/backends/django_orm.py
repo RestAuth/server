@@ -121,6 +121,9 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
         user.del_property(key)
 
 class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
+    def list(self, username=False):
+        raise NotImplementedError
+
     def create(self, service, groupname):
         raise NotImplementedError
 
