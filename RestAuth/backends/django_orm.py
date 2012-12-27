@@ -9,6 +9,7 @@ from RestAuth.backends.base import UserBackend
 from RestAuth.common.errors import UserExists
 
 from RestAuth.Users.models import ServiceUser as User
+from RestAuth.Groups.models import Group
 
 
 class DjangoBackendBase(object):
@@ -120,9 +121,17 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
         # If Property.DoesNotExist: 404 Not Found
         user.del_property(key)
 
+
 class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
-    def list(self, username=False):
-        raise NotImplementedError
+    def list(self, service, username=None):
+        if username is None:
+            groups = Group.objects.filter(service=service)
+        else:
+            # If User.DoesNotExist: 404 Not Found
+            user = self._get_user(username, 'id')
+
+            groups = Group.objects.member(user=user, service=service)
+        return list(groups.only('id').values_list('name', flat=True))
 
     def create(self, service, groupname):
         raise NotImplementedError
