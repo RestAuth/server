@@ -48,8 +48,12 @@ def users(request):
     # If BadRequest: 400 Bad Request
     name, password, props = get_dict(
         request, [u'user'], [u'password', u'properties'])
+
+    # If UsernameInvalid: 412 Precondition Failed
     validate_username(name)
 
+    # If ResourceExists: 409 Conflict
+    # If PasswordInvalid: 412 Precondition Failed
     user = user_backend.create(name, password, props, dry=True)
     return HttpResponseCreated(request, user)
 
