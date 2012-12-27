@@ -82,10 +82,19 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
         user = self._get_user(username, 'id')
         return user.get_properties()
 
-    def create(self, username, key, value):
+    def create(self, username, key, value, dry=False):
         # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
-        return user.add_property(key, value)
+
+        if dry:
+            with transaction.commit_manually():
+                try:
+                    return user.add_property(key, value)
+                finally:
+                    transaction.rollback()
+        else:
+            with transaction.commit_on_success():
+                return user.add_property(key, value)
 
     def get(self, username, key):
         # If User.DoesNotExist: 404 Not Found
