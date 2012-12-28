@@ -29,12 +29,11 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from RestAuthCommon.error import RestAuthException
+from RestAuth.common.errors import GroupNotFound
+from RestAuth.common.errors import PropertyNotFound
+from RestAuth.common.errors import UserNotFound
 
-from RestAuth.Users.models import Property
-from RestAuth.Users.models import ServiceUser
-from RestAuth.Groups.models import Group
-
-CONTENT_TYPE_METHODS = ['POST', 'PUT']
+CONTENT_TYPE_METHODS = set(['POST', 'PUT'])
 
 
 class ExceptionMiddleware:
@@ -42,20 +41,19 @@ class ExceptionMiddleware:
     Exception to handle RestAuth related exceptions.
     """
     def process_exception(self, request, ex):
-        if isinstance(ex, ServiceUser.DoesNotExist):
+        if isinstance(ex, UserNotFound):
             resp = HttpResponse(ex, status=404)
             resp['Resource-Type'] = 'user'
             return resp
-        if isinstance(ex, Group.DoesNotExist):
+        elif isinstance(ex, GroupNotFound):
             resp = HttpResponse(ex, status=404)
             resp['Resource-Type'] = 'group'
             return resp
-        if isinstance(ex, Property.DoesNotExist):
+        elif isinstance(ex, PropertyNotFound):
             resp = HttpResponse(ex, status=404)
             resp['Resource-Type'] = 'property'
             return resp
-
-        if isinstance(ex, RestAuthException):
+        elif isinstance(ex, RestAuthException):
             return HttpResponse(ex.message, status=ex.response_code)
         else:  # pragma: no cover
             logging.critical(traceback.format_exc())
