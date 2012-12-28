@@ -20,20 +20,16 @@ This module implements all HTTP queries to ``/user/*``.
 """
 
 import logging
-from datetime import datetime
 
 from django.conf import settings
 from django.http import HttpResponseForbidden
 
-from RestAuthCommon.error import BadRequest
-from RestAuth.Users.models import ServiceUser, user_create, validate_username
+from RestAuth.Users.models import ServiceUser, validate_username
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.responses import *
 from RestAuth.common.utils import import_path
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
-
-from RestAuth.common.decorators import sql_profile
 
 user_backend = import_path(getattr(
     settings, 'USER_BACKEND',
