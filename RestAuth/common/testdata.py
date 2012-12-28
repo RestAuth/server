@@ -23,7 +23,7 @@ from django.test.client import Client
 from RestAuthCommon import handlers
 
 from Services.models import service_create
-from Users.models import prop_permissions
+from Users.models import ServiceUser, prop_permissions
 from Users.models import user_permissions
 from Groups.models import group_permissions
 
@@ -115,6 +115,13 @@ class RestAuthTestBase(object):
         body = response.content.decode('utf-8')
         func = getattr(self.handler, 'unmarshal_%s' % typ)
         return func(body)
+
+    def create_user(self, username, password):
+        user = ServiceUser(username=username)
+        if password is not None:
+            user.set_password(password)
+        user.save()
+        return user
 
 
 class RestAuthTest(RestAuthTestBase, TestCase):
