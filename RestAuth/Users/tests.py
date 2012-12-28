@@ -17,11 +17,9 @@
 
 import httplib
 
-from RestAuth.common import errors
 from RestAuth.common.decorators import override_settings
 from RestAuth.common.testdata import *
 
-from Users import views
 from Users.models import ServiceUser, user_create, Property
 
 
