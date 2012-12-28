@@ -6,11 +6,11 @@ from django.db.utils import IntegrityError
 from RestAuth.backends.base import GroupBackend
 from RestAuth.backends.base import PropertyBackend
 from RestAuth.backends.base import UserBackend
-from RestAuth.common.errors import UserExists, GroupExists
+from RestAuth.common.errors import UserExists, GroupExists, PropertyExists
 from RestAuth.common.errors import UserNotFound, PropertyNotFound
 from RestAuth.common.errors import GroupNotFound
 
-from RestAuth.Users.models import ServiceUser as User
+from RestAuth.Users.models import ServiceUser as User, Property
 from RestAuth.Groups.models import Group
 
 
@@ -97,11 +97,16 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
             with transaction.commit_manually():
                 try:
                     return user.add_property(key, value)
+                except IntegrityError:
+                    raise PropertyExists()
                 finally:
                     transaction.rollback()
         else:
             with transaction.commit_on_success():
-                return user.add_property(key, value)
+                try:
+                    return user.add_property(key, value)
+                except IntegrityError:
+                    raise PropertyExists()
 
     def get(self, username, key):
         user = self._get_user(username, 'id')
@@ -122,8 +127,10 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
 
     def remove(self, username, key):
         user = self._get_user(username, 'id')
-
-        user.del_property(key)
+        try:
+            user.del_property(key)
+        except Property.DoesNotExist:
+            raise PropertyNotFound(key)
 
 
 class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
