@@ -50,16 +50,20 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
         return user
 
     def create(self, username, password=None, properties=None, dry=False):
+        """
+        :todo: The property arg should go to the property backend.
+        """
         if dry:
             with transaction.commit_manually():
                 try:
                     user = self._create(username, password, properties)
-                    return user
+                    return user.username
                 finally:
                     transaction.rollback()
         else:
             with transaction.commit_on_success():
-                return self._create(username, password, properties)
+                user = self._create(username, password, properties)
+                return user.username
 
     def check_password(self, username, password):
         user = self._get_user(username, 'password')
@@ -96,7 +100,8 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
         if dry:
             with transaction.commit_manually():
                 try:
-                    return user.add_property(key, value)
+                    prop = user.add_property(key, value)
+                    return prop.key, prop.value
                 except IntegrityError:
                     raise PropertyExists()
                 finally:
@@ -104,7 +109,8 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
         else:
             with transaction.commit_on_success():
                 try:
-                    return user.add_property(key, value)
+                    prop = user.add_property(key, value)
+                    return prop.key, prop.value
                 except IntegrityError:
                     raise PropertyExists()
 
@@ -117,7 +123,8 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
 
     def set(self, username, key, value):
         user = self._get_user(username, 'id')
-        return user.set_property(key, value)
+        prop, old_value = user.set_property(key, value)
+        return prop.key, old_value
 
     def set_multiple(self, username, props):
         user = self._get_user(username, 'id')
@@ -147,8 +154,9 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         if dry:
             with transaction.commit_manually():
                 try:
-                    return Group.objects.create(
+                    group = Group.objects.create(
                         name=groupname, service=service)
+                    return group.name
                 except IntegrityError:
                     raise GroupExists('Group "%s" already exists' % groupname)
                 finally:
@@ -156,8 +164,9 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         else:
             with transaction.commit_on_success():
                 try:
-                    return Group.objects.create(
+                    group = Group.objects.create(
                         name=groupname, service=service)
+                    return group.name
                 except IntegrityError:
                     raise GroupExists('Group "%s" already exists' % groupname)
 

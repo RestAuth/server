@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse as HttpResponseBase
 from django.http import HttpResponseNotFound
+
 from RestAuth.common.types import get_response_type
 from RestAuthCommon.handlers import CONTENT_HANDLERS
 
@@ -36,8 +38,8 @@ class HttpResponseNoContent(HttpRestAuthResponse):
 
 
 class HttpResponseCreated(HttpRestAuthResponse):
-    def __init__(self, request, entity):
-        location = entity.get_absolute_url()
+    def __init__(self, request, viewname, **kwargs):
+        location = reverse(viewname, kwargs=kwargs)
         uri = request.build_absolute_uri(location)
 
         HttpRestAuthResponse.__init__(self, request, [uri], 201)

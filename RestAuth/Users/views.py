@@ -77,10 +77,10 @@ class UsersView(RestAuthView):
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
-        user = user_backend.create(name, password, props, dry=dry)
+        username = user_backend.create(name, password, props, dry=dry)
 
         self.log.info('%s: Created user', name, extra=largs)
-        return HttpResponseCreated(request, user)
+        return HttpResponseCreated(request, 'users.user', name=username)
 
 
 class UserHandlerView(RestAuthResourceView):
@@ -169,11 +169,12 @@ class UserPropsIndex(RestAuthResourceView):
         key, value = get_dict(request, [u'prop', u'value'])
 
         # If PropertyExists: 409 Conflict
-        prop = property_backend.create(name, key, value, dry=dry)
+        key, value = property_backend.create(name, key, value, dry=dry)
 
         self.log.info(
-            'Created property "%s" as "%s"', prop, value, extra=largs)
-        return HttpResponseCreated(request, prop)
+            'Created property "%s" as "%s"', key, value, extra=largs)
+        return HttpResponseCreated(request, 'users.user.props.prop',
+                                   name=name, subname=key)
 
     def put(self, request, largs, name):
         """
@@ -214,11 +215,12 @@ class UserPropHandler(RestAuthSubResourceView):
         # If BadRequest: 400 Bad Request
         value = get_dict(request, [u'value'])
 
-        prop, old_value = property_backend.set(name, subname, value)
+        key, old_value = property_backend.set(name, subname, value)
 
         if old_value is None:  # new property
             self.log.info('Set to "%s"', value, extra=largs)
-            return HttpResponseCreated(request, prop)
+            return HttpResponseCreated(request, 'users.user.props.prop',
+                                       name=name, subname=key)
         else:  # existing property
             self.log.info('Changed from "%s" to "%s"',
                           old_value, value, extra=largs)
