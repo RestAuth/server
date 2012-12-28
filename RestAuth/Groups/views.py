@@ -100,8 +100,7 @@ class GroupHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_exists'):
             return HttpResponseForbidden()
 
-        self.log.debug("Check if group exists", extra=largs)
-        if Group.objects.filter(name=name, service=request.user).exists():
+        if group_backend.exists(request.user, name):
             return HttpResponseNoContent()
         else:
             raise Group.DoesNotExist
@@ -114,11 +113,8 @@ class GroupHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         self.log.info("Deleted group", extra=largs)
-        if Group.objects.filter(name=name, service=request.user).exists():
-            Group.objects.filter(name=name, service=request.user).delete()
-            return HttpResponseNoContent()
-        else:
-            raise Group.DoesNotExist
+        group_backend.remove(request.user, name)
+        return HttpResponseNoContent()
 
 
 class GroupUsersIndex(RestAuthResourceView):
