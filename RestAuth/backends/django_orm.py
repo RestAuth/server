@@ -16,6 +16,8 @@ class DjangoBackendBase(object):
     def _get_user(self, username, *fields):
         return User.objects.only(*fields).get(username=username)
 
+    def _get_group(self, service, name, *fields):
+        return Group.objects.only(*fields).get(service=service, name=name)
 
 class DjangoUserBackend(UserBackend, DjangoBackendBase):
     def list(self):
@@ -155,10 +157,13 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         return Group.objects.filter(name=groupname, service=service).exists()
 
     def add_user(self, service, groupname, username):
-        raise NotImplementedError
+        group = self._get_group(service, groupname, 'id')
+        user = self._get_user(username, 'id')
+        group.users.add(user)
 
-    def users(self, service, groupname):
-        raise NotImplementedError
+    def members(self, service, groupname):
+        group = self._get_group(service, groupname, 'id')
+        return list(group.get_members().values_list('username', flat=True))
 
     def member(self, service, groupname, username):
         raise NotImplementedError
