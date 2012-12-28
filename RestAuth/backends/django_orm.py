@@ -165,8 +165,11 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         group = self._get_group(service, groupname, 'id')
         return list(group.get_members().values_list('username', flat=True))
 
-    def member(self, service, groupname, username):
-        raise NotImplementedError
+    def is_member(self, service, groupname, username):
+        group = self._get_group(service, groupname, 'id')
+        if group.is_member(username):
+            return True
+        return False
 
     def rm_user(self, service, groupname, username):
         raise NotImplementedError
