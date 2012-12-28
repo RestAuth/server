@@ -20,13 +20,10 @@ The ExceptionMiddleware is located in its own class to avoid circular imports.
 """
 
 import logging
-import sys
 import traceback
 
 from django.http import HttpResponse
 from django.http import HttpResponseServerError
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 
 from RestAuthCommon.error import RestAuthException
 from RestAuth.common.errors import GroupNotFound
