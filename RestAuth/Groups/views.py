@@ -178,17 +178,10 @@ class GroupUserHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If Group.DoesNotExist: 404 Not Found
-        group = Group.objects.only('id').get(name=name, service=request.user)
-
         # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=subname)
-
-        if group.is_member(user):
-            group.users.remove(user)
-            self.log.info('Remove user from group', extra=largs)
-            return HttpResponseNoContent()
-        else:
-            raise ServiceUser.DoesNotExist()  # 404 Not Found
+        group_backend.rm_user(request.user, name, subname)
+        self.log.info('Remove user from group', extra=largs)
+        return HttpResponseNoContent()
 
 
 class GroupGroupsIndex(RestAuthResourceView):
