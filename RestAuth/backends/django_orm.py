@@ -100,7 +100,7 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
         if dry:
             with transaction.commit_manually():
                 try:
-                    prop = user.add_property(key, value)
+                    prop = user.property_set.create(key=key, value=value)
                     return prop.key, prop.value
                 except IntegrityError:
                     raise PropertyExists()
@@ -109,7 +109,7 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
         else:
             with transaction.commit_on_success():
                 try:
-                    prop = user.add_property(key, value)
+                    prop = user.property_set.create(key=key, value=value)
                     return prop.key, prop.value
                 except IntegrityError:
                     raise PropertyExists()

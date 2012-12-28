@@ -15,13 +15,13 @@ class Migration(DataMigration):
             if user.date_joined is not None:
                 try:
                     raw = datetime.strftime(user.date_joined, "%Y-%m-%d %H:%M:%S")
-                    user.add_property('date joined', raw)
+                    user.property_set.create(key='date joined', value=raw)
                 except:
                     pass
             if user.last_login is not None:
                 try:
                     raw = datetime.strftime(user.last_login, "%Y-%m-%d %H:%M:%S")
-                    user.add_property('last login', raw)
+                    user.property_set.create(key='last login', value=raw)
                 except:
                     pass
 
