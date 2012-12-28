@@ -7,15 +7,7 @@ Replace this with more appropriate tests for your application.
 
 import httplib
 
-from django.db import transaction
-from django.contrib.auth.models import User
-from django.test.client import Client
-from django.utils import unittest
-
-from RestAuthCommon.handlers import json
-
 from RestAuth.Groups.models import Group
-from RestAuth.Services.models import Service
 from RestAuth.Users.models import ServiceUser
 from RestAuth.common.testdata import groupname1
 from RestAuth.common.testdata import password1
