@@ -16,9 +16,91 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-from RestAuth.common.errors import UsernameInvalid
 
 from django.conf import settings
+
+from RestAuth.common.errors import UsernameInvalid
+from RestAuth.common.utils import import_path
+
+USERNAME_VALIDATORS = None
+USERNAME_ILLEGAL_CHARS = set()
+USERNAME_RESERVED = set()
+USERNAME_FORCE_ASCII = False
+USERNAME_NO_WHITESPACE = False
+
+
+def load_username_validators(validators=None):
+    global USERNAME_VALIDATORS
+    global USERNAME_ILLEGAL_CHARS
+    global USERNAME_RESERVED
+    global USERNAME_FORCE_ASCII
+    global USERNAME_NO_WHITESPACE
+
+    if validators is None:
+        validators = settings.VALIDATORS
+
+    USERNAME_VALIDATORS = []
+    force_ascii = False
+    allow_whitespace = True
+
+    for validator_path in validators:
+        validator = import_path(validator_path)[0]
+
+        if hasattr(validator, 'check'):
+            USERNAME_VALIDATORS.append(validator)
+
+        USERNAME_ILLEGAL_CHARS |= validator.ILLEGAL_CHARACTERS
+        USERNAME_RESERVED |= validator.RESERVED
+        if validator.FORCE_ASCII:
+            force_ascii = True
+        if not validator.ALLOW_WHITESPACE:
+            allow_whitespace = False
+
+    USERNAME_FORCE_ASCII = force_ascii
+    # use different regular expressions, depending on if we force ASCII
+    if not allow_whitespace:
+        if force_ascii:
+            USERNAME_NO_WHITESPACE = re.compile('\s')
+        else:
+            USERNAME_NO_WHITESPACE = re.compile('\s', re.UNICODE)
+    else:
+        USERNAME_NO_WHITESPACE = False
+
+
+def validate_username(username):
+    if len(username) < settings.MIN_USERNAME_LENGTH:
+        raise UsernameInvalid("Username too short")
+    if len(username) > settings.MAX_USERNAME_LENGTH:
+        raise UsernameInvalid("Username too long")
+
+    if USERNAME_VALIDATORS is None:
+        load_username_validators()
+
+    # check for illegal characters:
+    for char in USERNAME_ILLEGAL_CHARS:
+        if char in username:
+            raise UsernameInvalid(
+                "Username must not contain character '%s'" % char)
+
+    # reserved names
+    if username in USERNAME_RESERVED:
+        raise UsernameInvalid("Username is reserved")
+
+    # force ascii if necessary
+    if USERNAME_FORCE_ASCII:
+        try:
+            username.decode('ascii')
+        except (UnicodeDecodeError, UnicodeEncodeError):
+            raise UsernameInvalid(
+                "Username must only contain ASCII characters")
+
+    # check for whitespace
+    if USERNAME_NO_WHITESPACE is not False:
+        if USERNAME_NO_WHITESPACE.search(username):
+            raise UsernameInvalid("Username must not contain any whitespace")
+
+    for validator in USERNAME_VALIDATORS:
+        validator.check(username)
 
 
 class validator(object):

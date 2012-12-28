@@ -24,7 +24,7 @@ import logging
 from django.conf import settings
 from django.http import HttpResponseForbidden
 
-from RestAuth.Users.models import validate_username
+from RestAuth.Users.validators import validate_username
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.errors import UserNotFound
 from RestAuth.common.responses import HttpResponseCreated
