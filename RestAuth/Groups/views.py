@@ -198,15 +198,8 @@ class GroupGroupsIndex(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_groups_list'):
             return HttpResponseForbidden()
 
-        # If Group.DoesNotExist: 404 Not Found
-        group = Group.objects.only('id').get(name=name, service=request.user)
-
-        groups = group.groups.filter(service=request.user).values_list(
-            'name', flat=True)
-
-        # If MarshalError: 500 Internal Server Error
-        self.log.debug('Get subgroups', extra=largs)
-        return HttpRestAuthResponse(request, list(groups))
+        groups = group_backend.subgroups(request.user, name)
+        return HttpRestAuthResponse(request, groups)
 
     def post(self, request, largs, name):
         """
@@ -218,12 +211,8 @@ class GroupGroupsIndex(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         subname = get_dict(request, [u'group'])
 
-        # If Group.DoesNotExist: 404 Not Found
-        group = Group.objects.only('id').get(name=name, service=request.user)
-        sub_group = Group.objects.only('id').get(
-            name=subname, service=request.user)
+        group_backend.add_subgroup(request.user, name, request.user, subname)
 
-        group.groups.add(sub_group)
         self.log.info('Add subgroup "%s"', subname, extra=largs)
         return HttpResponseNoContent()
 
@@ -242,15 +231,6 @@ class GroupGroupHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Groups.group_remove_group'):
             return HttpResponseForbidden()
 
-        # If Group.DoesNotExist: 404 Not Found
-        group = Group.objects.only('id').get(name=name, service=request.user)
-        subgroup = Group.objects.only('id').get(
-            name=subname, service=request.user)
-
-        qs = group.groups.filter(name=subname, service=request.user)
-        if not qs.exists():
-            raise Group.DoesNotExist()
-
-        group.groups.remove(subgroup)
+        group_backend.rm_subgroup(request.user, name, request.user, subname)
         self.log.info('Remove subgroup %s', subname, extra=largs)
         return HttpResponseNoContent()
