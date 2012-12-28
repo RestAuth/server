@@ -68,7 +68,7 @@ class GroupBackend(object):
     def add_user(self, service, groupname, username):
         raise NotImplementedError
 
-    def users(self, service, groupname):
+    def members(self, service, groupname):
         raise NotImplementedError
 
     def member(self, service, groupname, username):
