@@ -25,7 +25,7 @@ from django.conf import settings
 from django.http import HttpResponseForbidden
 
 from RestAuth.Users.models import ServiceUser
-from RestAuth.Groups.models import Group, group_create
+from RestAuth.Groups.models import Group
 from RestAuth.common.responses import HttpResponseCreated
 from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
@@ -132,13 +132,8 @@ class GroupUsersIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If Group.DoesNotExist: 404 Not Found
-        group = Group.objects.only('id').get(name=name, service=request.user)
-
-        users = group.get_members().values_list('username', flat=True)
-
-        # If MarshalError: 500 Internal Server Error
-        self.log.debug("Get users in group", extra=largs)
-        return HttpRestAuthResponse(request, list(users))
+        users = group_backend.members(service=request.user, groupname=name)
+        return HttpRestAuthResponse(request, users)
 
     def post(self, request, largs, name):
         """
@@ -150,13 +145,7 @@ class GroupUsersIndex(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         username = get_dict(request, [u'user'])
 
-        # If Group.DoesNotExist: 404 Not Found
-        group = Group.objects.only('id').get(name=name, service=request.user)
-
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=username)
-
-        group.users.add(user)
+        group_backend.add_user(request.user, name, username=username)
 
         self.log.info('Add user "%s"', username, extra=largs)
         return HttpResponseNoContent()
