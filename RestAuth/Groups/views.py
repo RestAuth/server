@@ -165,12 +165,7 @@ class GroupUserHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Groups.group_user_in_group'):
             return HttpResponseForbidden()
 
-        self.log.debug('Check if user is in group', extra=largs)
-
-        # If Group.DoesNotExist: 404 Not Found
-        group = Group.objects.only('id').get(name=name, service=request.user)
-
-        if group.is_member(subname):
+        if group_backend.is_member(request.user, name, subname):
             return HttpResponseNoContent()
         else:
             raise ServiceUser.DoesNotExist()  # 404 Not Found
