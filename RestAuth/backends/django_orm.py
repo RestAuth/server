@@ -152,7 +152,7 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
                     raise GroupExists('Group "%s" already exists' % groupname)
 
     def exists(self, service, groupname):
-        raise NotImplementedError
+        return Group.objects.filter(name=groupname, service=service).exists()
 
     def add_user(self, service, groupname, username):
         raise NotImplementedError
@@ -176,4 +176,6 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         raise NotImplementedError
 
     def remove(self, service, groupname):
-        raise NotImplementedError
+        if not Group.objects.filter(name=groupname, service=service).exists():
+            raise Group.DoesNotExist
+        Group.objects.filter(name=groupname, service=service).delete()
