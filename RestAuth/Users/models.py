@@ -266,13 +266,10 @@ class ServiceUser(models.Model):
         Add a new property to this user. It is an error if this property
         already exists.
 
-        @raises PropertyExists: If the property already exists.
-        @return: The property that was created
+        :raises IntegrityError: If the property already exists.
+        :return: The property that was created
         """
-        try:
-            return Property.objects.create(user=self, key=key, value=value)
-        except IntegrityError:
-            raise PropertyExists(key)
+        return self.property_set.create(key=key, value=value)
 
     def get_properties(self):
         return dict(self.property_set.values_list('key', 'value').all())
