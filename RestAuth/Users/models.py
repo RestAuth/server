@@ -15,15 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import datetime
 import hashlib
-import re
-import stringprep
 
 import django
 from django.conf import settings
 from django.db import models
-from django.db.utils import IntegrityError
 from django.utils.http import urlquote
 from django.utils.encoding import smart_str
 
@@ -31,9 +27,7 @@ from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
 
 from RestAuth.common.errors import PasswordInvalid
-from RestAuth.common.errors import UserExists
 from RestAuth.common.utils import import_path
-from RestAuth.Users.validators import validate_username
 
 user_permissions = (
     ('users_list', 'List all users'),
@@ -53,26 +47,6 @@ prop_permissions = (
 )
 
 HASH_FUNCTION_CACHE = None
-
-
-def user_create(name, password):
-    """
-    Creates a new user. Lowercases the username.
-
-    @raise UserExists: If the user already exists
-    @raise UsernameInvalid: If the username is unacceptable
-    @raise PasswordInvalid: If the password is unacceptable
-    """
-    name = name.lower()
-    validate_username(name)
-    try:
-        user = ServiceUser(username=name)
-        if password:
-            user.set_password(password)
-        user.save()
-        return user
-    except IntegrityError:
-        raise UserExists("A user with the given name already exists.")
 
 
 if django.get_version() >= '1.4':
