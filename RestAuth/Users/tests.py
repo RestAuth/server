@@ -17,10 +17,12 @@
 
 import httplib
 
+from django.conf import settings
+
 from RestAuth.common.decorators import override_settings
 from RestAuth.common.testdata import *
 
-from Users.models import ServiceUser, user_create, Property
+from Users.models import ServiceUser, Property
 
 
 def user_get(name):
@@ -34,15 +36,15 @@ class GetUsersTests(RestAuthTest):  # GET /users/
         self.assertItemsEqual(self.parse(resp, 'list'), [])
 
     def test_get_one_user(self):
-        user_create(username1, password1)
+        self.create_user(username1, password1)
 
         resp = self.get('/users/')
         self.assertEquals(resp.status_code, httplib.OK)
         self.assertItemsEqual(self.parse(resp, 'list'), [username1])
 
     def test_get_two_users(self):
-        user_create(username1, password1)
-        user_create(username2, password1)
+        self.create_user(username1, password1)
+        self.create_user(username2, password1)
 
         resp = self.get('/users/')
         self.assertEquals(resp.status_code, httplib.OK)
@@ -202,8 +204,8 @@ class UserTests(RestAuthTest):
         RestAuthTest.setUp(self)
 
         # two users, so we can make sure nothing leaks to the other user
-        self.user1 = user_create(username1, password1)
-        self.user2 = user_create(username2, password2)
+        self.user1 = self.create_user(username1, password1)
+        self.user2 = self.create_user(username2, password2)
 
 
 class UserExistsTests(UserTests):  # GET /users/<user>/
@@ -242,8 +244,7 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         self.assertEqual(resp['Resource-Type'], 'user')
 
     def test_verify_disabled_password(self):
-        user3 = user_create(username3, None)
-        user4 = user_create(username4, '')
+        user3 = self.create_user(username3, None)
 
         resp = self.post('/users/%s/' % username3, {'password': 'wrong'})
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
@@ -252,16 +253,6 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
         resp = self.post('/users/%s/' % username3, {'password': None})
-        self.assertEquals(resp.status_code, httplib.NOT_FOUND)
-        self.assertEqual(resp['Resource-Type'], 'user')
-
-        resp = self.post('/users/%s/' % username4, {'password': 'wrong'})
-        self.assertEquals(resp.status_code, httplib.NOT_FOUND)
-        self.assertEqual(resp['Resource-Type'], 'user')
-        resp = self.post('/users/%s/' % username4, {'password': ''})
-        self.assertEquals(resp.status_code, httplib.NOT_FOUND)
-        self.assertEqual(resp['Resource-Type'], 'user')
-        resp = self.post('/users/%s/' % username4, {'password': None})
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
@@ -349,8 +340,8 @@ class PropertyTests(RestAuthTest):
         RestAuthTest.setUp(self)
 
         # two users, so we can make sure nothing leaks to the other user
-        self.user1 = user_create(username1, password1)
-        self.user2 = user_create(username2, password2)
+        self.user1 = self.create_user(username1, password1)
+        self.user2 = self.create_user(username2, password2)
 
 
 class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/

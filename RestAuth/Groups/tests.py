@@ -24,7 +24,6 @@ from RestAuth.common.testdata import (
     groupname1, groupname2, groupname3, groupname4, groupname5, groupname6,
 )
 from RestAuth.Services.models import Service, service_create
-from RestAuth.Users.models import user_create
 from RestAuth.Groups.models import Group, group_create
 
 
@@ -33,9 +32,9 @@ class GroupTests(RestAuthTest):
         RestAuthTest.setUp(self)
 
         # two users, so we can make sure nothing leaks to the other user
-        self.user1 = user_create(username1, password1)
-        self.user2 = user_create(username2, password2)
-        self.user3 = user_create(username3, password3)
+        self.user1 = self.create_user(username1, password1)
+        self.user2 = self.create_user(username2, password2)
+        self.user3 = self.create_user(username3, password3)
 
         self.vowi = Service.objects.get(username='vowi')
         self.fsinf = service_create('fsinf', 'fsinf', '127.0.0.1', '::1')
@@ -344,8 +343,8 @@ class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
               |- group 2, service=vowi, direct-members: user5
         """
         # set up data structure:
-        self.user4 = user_create(username4, password4)
-        self.user5 = user_create(username5, password5)
+        self.user4 = self.create_user(username4, password4)
+        self.user5 = self.create_user(username5, password5)
 
         # group 5 has no service (hidden "global" group)
         self.group5.users.add(self.user1)
@@ -500,8 +499,8 @@ class VerifyUserInGroupTests(GroupUserTests):
               |- group 2, service=vowi, direct-members: user5
         """
         # set up data structure:
-        self.user4 = user_create(username4, password4)
-        self.user5 = user_create(username5, password5)
+        self.user4 = self.create_user(username4, password4)
+        self.user5 = self.create_user(username5, password5)
 
         # group 5 has no service (hidden "global" group)
         self.group5.users.add(self.user1)
