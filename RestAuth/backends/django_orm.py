@@ -181,13 +181,24 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
             raise User.DoesNotExist  # 404 Not Found
 
     def add_subgroup(self, service, groupname, subservice, subgroupname):
-        raise NotImplementedError
+        group = self._get_group(service, groupname, 'id')
+        subgroup = self._get_group(subservice, subgroupname, 'id')
+        group.groups.add(subgroup)
 
-    def subgroups(self, service, groupname, subservice):
-        raise NotImplementedError
+    def subgroups(self, service, groupname):
+        group = self._get_group(service, groupname, 'id')
+        groups = group.groups.filter(service=service)
+        return list(groups.values_list('name', flat=True))
 
     def rm_subgroup(self, service, groupname, subservice, subgroupname):
-        raise NotImplementedError
+        group = self._get_group(service, groupname, 'id')
+        subgroup = self._get_group(subservice, subgroupname, 'id')
+
+        qs = group.groups.filter(name=subgroupname, service=subservice)
+        if not qs.exists():
+            raise Group.DoesNotExist()
+
+        group.groups.remove(subgroup)
 
     def remove(self, service, groupname):
         if not Group.objects.filter(name=groupname, service=service).exists():
