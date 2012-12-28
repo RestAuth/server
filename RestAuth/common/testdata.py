@@ -19,18 +19,13 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
-from django.conf import settings
 
 from RestAuthCommon import handlers
 
-from Services.models import Service, service_create
+from Services.models import service_create
 from Users.models import prop_permissions
-from Users.models import ServiceUser
-from Users.models import user_create
 from Users.models import user_permissions
 from Groups.models import group_permissions
-
-from middleware import ExceptionMiddleware
 
 username1 = u"mati \u6111"
 username2 = u"mati \u6112"
