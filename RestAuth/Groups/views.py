@@ -24,8 +24,8 @@ import logging
 from django.conf import settings
 from django.http import HttpResponseForbidden
 
-from RestAuth.Users.models import ServiceUser
-from RestAuth.Groups.models import Group
+from RestAuth.common.errors import UserNotFound
+from RestAuth.common.errors import GroupNotFound
 from RestAuth.common.responses import HttpResponseCreated
 from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
@@ -103,7 +103,7 @@ class GroupHandlerView(RestAuthResourceView):
         if group_backend.exists(request.user, name):
             return HttpResponseNoContent()
         else:
-            raise Group.DoesNotExist
+            raise GroupNotFound(name)
 
     def delete(self, request, largs, name):
         """
@@ -131,7 +131,6 @@ class GroupUsersIndex(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_users'):
             return HttpResponseForbidden()
 
-        # If Group.DoesNotExist: 404 Not Found
         users = group_backend.members(service=request.user, groupname=name)
         return HttpRestAuthResponse(request, users)
 
@@ -168,7 +167,7 @@ class GroupUserHandler(RestAuthSubResourceView):
         if group_backend.is_member(request.user, name, subname):
             return HttpResponseNoContent()
         else:
-            raise ServiceUser.DoesNotExist()  # 404 Not Found
+            raise UserNotFound(subname)  # 404 Not Found
 
     def delete(self, request, largs, name, subname):
         """
@@ -177,8 +176,6 @@ class GroupUserHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Groups.group_remove_user'):
             return HttpResponseForbidden()
 
-        # If Group.DoesNotExist: 404 Not Found
-        # If User.DoesNotExist: 404 Not Found
         group_backend.rm_user(request.user, name, subname)
         self.log.info('Remove user from group', extra=largs)
         return HttpResponseNoContent()
