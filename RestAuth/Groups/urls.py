@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import patterns, url
 
 from RestAuth.Services.decorator import login_required
 from RestAuth.Groups.views import (GroupsView, GroupHandlerView,
@@ -24,19 +24,33 @@ from RestAuth.Groups.views import (GroupsView, GroupHandlerView,
 
 urlpatterns = patterns(
     'RestAuth.Groups.views',
-    (r'^$', login_required(realm='/groups/')(GroupsView.as_view())),
-    (r'^(?P<name>[^/]+)/$',
-     login_required(realm='/groups/<group>/')(GroupHandlerView.as_view())),
-    (r'^(?P<name>[^/]+)/users/$',
-     login_required(realm='/groups/<group>/users/')(
-         GroupUsersIndex.as_view())),
-    (r'^(?P<name>[^/]+)/users/(?P<subname>[^/]+)/$',
-     login_required(realm='/groups/<group>/users/<username>')(
-         GroupUserHandler.as_view())),
-    (r'^(?P<name>[^/]+)/groups/$',
-     login_required(realm='/groups/<group>/groups/')(
-         GroupGroupsIndex.as_view())),
-    (r'^(?P<name>[^/]+)/groups/(?P<subname>[^/]+)/$',
-     login_required(realm='/groups/<group>/groups/<subgroupname>')(
-         GroupGroupHandler.as_view())),
+
+    url(r'^$',
+        login_required(realm='/groups/')(GroupsView.as_view()),
+        name='groups'
+    ),
+    url(r'^(?P<name>[^/]+)/$',
+        login_required(realm='/groups/<group>/')(GroupHandlerView.as_view()),
+        name='groups.group'
+    ),
+    url(r'^(?P<name>[^/]+)/users/$',
+        login_required(realm='/groups/<group>/users/')(
+            GroupUsersIndex.as_view()),
+        name='groups.group.users'
+    ),
+    url(r'^(?P<name>[^/]+)/users/(?P<subname>[^/]+)/$',
+        login_required(realm='/groups/<group>/users/<username>')(
+            GroupUserHandler.as_view()),
+        name='groups.group.users.user'
+    ),
+    url(r'^(?P<name>[^/]+)/groups/$',
+        login_required(realm='/groups/<group>/groups/')(
+            GroupGroupsIndex.as_view()),
+        name='groups.group.groups'
+    ),
+    url(r'^(?P<name>[^/]+)/groups/(?P<subname>[^/]+)/$',
+        login_required(realm='/groups/<group>/groups/<subgroupname>')(
+            GroupGroupHandler.as_view()),
+        name='groups.group.groups.group'
+    ),
 )
