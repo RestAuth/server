@@ -7,6 +7,8 @@ from RestAuth.backends.base import GroupBackend
 from RestAuth.backends.base import PropertyBackend
 from RestAuth.backends.base import UserBackend
 from RestAuth.common.errors import UserExists, GroupExists
+from RestAuth.common.errors import UserNotFound, PropertyNotFound
+from RestAuth.common.errors import GroupNotFound
 
 from RestAuth.Users.models import ServiceUser as User
 from RestAuth.Groups.models import Group
@@ -14,10 +16,16 @@ from RestAuth.Groups.models import Group
 
 class DjangoBackendBase(object):
     def _get_user(self, username, *fields):
-        return User.objects.only(*fields).get(username=username)
+        try:
+            return User.objects.only(*fields).get(username=username)
+        except User.DoesNotExist:
+            raise UserNotFound(username)
 
     def _get_group(self, service, name, *fields):
-        return Group.objects.only(*fields).get(service=service, name=name)
+        try:
+            return Group.objects.only(*fields).get(service=service, name=name)
+        except Group.DoesNotExist:
+            raise GroupNotFound(name)
 
 class DjangoUserBackend(UserBackend, DjangoBackendBase):
     def list(self):
@@ -54,7 +62,6 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
                 return self._create(username, password, properties)
 
     def check_password(self, username, password):
-        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'password')
         return user.check_password(password)
 
@@ -62,7 +69,6 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
         return User.objects.filter(username=username).exists()
 
     def set_password(self, username, password):
-        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
         if password is not None and password != '':
             user.set_password(password)
@@ -76,17 +82,15 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
         if qs.exists():
             qs.delete()
         else:
-            raise User.DoesNotExist
+            raise UserNotFound(username)
 
 
 class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
     def list(self, username):
-        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
         return user.get_properties()
 
     def create(self, username, key, value, dry=False):
-        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
 
         if dry:
@@ -100,27 +104,25 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
                 return user.add_property(key, value)
 
     def get(self, username, key):
-        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
-        return user.get_property(key).value
+        try:
+            return user.get_property(key).value
+        except Property.DoesNotExist:
+            raise PropertyNotFound(key)
 
     def set(self, username, key, value):
-        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
         return user.set_property(key, value)
 
     def set_multiple(self, username, props):
-        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
         with transaction.commit_on_success():
             for key, value in props.iteritems():
                 user.set_property(key, value)
 
     def remove(self, username, key):
-        # If User.DoesNotExist: 404 Not Found
         user = self._get_user(username, 'id')
 
-        # If Property.DoesNotExist: 404 Not Found
         user.del_property(key)
 
 
@@ -129,7 +131,6 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         if username is None:
             groups = Group.objects.filter(service=service)
         else:
-            # If User.DoesNotExist: 404 Not Found
             user = self._get_user(username, 'id')
 
             groups = Group.objects.member(user=user, service=service)
@@ -178,7 +179,7 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         if group.is_member(username):
             group.users.remove(user)
         else:
-            raise User.DoesNotExist  # 404 Not Found
+            raise UserNotFound(username)  # 404 Not Found
 
     def add_subgroup(self, service, groupname, subservice, subgroupname):
         group = self._get_group(service, groupname, 'id')
@@ -196,11 +197,11 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
 
         qs = group.groups.filter(name=subgroupname, service=subservice)
         if not qs.exists():
-            raise Group.DoesNotExist()
+            raise GroupNotFound(subgroupname)
 
         group.groups.remove(subgroup)
 
     def remove(self, service, groupname):
         if not Group.objects.filter(name=groupname, service=service).exists():
-            raise Group.DoesNotExist
+            raise GroupNotFound(groupname)
         Group.objects.filter(name=groupname, service=service).delete()
