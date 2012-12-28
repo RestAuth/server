@@ -172,7 +172,13 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         return False
 
     def rm_user(self, service, groupname, username):
-        raise NotImplementedError
+        group = self._get_group(service, groupname, 'id')
+        user = self._get_user(username, 'id')
+
+        if group.is_member(username):
+            group.users.remove(user)
+        else:
+            raise User.DoesNotExist  # 404 Not Found
 
     def add_subgroup(self, service, groupname, subservice, subgroupname):
         raise NotImplementedError
