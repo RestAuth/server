@@ -117,7 +117,7 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
     def get(self, username, key):
         user = self._get_user(username, 'id')
         try:
-            return user.get_property(key).value
+            return user.property_set.get(key=key).value
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 

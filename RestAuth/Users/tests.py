@@ -91,7 +91,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1])
         self.assertHasProperties(username1, [u'date joined'])
-        joined = user_get(username1).get_property('date joined')
+        joined = user_get(username1).property_set.get(key='date joined').value
 
         self.assertTrue(user_get(username1).check_password(password1))
         self.assertFalse(user_get(username1).check_password(password2))
@@ -104,8 +104,10 @@ class AddUserTests(RestAuthTest):  # POST /users/
         # check that we still have the old password and properties:
         self.assertTrue(user_get(username1).check_password(password1))
         self.assertFalse(user_get(username1).check_password(password2))
-        self.assertEquals(user_get(username1).get_property('date joined'),
-                          joined)
+        self.assertEquals(
+            user_get(username1).property_set.get(key='date joined').value,
+            joined
+        )
 
     def test_add_user_no_pass(self):
         resp = self.post('/users/', {'user': username1})

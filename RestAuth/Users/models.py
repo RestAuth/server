@@ -154,16 +154,6 @@ class ServiceUser(models.Model):
         else:
             return False
 
-    def add_property(self, key, value):
-        """
-        Add a new property to this user. It is an error if this property
-        already exists.
-
-        :raises IntegrityError: If the property already exists.
-        :return: The property that was created
-        """
-        return self.property_set.create(key=key, value=value)
-
     def get_properties(self):
         return dict(self.property_set.values_list('key', 'value').all())
 
@@ -186,15 +176,6 @@ class ServiceUser(models.Model):
             prop.value = value
             prop.save()
             return prop, old_value
-
-    def get_property(self, key):
-        """
-        Get value of a specific property.
-
-        @raises Property.DoesNotExist: When the property does not exist.
-        """
-        # exactly one SELECT statement
-        return self.property_set.get(key=key)
 
     def del_property(self, key):
         """
