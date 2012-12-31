@@ -156,23 +156,23 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
             groups = Group.objects.member(user=user, service=service)
         return list(groups.only('id').values_list('name', flat=True))
 
-    def create(self, service, groupname, dry=False):
+    def create(self, service, name, dry=False):
         if dry:
             with transaction.commit_manually():
                 try:
                     return Group.objects.create(
-                        name=groupname, service=service)
+                        name=name, service=service)
                 except IntegrityError:
-                    raise GroupExists('Group "%s" already exists' % groupname)
+                    raise GroupExists('Group "%s" already exists' % name)
                 finally:
                     transaction.rollback()
         else:
             with transaction.commit_on_success():
                 try:
                     return Group.objects.create(
-                        name=groupname, service=service)
+                        name=name, service=service)
                 except IntegrityError:
-                    raise GroupExists('Group "%s" already exists' % groupname)
+                    raise GroupExists('Group "%s" already exists' % name)
 
     def exists(self, service, groupname):
         return Group.objects.filter(name=groupname, service=service).exists()
