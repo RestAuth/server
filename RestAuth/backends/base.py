@@ -94,10 +94,10 @@ class GroupBackend(object):
     def list(self, service, user=None):
         raise NotImplementedError
 
-    def create(self, service, groupname, dry=False):
+    def create(self, service, name, dry=False):
         raise NotImplementedError
 
-    def exists(self, service, groupname):
+    def exists(self, service, name):
         raise NotImplementedError
 
     def add_user(self, user, group):
