@@ -25,15 +25,30 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
-    from RestAuth.Groups.models import Group
-    from RestAuth.Users.models import ServiceUser, Property
+    from django.conf import settings
+
     from RestAuth.Services.models import Service
     from RestAuth.common import errors
+    from RestAuth.common.utils import import_path
     from RestAuth.Users.cli.parsers import parser
 except ImportError as e:
+    print e
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
                      'sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
+
+user_backend = import_path(getattr(
+    settings, 'USER_BACKEND',
+    'RestAuth.backends.django_orm.DjangoUserBackend'
+))[0]()
+property_backend = import_path(getattr(
+    settings, 'PROPERTY_BACKEND',
+    'RestAuth.backends.django_orm.DjangoPropertyBackend'
+))[0]()
+group_backend = import_path(getattr(
+    settings, 'GROUP_BACKEND',
+    'RestAuth.backends.django_orm.DjangoGroupBackend'
+))[0]()
 
 # parse arguments
 args = parser.parse_args()
@@ -44,18 +59,17 @@ if args.action == 'add':
         if args.password_generated:
             print(args.pwd)
 
-        args.user.set_password(password)
-        args.user.save()
+        user_backend.set_password(args.user.username, password)
     except errors.PreconditionFailed as e:
         print("Error: %s" % e)
         sys.exit(1)
 elif args.action in ['ls', 'list']:
-    for user in ServiceUser.objects.values_list('username', flat=True):
-        print(user.encode('utf-8'))
+    for username in sorted(user_backend.list()):
+        print(username.encode('utf-8'))
 elif args.action == 'verify':
     if not args.pwd:
         args.pwd = getpass.getpass('password: ')
-    if args.user.check_password(args.pwd):
+    if user_backend.check_password(args.user.username, args.pwd):
         print('Ok.')
     else:
         print('Failed.')
@@ -66,48 +80,31 @@ elif args.action == 'set-password':
         if args.password_generated:
             print(args.pwd)
 
-        args.user.set_password(password)
-        args.user.save()
+        user_backend.set_password(args.user.username, args.pwd)
     except errors.PasswordInvalid as e:
         print("Error: %s" % e)
         sys.exit(1)
 elif args.action == 'view':
-    try:
-        try:
-            joined = args.user.property_set.get(key='date joined')
-            print('Joined: %s' % joined)
-        except Property.DoesNotExist:
-            pass
+    props = property_backend.list(args.user)
 
-        try:
-            last_login = args.user.property_set.get(key='last login')
-            print('Last login: %s' % last_login)
-        except Property.DoesNotExist:
-            pass
+    if 'date joined' in props:
+        print('Joined: %s' % props['date joined'])
 
-        if args.service:
-            service = Service.objects.get(username=args.service)
-            groups = Group.objects.member(user=args.user, service=service)
-            groups = groups.values_list('name', flat=True)
-            print('Groups: %s' % ', '.join(groups))
-        else:
-            groups_dict = {}
-            qs = args.user.group_set.values_list('service__username', 'name')
-            for service, name in qs:
-                if service in groups_dict:
-                    groups_dict[service].append(name)
-                else:
-                    groups_dict[service] = [name]
+    if 'last login' in props:
+        print('Last login: %s' % props['last login'])
 
-            print('Groups: ')
+    if args.service:
+        groups = group_backend.list(service=args.service, user=args.user)
+        print('Groups: %s' % ', '.join(sorted(groups)))
+    else:
+        print('Groups: ')
+        no_service_groups = group_backend.list(service=None, user=args.user)
+        if no_service_groups:
+            print('* no service: %s' % ', '.join(sorted(no_service_groups)))
 
-            for service in sorted(groups_dict):
-                groups = groups_dict[service]
-                if service is None:
-                    service = 'no-service'
-                print('* %s: %s' % (service, ', '.join(groups)))
-    except Service.DoesNotExist:
-        print("Error: %s: Service does not exist." % args.service)
-        sys.exit(1)
+        for service in Service.objects.all():
+            groups = group_backend.list(service=service, user=args.user)
+            if groups:
+                print('* %s: %s' % (service.username, ', '.join(sorted(groups))))
 elif args.action in ['delete', 'rm', 'remove']:
-    args.user.delete()
+    user_backend.remove(args.user.username)
