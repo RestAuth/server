@@ -28,6 +28,12 @@ class DjangoBackendBase(object):
             raise GroupNotFound(name)
 
 class DjangoUserBackend(UserBackend, DjangoBackendBase):
+    def get(self, username):
+        try:
+            return User.objects.only('id', 'username').get(username=username)
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+
     def list(self):
         return list(User.objects.values_list('username', flat=True))
 
@@ -90,13 +96,10 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
 
 
 class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
-    def list(self, username):
-        user = self._get_user(username, 'id')
+    def list(self, user):
         return user.get_properties()
 
-    def create(self, username, key, value, dry=False):
-        user = self._get_user(username, 'id')
-
+    def create(self, user, key, value, dry=False):
         if dry:
             with transaction.commit_manually():
                 try:
@@ -114,26 +117,22 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
                 except IntegrityError:
                     raise PropertyExists()
 
-    def get(self, username, key):
-        user = self._get_user(username, 'id')
+    def get(self, user, key):
         try:
             return user.property_set.get(key=key).value
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def set(self, username, key, value):
-        user = self._get_user(username, 'id')
+    def set(self, user, key, value):
         prop, old_value = user.set_property(key, value)
         return prop.key, old_value
 
-    def set_multiple(self, username, props):
-        user = self._get_user(username, 'id')
+    def set_multiple(self, user, props):
         with transaction.commit_on_success():
             for key, value in props.iteritems():
                 user.set_property(key, value)
 
-    def remove(self, username, key):
-        user = self._get_user(username, 'id')
+    def remove(self, user, key):
         try:
             user.del_property(key)
         except Property.DoesNotExist:

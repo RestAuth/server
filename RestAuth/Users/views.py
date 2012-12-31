@@ -155,7 +155,10 @@ class UserPropsIndex(RestAuthResourceView):
         if not request.user.has_perm('Users.props_list'):
             return HttpResponseForbidden()
 
-        props = property_backend.list(name)
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
+
+        props = property_backend.list(user)
         return HttpRestAuthResponse(request, props)
 
     def post(self, request, largs, name, dry=False):
@@ -168,8 +171,11 @@ class UserPropsIndex(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         key, value = get_dict(request, [u'prop', u'value'])
 
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
+
         # If PropertyExists: 409 Conflict
-        key, value = property_backend.create(name, key, value, dry=dry)
+        key, value = property_backend.create(user, key, value, dry=dry)
 
         self.log.info(
             'Created property "%s" as "%s"', key, value, extra=largs)
@@ -183,7 +189,10 @@ class UserPropsIndex(RestAuthResourceView):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
-        property_backend.set_multiple(name, get_freeform_dict(request))
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
+
+        property_backend.set_multiple(user, get_freeform_dict(request))
         return HttpResponseNoContent()
 
 
@@ -201,7 +210,10 @@ class UserPropHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Users.prop_get'):
             return HttpResponseForbidden()
 
-        value = property_backend.get(name, subname)
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
+
+        value = property_backend.get(user, subname)
 
         return HttpRestAuthResponse(request, value)
 
@@ -215,7 +227,10 @@ class UserPropHandler(RestAuthSubResourceView):
         # If BadRequest: 400 Bad Request
         value = get_dict(request, [u'value'])
 
-        key, old_value = property_backend.set(name, subname, value)
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
+
+        key, old_value = property_backend.set(user, subname, value)
 
         if old_value is None:  # new property
             self.log.info('Set to "%s"', value, extra=largs)
@@ -233,5 +248,8 @@ class UserPropHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Users.prop_delete'):
             return HttpResponseForbidden()
 
-        property_backend.remove(name, subname)
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
+
+        property_backend.remove(user, subname)
         return HttpResponseNoContent()
