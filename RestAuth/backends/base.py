@@ -16,6 +16,9 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 class UserBackend(object):
+    def get(self, username):
+        raise NotImplementedError
+
     def list(self):
         raise NotImplementedError
 
