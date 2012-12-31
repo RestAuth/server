@@ -371,7 +371,7 @@ class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
 
 class AddUserToGroupTests(GroupUserTests):  # POST /groups/<group>/users/
     def test_group_doesnt_exist(self):
-        resp = self.post('/groups/%s/users/' % groupname6, {'user': username5})
+        resp = self.post('/groups/%s/users/' % groupname6, {'user': username1})
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
@@ -379,6 +379,11 @@ class AddUserToGroupTests(GroupUserTests):  # POST /groups/<group>/users/
         resp = self.post('/groups/%s/users/' % groupname1, {'user': username5})
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
+
+    def test_user_and_group_dont_exist(self):
+        resp = self.post('/groups/%s/users/' % groupname6, {'user': username5})
+        self.assertEquals(resp.status_code, httplib.NOT_FOUND)
+        self.assertEqual(resp['Resource-Type'], 'group')
 
     def test_add_user(self):
         resp = self.post('/groups/%s/users/' % groupname1, {'user': username1})
@@ -447,6 +452,11 @@ class VerifyUserInGroupTests(GroupUserTests):
 
     def test_group_doesnt_exist(self):
         resp = self.get('/groups/%s/users/%s/' % (groupname6, username1))
+        self.assertEquals(resp.status_code, httplib.NOT_FOUND)
+        self.assertEqual(resp['Resource-Type'], 'group')
+
+    def test_group_and_user_dont_exist(self):
+        resp = self.get('/groups/%s/users/%s/' % (groupname6, username4))
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
@@ -543,6 +553,11 @@ class DeleteUserFromGroupTests(GroupUserTests):
         resp = self.delete('/groups/%s/users/%s/' % (groupname1, username5))
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
+
+    def test_user_and_group_dont_exist(self):
+        resp = self.delete('/groups/%s/users/%s/' % (groupname6, username5))
+        self.assertEquals(resp.status_code, httplib.NOT_FOUND)
+        self.assertEqual(resp['Resource-Type'], 'group')
 
     def test_delete_user(self):
         self.group1.users.add(self.user1)
