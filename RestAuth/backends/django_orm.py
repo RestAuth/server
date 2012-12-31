@@ -97,7 +97,8 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
 
 class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
     def list(self, user):
-        return user.get_properties()
+        qs = Property.objects.filter(user_id=user.id)
+        return dict(qs.values_list('key', 'value'))
 
     def create(self, user, key, value, dry=False):
         if dry:
@@ -119,7 +120,8 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
 
     def get(self, user, key):
         try:
-            return user.property_set.get(key=key).value
+            qs = Property.objects.filter(user_id=user.id).only('value')
+            return qs.get(key=key).value
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
