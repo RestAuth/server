@@ -23,13 +23,20 @@ from argparse import Action, ArgumentError
 import random
 import string
 
+from django.conf import settings
 from django.db.utils import IntegrityError
 
 from RestAuth.Services.models import Service
 from RestAuth.Services.models import check_service_username
 from RestAuth.Services.models import ServiceUsernameNotValid
-from RestAuth.Users.models import ServiceUser as User
 from RestAuth.common.errors import PreconditionFailed
+from RestAuth.common.errors import UserExists, UserNotFound
+from RestAuth.common.utils import import_path
+
+user_backend = import_path(getattr(
+            settings, 'USER_BACKEND',
+            'RestAuth.backends.django_orm.DjangoUserBackend'
+))[0]()
 
 
 class ServiceAction(Action):
@@ -56,15 +63,15 @@ class UsernameAction(Action):
         username = value.lower().decode('utf-8')
         if namespace.create_user:
             try:
-                user = User.objects.create(username=username)
-            except IntegrityError:
+                user = user_backend.create(username=username)
+            except UserExists:
                 raise ArgumentError(self, 'User already exists.')
             except PreconditionFailed as e:
                 raise ArgumentError(self, e)
         else:
             try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
+                user = user_backend.get(username=username)
+            except UserNotFound:
                 raise ArgumentError(self, 'User does not exist.')
         setattr(namespace, self.dest, user)
 
