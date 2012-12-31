@@ -14,7 +14,9 @@ from RestAuth.common.testdata import password1
 from RestAuth.common.testdata import propkey1
 from RestAuth.common.testdata import propval1
 from RestAuth.common.testdata import propval2
+from RestAuth.common.testdata import property_backend
 from RestAuth.common.testdata import RestAuthTransactionTest
+from RestAuth.common.testdata import user_backend
 from RestAuth.common.testdata import username1
 
 
@@ -70,43 +72,43 @@ class CreateUserTest(RestAuthTransactionTest):
 class CreatePropertyTest(RestAuthTransactionTest):
     def setUp(self):
         RestAuthTransactionTest.setUp(self)
-        self.user = ServiceUser.objects.create(username=username1)
+        self.user = user_backend.create(username=username1)
 
     def test_create_property(self):
         url = '/test/users/%s/props/' % self.user.username
         resp = self.post(url, {'prop': propkey1, 'value': propval1})
         self.assertEqual(resp.status_code, httplib.CREATED)
 
-        self.assertFalse(self.user.property_set.all())
+        self.assertProperties(self.user, {})
 
     def test_create_existing_property(self):
-        prop = self.user.property_set.create(key=propkey1, value=propval1)
+        property_backend.create(self.user, propkey1, propval1)
 
         url = '/test/users/%s/props/' % self.user.username
         resp = self.post(url, {'prop': propkey1, 'value': propval2})
         self.assertEqual(resp.status_code, httplib.CONFLICT)
 
-        self.assertEqual(prop, self.user.property_set.get(key=propkey1))
+        self.assertProperties(self.user, {propkey1: propval1})
 
     def test_create_invalid_property(self):
         url = '/test/users/%s/props/' % self.user.username
         resp = self.post(url, {'prop': propkey1, 'value': 'foo/bar'})
         self.assertEqual(resp.status_code, httplib.CREATED)
 
-        self.assertFalse(self.user.property_set.all())
+        self.assertProperties(self.user, {})
 
     def test_create_property_for_non_existing_user(self):
         url = '/test/users/%s/props/' % 'wronguser'
         resp = self.post(url, {'prop': propkey1, 'value': propval1})
         self.assertEqual(resp.status_code, httplib.NOT_FOUND)
 
-        self.assertFalse(self.user.property_set.all())
+        self.assertProperties(self.user, {})
 
     def test_create_property_for_invalid_user(self):
         url = '/test/users/%s/props/' % 'wrong\user'
         resp = self.post(url, {'prop': propkey1, 'value': propval1})
         self.assertEqual(resp.status_code, httplib.NOT_FOUND)
-        self.assertFalse(self.user.property_set.all())
+        self.assertProperties(self.user, {})
 
 
 class CreateGroupTest(RestAuthTransactionTest):
