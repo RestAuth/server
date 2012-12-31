@@ -71,6 +71,10 @@ property_backend = import_path(getattr(
         settings, 'PROPERTY_BACKEND',
         'RestAuth.backends.django_orm.DjangoPropertyBackend'
 ))[0]()
+group_backend = import_path(getattr(
+        settings, 'GROUP_BACKEND',
+        'RestAuth.backends.django_orm.DjangoGroupBackend'
+))[0]()
 
 
 class RestAuthTestBase(object):
@@ -129,6 +133,9 @@ class RestAuthTestBase(object):
 
     def create_user(self, username, password):
         return user_backend.create(username=username, password=password)
+
+    def create_group(self, service, groupname):
+        return group_backend.create(service, groupname)
 
     def assertProperties(self, user, expected):
         actual = property_backend.list(user)
