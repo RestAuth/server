@@ -67,6 +67,10 @@ user_backend = import_path(getattr(
         settings, 'USER_BACKEND',
         'RestAuth.backends.django_orm.DjangoUserBackend'
 ))[0]()
+property_backend = import_path(getattr(
+        settings, 'PROPERTY_BACKEND',
+        'RestAuth.backends.django_orm.DjangoPropertyBackend'
+))[0]()
 
 
 class RestAuthTestBase(object):
@@ -125,6 +129,18 @@ class RestAuthTestBase(object):
 
     def create_user(self, username, password):
         return user_backend.create(username=username, password=password)
+
+    def assertProperties(self, user, expected):
+        actual = property_backend.list(user)
+        self.assertTrue('date joined' in actual)
+        del actual['date joined']
+        self.assertDictEqual(actual, expected)
+
+    def assertPassword(self, username, password):
+        self.assertTrue(user_backend.check_password(username, password))
+
+    def assertFalsePassword(self, username, password):
+        self.assertFalse(user_backend.check_password(username, password))
 
 
 class RestAuthTest(RestAuthTestBase, TestCase):
