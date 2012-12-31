@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, TransactionTestCase
@@ -23,9 +24,10 @@ from django.test.client import Client
 from RestAuthCommon import handlers
 
 from Services.models import service_create
-from Users.models import ServiceUser, prop_permissions
+from Users.models import prop_permissions
 from Users.models import user_permissions
 from Groups.models import group_permissions
+from common.utils import import_path
 
 username1 = u"mati \u6111"
 username2 = u"mati \u6112"
@@ -60,6 +62,11 @@ propval2 = u"propval \u6152"
 propval3 = u"propval \u6153"
 propval4 = u"propval \u6154"
 propval5 = u"propval \u6155"
+
+user_backend = import_path(getattr(
+        settings, 'USER_BACKEND',
+        'RestAuth.backends.django_orm.DjangoUserBackend'
+))[0]()
 
 
 class RestAuthTestBase(object):
@@ -117,11 +124,7 @@ class RestAuthTestBase(object):
         return func(body)
 
     def create_user(self, username, password):
-        user = ServiceUser(username=username)
-        if password is not None:
-            user.set_password(password)
-        user.save()
-        return user
+        return user_backend.create(username=username, password=password)
 
 
 class RestAuthTest(RestAuthTestBase, TestCase):
