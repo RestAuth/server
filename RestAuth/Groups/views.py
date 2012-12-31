@@ -67,8 +67,8 @@ class GroupsView(RestAuthView):
                 return HttpResponseForbidden()
 
             # Get all groups of a user
-            username = username.lower()
-            groups = group_backend.list(request.user, username)
+            user = user_backend.get(username=username.lower())
+            groups = group_backend.list(request.user, user=user)
 
         return HttpRestAuthResponse(request, groups)
 
@@ -146,9 +146,12 @@ class GroupUsersIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        username = get_dict(request, [u'user'])
+        username = get_dict(request, [u'user']).lower()
 
-        group_backend.add_user(request.user, name, username=username)
+        # if UserNotFound: 404 Not Found
+        user = user_backend.get(username=username)
+
+        group_backend.add_user(request.user, name, user=user)
 
         self.log.info('Add user "%s"', username, extra=largs)
         return HttpResponseNoContent()
@@ -168,7 +171,10 @@ class GroupUserHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Groups.group_user_in_group'):
             return HttpResponseForbidden()
 
-        if group_backend.is_member(request.user, name, subname):
+        # if UserNotFound: 404 Not Found
+        user = user_backend.get(username=subname)
+
+        if group_backend.is_member(request.user, name, user):
             return HttpResponseNoContent()
         else:
             raise UserNotFound(subname)  # 404 Not Found
@@ -180,7 +186,10 @@ class GroupUserHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Groups.group_remove_user'):
             return HttpResponseForbidden()
 
-        group_backend.rm_user(request.user, name, subname)
+        # if UserNotFound: 404 Not Found
+        user = user_backend.get(username=subname)
+
+        group_backend.rm_user(request.user, name, user)
         self.log.info('Remove user from group', extra=largs)
         return HttpResponseNoContent()
 

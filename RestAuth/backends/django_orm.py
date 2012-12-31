@@ -142,12 +142,10 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
 
 
 class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
-    def list(self, service, username=None):
-        if username is None:
+    def list(self, service, user=None):
+        if user is None:
             groups = Group.objects.filter(service=service)
         else:
-            user = self._get_user(username, 'id')
-
             groups = Group.objects.member(user=user, service=service)
         return list(groups.only('id').values_list('name', flat=True))
 
@@ -174,29 +172,27 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
     def exists(self, service, groupname):
         return Group.objects.filter(name=groupname, service=service).exists()
 
-    def add_user(self, service, groupname, username):
+    def add_user(self, service, groupname, user):
         group = self._get_group(service, groupname, 'id')
-        user = self._get_user(username, 'id')
         group.users.add(user)
 
     def members(self, service, groupname):
         group = self._get_group(service, groupname, 'id')
         return list(group.get_members().values_list('username', flat=True))
 
-    def is_member(self, service, groupname, username):
+    def is_member(self, service, groupname, user):
         group = self._get_group(service, groupname, 'id')
-        if group.is_member(username):
+        if group.is_member(user):
             return True
         return False
 
-    def rm_user(self, service, groupname, username):
+    def rm_user(self, service, groupname, user):
         group = self._get_group(service, groupname, 'id')
-        user = self._get_user(username, 'id')
 
-        if group.is_member(username):
+        if group.is_member(user):
             group.users.remove(user)
         else:
-            raise UserNotFound(username)  # 404 Not Found
+            raise UserNotFound(user)  # 404 Not Found
 
     def add_subgroup(self, service, groupname, subservice, subgroupname):
         group = self._get_group(service, groupname, 'id')
