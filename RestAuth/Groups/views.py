@@ -34,8 +34,12 @@ from RestAuth.common.utils import import_path
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
 
+user_backend = import_path(getattr(
+            settings, 'USER_BACKEND',
+            'RestAuth.backends.django_orm.DjangoUserBackend'
+))[0]()
 group_backend = import_path(getattr(
-            settings, 'PROPERTY_BACKEND',
+            settings, 'GROUP_BACKEND',
             'RestAuth.backends.django_orm.DjangoGroupBackend'
 ))[0]()
 
