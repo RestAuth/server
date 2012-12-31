@@ -69,3 +69,5 @@ class RedisPropertyBackend(object):
         if value == 0:
             raise PropertyNotFound(key)
 
+    def testTearDown(self):
+        con.flushall()
