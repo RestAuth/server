@@ -84,10 +84,10 @@ class GroupsView(RestAuthView):
         groupname = groupname.lower()
 
         # If ResourceExists: 409 Conflict
-        groupname = group_backend.create(request.user, groupname, dry=dry)
+        group = group_backend.create(request.user, groupname, dry=dry)
 
-        self.log.info('%s: Created group', groupname, extra=largs)
-        return HttpResponseCreated(request, 'groups.group', name=groupname)  # Created
+        self.log.info('%s: Created group', group.name, extra=largs)
+        return HttpResponseCreated(request, 'groups.group', name=group.name)  # Created
 
 
 class GroupHandlerView(RestAuthResourceView):
