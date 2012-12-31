@@ -149,6 +149,10 @@ class RestAuthTestBase(object):
     def assertFalsePassword(self, username, password):
         self.assertFalse(user_backend.check_password(username, password))
 
+    def tearDown(self):
+        user_backend.testTearDown()
+        property_backend.testTearDown()
+        group_backend.testTearDown()
 
 class RestAuthTest(RestAuthTestBase, TestCase):
     pass
