@@ -59,7 +59,10 @@ class PropertyBackend(object):
 
 
 class GroupBackend(object):
-    def list(self, username=None):
+    def get(self, service, name):
+        raise NotImplementedError
+
+    def list(self, service, user=None):
         raise NotImplementedError
 
     def create(self, service, groupname, dry=False):
@@ -68,26 +71,26 @@ class GroupBackend(object):
     def exists(self, service, groupname):
         raise NotImplementedError
 
-    def add_user(self, service, groupname, username):
+    def add_user(self, user, group):
         raise NotImplementedError
 
-    def members(self, service, groupname):
+    def members(self, group):
         raise NotImplementedError
 
-    def is_member(self, service, groupname, username):
+    def is_member(self, group, user):
         raise NotImplementedError
 
-    def rm_user(self, service, groupname, username):
+    def rm_user(self, group, user):
         raise NotImplementedError
 
-    def add_subgroup(self, service, groupname, subservice, subgroupname):
+    def add_subgroup(self, group, subgroup):
         raise NotImplementedError
 
-    def subgroups(self, service, groupname, subservice):
+    def subgroups(self, group):
         raise NotImplementedError
 
-    def rm_subgroup(self, service, groupname, subservice, subgroupname):
+    def rm_subgroup(self, group, subgroup):
         raise NotImplementedError
 
-    def remove(self, service, groupname):
+    def remove(self, group):
         raise NotImplementedError
