@@ -142,6 +142,12 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
 
 
 class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
+    def get(self, service, name):
+        try:
+            return Group.objects.get(service=service, name=name)
+        except Group.DoesNotExist:
+            raise GroupNotFound(name)
+
     def list(self, service, user=None):
         if user is None:
             groups = Group.objects.filter(service=service)
@@ -172,45 +178,34 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
     def exists(self, service, groupname):
         return Group.objects.filter(name=groupname, service=service).exists()
 
-    def add_user(self, service, groupname, user):
-        group = self._get_group(service, groupname, 'id')
+    def add_user(self, group, user):
         group.users.add(user)
 
-    def members(self, service, groupname):
-        group = self._get_group(service, groupname, 'id')
+    def members(self, group):
         return list(group.get_members().values_list('username', flat=True))
 
-    def is_member(self, service, groupname, user):
-        group = self._get_group(service, groupname, 'id')
+    def is_member(self, group, user):
         if group.is_member(user):
             return True
         return False
 
-    def rm_user(self, service, groupname, user):
-        group = self._get_group(service, groupname, 'id')
-
+    def rm_user(self, group, user):
         if group.is_member(user):
             group.users.remove(user)
         else:
             raise UserNotFound(user)  # 404 Not Found
 
-    def add_subgroup(self, service, groupname, subservice, subgroupname):
-        group = self._get_group(service, groupname, 'id')
-        subgroup = self._get_group(subservice, subgroupname, 'id')
+    def add_subgroup(self, group, subgroup):
         group.groups.add(subgroup)
 
-    def subgroups(self, service, groupname):
-        group = self._get_group(service, groupname, 'id')
-        groups = group.groups.filter(service=service)
-        return list(groups.values_list('name', flat=True))
+    def subgroups(self, group):
+        qs = group.groups.filter(service=group.service)
+        return list(qs.values_list('name', flat=True))
 
-    def rm_subgroup(self, service, groupname, subservice, subgroupname):
-        group = self._get_group(service, groupname, 'id')
-        subgroup = self._get_group(subservice, subgroupname, 'id')
-
-        qs = group.groups.filter(name=subgroupname, service=subservice)
+    def rm_subgroup(self, group, subgroup):
+        qs = group.groups.filter(name=subgroup.name, service=subgroup.service)
         if not qs.exists():
-            raise GroupNotFound(subgroupname)
+            raise GroupNotFound(subgroup.name)
 
         group.groups.remove(subgroup)
 

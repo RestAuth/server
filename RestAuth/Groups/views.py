@@ -135,7 +135,10 @@ class GroupUsersIndex(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_users'):
             return HttpResponseForbidden()
 
-        users = group_backend.members(service=request.user, groupname=name)
+        # If GroupNotFound: 404 Not Found
+        group = group_backend.get(service=request.user, name=name)
+
+        users = group_backend.members(group=group)
         return HttpRestAuthResponse(request, users)
 
     def post(self, request, largs, name):
@@ -148,10 +151,13 @@ class GroupUsersIndex(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         username = get_dict(request, [u'user']).lower()
 
-        # if UserNotFound: 404 Not Found
+        # If GroupNotFound: 404 Not Found
+        group = group_backend.get(service=request.user, name=name)
+
+        # If UserNotFound: 404 Not Found
         user = user_backend.get(username=username)
 
-        group_backend.add_user(request.user, name, user=user)
+        group_backend.add_user(group=group, user=user)
 
         self.log.info('Add user "%s"', username, extra=largs)
         return HttpResponseNoContent()
@@ -171,10 +177,13 @@ class GroupUserHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Groups.group_user_in_group'):
             return HttpResponseForbidden()
 
-        # if UserNotFound: 404 Not Found
+        # If GroupNotFound: 404 Not Found
+        group = group_backend.get(service=request.user, name=name)
+
+        # If UserNotFound: 404 Not Found
         user = user_backend.get(username=subname)
 
-        if group_backend.is_member(request.user, name, user):
+        if group_backend.is_member(group=group, user=user):
             return HttpResponseNoContent()
         else:
             raise UserNotFound(subname)  # 404 Not Found
@@ -186,10 +195,13 @@ class GroupUserHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Groups.group_remove_user'):
             return HttpResponseForbidden()
 
-        # if UserNotFound: 404 Not Found
+        # If GroupNotFound: 404 Not Found
+        group = group_backend.get(service=request.user, name=name)
+
+        # If UserNotFound: 404 Not Found
         user = user_backend.get(username=subname)
 
-        group_backend.rm_user(request.user, name, user)
+        group_backend.rm_user(group=group, user=user)
         self.log.info('Remove user from group', extra=largs)
         return HttpResponseNoContent()
 
@@ -208,7 +220,10 @@ class GroupGroupsIndex(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_groups_list'):
             return HttpResponseForbidden()
 
-        groups = group_backend.subgroups(request.user, name)
+        # If GroupNotFound: 404 Not Found
+        group = group_backend.get(service=request.user, name=name)
+
+        groups = group_backend.subgroups(group=group)
         return HttpRestAuthResponse(request, groups)
 
     def post(self, request, largs, name):
@@ -219,9 +234,13 @@ class GroupGroupsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        subname = get_dict(request, [u'group'])
+        subname = get_dict(request, [u'group']).lower()
 
-        group_backend.add_subgroup(request.user, name, request.user, subname)
+        # If GroupNotFound: 404 Not Found
+        group = group_backend.get(service=request.user, name=name)
+        subgroup = group_backend.get(service=request.user, name=subname)
+
+        group_backend.add_subgroup(group=group, subgroup=subgroup)
 
         self.log.info('Add subgroup "%s"', subname, extra=largs)
         return HttpResponseNoContent()
@@ -241,6 +260,10 @@ class GroupGroupHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Groups.group_remove_group'):
             return HttpResponseForbidden()
 
-        group_backend.rm_subgroup(request.user, name, request.user, subname)
+        # If GroupNotFound: 404 Not Found
+        group = group_backend.get(service=request.user, name=name)
+        subgroup = group_backend.get(service=request.user, name=subname)
+
+        group_backend.rm_subgroup(group=group, subgroup=subgroup)
         self.log.info('Remove subgroup %s', subname, extra=largs)
         return HttpResponseNoContent()
