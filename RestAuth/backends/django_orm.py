@@ -15,24 +15,18 @@ from RestAuth.Groups.models import Group
 
 
 class DjangoBackendBase(object):
+    pass
+
+
+class DjangoUserBackend(UserBackend, DjangoBackendBase):
     def _get_user(self, username, *fields):
         try:
             return User.objects.only(*fields).get(username=username)
         except User.DoesNotExist:
             raise UserNotFound(username)
 
-    def _get_group(self, service, name, *fields):
-        try:
-            return Group.objects.only(*fields).get(service=service, name=name)
-        except Group.DoesNotExist:
-            raise GroupNotFound(name)
-
-class DjangoUserBackend(UserBackend, DjangoBackendBase):
     def get(self, username):
-        try:
-            return User.objects.only('id', 'username').get(username=username)
-        except User.DoesNotExist:
-            raise UserNotFound(username)
+        return self._get_user(username, 'id', 'username')
 
     def list(self):
         return list(User.objects.values_list('username', flat=True))
