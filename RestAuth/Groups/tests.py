@@ -24,7 +24,7 @@ from RestAuth.common.testdata import (
     groupname1, groupname2, groupname3, groupname4, groupname5, groupname6,
 )
 from RestAuth.Services.models import Service, service_create
-from RestAuth.Groups.models import Group, group_create
+from RestAuth.Groups.models import Group
 
 
 class GroupTests(RestAuthTest):
@@ -50,15 +50,15 @@ class GetGroupsTests(GroupTests):  # GET /groups/
         self.assertEquals(self.parse(resp, 'list'), [])
 
     def test_get_one_group(self):
-        group_create(groupname1, self.vowi)
+        self.create_group(self.vowi, groupname1)
 
         resp = self.get('/groups/')
         self.assertEquals(resp.status_code, httplib.OK)
         self.assertEquals(self.parse(resp, 'list'), [groupname1])
 
     def test_get_two_groups(self):
-        group_create(groupname1, self.vowi)
-        group_create(groupname2, self.vowi)
+        self.create_group(self.vowi, groupname1)
+        self.create_group(self.vowi, groupname2)
 
         resp = self.get('/groups/')
         self.assertEquals(resp.status_code, httplib.OK)
@@ -66,9 +66,9 @@ class GetGroupsTests(GroupTests):  # GET /groups/
             self.parse(resp, 'list'), [groupname1, groupname2])
 
     def test_service_isolation(self):
-        group_create(groupname1, self.vowi)
-        group_create(groupname4, self.fsinf)
-        group_create(groupname5, None)
+        self.create_group(self.vowi, groupname1)
+        self.create_group(self.fsinf, groupname4)
+        self.create_group(None, groupname5)
 
         resp = self.get('/groups/')
         self.assertEquals(resp.status_code, httplib.OK)
@@ -84,14 +84,14 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
 
     def test_no_memberships(self):
         # we add a group where user1 is NOT a member:
-        group_create(groupname1, self.vowi)
+        self.create_group(self.vowi, groupname1)
 
         resp = self.get('/groups/', {'user': username1})
         self.assertEquals(resp.status_code, httplib.OK)
         self.assertEquals(self.parse(resp, 'list'), [])
 
     def test_one_membership(self):
-        group1 = group_create(groupname1, self.vowi)
+        group1 = self.create_group(self.vowi, groupname1)
         group1.users.add(self.user1)
 
         resp = self.get('/groups/', {'user': username1})
@@ -104,7 +104,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEquals(self.parse(resp, 'list'), [])
 
     def test_two_memberships(self):
-        group1 = group_create(groupname1, self.vowi)
+        group1 = self.create_group(self.vowi, groupname1)
         group1.users.add(self.user1)
 
         resp = self.get('/groups/', {'user': username1})
@@ -117,8 +117,8 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEquals(self.parse(resp, 'list'), [])
 
     def test_simple_inheritance(self):
-        group1 = group_create(groupname1, self.vowi)
-        group2 = group_create(groupname2, self.vowi)
+        group1 = self.create_group(self.vowi, groupname1)
+        group2 = self.create_group(self.vowi, groupname2)
         group1.users.add(self.user1)
         group1.groups.add(group2)
 
@@ -128,9 +128,9 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
             self.parse(resp, 'list'), [groupname1, groupname2])
 
     def test_multilevel_inheritance(self):
-        group1 = group_create(groupname1, self.vowi)
-        group2 = group_create(groupname2, self.vowi)
-        group3 = group_create(groupname3, self.vowi)
+        group1 = self.create_group(self.vowi, groupname1)
+        group2 = self.create_group(self.vowi, groupname2)
+        group3 = self.create_group(self.vowi, groupname3)
         group1.users.add(self.user1)
         group1.groups.add(group2)
         group2.groups.add(group3)
@@ -141,9 +141,9 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
             self.parse(resp, 'list'), [groupname1, groupname2, groupname3])
 
     def test_interservice_inheritance(self):
-        group1 = group_create(groupname1, None)
-        group2 = group_create(groupname2, self.fsinf)
-        group3 = group_create(groupname3, self.vowi)
+        group1 = self.create_group(None, groupname1)
+        group2 = self.create_group(self.fsinf, groupname2)
+        group3 = self.create_group(self.vowi, groupname3)
         group1.users.add(self.user1)
         group1.groups.add(group2)
         group2.groups.add(group3)
@@ -157,9 +157,9 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         This test checks if the call may return groups several times.
         This may occur if a user is member in several groups.
         """
-        group1 = group_create(groupname1, self.vowi)
-        group2 = group_create(groupname2, self.vowi)
-        group3 = group_create(groupname3, self.vowi)
+        group1 = self.create_group(self.vowi, groupname1)
+        group2 = self.create_group(self.vowi, groupname2)
+        group3 = self.create_group(self.vowi, groupname3)
 
         group1.users.add(self.user1)
         group2.users.add(self.user1)
@@ -176,9 +176,9 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
     def test_hidden_intermediate_dependencies(self):
         # membership to group2 is invisible, because it belongs to a different
         # service.
-        group1 = group_create(groupname1, self.vowi)
-        group2 = group_create(groupname2, self.fsinf)
-        group3 = group_create(groupname3, self.vowi)
+        group1 = self.create_group(self.vowi, groupname1)
+        group2 = self.create_group(self.fsinf, groupname2)
+        group3 = self.create_group(self.vowi, groupname3)
         group1.users.add(self.user1)
         group1.groups.add(group2)
         group2.groups.add(group3)
@@ -196,20 +196,20 @@ class VerifyGroupExistanceTests(GroupTests):  # GET /groups/<group>/
         self.assertEqual(resp['Resource-Type'], 'group')
 
     def test_exists(self):
-        group_create(groupname1, self.vowi)
+        self.create_group(self.vowi, groupname1)
 
         resp = self.get('/groups/%s/' % groupname1)
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
 
     def test_for_leaking_services(self):
-        group_create(groupname1, self.fsinf)
+        self.create_group(self.fsinf, groupname1)
 
         resp = self.get('/groups/%s/' % groupname1)
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
     def test_for_groups_with_no_service(self):
-        group_create(groupname1, None)
+        self.create_group(None, groupname1)
 
         resp = self.get('/groups/%s/' % groupname1)
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
@@ -223,7 +223,7 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
         self.assertEqual(resp['Resource-Type'], 'group')
 
     def test_delete(self):
-        group_create(groupname1, self.vowi)
+        self.create_group(self.vowi, groupname1)
 
         resp = self.delete('/groups/%s/' % groupname1)
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
@@ -231,8 +231,8 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
         self.assertEquals(Group.objects.all().count(), 0)
 
     def test_service_isolation(self):
-        group_create(groupname1, self.fsinf)
-        group_create(groupname2, None)
+        self.create_group(self.fsinf, groupname1)
+        self.create_group(None, groupname2)
 
         resp = self.delete('/groups/%s/' % groupname1)
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
@@ -252,11 +252,11 @@ class GroupUserTests(GroupTests):
     def setUp(self):
         GroupTests.setUp(self)
 
-        self.group1 = group_create(groupname1, self.vowi)
-        self.group2 = group_create(groupname2, self.vowi)
-        self.group3 = group_create(groupname3, self.vowi)
-        self.group4 = group_create(groupname4, self.fsinf)
-        self.group5 = group_create(groupname5, self.fsinf)
+        self.group1 = self.create_group(self.vowi, groupname1)
+        self.group2 = self.create_group(self.vowi, groupname2)
+        self.group3 = self.create_group(self.vowi, groupname3)
+        self.group4 = self.create_group(self.fsinf, groupname4)
+        self.group5 = self.create_group(self.fsinf, groupname5)
 
 
 class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
