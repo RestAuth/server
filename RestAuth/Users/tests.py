@@ -19,6 +19,7 @@ import httplib
 
 from django.conf import settings
 
+from RestAuth.common.errors import PropertyNotFound
 from RestAuth.common.decorators import override_settings
 from RestAuth.common.utils import import_path
 from RestAuth.common.testdata import (
@@ -30,9 +31,6 @@ from RestAuth.common.testdata import (
 )
 
 from Users.models import ServiceUser
-
-def user_get(name):
-    return ServiceUser.objects.get(username=name.lower())
 
 user_backend = import_path(getattr(
         settings, 'USER_BACKEND',
@@ -70,46 +68,45 @@ class AddUserTests(RestAuthTest):  # POST /users/
     def get_usernames(self):
         return list(ServiceUser.objects.values_list('username', flat=True))
 
-    def assertHasProperties(self, username, actual):
-        expected = user_get(username).get_properties().keys()
-        self.assertItemsEqual(expected, actual)
-
     def test_add_user(self):
         resp = self.post('/users/', {'user': username1, 'password': password1})
 
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1])
-        self.assertTrue(user_get(username1).check_password(password1))
-        self.assertHasProperties(username1, ['date joined'])
+        self.assertPassword(username1, password1)
+        user = user_backend.get(username1)
+        self.assertProperties(user, {})
 
     def test_add_two_users(self):
         resp = self.post('/users/', {'user': username1, 'password': password1})
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1])
-        self.assertTrue(user_get(username1).check_password(password1))
-        self.assertFalse(user_get(username1).check_password(password2))
-        self.assertHasProperties(username1, [u'date joined'])
+        self.assertPassword(username1, password1)
+        self.assertFalsePassword(username1, password2)
+        user1 = user_backend.get(username1)
+        self.assertProperties(user1, {})
 
         resp = self.post('/users/', {'user': username2, 'password': password2})
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1, username2])
-        self.assertHasProperties(username2, [u'date joined'])
+        user2 = user_backend.get(username2)
+        self.assertProperties(user2, {})
 
-        self.assertTrue(user_get(username1).check_password(password1))
-        self.assertFalse(user_get(username1).check_password(password2))
-        self.assertTrue(user_get(username2).check_password(password2))
-        self.assertFalse(user_get(username2).check_password(password1))
+        self.assertPassword(username1, password1)
+        self.assertFalsePassword(username1, password2)
+        self.assertPassword(username2, password2)
+        self.assertFalsePassword(username2, password1)
 
     def test_add_user_twice(self):
         self.assertEquals(self.get_usernames(), [])
         resp = self.post('/users/', {'user': username1, 'password': password1})
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1])
-        self.assertHasProperties(username1, [u'date joined'])
-        joined = user_get(username1).property_set.get(key='date joined').value
+        user = user_backend.get(username1)
+        self.assertProperties(user, {})
 
-        self.assertTrue(user_get(username1).check_password(password1))
-        self.assertFalse(user_get(username1).check_password(password2))
+        self.assertPassword(username1, password1)
+        self.assertFalsePassword(username1, password2)
 
         # add again:
         resp = self.post('/users/', {'user': username1, 'password': password2})
@@ -117,44 +114,39 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEquals(self.get_usernames(), [username1])
 
         # check that we still have the old password and properties:
-        self.assertTrue(user_get(username1).check_password(password1))
-        self.assertFalse(user_get(username1).check_password(password2))
-        self.assertEquals(
-            user_get(username1).property_set.get(key='date joined').value,
-            joined
-        )
+        self.assertPassword(username1, password1)
+        self.assertFalsePassword(username1, password2)
 
     def test_add_user_no_pass(self):
         resp = self.post('/users/', {'user': username1})
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1])
-        user = user_get(username1)
-        self.assertFalse(user.check_password(''))
-        self.assertFalse(user.check_password(None))
-        self.assertFalse(user.check_password(password1))
-        self.assertFalse(user.check_password(password2))
-        self.assertHasProperties(username1, ['date joined'])
+        self.assertFalsePassword(username1, '')
+        self.assertFalsePassword(username1, None)
+        self.assertFalsePassword(username1, password1)
+        self.assertFalsePassword(username1, password2)
+        self.assertProperties(user_backend.get(username1), {})
 
         resp = self.post('/users/', {'user': username2, 'password': ''})
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1, username2])
-        user = user_get(username2)
-        self.assertFalse(user.check_password(''))
-        self.assertFalse(user.check_password(None))
-        self.assertFalse(user.check_password(password1))
-        self.assertFalse(user.check_password(password2))
-        self.assertHasProperties(username2, [u'date joined'])
+        user = user_backend.get(username2)
+        self.assertFalsePassword(username2, '')
+        self.assertFalsePassword(username2, None)
+        self.assertFalsePassword(username2, password1)
+        self.assertFalsePassword(username2, password2)
+        self.assertProperties(user, {})
 
         resp = self.post('/users/', {'user': username3, 'password': None})
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(
             self.get_usernames(), [username1, username2, username3])
-        user = user_get(username3)
-        self.assertFalse(user.check_password(''))
-        self.assertFalse(user.check_password(None))
-        self.assertFalse(user.check_password(password1))
-        self.assertFalse(user.check_password(password2))
-        self.assertHasProperties(username3, [u'date joined'])
+        user = user_backend.get(username3)
+        self.assertFalsePassword(username3, '')
+        self.assertFalsePassword(username3, None)
+        self.assertFalsePassword(username3, password1)
+        self.assertFalsePassword(username3, password2)
+        self.assertProperties(user, {})
 
     def test_add_user_with_property(self):
         resp = self.post('/users/', {'user': username1, 'properties': {
@@ -163,23 +155,15 @@ class AddUserTests(RestAuthTest):  # POST /users/
 
         self.assertEquals(resp.status_code, httplib.CREATED)
         self.assertEquals(self.get_usernames(), [username1])
-        self.assertHasProperties(username1, ['date joined', propkey1])
 
-        user = user_get(username1)
-        fetched_props = user.get_properties()
-        del fetched_props['date joined']
-        self.assertDictEqual({propkey1: propval1}, fetched_props)
+        user = user_backend.get(username1)
+        self.assertProperties(user, {propkey1: propval1})
 
     def test_add_user_with_properties(self):
         props = {propkey1: propval1, propkey2: propval2}
         resp = self.post('/users/', {'user': username1, 'properties': props})
         self.assertEquals(resp.status_code, httplib.CREATED)
-        self.assertHasProperties(username1, [u'date joined'] + props.keys())
-
-        user = user_get(username1)
-        fetched_props = user.get_properties()
-        del fetched_props['date joined']
-        self.assertDictEqual(props, fetched_props)
+        self.assertProperties(user_backend.get(username1), props)
 
     def test_bad_requests(self):
         self.assertEquals(self.get_usernames(), [])
@@ -294,43 +278,43 @@ class ChangePasswordsTest(UserTests):  # PUT /users/<user>/
     def test_change_password(self):
         resp = self.put('/users/%s/' % username1, {'password': password3})
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
-        self.assertFalse(user_get(username1).check_password(password1))
-        self.assertFalse(user_get(username1).check_password(password2))
-        self.assertTrue(user_get(username1).check_password(password3))
+        self.assertFalsePassword(username1, password1)
+        self.assertFalsePassword(username1, password2)
+        self.assertPassword(username1, password3)
 
         # check user2, just to be sure:
-        self.assertFalse(user_get(username2).check_password(password1))
-        self.assertTrue(user_get(username2).check_password(password2))
-        self.assertFalse(user_get(username2).check_password(password3))
+        self.assertFalsePassword(username2, password1)
+        self.assertPassword(username2, password2)
+        self.assertFalsePassword(username2, password3)
 
     def test_disable_password(self):
         resp = self.put('/users/%s/' % username1, {})
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
-        self.assertFalse(user_get(username1).check_password(password1))
-        self.assertFalse(user_get(username1).check_password(''))
-        self.assertFalse(user_get(username1).check_password(None))
+        self.assertFalsePassword(username1, password1)
+        self.assertFalsePassword(username1, '')
+        self.assertFalsePassword(username1, None)
 
         resp = self.put('/users/%s/' % username1, {'password': ''})
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
-        self.assertFalse(user_get(username1).check_password(password1))
-        self.assertFalse(user_get(username1).check_password(''))
-        self.assertFalse(user_get(username1).check_password(None))
+        self.assertFalsePassword(username1, password1)
+        self.assertFalsePassword(username1, '')
+        self.assertFalsePassword(username1, None)
 
         resp = self.put('/users/%s/' % username1, {'password': None})
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
-        self.assertFalse(user_get(username1).check_password(password1))
-        self.assertFalse(user_get(username1).check_password(''))
-        self.assertFalse(user_get(username1).check_password(None))
+        self.assertFalsePassword(username1, password1)
+        self.assertFalsePassword(username1, '')
+        self.assertFalsePassword(username1, None)
 
     def test_bad_requests(self):
         resp = self.put('/users/%s/' % username1, {'foo': password2})
         self.assertEquals(resp.status_code, httplib.BAD_REQUEST)
-        self.assertTrue(user_get(username1).check_password(password1))
+        self.assertPassword(username1, password1)
 
         resp = self.put('/users/%s/' % username1,
                         {'password': password3, 'foo': 'bar'})
         self.assertEquals(resp.status_code, httplib.BAD_REQUEST)
-        self.assertTrue(user_get(username1).check_password(password1))
+        self.assertPassword(username1, password1)
 
 
 class DeleteUserTest(UserTests):  # DELETE /users/<user>/
@@ -359,11 +343,6 @@ class PropertyTests(RestAuthTest):
         # two users, so we can make sure nothing leaks to the other user
         self.user1 = self.create_user(username1, password1)
         self.user2 = self.create_user(username2, password2)
-
-    def assertProperties(self, user, expected):
-        props = property_backend.list(user)
-        del props['date joined']
-        self.assertDictEqual(props, expected)
 
 
 class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
@@ -591,10 +570,9 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
         resp = self.put(
             '/users/%s/props/%s/' % (username1, propkey1), {'value': propval1})
         self.assertEquals(resp.status_code, httplib.CREATED)
-        self.assertEquals(
-            user_get(username1).property_set.get(key=propkey1).value, propval1)
-        self.assertFalse(
-            user_get(username2).property_set.filter(key=propkey1).exists())
+        self.assertEqual(property_backend.get(self.user1, propkey1), propval1)
+        self.assertRaises(PropertyNotFound,
+                          property_backend.get, self.user2, propkey1)
 
     def test_set_existing_property(self):
         self.user1.property_set.create(key=propkey1, value=propval1)
@@ -604,10 +582,9 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
             '/users/%s/props/%s/' % (username1, propkey1), {'value': propval2})
         self.assertEquals(resp.status_code, httplib.OK)
         self.assertEquals(self.parse(resp, 'str'), propval1)
-        self.assertEquals(
-            user_get(username1).property_set.get(key=propkey1).value, propval2)
-        self.assertFalse(
-            user_get(username2).property_set.filter(key=propkey1).exists())
+        self.assertEqual(property_backend.get(self.user1, propkey1), propval2)
+        self.assertRaises(PropertyNotFound,
+                          property_backend.get, self.user2, propkey1)
 
     def test_bad_request(self):
         # do some bad request tests:
