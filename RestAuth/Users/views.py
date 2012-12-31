@@ -77,10 +77,10 @@ class UsersView(RestAuthView):
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
-        username = user_backend.create(name, password, props, dry=dry)
+        user = user_backend.create(name, password, props, dry=dry)
 
-        self.log.info('%s: Created user', name, extra=largs)
-        return HttpResponseCreated(request, 'users.user', name=username)
+        self.log.info('%s: Created user', user.username, extra=largs)
+        return HttpResponseCreated(request, 'users.user', name=user.username)
 
 
 class UserHandlerView(RestAuthResourceView):

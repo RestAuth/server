@@ -56,15 +56,13 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
         if dry:
             with transaction.commit_manually():
                 try:
-                    user = self._create(username, password, properties,
+                    return self._create(username, password, properties,
                                         dry=dry)
-                    return user.username
                 finally:
                     transaction.rollback()
         else:
             with transaction.commit_on_success():
-                user = self._create(username, password, properties, dry=dry)
-                return user.username
+                return self._create(username, password, properties, dry=dry)
 
     def check_password(self, username, password):
         user = self._get_user(username, 'password')
