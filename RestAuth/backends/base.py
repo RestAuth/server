@@ -56,22 +56,22 @@ class UserBackend(object):
 
 
 class PropertyBackend(object):
-    def list(self, username):
+    def list(self, user):
         raise NotImplementedError
 
-    def create(self, username, key, value, dry=False):
+    def create(self, user, key, value, dry=False):
         raise NotImplementedError
 
-    def get(self, username, key):
+    def get(self, user, key):
         raise NotImplementedError
 
-    def set(self, username, key, value):
+    def set(self, user, key, value):
         raise NotImplementedError
 
-    def set_multiple(self, username, props, dry=False):
+    def set_multiple(self, user, props, dry=False):
         raise NotImplementedError
 
-    def remove(self, username, key):
+    def remove(self, user, key):
         raise NotImplementedError
 
 
