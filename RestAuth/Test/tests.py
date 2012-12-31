@@ -74,6 +74,10 @@ class CreatePropertyTest(RestAuthTransactionTest):
         RestAuthTransactionTest.setUp(self)
         self.user = user_backend.create(username=username1)
 
+    def tearDown(self):
+        super(CreatePropertyTest, self).tearDown()
+        property_backend.testTearDown()
+
     def test_create_property(self):
         url = '/test/users/%s/props/' % self.user.username
         resp = self.post(url, {'prop': propkey1, 'value': propval1})

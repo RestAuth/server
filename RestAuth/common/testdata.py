@@ -151,7 +151,6 @@ class RestAuthTestBase(object):
 
     def tearDown(self):
         user_backend.testTearDown()
-        property_backend.testTearDown()
         group_backend.testTearDown()
 
 class RestAuthTest(RestAuthTestBase, TestCase):

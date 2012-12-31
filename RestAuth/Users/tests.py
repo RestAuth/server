@@ -65,6 +65,10 @@ class GetUsersTests(RestAuthTest):  # GET /users/
 
 
 class AddUserTests(RestAuthTest):  # POST /users/
+    def tearDown(self):
+        super(AddUserTests, self).tearDown()
+        property_backend.testTearDown()
+
     def get_usernames(self):
         return user_backend.list()
 
@@ -341,6 +345,10 @@ class PropertyTests(RestAuthTest):
         # two users, so we can make sure nothing leaks to the other user
         self.user1 = self.create_user(username1, password1)
         self.user2 = self.create_user(username2, password2)
+
+    def tearDown(self):
+        super(PropertyTests, self).tearDown()
+        property_backend.testTearDown()
 
 
 class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
