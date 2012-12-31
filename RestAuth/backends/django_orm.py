@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.db import transaction
 from django.db.utils import IntegrityError
 
@@ -9,6 +10,7 @@ from RestAuth.backends.base import UserBackend
 from RestAuth.common.errors import UserExists, GroupExists, PropertyExists
 from RestAuth.common.errors import UserNotFound, PropertyNotFound
 from RestAuth.common.errors import GroupNotFound
+from RestAuth.common.utils import import_path
 
 from RestAuth.Users.models import ServiceUser as User, Property
 from RestAuth.Groups.models import Group
@@ -31,7 +33,7 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
     def list(self):
         return list(User.objects.values_list('username', flat=True))
 
-    def _create(self, username, password=None, properties=None):
+    def _create(self, username, password=None, properties=None, dry=False):
         try:
             user = User(username=username)
             if password is not None and password != '':
@@ -40,29 +42,27 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
         except IntegrityError:
             raise UserExists("A user with the given name already exists.")
 
-        if properties is not None:
-            for key, value in properties.iteritems():
-                user.set_property(key, value)
-
-        if properties is None or 'date joined' not in properties:
+        if properties is None:
             stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            user.set_property('date joined', stamp)
+            properties = {'date joined': stamp}
+        elif 'date joined' not in properties:
+            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            properties['date joined'] = stamp
+
+        self._get_property_backend().set_multiple(user, properties, dry=dry)
         return user
 
     def create(self, username, password=None, properties=None, dry=False):
-        """
-        :todo: The property arg should go to the property backend.
-        """
         if dry:
             with transaction.commit_manually():
                 try:
-                    user = self._create(username, password, properties)
+                    user = self._create(username, password, properties, dry=dry)
                     return user.username
                 finally:
                     transaction.rollback()
         else:
             with transaction.commit_on_success():
-                user = self._create(username, password, properties)
+                user = self._create(username, password, properties, dry=dry)
                 return user.username
 
     def check_password(self, username, password):
@@ -123,10 +123,18 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
         prop, old_value = user.set_property(key, value)
         return prop.key, old_value
 
-    def set_multiple(self, user, props):
-        with transaction.commit_on_success():
-            for key, value in props.iteritems():
-                user.set_property(key, value)
+    def set_multiple(self, user, props, dry=False):
+        if dry:
+            with transaction.commit_manually():
+                try:
+                    for key, value in props.iteritems():
+                        user.set_property(key, value)
+                finally:
+                    transaction.rollback()
+        else:
+            with transaction.commit_on_success():
+                for key, value in props.iteritems():
+                    user.set_property(key, value)
 
     def remove(self, user, key):
         try:
