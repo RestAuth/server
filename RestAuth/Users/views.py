@@ -24,6 +24,9 @@ import logging
 from django.conf import settings
 from django.http import HttpResponseForbidden
 
+from RestAuthCommon import resource_validator
+from RestAuthCommon.error import PreconditionFailed
+
 from RestAuth.Users.validators import validate_username
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.errors import UserNotFound
@@ -71,6 +74,8 @@ class UsersView(RestAuthView):
         # If BadRequest: 400 Bad Request
         name, password, props = get_dict(
             request, [u'user'], [u'password', u'properties'])
+        if not resource_validator(name):
+            raise PreconditionFailed("Username contains invalid characters")
 
         # If UsernameInvalid: 412 Precondition Failed
         validate_username(name)
@@ -170,6 +175,8 @@ class UserPropsIndex(RestAuthResourceView):
 
         # If BadRequest: 400 Bad Request
         key, value = get_dict(request, [u'prop', u'value'])
+        if not resource_validator(key):
+            raise PreconditionFailed("Property contains invalid characters")
 
         # If UserNotFound: 404 Not Found
         user = user_backend.get(username=name)
