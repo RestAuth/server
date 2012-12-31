@@ -22,9 +22,9 @@ from RestAuth.common.testdata import (
     username1, username2, username3, username4, username5,
     password1, password2, password3, password4, password5,
     groupname1, groupname2, groupname3, groupname4, groupname5, groupname6,
+    group_backend,
 )
 from RestAuth.Services.models import Service, service_create
-from RestAuth.Groups.models import Group
 
 
 class GroupTests(RestAuthTest):
@@ -40,7 +40,7 @@ class GroupTests(RestAuthTest):
         self.fsinf = service_create('fsinf', 'fsinf', '127.0.0.1', '::1')
 
     def get_grp(self, name, service=None):
-        return Group.objects.get(name=name, service=service)
+        return group_backend.get(service=service, name=name)
 
 
 class GetGroupsTests(GroupTests):  # GET /groups/
@@ -228,7 +228,7 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
         resp = self.delete('/groups/%s/' % groupname1)
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
 
-        self.assertEquals(Group.objects.all().count(), 0)
+        self.assertEquals(group_backend.list(self.vowi), [])
 
     def test_service_isolation(self):
         self.create_group(self.fsinf, groupname1)
@@ -242,10 +242,9 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertItemsEqual(
-            Group.objects.values_list('name', flat=True).all(),
-            [groupname1, groupname2]
-        )
+        self.assertItemsEqual(group_backend.list(self.vowi), [])
+        self.assertItemsEqual(group_backend.list(self.fsinf), [groupname1])
+        self.assertItemsEqual(group_backend.list(None), [groupname2])
 
 
 class GroupUserTests(GroupTests):
@@ -649,8 +648,8 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(Group.objects.filter(name=groupname6).exists())
-        self.assertEquals(self.group1.parent_groups.all().count(), 0)
+        self.assertFalse(group_backend.exists(self.vowi, groupname6))
+        self.assertEquals(group_backend.subgroups(self.group1), [])
 
     def test_subgroup_doesnt_exist(self):
         resp = self.post(
@@ -658,8 +657,8 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(Group.objects.filter(name=groupname6).exists())
-        self.assertEquals(self.group1.groups.all().count(), 0)
+        self.assertFalse(group_backend.exists(self.vowi, groupname6))
+        self.assertEquals(group_backend.subgroups(self.group1), [])
 
     def test_add_subgroup(self):
         resp = self.post(
@@ -735,14 +734,16 @@ class RemoveSubGroupTests(GroupUserTests):
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(Group.objects.filter(name=groupname6).exists())
+        self.assertFalse(group_backend.exists(self.vowi, groupname6))
+        self.assertEquals(group_backend.subgroups(self.group1), [])
 
     def test_subgroup_doesnt_exist(self):
         resp = self.delete('/groups/%s/groups/%s/' % (groupname1, groupname6))
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(Group.objects.filter(name=groupname6).exists())
+        self.assertFalse(group_backend.exists(self.vowi, groupname6))
+        self.assertEquals(group_backend.subgroups(self.group1), [])
 
     def test_remove_subgroup(self):
         self.group1.groups.add(self.group2)
