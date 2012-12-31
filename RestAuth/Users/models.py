@@ -111,13 +111,6 @@ class ServiceUser(models.Model):
         super(ServiceUser, self).__init__(*args, **kwargs)
         self.orig_username = self.username
 
-    def save(self, *args, **kwargs):
-        if self.pk is None or self.username != self.orig_username:
-            if not resource_validator(self.username):
-                raise PreconditionFailed(
-                    "Username contains invalid characters")
-        return super(ServiceUser, self).save(*args, **kwargs)
-
     def set_password(self, raw_password):
         """
         Set the password to the given value. Throws PasswordInvalid if
@@ -203,11 +196,6 @@ class Property(models.Model):
     class Meta:
         unique_together = ('user', 'key')
         permissions = prop_permissions
-
-    def save(self, *args, **kwargs):
-        if self.pk is None and not resource_validator(self.key):
-            raise PreconditionFailed("Property contains invalid characters")
-        return super(Property, self).save(*args, **kwargs)
 
     def __unicode__(self):  # pragma: no cover
         return "%s: %s=%s" % (self.user.username, self.key, self.value)
