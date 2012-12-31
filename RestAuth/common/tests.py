@@ -23,11 +23,11 @@ from django.utils.unittest import TestCase
 from RestAuthCommon import handlers
 
 from RestAuth.Services.models import Service
-from RestAuth.Users.models import ServiceUser as User
 from RestAuth.Users.validators import validate_username
 from RestAuth.Users.validators import load_username_validators
 from RestAuth.common.errors import UsernameInvalid
 from RestAuth.common.testdata import RestAuthTest
+from RestAuth.common.testdata import user_backend
 from RestAuth.common.testdata import username1
 from RestAuth.common.middleware import HeaderMiddleware
 
@@ -73,20 +73,20 @@ class ContentTypeTests(RestAuthTest):
         del extra['content_type']
         resp = self.c.post('/users/', content, content_type='foo/bar', **extra)
         self.assertEquals(resp.status_code, httplib.UNSUPPORTED_MEDIA_TYPE)
-        self.assertItemsEqual(User.objects.all(), [])
+        self.assertItemsEqual(user_backend.list(), [])
 
     def test_wrong_accept_header(self):
         extra = self.extra
         extra['HTTP_ACCEPT'] = 'foo/bar'
         resp = self.c.get('/users/', **extra)
         self.assertEquals(resp.status_code, httplib.NOT_ACCEPTABLE)
-        self.assertItemsEqual(User.objects.all(), [])
+        self.assertItemsEqual(user_backend.list(), [])
 
     def test_wrong_content(self):
         content = 'no_json_at_all}}}'
         resp = self.c.post('/users/', content, **self.extra)
         self.assertEquals(resp.status_code, httplib.BAD_REQUEST)
-        self.assertItemsEqual(User.objects.all(), [])
+        self.assertItemsEqual(user_backend.list(), [])
 
 validators = (
     'RestAuth.Users.validators.email',
