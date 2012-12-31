@@ -54,6 +54,12 @@ class UserBackend(object):
     def remove(self, username):
         raise NotImplementedError
 
+    def testSetUp(self):
+        pass
+
+    def testTearDown(self):
+        pass
+
 
 class PropertyBackend(object):
     def list(self, user):
@@ -73,6 +79,12 @@ class PropertyBackend(object):
 
     def remove(self, user, key):
         raise NotImplementedError
+
+    def testSetUp(self):
+        pass
+
+    def testTearDown(self):
+        pass
 
 
 class GroupBackend(object):
@@ -111,3 +123,9 @@ class GroupBackend(object):
 
     def remove(self, group):
         raise NotImplementedError
+
+    def testSetUp(self):
+        pass
+
+    def testTearDown(self):
+        pass
