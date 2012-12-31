@@ -66,7 +66,7 @@ class GetUsersTests(RestAuthTest):  # GET /users/
 
 class AddUserTests(RestAuthTest):  # POST /users/
     def get_usernames(self):
-        return list(ServiceUser.objects.values_list('username', flat=True))
+        return user_backend.list()
 
     def test_add_user(self):
         resp = self.post('/users/', {'user': username1, 'password': password1})
@@ -326,10 +326,8 @@ class DeleteUserTest(UserTests):  # DELETE /users/<user>/
     def test_delete_user(self):
         resp = self.delete('/users/%s/' % username1)
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
-        self.assertFalse(
-            ServiceUser.objects.filter(username=username1).exists())
-        self.assertTrue(
-            ServiceUser.objects.filter(username=username2).exists())
+        self.assertFalse(user_backend.exists(username1))
+        self.assertTrue(user_backend.exists(username2))
 
 
 class PropertyTests(RestAuthTest):
