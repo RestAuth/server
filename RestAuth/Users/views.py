@@ -21,30 +21,23 @@ This module implements all HTTP queries to ``/user/*``.
 
 import logging
 
-from django.conf import settings
 from django.http import HttpResponseForbidden
 
 from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
 
 from RestAuth.Users.validators import validate_username
+from RestAuth.backends.utils import user_backend, property_backend
 from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.errors import UserNotFound
 from RestAuth.common.responses import HttpResponseCreated
 from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
-from RestAuth.common.utils import import_path
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
 
-user_backend = import_path(getattr(
-    settings, 'USER_BACKEND',
-    'RestAuth.backends.django_orm.DjangoUserBackend'
-))[0]()
-property_backend = import_path(getattr(
-    settings, 'PROPERTY_BACKEND',
-    'RestAuth.backends.django_orm.DjangoPropertyBackend'
-))[0]()
+user_backend = user_backend()
+property_backend = property_backend()
 
 
 class UsersView(RestAuthView):

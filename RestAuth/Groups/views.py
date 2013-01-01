@@ -21,27 +21,20 @@ This module implements all HTTP queries to ``/group/*``.
 
 import logging
 
-from django.conf import settings
 from django.http import HttpResponseForbidden
 
+from RestAuth.backends.utils import user_backend, group_backend
 from RestAuth.common.errors import UserNotFound
 from RestAuth.common.errors import GroupNotFound
 from RestAuth.common.responses import HttpResponseCreated
 from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
 from RestAuth.common.types import get_dict
-from RestAuth.common.utils import import_path
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
 
-user_backend = import_path(getattr(
-            settings, 'USER_BACKEND',
-            'RestAuth.backends.django_orm.DjangoUserBackend'
-))[0]()
-group_backend = import_path(getattr(
-            settings, 'GROUP_BACKEND',
-            'RestAuth.backends.django_orm.DjangoGroupBackend'
-))[0]()
+user_backend = user_backend()
+group_backend = group_backend()
 
 
 class GroupsView(RestAuthView):

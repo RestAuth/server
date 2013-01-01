@@ -17,15 +17,10 @@
 
 from operator import attrgetter
 
-from django.conf import settings
-
-from RestAuth.common.utils import import_path
+from RestAuth.backends.utils import group_backend
 from RestAuth.common.errors import GroupNotFound
 
-group_backend = import_path(getattr(
-        settings, 'GROUP_BACKEND',
-        'RestAuth.backends.django_orm.DjangoGroupBackend'
-))[0]()
+group_backend = group_backend()
 
 
 def print_by_service(groups, indent=''):

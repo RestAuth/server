@@ -21,9 +21,9 @@ from django.conf import settings
 
 from RestAuth.common.errors import PropertyNotFound
 from RestAuth.common.decorators import override_settings
-from RestAuth.common.utils import import_path
 from RestAuth.common.testdata import (
     RestAuthTest,
+    user_backend, property_backend,
     username1, username2, username3,
     password1, password2, password3,
     propkey1, propkey2, propkey3,
@@ -31,15 +31,6 @@ from RestAuth.common.testdata import (
 )
 
 from Users.models import ServiceUser
-
-user_backend = import_path(getattr(
-        settings, 'USER_BACKEND',
-        'RestAuth.backends.django_orm.DjangoUserBackend'
-))[0]()
-property_backend = import_path(getattr(
-        settings, 'PROPERTY_BACKEND',
-        'RestAuth.backends.django_orm.DjangoPropertyBackend'
-))[0]()
 
 
 class GetUsersTests(RestAuthTest):  # GET /users/

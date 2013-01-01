@@ -23,20 +23,16 @@ from argparse import Action, ArgumentError
 import random
 import string
 
-from django.conf import settings
 from django.db.utils import IntegrityError
 
 from RestAuth.Services.models import Service
 from RestAuth.Services.models import check_service_username
 from RestAuth.Services.models import ServiceUsernameNotValid
+from RestAuth.backends.utils import user_backend
 from RestAuth.common.errors import PreconditionFailed
 from RestAuth.common.errors import UserExists, UserNotFound
-from RestAuth.common.utils import import_path
 
-user_backend = import_path(getattr(
-            settings, 'USER_BACKEND',
-            'RestAuth.backends.django_orm.DjangoUserBackend'
-))[0]()
+user_backend = user_backend()
 
 
 class ServiceAction(Action):

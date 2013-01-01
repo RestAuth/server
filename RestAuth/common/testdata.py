@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, TransactionTestCase
@@ -27,7 +26,7 @@ from Services.models import service_create
 from Users.models import prop_permissions
 from Users.models import user_permissions
 from Groups.models import group_permissions
-from common.utils import import_path
+from backends.utils import user_backend, group_backend, property_backend
 
 username1 = u"mati \u6111"
 username2 = u"mati \u6112"
@@ -63,18 +62,9 @@ propval3 = u"propval \u6153"
 propval4 = u"propval \u6154"
 propval5 = u"propval \u6155"
 
-user_backend = import_path(getattr(
-        settings, 'USER_BACKEND',
-        'RestAuth.backends.django_orm.DjangoUserBackend'
-))[0]()
-property_backend = import_path(getattr(
-        settings, 'PROPERTY_BACKEND',
-        'RestAuth.backends.django_orm.DjangoPropertyBackend'
-))[0]()
-group_backend = import_path(getattr(
-        settings, 'GROUP_BACKEND',
-        'RestAuth.backends.django_orm.DjangoGroupBackend'
-))[0]()
+user_backend = user_backend()
+property_backend = property_backend()
+group_backend = group_backend()
 
 
 class RestAuthTestBase(object):
