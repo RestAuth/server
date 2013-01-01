@@ -22,11 +22,11 @@ from django.test.client import Client
 
 from RestAuthCommon import handlers
 
-from Services.models import service_create
-from Users.models import prop_permissions
-from Users.models import user_permissions
-from Groups.models import group_permissions
-from backends.utils import user_backend, group_backend, property_backend
+from RestAuth.Services.models import service_create
+from RestAuth.Users.models import prop_permissions
+from RestAuth.Users.models import user_permissions
+from RestAuth.Groups.models import group_permissions
+from RestAuth.backends.utils import user_backend, group_backend, property_backend
 
 username1 = u"mati \u6111"
 username2 = u"mati \u6112"
