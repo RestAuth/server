@@ -39,7 +39,8 @@ class UserBackend(object):
     def list(self):
         raise NotImplementedError
 
-    def create(self, username, password=None, properties=None, dry=False):
+    def create(self, username, password=None, properties=None,
+               property_backend=None, dry=False):
         raise NotImplementedError
 
     def exists(self, username):
