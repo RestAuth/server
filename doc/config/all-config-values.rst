@@ -70,6 +70,22 @@ If a client still uses HTTP sessions, you can set this configuarion variable to
 ``True``. This has the effect of adding the appropriate middleware classes to
 :setting:`MIDDLEWARE_CLASSES`.
 
+.. setting:: GROUP_BACKEND
+
+GROUP_BACKEND
+=============
+
+.. versionadded:: 0.6.1
+
+Default: ``'RestAuth.backends.django_orm.DjangoGroupBackend'``
+
+The backend to use to store groups. The default is the only backend shipping
+with RestAuth, but other backends may be available elsewhere.
+
+If you need a custom backend to store groups, please see
+:doc:`/developer/backends`.
+
+
 .. setting:: GROUP_RECURSION_DEPTH
 
 GROUP_RECURSION_DEPTH
@@ -279,6 +295,28 @@ Default: ``3``
 The minimum length of new usernames. Note that this setting might have any
 effect if a validator restricts the minimum length even further.
 
+.. setting:: PROPERTY_BACKEND
+
+PROPERTY_BACKEND
+================
+
+.. versionadded:: 0.6.1
+
+Default: ``'RestAuth.backends.django_orm.DjangoPropertyBackend'``
+
+The backend to use to store user properties. RestAuth comes with two property
+backends:
+
+``'RestAuth.backends.django_orm.DjangoPropertyBackend'``
+   Use the standard Django ORM to store property data. This backend requireds
+   that you also use the DjangoUserBackend.
+
+``'RestAuth.backends.redis_backend.RedisPropertyBackend'``
+   Use a `Redis <http://redis.io>`_ server to store properties.
+
+Other backends may be available elsewhere, if you need to develop your own
+backend, please see :doc:`/developer/backends`.
+
 .. setting:: RELAXED_LINUX_CHECKS
 
 RELAXED_LINUX_CHECKS
@@ -297,6 +335,21 @@ SECRET_KEY
 Never forget to set a `SECRET_KEY
 <https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>`_ in
 |file-settings-link|.
+
+.. setting:: USER_BACKEND
+
+USER_BACKEND
+============
+
+.. versionadded:: 0.6.1
+
+Default: ``'RestAuth.backends.django_orm.UserBackend'``
+
+The backend to use to store user data. The default is the only backend shipping
+with RestAuth, but other backends may be available elsewhere.
+
+If you need a custom backend to store user data, please see
+:doc:`/developer/backends`.
 
 .. setting:: VALIDATORS
 
