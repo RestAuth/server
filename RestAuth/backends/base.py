@@ -139,7 +139,7 @@ class UserBackend(object):
         :type  username: str
         :param password: The password to check.
         :type  password: str
-        :return: True if the password exists, False otherwise.
+        :return: True if the password is correct, False otherwise.
         :rtype: boolean
         :raise: :py:class:`~RestAuth.common.errors.UserNotFound` if the user
             doesn't exist.
