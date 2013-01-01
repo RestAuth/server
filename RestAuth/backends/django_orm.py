@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.conf import settings
 from django.db import transaction
 from django.db.utils import IntegrityError
 
@@ -10,7 +9,6 @@ from RestAuth.backends.base import UserBackend
 from RestAuth.common.errors import UserExists, GroupExists, PropertyExists
 from RestAuth.common.errors import UserNotFound, PropertyNotFound
 from RestAuth.common.errors import GroupNotFound
-from RestAuth.common.utils import import_path
 
 from RestAuth.Users.models import ServiceUser as User, Property
 from RestAuth.Groups.models import Group
