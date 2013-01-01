@@ -79,8 +79,9 @@ GROUP_BACKEND
 
 Default: ``'RestAuth.backends.django_orm.DjangoGroupBackend'``
 
-The backend to use to store groups. The default is the only backend shipping
-with RestAuth, but other backends may be available elsewhere.
+The backend to use to store groups. Please see :ref:`group-backends` for a more
+comprehensive description of available backends.  The default is the only
+backend shipping with RestAuth, but other backends may be available elsewhere.
 
 If you need a custom backend to store groups, please see
 :doc:`/developer/backends`.
@@ -314,8 +315,9 @@ backends:
 ``'RestAuth.backends.redis_backend.RedisPropertyBackend'``
    Use a `Redis <http://redis.io>`_ server to store properties.
 
-Other backends may be available elsewhere, if you need to develop your own
-backend, please see :doc:`/developer/backends`.
+Please see :ref:`property-backends` for a more comprehensive description of
+available backends. Other backends may be available elsewhere, if you need to
+develop your own backend, please see :doc:`/developer/backends`.
 
 .. setting:: RELAXED_LINUX_CHECKS
 
@@ -345,8 +347,9 @@ USER_BACKEND
 
 Default: ``'RestAuth.backends.django_orm.UserBackend'``
 
-The backend to use to store user data. The default is the only backend shipping
-with RestAuth, but other backends may be available elsewhere.
+The backend used for storing user data. Please see :ref:`user-backends` for a
+more comprehensive description of available backends. The default is the only
+backend shipping with RestAuth, but other backends may be available elsewhere.
 
 If you need a custom backend to store user data, please see
 :doc:`/developer/backends`.
