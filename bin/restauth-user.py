@@ -28,9 +28,9 @@ try:
     from django.conf import settings
 
     from RestAuth.Services.models import Service
+    from RestAuth.Users.cli.parsers import parser
     from RestAuth.common import errors
     from RestAuth.common.utils import import_path
-    from RestAuth.Users.cli.parsers import parser
 except ImportError as e:
     print e
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
