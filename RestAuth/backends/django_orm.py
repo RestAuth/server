@@ -215,3 +215,6 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         if not Group.objects.filter(name=groupname, service=service).exists():
             raise GroupNotFound(groupname)
         Group.objects.filter(name=groupname, service=service).delete()
+
+    def parents(self, group):
+        return list(group.parent_groups.all().values_list(name, flat=True))
