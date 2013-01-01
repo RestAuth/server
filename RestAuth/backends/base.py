@@ -194,24 +194,112 @@ class UserBackend(object):
 
 
 class PropertyBackend(object):
-    """todo."""
+    """Provide user properties."""
 
     def list(self, user):
+        """Get a full list of all user properties.
+
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  user: :py:class:`~.UserInstance`
+        :return: A dictionary of key/value pairs, each describing a property.
+        :rtype: dict
+        """
         raise NotImplementedError
 
     def create(self, user, key, value, dry=False):
+        """Create a new user property.
+
+        This method should return
+        :py:class:`~RestAuth.common.errors.PropertyExists` if a property with
+        the given key already exists.
+
+        The ``dry`` parameter tells you if you should actually create the
+        property.  The parameter will be True for `dry-runs
+        <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
+        dry-run, the method should behave as closely as possible to a normal
+        invocation but shouldn't actually create the property.
+
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  user: :py:class:`~.UserInstance`
+        :param key: The key identifying the property.
+        :type  key: str
+        :param value: The value of the property.
+        :type  value: str
+        :param dry: Wether or not to actually create the property.
+        :type  dry: boolean
+        :return: A tuple of key/value as they are stored in the database.
+        :rtype: tuple
+        :raise: :py:class:`~RestAuth.common.errors.PropertyExists` if the
+            property already exists.
+        """
         raise NotImplementedError
 
     def get(self, user, key):
+        """Get a specific property of the user.
+
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  user: :py:class:`~.UserInstance`
+        :param  key: The key identifying the property.
+        :type   key: str
+        :return: The value of the property.
+        :rtype: str
+        :raise: :py:class:`RestAuth.common.errors.PropertyNotFound` if the
+            property doesn't exist.
+        """
         raise NotImplementedError
 
-    def set(self, user, key, value):
+    def set(self, user, key, value, dry=False):
+        """Set a property for the given user.
+
+        Unlike :py:meth:`~.PropertyBackend.create` this method overwrites an
+        existing property.
+
+        The ``dry`` parameter is never passed by RestAuth itself. You may pass
+        the parameter when calling this method using :py:meth:`.set_multiple`.
+
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  user: :py:class:`~.UserInstance`
+        :param key: The key identifying the property.
+        :type  key: str
+        :param value: The value of the property.
+        :type  value: str
+        :return: A tuple of key/value as they are stored in the database.
+            The value should be ``None`` if the property didn't exist
+            previously or the old value, if it did.
+        :rtype: tuple
+        """
         raise NotImplementedError
 
     def set_multiple(self, user, props, dry=False):
+        """Set multiple properties at once.
+
+        This method may just call :py:meth:`~.PropertyBackend.set` multiple
+        times. Some backends have faster methods for setting multiple
+        values at once, though.
+
+        The ``dry`` parameter tells you if you should actually create the
+        properties. The parameter will be True for `dry-runs
+        <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
+        dry-run, the method should behave as closely as possible to a normal
+        invocation but shouldn't actually create the properties.
+
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  user: :py:class:`~.UserInstance`
+        :param dry: Wether or not to actually create the properties.
+        :type  dry: boolean
+        """
         raise NotImplementedError
 
     def remove(self, user, key):
+        """Remove a property.
+
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  user: :py:class:`~.UserInstance`
+        :param key: The key identifying the property.
+        :type  key: str
+        :raise: :py:class:`RestAuth.common.errors.PropertyNotFound` if the
+            property doesn't exist.
+        """
         raise NotImplementedError
 
     def testSetUp(self):
@@ -239,45 +327,188 @@ class PropertyBackend(object):
 
 
 class GroupBackend(object):
-    """todo."""
+    """Provide groups.
+
+    A group may be identified by its name and a service.  The ``service``
+    parameter passed in many methods is an instance of
+    `django.contrib.auth.models.User
+    <https://docs.djangoproject.com/en/dev/ref/contrib/auth/#django.contrib.auth.models.User>`_.
+    If a :py:class:`.GroupInstance` is passed (or returned), the groups service
+    is/should be available as the ``service`` property.
+    """
 
     def get(self, service, name):
+        """Get a group object representing the given group.
+
+        :param service: The service of the named group.
+        :param    name: The name of the group.
+        :type     name: str
+        :return: A group object providing at least the properties of the
+            GroupInstance class.
+        :rtype: :py:class:`.GroupInstance`
+        :raises: :py:class:`RestAuth.common.errors.GroupNotFound` if the named
+            group does not exist.
+        """
         raise NotImplementedError
 
     def list(self, service, user=None):
+        """Get a list of group names for the given service.
+
+        :param service: The service of the named group.
+        :param    user: If given, only return groups that the user is a member
+            of.
+        :type     user: :py:class:`.UserInstance`
+        :return: list of strings, each representing a group name.
+        :rtype: list
+        """
         raise NotImplementedError
 
     def create(self, service, name, dry=False):
+        """Create a new group for the given service.
+
+        The ``dry`` parameter tells you if you should actually create the
+        group. The parameter will be True for `dry-runs
+        <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
+        dry-run, the method should behave as closely as possible to a normal
+        invocation but shouldn't actually create the group.
+
+        :param service: The service of the named group.
+        :param    name: The name of the group.
+        :type     name: str
+        :param     dry: Wether or not to actually create the group.
+        :type      dry: boolean
+        :return: A group object providing at least the properties of the
+            GroupInstance class.
+        :rtype: :py:class:`.GroupInstance`
+        :raises: :py:class:`RestAuth.common.errors.GroupExists` if the group
+            already exists.
+        """
         raise NotImplementedError
 
     def exists(self, service, name):
+        """Determine if a group exists for the given service.
+
+        :param service: The service of the named group.
+        :param    name: The name of the group.
+        :type     name: str
+        :return: True if the group exists, False otherwise.
+        :rtype: boolean
+        """
         raise NotImplementedError
 
-    def add_user(self, user, group):
+    def add_user(self, group, user):
+        """Add a user to the given group.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type   user: :py:class:`.UserInstance`
+        """
         raise NotImplementedError
 
     def members(self, group, depth=None):
+        """Get a list of all members of this group.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param depth: Override the recursion depth to use for meta-groups.
+            Normally, the backend should use :setting:`GROUP_RECURSION_DEPTH`.
+        :type  depth: int
+        :return: list of strings, each representing a username
+        :rtype: list
+        """
         raise NotImplementedError
 
     def is_member(self, group, user):
+        """Determine if a user is a member of the given group.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param  user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type   user: :py:class:`.UserInstance`
+        :return: True if the User is a member, False otherwise
+        :rtype: boolean
+        """
         raise NotImplementedError
 
     def rm_user(self, group, user):
+        """Remove a user from the group.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param  user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type   user: :py:class:`.UserInstance`
+        :raises: :py:class:`RestAuth.common.errors.UserNotFound` if the user
+            is not a member of the group.
+        """
         raise NotImplementedError
 
     def add_subgroup(self, group, subgroup):
+        """Make a group a subgroup of another group.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  subgroup: :py:class:`.GroupInstance`
+        """
         raise NotImplementedError
 
     def subgroups(self, group, filter=True):
+        """Get a list of subgroups.
+
+        If ``filter=True``, the method should only return groups that belong to
+        the same service as the given group. The returned list should be a list
+        of strings, each representing a groupname.
+
+        If ``filter=False``, the method should return all groups, regardless of
+        their service. The list should contain :py:class:`.GroupInstance`
+        objects.
+
+        .. NOTE:: The filter argument is only False when called by some
+            command line scripts.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param filter: Wether or not to filter for the groups service. See
+            description for a detailled explanation.
+        :type  filter: boolean
+        :return: A list of subgroups.
+        """
         raise NotImplementedError
 
     def rm_subgroup(self, group, subgroup):
+        """Remove a subgroup from a group.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  subgroup: :py:class:`.GroupInstance`
+        :raises: :py:class:`RestAuth.common.errors.GroupNotFound` if the
+            named subgroup is not actually a subgroup of group.
+        """
         raise NotImplementedError
 
-    def remove(self, group):
+    def remove(self, service, name):
+        """Remove a group.
+
+        :param service: The service of the named group.
+        :param    name: The name of the group.
+        :type     name: str
+        :raises: :py:class:`RestAuth.common.errors.GroupNotFound` if the named
+            group does not exist.
+        """
         raise NotImplementedError
 
     def parents(self, group):
+        """Get a list of all parent groups of a group.
+
+        This method is only used by some command-line scripts.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :return: List of parent groups, each being a GroupInstance object.
+        :rtype: list
+        """
         raise NotImplementedError
 
     def testSetUp(self):
