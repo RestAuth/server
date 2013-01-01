@@ -15,10 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf import settings
-
-from RestAuth.common.utils import import_path
-
 
 class UserInstance(object):
     def __init__(self, id, name):
