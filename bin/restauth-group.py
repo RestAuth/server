@@ -24,21 +24,16 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
-    from django.conf import settings
-
     from RestAuth.Groups.cli.parsers import parser, get_group, print_by_service
+    from RestAuth.backends.utils import group_backend
     from RestAuth.common.errors import GroupExists, GroupNotFound
     from RestAuth.common.errors import UserNotFound
-    from RestAuth.common.utils import import_path
 except ImportError as e:
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
-group_backend = import_path(getattr(
-        settings, 'GROUP_BACKEND',
-        'RestAuth.backends.django_orm.DjangoGroupBackend'
-))[0]()
+group_backend = group_backend()
 
 # parse arguments
 args = parser.parse_args()
