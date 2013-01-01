@@ -68,6 +68,9 @@ authorization or similar purposes.
 Developing your own backend
 ___________________________
 
+To develop your own backend, simply implement one or all of the base classes
+below.
+
 .. autoclass:: RestAuth.backends.base.UserBackend
    :members:
 
