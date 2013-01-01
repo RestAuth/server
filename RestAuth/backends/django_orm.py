@@ -15,6 +15,15 @@ from RestAuth.Groups.models import Group
 
 
 class DjangoUserBackend(UserBackend):
+    """Use the standard Django ORM to store user data.
+
+    This backend should be ready-to use as soon as you have :doc:`configured
+    your database </config/database>`.
+
+    All settings used by this backend are documented in the :doc:`settings
+    reference </config/all-config-values>`.
+    """
+
     def _get_user(self, username, *fields):
         try:
             return User.objects.only(*fields).get(username=username)
@@ -86,6 +95,16 @@ class DjangoUserBackend(UserBackend):
 
 
 class DjangoPropertyBackend(PropertyBackend):
+    """Use the standard Django ORM to store user properties.
+
+    This backend should be ready-to use as soon as you have :doc:`configured
+    your database </config/database>`. This backend requires that you also use
+    the :py:class:`~RestAuth.backends.django_orm.DjangoUserBackend`.
+
+    All settings used by this backend are documented in the :doc:`settings
+    reference </config/all-config-values>`.
+    """
+
     def list(self, user):
         qs = Property.objects.filter(user_id=user.id)
         return dict(qs.values_list('key', 'value'))
@@ -140,6 +159,16 @@ class DjangoPropertyBackend(PropertyBackend):
 
 
 class DjangoGroupBackend(GroupBackend):
+    """Use the standard Django ORM to store groups.
+
+    This backend should be ready-to use as soon as you have :doc:`configured
+    your database </config/database>`. This backend requires that you also use
+    the :py:class:`~RestAuth.backends.django_orm.DjangoUserBackend`.
+
+    All settings used by this backend are documented in the :doc:`settings
+    reference </config/all-config-values>`.
+    """
+
     def get(self, service, name):
         try:
             return Group.objects.get(service=service, name=name)
