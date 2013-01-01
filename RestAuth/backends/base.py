@@ -20,6 +20,17 @@ from django.conf import settings
 from RestAuth.common.utils import import_path
 
 
+class UserInstance(object):
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
+
+
+class GroupInstance(object):
+    def __init__(self, name):
+        self.name = name
+
+
 class UserBackend(object):
     property_backend = None
 
