@@ -180,8 +180,9 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
     def add_user(self, group, user):
         group.users.add(user)
 
-    def members(self, group):
-        return list(group.get_members().values_list('username', flat=True))
+    def members(self, group, depth=None):
+        qs = group.get_members(depth=depth)
+        return list(qs.values_list('username', flat=True))
 
     def is_member(self, group, user):
         if group.is_member(user):
@@ -197,8 +198,10 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
     def add_subgroup(self, group, subgroup):
         group.groups.add(subgroup)
 
-    def subgroups(self, group):
-        qs = group.groups.filter(service=group.service)
+    def subgroups(self, group, filter=True):
+        qs = group.groups
+        if filter:
+            qs = qs.filter(service=group.service)
         return list(qs.values_list('name', flat=True))
 
     def rm_subgroup(self, group, subgroup):
