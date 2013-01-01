@@ -217,4 +217,4 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         Group.objects.filter(name=groupname, service=service).delete()
 
     def parents(self, group):
-        return list(group.parent_groups.all().values_list(name, flat=True))
+        return list(group.parent_groups.all().values_list('name', flat=True))
