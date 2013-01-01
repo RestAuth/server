@@ -23,9 +23,6 @@ from django.db import models
 from django.utils.http import urlquote
 from django.utils.encoding import smart_str
 
-from RestAuthCommon import resource_validator
-from RestAuthCommon.error import PreconditionFailed
-
 from RestAuth.common.errors import PasswordInvalid
 from RestAuth.common.utils import import_path
 
