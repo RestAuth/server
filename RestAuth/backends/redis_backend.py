@@ -30,6 +30,22 @@ conn = redis.StrictRedis(
 
 
 class RedisPropertyBackend(object):
+    """Store properties in a Redis key/value store.
+
+    This backend enables you to store user properties in a key/value store.
+    Note that the backend is not really faster if you only have a few hundred
+    users.
+
+    This backend uses a few additional settings:
+
+    ``REDIS_HOST``
+        The hostname where the redis installation runs.
+        Default: ``'localhsot'``.
+    ``REDIS_PORT``
+        The port ot he redis installation. Default: ``6379``.
+    ``REDIS_DB``
+        The id of the Redis database. Default: ``0``.
+    """
     def list(self, user):
         return conn.hgetall(user.id)
 
