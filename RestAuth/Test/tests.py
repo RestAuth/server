@@ -45,7 +45,7 @@ class CreateUserTest(RestAuthTransactionTest):
         self.assertFalse(user_backend.list())
 
     def test_dry_run_create_existing_user(self):
-        user = user_backend.create(username=username1)
+        user = self.create_user(username=username1)
 
         resp = self.post('/test/users/', {'user': username1})
         self.assertEqual(resp.status_code, httplib.CONFLICT)
@@ -70,7 +70,7 @@ class CreateUserTest(RestAuthTransactionTest):
 class CreatePropertyTest(RestAuthTransactionTest):
     def setUp(self):
         RestAuthTransactionTest.setUp(self)
-        self.user = user_backend.create(username=username1)
+        self.user = self.create_user(username=username1)
 
     def tearDown(self):
         super(CreatePropertyTest, self).tearDown()
