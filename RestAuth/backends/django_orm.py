@@ -199,10 +199,11 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         group.groups.add(subgroup)
 
     def subgroups(self, group, filter=True):
-        qs = group.groups
         if filter:
-            qs = qs.filter(service=group.service)
-        return list(qs.values_list('name', flat=True))
+            qs = group.groups.filter(service=group.service)
+            return list(qs.values_list('name', flat=True))
+        else:
+            return group.groups.all()
 
     def rm_subgroup(self, group, subgroup):
         qs = group.groups.filter(name=subgroup.name, service=subgroup.service)
@@ -217,4 +218,4 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
         Group.objects.filter(name=groupname, service=service).delete()
 
     def parents(self, group):
-        return list(group.parent_groups.all().values_list('name', flat=True))
+        return group.parent_groups.all()
