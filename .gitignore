@@ -30,3 +30,6 @@ bin/iptest
 bin/ipython
 bin/irunner
 bin/pycolor
+bin/sphinx*
+bin/rst*
+bin/pygmentize
