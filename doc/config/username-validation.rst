@@ -33,6 +33,8 @@ find inconsistencies, please consider to :ref:`contribute <contribute-validators
 .. automodule:: RestAuth.Users.validators
    :members: email, mediawiki, linux, windows, xmpp, drupal
 
+.. _implement-validators:
+
 Implement your own validators
 =============================
 
@@ -62,31 +64,31 @@ be skipped, if you don't need it (and you should, to improve performance).
 
    from RestAuth.common.validators import validator
    from RestAuth.common.errors import UsernameInvalid
-   
+
    class MyOwnValidator( validator ):
        # The characters 'a', 'f' and '#' are not allowed:
        ILLEGAL_CHARACTERS = set(['a', 'f', '#'])
-       
+
        # We do not allow whitespace (default is True):
        ALLOW_WHITESPACE = False
-	
+
        # We do allow UTF-8 characters (default is True):
        FORCE_ASCII = True
-	
+
        # "user", "admin" and "root" are reserved usernames:
        RESERVED = set(["user", "root", "admin"])
-       
+
        @classmethod
        def check(cls, username):
            """A more advanced check: Usernames must not end with a 'z'."""
 	   if username.endswith('z'):
 	       raise UsernameInvalid("Usernames must not end with a 'z'")
-	       
+
 All you need to do to enable this validator is to put this validator in a .py file somewhere where
 the Python interpreter will find it and add the classpath to your :setting:`VALIDATORS`:
 
 .. code-block:: python
-   
+
    VALIDATORS = [ 'some.path.myvalidators.MyOwnValidator' ]
 
 .. _contribute-validators:
