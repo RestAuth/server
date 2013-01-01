@@ -32,18 +32,6 @@ class GroupInstance(object):
 
 
 class UserBackend(object):
-    property_backend = None
-
-    @classmethod
-    def _get_property_backend(cls):
-        if cls.property_backend is None:
-            cls.property_backend = import_path(getattr(
-                settings, 'PROPERTY_BACKEND',
-                'RestAuth.backends.django_orm.DjangoPropertyBackend'
-            ))[0]()
-
-        return cls.property_backend
-
     def get(self, username):
         raise NotImplementedError
 
