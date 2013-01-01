@@ -31,7 +31,8 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
     def list(self):
         return list(User.objects.values_list('username', flat=True))
 
-    def _create(self, username, password=None, properties=None, dry=False):
+    def _create(self, username, password=None, properties=None,
+                property_backend=None, dry=False):
         try:
             user = User(username=username)
             if password is not None and password != '':
@@ -47,20 +48,22 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
             stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             properties['date joined'] = stamp
 
-        self._get_property_backend().set_multiple(user, properties, dry=dry)
+        property_backend.set_multiple(user, properties, dry=dry)
         return user
 
-    def create(self, username, password=None, properties=None, dry=False):
+    def create(self, username, password=None, properties=None,
+               property_backend=None, dry=False):
         if dry:
             with transaction.commit_manually():
                 try:
                     return self._create(username, password, properties,
-                                        dry=dry)
+                                        property_backend, dry=dry)
                 finally:
                     transaction.rollback()
         else:
             with transaction.commit_on_success():
-                return self._create(username, password, properties, dry=dry)
+                return self._create(username, password, properties,
+                                    property_backend, dry=dry)
 
     def check_password(self, username, password):
         user = self._get_user(username, 'password')
