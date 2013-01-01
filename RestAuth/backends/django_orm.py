@@ -175,8 +175,8 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
                 except IntegrityError:
                     raise GroupExists('Group "%s" already exists' % name)
 
-    def exists(self, service, groupname):
-        return Group.objects.filter(name=groupname, service=service).exists()
+    def exists(self, service, name):
+        return Group.objects.filter(name=name, service=service).exists()
 
     def add_user(self, group, user):
         group.users.add(user)
@@ -213,10 +213,10 @@ class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
 
         group.groups.remove(subgroup)
 
-    def remove(self, service, groupname):
-        if not Group.objects.filter(name=groupname, service=service).exists():
-            raise GroupNotFound(groupname)
-        Group.objects.filter(name=groupname, service=service).delete()
+    def remove(self, service, name):
+        if not Group.objects.filter(name=name, service=service).exists():
+            raise GroupNotFound(name)
+        Group.objects.filter(name=name, service=service).delete()
 
     def parents(self, group):
         return group.parent_groups.all()

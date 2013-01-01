@@ -61,14 +61,14 @@ class GroupsView(RestAuthView):
             if not request.user.has_perm('Groups.groups_list'):
                 return HttpResponseForbidden()
 
-            groups = group_backend.list(request.user)
+            groups = group_backend.list(service=request.user)
         else:
             if not request.user.has_perm('Groups.groups_for_user'):
                 return HttpResponseForbidden()
 
             # Get all groups of a user
             user = user_backend.get(username=username.lower())
-            groups = group_backend.list(request.user, user=user)
+            groups = group_backend.list(service=request.user, user=user)
 
         return HttpRestAuthResponse(request, groups)
 
@@ -84,7 +84,8 @@ class GroupsView(RestAuthView):
         groupname = groupname.lower()
 
         # If ResourceExists: 409 Conflict
-        group = group_backend.create(request.user, groupname, dry=dry)
+        group = group_backend.create(service=request.user, name=groupname,
+                                     dry=dry)
 
         self.log.info('%s: Created group', group.name, extra=largs)
         return HttpResponseCreated(request, 'groups.group', name=group.name)  # Created
@@ -104,7 +105,7 @@ class GroupHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_exists'):
             return HttpResponseForbidden()
 
-        if group_backend.exists(request.user, name):
+        if group_backend.exists(service=request.user, name=name):
             return HttpResponseNoContent()
         else:
             raise GroupNotFound(name)
@@ -116,7 +117,7 @@ class GroupHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_delete'):
             return HttpResponseForbidden()
 
-        group_backend.remove(request.user, name)
+        group_backend.remove(service=request.user, name=name)
         self.log.info("Deleted group", extra=largs)
         return HttpResponseNoContent()
 
