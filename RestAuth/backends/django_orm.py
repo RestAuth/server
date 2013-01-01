@@ -14,11 +14,7 @@ from RestAuth.Users.models import ServiceUser as User, Property
 from RestAuth.Groups.models import Group
 
 
-class DjangoBackendBase(object):
-    pass
-
-
-class DjangoUserBackend(UserBackend, DjangoBackendBase):
+class DjangoUserBackend(UserBackend):
     def _get_user(self, username, *fields):
         try:
             return User.objects.only(*fields).get(username=username)
@@ -89,7 +85,7 @@ class DjangoUserBackend(UserBackend, DjangoBackendBase):
             raise UserNotFound(username)
 
 
-class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
+class DjangoPropertyBackend(PropertyBackend):
     def list(self, user):
         qs = Property.objects.filter(user_id=user.id)
         return dict(qs.values_list('key', 'value'))
@@ -143,7 +139,7 @@ class DjangoPropertyBackend(PropertyBackend, DjangoBackendBase):
             raise PropertyNotFound(key)
 
 
-class DjangoGroupBackend(GroupBackend, DjangoBackendBase):
+class DjangoGroupBackend(GroupBackend):
     def get(self, service, name):
         try:
             return Group.objects.get(service=service, name=name)
