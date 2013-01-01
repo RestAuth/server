@@ -131,8 +131,9 @@ class RestAuthTestBase(object):
         func = getattr(self.handler, 'unmarshal_%s' % typ)
         return func(body)
 
-    def create_user(self, username, password):
-        return user_backend.create(username=username, password=password)
+    def create_user(self, username, password=None):
+        return user_backend.create(username=username, password=password,
+                                  property_backend=property_backend)
 
     def create_group(self, service, groupname):
         return group_backend.create(service, groupname)
@@ -152,6 +153,7 @@ class RestAuthTestBase(object):
     def tearDown(self):
         user_backend.testTearDown()
         group_backend.testTearDown()
+
 
 class RestAuthTest(RestAuthTestBase, TestCase):
     pass
