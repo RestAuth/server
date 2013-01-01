@@ -103,7 +103,7 @@ class GroupBackend(object):
     def add_user(self, user, group):
         raise NotImplementedError
 
-    def members(self, group):
+    def members(self, group, depth=None):
         raise NotImplementedError
 
     def is_member(self, group, user):
@@ -115,13 +115,16 @@ class GroupBackend(object):
     def add_subgroup(self, group, subgroup):
         raise NotImplementedError
 
-    def subgroups(self, group):
+    def subgroups(self, group, filter=True):
         raise NotImplementedError
 
     def rm_subgroup(self, group, subgroup):
         raise NotImplementedError
 
     def remove(self, group):
+        raise NotImplementedError
+
+    def parents(self, group):
         raise NotImplementedError
 
     def testSetUp(self):
