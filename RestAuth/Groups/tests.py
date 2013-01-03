@@ -414,14 +414,14 @@ class AddUserToGroupTests(GroupUserTests):  # POST /groups/<group>/users/
         resp = self.post('/groups/%s/users/' % groupname4, {'user': username1})
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
-        self.assertItemsEqual(
-            self.get_grp(groupname4, self.fsinf).users.all(), [])
+        self.assertItemsEqual(group_backend.members(
+            self.get_grp(groupname4, self.fsinf)), [])
 
         resp = self.post('/groups/%s/users/' % groupname5, {'user': username1})
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
-        self.assertItemsEqual(
-            self.get_grp(groupname5, self.fsinf).users.all(), [])
+        self.assertItemsEqual(group_backend.members(
+            self.get_grp(groupname5, self.fsinf)), [])
 
     def test_bad_requests(self):
         resp = self.post('/groups/%s/users/' % groupname1, {})
@@ -633,7 +633,7 @@ class GetSubGroupTests(GroupUserTests):  # GET /groups/<group>/groups/
         resp = self.get('/groups/%s/groups/' % groupname1)
         self.assertEquals(resp.status_code, httplib.OK)
 
-        self.assertEquals(self.parse(resp, 'list'), [groupname2, groupname3])
+        self.assertItemsEqual(self.parse(resp, 'list'), [groupname2, groupname3])
 
     def test_service_isolation(self):
         group_backend.add_subgroup(self.group1, self.group2)
@@ -670,45 +670,47 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
             '/groups/%s/groups/' % groupname1, {'group': groupname2})
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
 
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [self.group2])
-        self.assertItemsEqual(self.group2.parent_groups.all(), [self.group1])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [self.group2])
+        self.assertItemsEqual(group_backend.parents(self.group2), [self.group1])
 
     def test_add_subgroup_twice(self):
         resp = self.post(
             '/groups/%s/groups/' % groupname1, {'group': groupname2})
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
 
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [self.group2])
-        self.assertItemsEqual(self.group2.parent_groups.all(), [self.group1])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [self.group2])
+        self.assertItemsEqual(group_backend.parents(self.group2),
+                              [self.group1])
 
         resp = self.post(
             '/groups/%s/groups/' % groupname1, {'group': groupname2})
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
 
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [self.group2])
-        self.assertItemsEqual(self.group2.parent_groups.all(), [self.group1])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [self.group2])
+        self.assertItemsEqual(group_backend.parents(self.group2),
+                              [self.group1])
 
     def test_bad_requests(self):
         resp = self.post('/groups/%s/groups/' % groupname1, {})
         self.assertEquals(resp.status_code, httplib.BAD_REQUEST)
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [])
 
         resp = self.post('/groups/%s/groups/' % groupname1, {'foo': 'bar'})
         self.assertEquals(resp.status_code, httplib.BAD_REQUEST)
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [])
 
         resp = self.post(
             '/groups/%s/groups/' % groupname1,
             {'group': groupname2, 'foo': 'bar'}
         )
         self.assertEquals(resp.status_code, httplib.BAD_REQUEST)
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [])
 
     def test_service_isolation(self):
         # we shouldn't be able to add a subgroup:
@@ -716,20 +718,20 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
             '/groups/%s/groups/' % groupname1, {'group': groupname4})
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEquals(resp['Resource-Type'], 'group')
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [])
-        self.assertItemsEqual(
-            self.get_grp(groupname4, self.fsinf).parent_groups.all(), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [])
+        self.assertItemsEqual(group_backend.parents(
+            self.get_grp(groupname4, self.fsinf)), [])
 
         # same with global group:
         resp = self.post(
             '/groups/%s/groups/' % groupname1, {'group': groupname5})
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEquals(resp['Resource-Type'], 'group')
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [])
-        self.assertItemsEqual(
-            self.get_grp(groupname5, self.fsinf).parent_groups.all(), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [])
+        self.assertItemsEqual(group_backend.parents(
+            self.get_grp(groupname5, self.fsinf)), [])
 
 
 # DELETE /groups/<group>/groups/<subgroup>/
@@ -752,52 +754,51 @@ class RemoveSubGroupTests(GroupUserTests):
 
     def test_remove_subgroup(self):
         group_backend.add_subgroup(self.group1, self.group2)
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [self.group2])
-        self.assertItemsEqual(
-            self.get_grp(groupname2, self.vowi).parent_groups.all(),
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [self.group2])
+        self.assertItemsEqual(group_backend.parents(
+            self.get_grp(groupname2, self.vowi)),
             [self.group1]
         )
 
         resp = self.delete('/groups/%s/groups/%s/' % (groupname1, groupname2))
         self.assertEquals(resp.status_code, httplib.NO_CONTENT)
 
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [])
-        self.assertItemsEqual(
-            self.get_grp(groupname2, self.vowi).parent_groups.all(), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [])
+        self.assertItemsEqual(group_backend.parents(
+            self.get_grp(groupname2, self.vowi)), [])
 
     def test_remove_invalid_subgroup(self):
         # try to remove subgroup thats not really a subgroup
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [])
-        self.assertItemsEqual(
-            self.get_grp(groupname2, self.vowi).parent_groups.all(), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname2, self.vowi), filter=False), [])
 
         resp = self.delete('/groups/%s/groups/%s/' % (groupname1, groupname2))
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertItemsEqual(
-            self.get_grp(groupname1, self.vowi).groups.all(), [])
-        self.assertItemsEqual(
-            self.get_grp(groupname2, self.vowi).parent_groups.all(), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi), filter=False), [])
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname2, self.vowi), filter=False), [])
 
     def test_service_isolation(self):
         group_backend.add_subgroup(self.group1, self.group4)
         group_backend.add_subgroup(self.group1, self.group5)
         group1 = self.get_grp(groupname1, self.vowi)
         self.assertItemsEqual(
-            group1.groups.values_list('name', flat=True).all(),
-            [groupname4, groupname5]
+            group_backend.subgroups(group1, filter=False),
+            [self.group4, self.group5]
         )
-        self.assertItemsEqual(
-            self.get_grp(groupname4, self.fsinf).parent_groups.all(),
+        self.assertItemsEqual(group_backend.parents(
+            self.get_grp(groupname4, self.fsinf)),
             [self.group1]
         )
-        self.assertItemsEqual(
-            self.get_grp(groupname5, self.fsinf).parent_groups.all(),
-            [self.group1]
+        self.assertItemsEqual(group_backend.parents(
+            self.get_grp(groupname5, self.fsinf)), [self.group1]
         )
 
         resp = self.delete('/groups/%s/groups/%s/' % (groupname1, groupname4))
@@ -811,14 +812,14 @@ class RemoveSubGroupTests(GroupUserTests):
         # nothing has changed!?
         group1 = self.get_grp(groupname1, self.vowi)
         self.assertItemsEqual(
-            group1.groups.values_list('name', flat=True).all(),
-            [groupname4, groupname5]
+            group_backend.subgroups(group1, filter=False),
+            [self.group4, self.group5]
         )
         self.assertItemsEqual(
-            self.get_grp(groupname4, self.fsinf).parent_groups.all(),
+            group_backend.parents(self.get_grp(groupname4, self.fsinf)),
             [self.group1]
         )
         self.assertItemsEqual(
-            self.get_grp(groupname5, self.fsinf).parent_groups.all(),
+            group_backend.parents(self.get_grp(groupname5, self.fsinf)),
             [self.group1]
         )
