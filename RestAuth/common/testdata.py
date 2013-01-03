@@ -126,7 +126,7 @@ class RestAuthTestBase(object):
                                   property_backend=property_backend)
 
     def create_group(self, service, groupname):
-        return group_backend.create(service, groupname)
+        return group_backend.create(name=groupname, service=service)
 
     def assertProperties(self, user, expected):
         actual = property_backend.list(user)
