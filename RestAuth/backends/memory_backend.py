@@ -441,9 +441,15 @@ class MemoryGroupBackend(object):
             group does not exist.
         """
         try:
-            return self._groups[service.id][name]
+            return self._groups[self._service(service)][name]
         except KeyError:
             raise GroupNotFound(name)
+
+    def _service(self, service):
+        if service is None:
+            return service
+        else:
+            return service.id
 
     def list(self, service, user=None):
         """Get a list of group names for the given service.
@@ -455,15 +461,11 @@ class MemoryGroupBackend(object):
         :return: list of strings, each representing a group name.
         :rtype: list
         """
-        if service is None:
-            service_id = None
-        else:
-            service_id = service.id
-
         if user is None:
-            return self._groups[service_id].keys()
+            return self._groups[self._service(service)].keys()
         else:
-            return [k for k, v in self._groups[service_id].items() if v.is_member(user)]
+            groups = self._groups[self._service(service)]
+            return [k for k, v in groups.items() if v.is_member(user)]
 
     def create(self, name, service=None, dry=False):
         """Create a new group for the given service.
@@ -485,17 +487,12 @@ class MemoryGroupBackend(object):
         :raises: :py:class:`RestAuth.common.errors.GroupExists` if the group
             already exists.
         """
-        if service is None:
-            service_id = None
-        else:
-            service_id = service.id
-
-        if name in self._groups[service_id]:
+        if name in self._groups[self._service(service)]:
             raise GroupExists(name)
         group = MemoryGroupInstance(service=service, id=id(name), name=name)
 
         if not dry:
-            self._groups[service_id][name] = group
+            self._groups[self._service(service)][name] = group
 
         return group
 
@@ -508,7 +505,7 @@ class MemoryGroupBackend(object):
         :return: True if the group exists, False otherwise.
         :rtype: boolean
         """
-        return name in self._groups[service.id]
+        return name in self._groups[self._service(service)]
 
     def add_user(self, group, user):
         """Add a user to the given group.
@@ -518,12 +515,7 @@ class MemoryGroupBackend(object):
         :param user: A user as returned by :py:meth:`.UserBackend.get`.
         :type   user: :py:class:`.UserInstance`
         """
-        if group.service is None:
-            service_id = None
-        else:
-            service_id = group.service.id
-
-        self._groups[service_id][group.name].add_user(user)
+        self._groups[self._service(group.service)][group.name].add_user(user)
 
     def members(self, group, depth=None):
         """Get a list of all members of this group.
@@ -536,12 +528,7 @@ class MemoryGroupBackend(object):
         :return: list of strings, each representing a username
         :rtype: list
         """
-        if group.service is None:
-            service_id = None
-        else:
-            service_id = group.service.id
-
-        return list(self._groups[service_id][group.name].members())
+        return list(group.members())
 
     def is_member(self, group, user):
         """Determine if a user is a member of the given group.
@@ -553,7 +540,7 @@ class MemoryGroupBackend(object):
         :return: True if the User is a member, False otherwise
         :rtype: boolean
         """
-        return self._groups[group.service.id][group.name].is_member(user)
+        return group.is_member(user)
 
     def rm_user(self, group, user):
         """Remove a user from the group.
@@ -565,7 +552,7 @@ class MemoryGroupBackend(object):
         :raises: :py:class:`RestAuth.common.errors.UserNotFound` if the user
             is not a member of the group.
         """
-        return self._groups[group.service.id][group.name].rm_user(user)
+        return group.rm_user(user)
 
     def add_subgroup(self, group, subgroup):
         """Make a group a subgroup of another group.
@@ -575,12 +562,7 @@ class MemoryGroupBackend(object):
         :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
         :type  subgroup: :py:class:`.GroupInstance`
         """
-        if group.service is None:
-            service_id = None
-        else:
-            service_id = group.service.id
-
-        self._groups[service_id][group.name].add_subgroup(subgroup)
+        group.add_subgroup(subgroup)
 
     def subgroups(self, group, filter=True):
         """Get a list of subgroups.
@@ -603,12 +585,7 @@ class MemoryGroupBackend(object):
         :type  filter: boolean
         :return: A list of subgroups.
         """
-        if group.service is None:
-            service_id = None
-        else:
-            service_id = group.service.id
-
-        subgroups = self._groups[service_id][group.name].subgroups(filter=filter)
+        subgroups = group.subgroups(filter=filter)
         if filter:
             return [g.name for g in subgroups]
         else:
@@ -624,7 +601,7 @@ class MemoryGroupBackend(object):
         :raises: :py:class:`RestAuth.common.errors.GroupNotFound` if the
             named subgroup is not actually a subgroup of group.
         """
-        self._groups[group.service.id][group.name].rm_subgroup(subgroup)
+        group.rm_subgroup(subgroup)
 
     def remove(self, group):
         """Remove a group.
@@ -635,8 +612,9 @@ class MemoryGroupBackend(object):
         :raises: :py:class:`RestAuth.common.errors.GroupNotFound` if the named
             group does not exist.
         """
-        if group.name in self._groups[group.service.id]:
-            del self._groups[group.service.id][group.name]
+        service_id = self._service(group.service)
+        if group.name in self._groups[service_id]:
+            del self._groups[service_id][group.name]
         else:
             raise GroupNotFound(group.name)
 
@@ -650,7 +628,7 @@ class MemoryGroupBackend(object):
         :return: List of parent groups, each being a GroupInstance object.
         :rtype: list
         """
-        return list(self._groups[group.service.id][group.name].parents)
+        return list(group.parents)
 
     def testSetUp(self):
         """Set up your backend for a test run.
