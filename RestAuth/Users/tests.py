@@ -134,7 +134,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
 
         resp = self.post('/users/', {'user': username3, 'password': None})
         self.assertEqual(resp.status_code, httplib.CREATED)
-        self.assertEqual(
+        self.assertItemsEqual(
             self.get_usernames(), [username1, username2, username3])
         user = user_backend.get(username3)
         self.assertFalsePassword(username3, '')
