@@ -23,7 +23,6 @@ from django.db import models
 from django.utils.http import urlquote
 from django.utils.encoding import smart_str
 
-from RestAuth.common.errors import PasswordInvalid
 from RestAuth.common.utils import import_path
 
 user_permissions = (
@@ -109,15 +108,7 @@ class ServiceUser(models.Model):
         self.orig_username = self.username
 
     def set_password(self, raw_password):
-        """
-        Set the password to the given value. Throws PasswordInvalid if
-        the password is shorter than settings.MIN_PASSWORD_LENGTH.
-
-        @raise PasswordInvalid: When the password is too short.
-        """
-        if len(raw_password) < settings.MIN_PASSWORD_LENGTH:
-            raise PasswordInvalid("Password too short")
-
+        """Set the password to the given value."""
         salt = get_random_string(16)
         digest = get_hexdigest(settings.HASH_ALGORITHM, salt, raw_password)
         self.password = '%s$%s$%s' % (settings.HASH_ALGORITHM, salt, digest)
