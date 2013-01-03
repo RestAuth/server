@@ -653,8 +653,8 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(group_backend.exists(self.vowi, groupname6))
-        self.assertEquals(group_backend.subgroups(self.group1), [])
+        self.assertFalse(group_backend.exists(name=groupname6, service=self.vowi))
+        self.assertEquals(group_backend.subgroups(group=self.group1, filter=True), [])
 
     def test_subgroup_doesnt_exist(self):
         resp = self.post(
@@ -662,8 +662,9 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(group_backend.exists(self.vowi, groupname6))
-        self.assertEquals(group_backend.subgroups(self.group1), [])
+        self.assertFalse(group_backend.exists(name=groupname6, service=self.vowi))
+        self.assertItemsEqual(group_backend.subgroups(
+            self.get_grp(groupname1, self.vowi)), [])
 
     def test_add_subgroup(self):
         resp = self.post(
@@ -672,7 +673,8 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
 
         self.assertItemsEqual(group_backend.subgroups(
             self.get_grp(groupname1, self.vowi), filter=False), [self.group2])
-        self.assertItemsEqual(group_backend.parents(self.group2), [self.group1])
+        self.assertItemsEqual(group_backend.parents(
+            self.get_grp(groupname2, self.vowi)), [self.group1])
 
     def test_add_subgroup_twice(self):
         resp = self.post(
@@ -741,16 +743,18 @@ class RemoveSubGroupTests(GroupUserTests):
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(group_backend.exists(self.vowi, groupname6))
-        self.assertEquals(group_backend.subgroups(self.group1), [])
+        self.assertFalse(group_backend.exists(name=groupname6, service=self.vowi))
+        self.assertItemsEqual(group_backend.subgroups(
+            group=self.get_grp(groupname1, self.vowi), filter=False), [])
 
     def test_subgroup_doesnt_exist(self):
         resp = self.delete('/groups/%s/groups/%s/' % (groupname1, groupname6))
         self.assertEquals(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(group_backend.exists(self.vowi, groupname6))
-        self.assertEquals(group_backend.subgroups(self.group1), [])
+        self.assertFalse(group_backend.exists(name=groupname6, service=self.vowi))
+        self.assertItemsEqual(group_backend.subgroups(
+            group=self.get_grp(groupname1, self.vowi), filter=False), [])
 
     def test_remove_subgroup(self):
         group_backend.add_subgroup(self.group1, self.group2)
