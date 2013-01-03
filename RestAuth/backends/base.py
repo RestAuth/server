@@ -340,9 +340,11 @@ class GroupBackend(object):
     def get(self, name, service=None):
         """Get a group object representing the given group.
 
-        :param service: The service of the named group.
         :param    name: The name of the group.
         :type     name: str
+        :param service: The service of the named group. If None, the group
+            should not belong to any service.
+        :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
         :return: A group object providing at least the properties of the
             GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
@@ -372,9 +374,11 @@ class GroupBackend(object):
         dry-run, the method should behave as closely as possible to a normal
         invocation but shouldn't actually create the group.
 
-        :param service: The service of the named group.
         :param    name: The name of the group.
         :type     name: str
+        :param service: The service of the named group. If None, the group
+            should not belong to any service.
+        :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
         :param     dry: Wether or not to actually create the group.
         :type      dry: boolean
         :return: A group object providing at least the properties of the
@@ -388,9 +392,10 @@ class GroupBackend(object):
     def exists(self, name, service=None):
         """Determine if a group exists for the given service.
 
-        :param service: The service of the named group.
         :param    name: The name of the group.
         :type     name: str
+        :param service: The service of the group to query.
+        :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
         :return: True if the group exists, False otherwise.
         :rtype: boolean
         """
