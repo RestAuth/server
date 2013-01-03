@@ -428,7 +428,7 @@ class MemoryGroupBackend(object):
     def __init__(self):
         self._groups = defaultdict(dict)
 
-    def get(self, service, name):
+    def get(self, name, service=None):
         """Get a group object representing the given group.
 
         :param service: The service of the named group.
@@ -465,7 +465,7 @@ class MemoryGroupBackend(object):
         else:
             return [k for k, v in self._groups[service_id].items() if v.is_member(user)]
 
-    def create(self, service, name, dry=False):
+    def create(self, name, service=None, dry=False):
         """Create a new group for the given service.
 
         The ``dry`` parameter tells you if you should actually create the
@@ -499,7 +499,7 @@ class MemoryGroupBackend(object):
 
         return group
 
-    def exists(self, service, name):
+    def exists(self, name, service=None):
         """Determine if a group exists for the given service.
 
         :param service: The service of the named group.
@@ -626,7 +626,7 @@ class MemoryGroupBackend(object):
         """
         self._groups[group.service.id][group.name].rm_subgroup(subgroup)
 
-    def remove(self, service, name):
+    def remove(self, group):
         """Remove a group.
 
         :param service: The service of the named group.
@@ -635,10 +635,10 @@ class MemoryGroupBackend(object):
         :raises: :py:class:`RestAuth.common.errors.GroupNotFound` if the named
             group does not exist.
         """
-        if name in self._groups[service.id]:
-            del self._groups[service.id][name]
+        if group.name in self._groups[group.service.id]:
+            del self._groups[group.service.id][group.name]
         else:
-            raise GroupNotFound(name)
+            raise GroupNotFound(group.name)
 
     def parents(self, group):
         """Get a list of all parent groups of a group.
