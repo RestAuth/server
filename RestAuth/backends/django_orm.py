@@ -70,14 +70,14 @@ class DjangoUserBackend(UserBackend):
                 return self._create(username, password, properties,
                                     property_backend, dry=dry)
 
+    def exists(self, username):
+        return User.objects.filter(username=username).exists()
+
     def check_password(self, username, password):
         user = self._get_user(username, 'password')
         return user.check_password(password)
 
-    def exists(self, username):
-        return User.objects.filter(username=username).exists()
-
-    def set_password(self, username, password):
+    def set_password(self, username, password=None):
         user = self._get_user(username, 'id')
         if password is not None and password != '':
             user.set_password(password)
@@ -134,9 +134,18 @@ class DjangoPropertyBackend(PropertyBackend):
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def set(self, user, key, value):
-        prop, old_value = user.set_property(key, value)
-        return prop.key, old_value
+    def set(self, user, key, value, dry=False):
+        if dry:
+            with transaction.commit_manually():
+                try:
+                    prop, old_value = user.set_property(key, value)
+                    return prop.key, old_value
+                finally:
+                    transaction.rollback()
+        else:
+            with transaction.commit_on_success():
+                prop, old_value = user.set_property(key, value)
+                return prop.key, old_value
 
     def set_multiple(self, user, props, dry=False):
         if dry:
