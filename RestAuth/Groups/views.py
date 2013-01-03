@@ -23,6 +23,9 @@ import logging
 
 from django.http import HttpResponseForbidden
 
+from RestAuthCommon import resource_validator
+from RestAuthCommon.error import PreconditionFailed
+
 from RestAuth.backends.utils import user_backend, group_backend
 from RestAuth.common.errors import UserNotFound
 from RestAuth.common.errors import GroupNotFound
@@ -74,6 +77,8 @@ class GroupsView(RestAuthView):
 
         # If BadRequest: 400 Bad Request
         groupname = get_dict(request, [u'group'])
+        if not resource_validator(groupname):
+            raise PreconditionFailed('Group name contains invalid characters!')
         groupname = groupname.lower()
 
         # If ResourceExists: 409 Conflict
