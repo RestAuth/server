@@ -337,7 +337,7 @@ class GroupBackend(object):
     is/should be available as the ``service`` property.
     """
 
-    def get(self, service, name):
+    def get(self, name, service=None):
         """Get a group object representing the given group.
 
         :param service: The service of the named group.
@@ -363,7 +363,7 @@ class GroupBackend(object):
         """
         raise NotImplementedError
 
-    def create(self, service, name, dry=False):
+    def create(self, name, service=None, dry=False):
         """Create a new group for the given service.
 
         The ``dry`` parameter tells you if you should actually create the
@@ -385,7 +385,7 @@ class GroupBackend(object):
         """
         raise NotImplementedError
 
-    def exists(self, service, name):
+    def exists(self, name, service=None):
         """Determine if a group exists for the given service.
 
         :param service: The service of the named group.
@@ -488,14 +488,11 @@ class GroupBackend(object):
         """
         raise NotImplementedError
 
-    def remove(self, service, name):
+    def remove(self, group):
         """Remove a group.
 
-        :param service: The service of the named group.
-        :param    name: The name of the group.
-        :type     name: str
-        :raises: :py:class:`RestAuth.common.errors.GroupNotFound` if the named
-            group does not exist.
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
         """
         raise NotImplementedError
 
