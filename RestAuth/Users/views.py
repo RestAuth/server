@@ -21,6 +21,7 @@ This module implements all HTTP queries to ``/user/*``.
 
 import logging
 
+from django.conf import settings
 from django.http import HttpResponseForbidden
 
 from RestAuthCommon import resource_validator
@@ -29,7 +30,7 @@ from RestAuthCommon.error import PreconditionFailed
 from RestAuth.Users.validators import validate_username
 from RestAuth.backends.utils import user_backend, property_backend
 from RestAuth.common.types import get_dict, get_freeform_dict
-from RestAuth.common.errors import UserNotFound
+from RestAuth.common.errors import PasswordInvalid, UserNotFound
 from RestAuth.common.responses import HttpResponseCreated
 from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
@@ -67,8 +68,12 @@ class UsersView(RestAuthView):
         # If BadRequest: 400 Bad Request
         name, password, props = get_dict(
             request, [u'user'], [u'password', u'properties'])
+
         if not resource_validator(name):
             raise PreconditionFailed("Username contains invalid characters")
+        if password is not None and password != '':
+            if len(password) < settings.MIN_PASSWORD_LENGTH:
+                raise PasswordInvalid("Password too short")
 
         # If UsernameInvalid: 412 Precondition Failed
         validate_username(name)
@@ -127,6 +132,9 @@ class UserHandlerView(RestAuthResourceView):
 
         # If BadRequest: 400 Bad Request
         password, = get_dict(request, optional=[u'password'])
+        if password is not None and password != '':
+            if len(password) < settings.MIN_PASSWORD_LENGTH:
+                raise PasswordInvalid("Password too short")
 
         user_backend.set_password(username=name, password=password)
         return HttpResponseNoContent()
