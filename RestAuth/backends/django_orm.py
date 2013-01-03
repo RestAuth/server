@@ -169,7 +169,7 @@ class DjangoGroupBackend(GroupBackend):
     reference </config/all-config-values>`.
     """
 
-    def get(self, service, name):
+    def get(self, name, service=None):
         try:
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
@@ -182,7 +182,7 @@ class DjangoGroupBackend(GroupBackend):
             groups = Group.objects.member(user=user, service=service)
         return list(groups.only('id').values_list('name', flat=True))
 
-    def create(self, service, name, dry=False):
+    def create(self, name, service=None, dry=False):
         if dry:
             with transaction.commit_manually():
                 try:
@@ -200,7 +200,7 @@ class DjangoGroupBackend(GroupBackend):
                 except IntegrityError:
                     raise GroupExists('Group "%s" already exists' % name)
 
-    def exists(self, service, name):
+    def exists(self, name, service=None):
         return Group.objects.filter(name=name, service=service).exists()
 
     def add_user(self, group, user):
@@ -238,10 +238,8 @@ class DjangoGroupBackend(GroupBackend):
 
         group.groups.remove(subgroup)
 
-    def remove(self, service, name):
-        if not Group.objects.filter(name=name, service=service).exists():
-            raise GroupNotFound(name)
-        Group.objects.filter(name=name, service=service).delete()
+    def remove(self, group):
+        group.delete()
 
     def parents(self, group):
         return group.parent_groups.all()
