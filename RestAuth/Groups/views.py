@@ -115,7 +115,8 @@ class GroupHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_delete'):
             return HttpResponseForbidden()
 
-        group_backend.remove(service=request.user, name=name)
+        group = group_backend.get(service=request.user, name=name)
+        group_backend.remove(group=group)
         self.log.info("Deleted group", extra=largs)
         return HttpResponseNoContent()
 
