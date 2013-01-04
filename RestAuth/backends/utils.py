@@ -29,7 +29,7 @@ def load_user_backend():
     if _user_backend is None:
         _user_backend = import_path(getattr(
                 settings, 'USER_BACKEND',
-                'RestAuth.backends.django_orm.DjangoUserBackend'
+                'RestAuth.backends.django_backend.DjangoUserBackend'
         ))[0]()
 
 
@@ -46,7 +46,7 @@ def load_property_backend():
     if _property_backend is None:
         _property_backend = import_path(getattr(
                 settings, 'PROPERTY_BACKEND',
-                'RestAuth.backends.django_orm.DjangoPropertyBackend'
+                'RestAuth.backends.django_backend.DjangoPropertyBackend'
         ))[0]()
 
 
@@ -63,7 +63,7 @@ def load_group_backend():
     if _group_backend is None:
         _group_backend = import_path(getattr(
                 settings, 'GROUP_BACKEND',
-                'RestAuth.backends.django_orm.DjangoGroupBackend'
+                'RestAuth.backends.django_backend.DjangoGroupBackend'
         ))[0]()
 
 def group_backend():
