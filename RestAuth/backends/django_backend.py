@@ -99,7 +99,7 @@ class DjangoPropertyBackend(PropertyBackend):
 
     This backend should be ready-to use as soon as you have :doc:`configured
     your database </config/database>`. This backend requires that you also use
-    the :py:class:`~RestAuth.backends.django_backend.DjangoUserBackend`.
+    the :py:class:`~.DjangoUserBackend`.
 
     All settings used by this backend are documented in the :doc:`settings
     reference </config/all-config-values>`.
@@ -172,7 +172,7 @@ class DjangoGroupBackend(GroupBackend):
 
     This backend should be ready-to use as soon as you have :doc:`configured
     your database </config/database>`. This backend requires that you also use
-    the :py:class:`~RestAuth.backends.django_backend.DjangoUserBackend`.
+    the :py:class:`~.DjangoUserBackend`.
 
     All settings used by this backend are documented in the :doc:`settings
     reference </config/all-config-values>`.
