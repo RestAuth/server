@@ -77,7 +77,7 @@ GROUP_BACKEND
 
 .. versionadded:: 0.6.1
 
-Default: ``'RestAuth.backends.django_orm.DjangoGroupBackend'``
+Default: ``'RestAuth.backends.django_backend.DjangoGroupBackend'``
 
 The backend to use to store groups. Please see :ref:`group-backends` for a more
 comprehensive description of available backends.  The default is the only
@@ -303,12 +303,12 @@ PROPERTY_BACKEND
 
 .. versionadded:: 0.6.1
 
-Default: ``'RestAuth.backends.django_orm.DjangoPropertyBackend'``
+Default: ``'RestAuth.backends.django_backend.DjangoPropertyBackend'``
 
 The backend to use to store user properties. RestAuth comes with two property
 backends:
 
-``'RestAuth.backends.django_orm.DjangoPropertyBackend'``
+``'RestAuth.backends.django_backend.DjangoPropertyBackend'``
    Use the standard Django ORM to store property data. This backend requireds
    that you also use the DjangoUserBackend.
 
@@ -345,7 +345,7 @@ USER_BACKEND
 
 .. versionadded:: 0.6.1
 
-Default: ``'RestAuth.backends.django_orm.UserBackend'``
+Default: ``'RestAuth.backends.django_backend.UserBackend'``
 
 The backend used for storing user data. Please see :ref:`user-backends` for a
 more comprehensive description of available backends. The default is the only
