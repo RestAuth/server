@@ -22,13 +22,11 @@ The ExceptionMiddleware is located in its own class to avoid circular imports.
 import logging
 import traceback
 
-import mimeparse
-
 from django.http import HttpResponse
 from django.http import HttpResponseServerError
 
 from RestAuthCommon.error import RestAuthException
-from RestAuthCommon.handlers import CONTENT_HANDLERS
+
 from RestAuth.common.errors import GroupNotFound
 from RestAuth.common.errors import PropertyNotFound
 from RestAuth.common.errors import UserNotFound
@@ -74,24 +72,6 @@ class HeaderMiddleware:
                     'POST/PUT requests must include a Content-Type header.',
                     status=415
                 )
-
-            # parse response body:
-            supported = CONTENT_HANDLERS.keys()
-
-            header = request.META['CONTENT_TYPE']
-            mime_type = mimeparse.best_match(supported, header)
-            if mime_type:
-                body = request.raw_post_data
-
-                handler = CONTENT_HANDLERS[mime_type]()
-                d = handler.unmarshal_dict(body)
-                if isinstance(d, dict):
-                    request.restauth_data = d
-                else:
-                    return HttpResponse("Request body not a dictionary.",
-                                        status=400)
-            else:
-                return HttpResponse(status=415)
 
         if 'HTTP_ACCEPT' not in request.META:  # pragma: no cover
             logging.warn('Accept header is recommended in all requests.')
