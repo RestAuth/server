@@ -22,10 +22,13 @@ The ExceptionMiddleware is located in its own class to avoid circular imports.
 import logging
 import traceback
 
+import mimeparse
+
 from django.http import HttpResponse
 from django.http import HttpResponseServerError
 
 from RestAuthCommon.error import RestAuthException
+from RestAuthCommon.handlers import CONTENT_HANDLERS
 from RestAuth.common.errors import GroupNotFound
 from RestAuth.common.errors import PropertyNotFound
 from RestAuth.common.errors import UserNotFound
@@ -50,6 +53,8 @@ class ExceptionMiddleware:
             resp = HttpResponse(ex, status=404)
             resp['Resource-Type'] = 'property'
             return resp
+        elif isinstance(ex, AssertionError):
+            return HttpResponse(ex.message, status=400)
         elif isinstance(ex, RestAuthException):
             return HttpResponse(ex.message, status=ex.response_code)
         else:  # pragma: no cover
@@ -63,12 +68,30 @@ class HeaderMiddleware:
     Middleware to ensure required headers are present.
     """
     def process_request(self, request):
-        if request.method in CONTENT_TYPE_METHODS and \
-                'CONTENT_TYPE' not in request.META:
-            return HttpResponse(
-                'POST/PUT requests must include a Content-Type header.',
-                status=415
-            )
+        if request.method in CONTENT_TYPE_METHODS:
+            if 'CONTENT_TYPE' not in request.META:
+                return HttpResponse(
+                    'POST/PUT requests must include a Content-Type header.',
+                    status=415
+                )
+
+            # parse response body:
+            supported = CONTENT_HANDLERS.keys()
+
+            header = request.META['CONTENT_TYPE']
+            mime_type = mimeparse.best_match(supported, header)
+            if mime_type:
+                body = request.raw_post_data
+
+                handler = CONTENT_HANDLERS[mime_type]()
+                d = handler.unmarshal_dict(body)
+                if isinstance(d, dict):
+                    request.restauth_data = d
+                else:
+                    return HttpResponse("Request body not a dictionary.",
+                                        status=400)
+            else:
+                return HttpResponse(status=415)
 
         if 'HTTP_ACCEPT' not in request.META:  # pragma: no cover
             logging.warn('Accept header is recommended in all requests.')
