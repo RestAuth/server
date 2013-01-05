@@ -249,8 +249,7 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         self.assertEqual(resp.status_code, httplib.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
         resp = self.post('/users/%s/' % username3, {'password': None})
-        self.assertEqual(resp.status_code, httplib.NOT_FOUND)
-        self.assertEqual(resp['Resource-Type'], 'user')
+        self.assertEqual(resp.status_code, httplib.BAD_REQUEST)
 
     def test_bad_requests(self):
         resp = self.post('/users/%s/' % username1, {})
