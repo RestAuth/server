@@ -77,14 +77,23 @@ class UsersView(RestAuthView):
 
         name, password, properties = self._parse_post(request)
 
+        # check username:
         if not resource_validator(name):
             raise PreconditionFailed("Username contains invalid characters")
+        # If UsernameInvalid: 412 Precondition Failed
+        validate_username(name)
+
+        # check password:
         if password is not None and password != '':
             if len(password) < settings.MIN_PASSWORD_LENGTH:
                 raise PasswordInvalid("Password too short")
 
-        # If UsernameInvalid: 412 Precondition Failed
-        validate_username(name)
+        # check properties:
+        if properties is not None:
+            for key in properties.keys():
+                if not resource_validator(key):
+                    raise PreconditionFailed(
+                        "Property contains invalid characters")
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
