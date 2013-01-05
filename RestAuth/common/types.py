@@ -103,6 +103,30 @@ def get_freeform_dict(request):
         body = request.raw_post_data
 
         handler = CONTENT_HANDLERS[mime_type]()
-        return handler.unmarshal_dict(body)
+        d = handler.unmarshal_dict(body)
+        assert isinstance(d, dict)
+        return d
     except UnmarshalError as e:
         raise BadRequest(e)
+
+def assert_format(data, mandatory=None, optional=None):
+    retlist = []
+
+    if mandatory is not None:
+        for key, typ in mandatory:
+            field = data.pop(key, None)
+            assert field is not None, 'Required field %s missing.' % key
+            assert isinstance(field, typ), \
+                    "Required Field %s has wrong type: %s" % (key, type(field))
+            retlist.append(field)
+
+    if optional is not None:
+        for key, typ in optional:
+            field = data.pop(key, None)
+            assert (isinstance(field, typ) or field == None), \
+                    "%s is of wrong type: %s" % (key, field)
+            retlist.append(field)
+
+    assert not data, "submitted data has unknown keys: %s" % ', '.join(data.keys())
+
+    return retlist
