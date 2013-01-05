@@ -32,7 +32,6 @@ from RestAuth.common.errors import GroupNotFound
 from RestAuth.common.responses import HttpResponseCreated
 from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
-from RestAuth.common.types import get_dict
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
 
@@ -46,6 +45,8 @@ class GroupsView(RestAuthView):
     """
     log = logging.getLogger('groups')
     http_method_names = ['get', 'post']
+
+    post_required = (('group', basestring),)
 
     def get(self, request, largs):
         """
@@ -76,10 +77,9 @@ class GroupsView(RestAuthView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        groupname = get_dict(request, [u'group'])
+        groupname = self._parse_post(request).lower()
         if not resource_validator(groupname):
             raise PreconditionFailed('Group name contains invalid characters!')
-        groupname = groupname.lower()
 
         # If ResourceExists: 409 Conflict
         group = group_backend.create(service=request.user, name=groupname,
@@ -128,6 +128,8 @@ class GroupUsersIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.users')
     http_method_names = ['get', 'post']
 
+    post_required = (('user', basestring),)
+
     def get(self, request, largs, name):
         """
         Get all users in a group.
@@ -149,7 +151,7 @@ class GroupUsersIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        username = get_dict(request, [u'user']).lower()
+        username = self._parse_post(request).lower()
 
         # If GroupNotFound: 404 Not Found
         group = group_backend.get(service=request.user, name=name)
@@ -213,6 +215,8 @@ class GroupGroupsIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.groups')
     http_method_names = ['get', 'post']
 
+    post_required = (('group', basestring),)
+
     def get(self, request, largs, name):
         """
         Get a list of sub-groups
@@ -234,7 +238,7 @@ class GroupGroupsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        subname = get_dict(request, [u'group']).lower()
+        subname = self._parse_post(request).lower()
 
         # If GroupNotFound: 404 Not Found
         group = group_backend.get(service=request.user, name=name)

@@ -20,11 +20,29 @@ This module implements common baseclasses used in other RestAuth views..
 
 from django.views.generic.base import View
 
+from RestAuth.common.types import assert_format, parse_dict
+
 
 class RestAuthView(View):
     """
     Base view for all RestAuth related views.
     """
+
+    def _parse_post(self, request):
+        data = parse_dict(request)
+        return assert_format(
+            data=data,
+            required=getattr(self, 'post_required'),
+            optional=getattr(self, 'post_optional', None)
+        )
+
+    def _parse_put(self, request):
+        data = parse_dict(request)
+        return assert_format(
+            data=data,
+            required=getattr(self, 'put_required', None),
+            optional=getattr(self, 'put_optional', None)
+        )
 
     def dispatch(self, request, **kwargs):
         """
@@ -33,6 +51,7 @@ class RestAuthView(View):
         """
         largs = kwargs.pop('largs', {})
         largs['service'] = request.user.username
+
         return super(RestAuthView, self).dispatch(
             request, largs=largs, **kwargs)
 

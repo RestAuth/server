@@ -29,11 +29,11 @@ from RestAuthCommon.error import PreconditionFailed
 
 from RestAuth.Users.validators import validate_username
 from RestAuth.backends.utils import user_backend, property_backend
-from RestAuth.common.types import get_dict, get_freeform_dict
 from RestAuth.common.errors import PasswordInvalid, UserNotFound
 from RestAuth.common.responses import HttpResponseCreated
 from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
+from RestAuth.common.types import parse_dict
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
 
@@ -47,6 +47,16 @@ class UsersView(RestAuthView):
     """
     http_method_names = ['get', 'post']
     log = logging.getLogger('users')
+
+    post_format = {
+        'mandatory': (('user', basestring),),
+        'optional': (('password', basestring),
+                     ('properties', dict),
+                    )
+    }
+    post_required = (('user', basestring),)
+    post_optional = (('password', basestring),
+                     ('properties', dict))
 
     def get(self, request, largs, *args, **kwargs):
         """
@@ -65,9 +75,7 @@ class UsersView(RestAuthView):
         if not request.user.has_perm('Users.user_create'):
             return HttpResponseForbidden()
 
-        # If BadRequest: 400 Bad Request
-        name, password, props = get_dict(
-            request, [u'user'], [u'password', u'properties'])
+        name, password, properties = self._parse_post(request)
 
         if not resource_validator(name):
             raise PreconditionFailed("Username contains invalid characters")
@@ -81,7 +89,7 @@ class UsersView(RestAuthView):
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
         user = user_backend.create(username=name, password=password,
-                                   properties=props,
+                                   properties=properties,
                                    property_backend=property_backend,
                                    dry=dry)
 
@@ -95,6 +103,9 @@ class UserHandlerView(RestAuthResourceView):
     """
     http_method_names = ['get', 'post', 'put', 'delete']
     log = logging.getLogger('users.user')
+
+    post_required = (('password', basestring),)
+    put_optional = (('password', basestring),)
 
     def get(self, request, largs, name):
         """
@@ -116,7 +127,7 @@ class UserHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        password = get_dict(request, [u'password'])
+        password = self._parse_post(request)
 
         if user_backend.check_password(username=name, password=password):
             return HttpResponseNoContent()
@@ -131,7 +142,7 @@ class UserHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        password, = get_dict(request, optional=[u'password'])
+        password = self._parse_put(request)
         if password is not None and password != '':
             if len(password) < settings.MIN_PASSWORD_LENGTH:
                 raise PasswordInvalid("Password too short")
@@ -157,6 +168,8 @@ class UserPropsIndex(RestAuthResourceView):
     log = logging.getLogger('users.user.props')
     http_method_names = ['get', 'post', 'put']
 
+    post_required = (('prop', basestring), ('value', basestring),)
+
     def get(self, request, largs, name):
         """
         Get all properties of a user.
@@ -177,8 +190,8 @@ class UserPropsIndex(RestAuthResourceView):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
-        # If BadRequest: 400 Bad Request
-        key, value = get_dict(request, [u'prop', u'value'])
+        # If AssertionError: 400 Bad Request
+        key, value = self._parse_post(request)
         if not resource_validator(key):
             raise PreconditionFailed("Property contains invalid characters")
 
@@ -205,7 +218,7 @@ class UserPropsIndex(RestAuthResourceView):
         user = user_backend.get(username=name)
 
         property_backend.set_multiple(user=user,
-                                      props=get_freeform_dict(request))
+                                      props=parse_dict(request))
         return HttpResponseNoContent()
 
 
@@ -215,6 +228,8 @@ class UserPropHandler(RestAuthSubResourceView):
     """
     log = logging.getLogger('users.user.props.prop')
     http_method_names = ['get', 'put', 'delete']
+
+    put_required = (('value', basestring),)
 
     def get(self, request, largs, name, subname):
         """
@@ -238,7 +253,7 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        value = get_dict(request, [u'value'])
+        value = self._parse_put(request)
 
         # If UserNotFound: 404 Not Found
         user = user_backend.get(username=name)
