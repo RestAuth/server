@@ -225,9 +225,14 @@ class UserPropsIndex(RestAuthResourceView):
 
         # If UserNotFound: 404 Not Found
         user = user_backend.get(username=name)
+        properties = parse_dict(request)
+        for key in properties.keys():
+            if not resource_validator(key):
+                raise PreconditionFailed(
+                    "Property contains invalid characters")
 
         property_backend.set_multiple(user=user,
-                                      props=parse_dict(request))
+                                      props=properties)
         return HttpResponseNoContent()
 
 
