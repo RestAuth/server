@@ -95,9 +95,6 @@ couldn't be simpler, using |bin-restauth-manage-link|:
    |bin-restauth-manage| syncdb --noinput
    |bin-restauth-manage| migrate
 
-Again, do not forget to set the password do the correct value in line 6 of the
-above example.
-
 Configure Webserver
 -------------------
 
