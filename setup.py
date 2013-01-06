@@ -251,6 +251,8 @@ class build_doc_meta(Command):
     def finalize_options(self):
         if self.target:
             os.environ['SPHINXOPTS'] += ' -t %s' % self.target
+        else:
+            os.environ['SPHINXOPTS'] += ' -t source'
 
 
 class build_doc(build_doc_meta):
