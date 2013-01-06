@@ -146,7 +146,7 @@ SECRET_KEY = ''
 # Django can use memcached to considerably speed up some requests. Note that
 # due the Django caching implementation, the current performance improvement is
 # not that great.  For more information on caching, please see:
-# 	https://docs.djangoproject.com/en/1.3/topics/cache/
+# 	 https://docs.djangoproject.com/en/dev/topics/cache/
 
 # Set your caching configuration here. Note that setting this will
 # automatically enable the caching Middlewares as described in the Django
@@ -158,12 +158,12 @@ SECRET_KEY = ''
 ###############
 # Django has very powerful logging configuration capabilities. The full
 # documentation can be found here:
-#	https://docs.djangoproject.com/en/dev/topics/logging/
+#	 https://docs.djangoproject.com/en/dev/topics/logging/
 # RestAuth uses a few settings that lets you have a good logging configuration
 # with very few simple settings. If you want to, you can also define your very
 # own logging config (see below). More information is also available in the
 # settings reference:
-#   https://restauth.net/config/all-config-values.html
+#    https://restauth.net/config/all-config-values.html
 
 # You can define the LogLevel for RestAuth. There are several possible values:
 # * CRITICAL: Only log errors due to an internal malfunction.
@@ -176,9 +176,9 @@ SECRET_KEY = ''
 
 # You may also want to define a log handler and keyword arguments for it.
 # Please see the python documentation on what this means:
-# 	http://docs.python.org/library/logging.config.html#configuration-dictionary-schema
+# 	 http://docs.python.org/library/logging.config.html#configuration-dictionary-schema
 # and possible handlers:
-#	http://docs.python.org/library/logging.handlers.html
+#	 http://docs.python.org/library/logging.handlers.html
 #LOG_HANDLER = 'logging.StreamHandler'
 #LOG_HANDLER_KWARGS = {}
 
