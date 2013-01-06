@@ -150,8 +150,8 @@ setting up RestAuth with MySQL and memcached, from the start::
 
 You can start/reload/etc. the instances with::
 
-   (server)restauth@host:server$ uwsgi --ini uwsgi.ini --stop
-   (server)restauth@host:server$ uwsgi --ini uwsgi.ini --reload
+   (server)restauth@host:server$ uwsgi --stop /usr/local/home/restauth/run/master.pid
+   (server)restauth@host:server$ uwsgi --reload /usr/local/home/restauth/run/master.pid
 
 The uWSGI configuration file should look like this::
 
@@ -159,13 +159,19 @@ The uWSGI configuration file should look like this::
    chdir=/usr/local/home/restauth/server
    wsgi-file=/usr/local/home/restauth/server/wsgi/restauth
    virtualenv=/usr/local/home/restauth/server
+   # note that this may also be a local socket:
    socket=127.0.0.1:3031
+   # or serve http directly - no need for webserver config:
+   #http=127.0.0.1:8000
    master=True
    pidfile=/usr/local/home/restauth/run/master.pid
    vacuum=True
    max-requests=5000
    env=DJANGO_SETTINGS_MODULE=RestAuth.settings
    daemonize=/usr/local/home/restauth/log/uwsgi.log
+
+The documentation has a `full list of configuration directives
+<http://uwsgi-docs.readthedocs.org/en/latest/Options.html>`_.
 
 Configure webserver
 ___________________
