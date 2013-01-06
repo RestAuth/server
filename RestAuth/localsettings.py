@@ -128,6 +128,18 @@ SECRET_KEY = ''
 # parent groups are checked.
 #GROUP_RECURSION_DEPTH=3
 
+################
+### BACKENDS ###
+################
+# RestAuth can use different backends to store users, properties or groups.
+# The backends can be configured individually, but some property/group backends
+# may depend on a specific user backend. Please see:
+#    https://server.restauth.net/developer/backends.html
+# for more information.
+#USER_BACKEND='RestAuth.backends.django_backend.DjangoUserBackend'
+#GROUP_BACKEND='RestAuth.backends.django_backend.DjangoGroupBackend'
+#PROPERTY_BACKEND='RestAuth.backends.django_backend.DjangoPropertyBackend'
+
 ###############
 ### CACHING ###
 ###############
