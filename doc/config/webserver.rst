@@ -169,6 +169,9 @@ The uWSGI configuration file should look like this::
    max-requests=5000
    env=DJANGO_SETTINGS_MODULE=RestAuth.settings
    daemonize=/usr/local/home/restauth/log/uwsgi.log
+   # start 2 processes with 5 threads each:
+   workers=2
+   threads=5
 
 The documentation has a `full list of configuration directives
 <http://uwsgi-docs.readthedocs.org/en/latest/Options.html>`_.
