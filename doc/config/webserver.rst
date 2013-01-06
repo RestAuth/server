@@ -40,6 +40,8 @@ Configuring Apache is very simple, only the basic WSGI configuration directives 
        WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
    </VirtualHost>
 
+.. vim syntax-higlighiting suxx*
+
 The HTTP Basic Authentication is already taken care of by RestAuth itself as long as you set
 ``WSGIPassAuthorization on`` in the Apache configuration.
 
