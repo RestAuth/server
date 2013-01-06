@@ -165,9 +165,17 @@ plattform. Here are the relevant parts for RestAuth:
    * on Redhat/Fedora: unkown.
    * on ArchLinux: ``/usr/share/restauth/wsgi/restauth``
 
+   .. NOTE:: If you have installed from source, RestAuth (or one of its
+      depending libraries) are probably not in your python path. Please add them
+      to the wsgi script. See the script itself for an example.
+
 .. only:: source
 
    The wsgi-script is located in the ``wsgi`` folder of your source-folder.
+
+   .. NOTE:: If RestAuth (or one of its depending libraries) is not in your
+      path, you need to add their paths to the wsgi script. Please see the
+      wsgi-script itself for an example.
 
 Don't forget to restart your Apache after you've added the configuration.
 
