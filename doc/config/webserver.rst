@@ -170,6 +170,10 @@ The uWSGI configuration file should look like this::
 Configure webserver
 ___________________
 
+The uWSGI documentation has `many examples
+<http://projects.unbit.it/uwsgi/wiki/Example>`_. This is how an apache config
+would look like for the uwsgi.ini given above.
+
 .. code-block:: apache
 
    <Location />
