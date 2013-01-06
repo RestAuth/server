@@ -95,8 +95,16 @@ couldn't be simpler, using |bin-restauth-manage-link|:
    |bin-restauth-manage| syncdb --noinput
    |bin-restauth-manage| migrate
 
+.. NOTE:: If you choose to use `different backends </developer/backends>`_, you
+   still need to configure your database, as access restrictions are still
+   managed in the database.
+
 Configure Webserver
 -------------------
+
+RestAuth is an HTTP based protocol, and every RestAuth implementation thus needs
+a webserver. The easiest way to setup RestAuth is using Apache and mod_wsgi,
+described in the following sections.
 
 Note that :doc:`more detailed documentation </config/webserver>` is available.
 
@@ -132,14 +140,13 @@ dedicated virtual host. The exact locations of Apache webserver configuration
 files and what your basic (virtual) host setup is greatly depends on your
 plattform. Here are the relevant parts for RestAuth:
 
-.. code-block:: apache
-    :linenos:
+.. parsed-literal::
 
     <VirtualHost *:443>
         # your basic configuration here...
 
         # Django/WSGI application
-        WSGIScriptAlias / /path/to/your/wsgi-script/restauth
+        WSGIScriptAlias / |wsgi-script|
         WSGIPassAuthorization on
         WSGIProcessGroup restauth
         WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
@@ -147,13 +154,20 @@ plattform. Here are the relevant parts for RestAuth:
 
 .. vim syntax highlighting for rst sucks*
 
-The wsgi-script (see line 5) is located in different locations depending on how you installed
-RestAuth:
 
-* from source: ``wsgi/restauth`` of your source folder
-* on Debian/Ubuntu: ``/usr/share/restauth/wsgi/restauth``
-* on Redhat/Fedora: unkown.
-* on ArchLinux: ``/usr/share/restauth/wsgi/restauth``
+.. only:: homepage
+
+   The wsgi-script (see line 5) is located in different locations depending on how you installed
+   RestAuth:
+
+   * from source: ``wsgi/restauth`` of your source folder
+   * on Debian/Ubuntu: ``/usr/share/restauth/wsgi/restauth``
+   * on Redhat/Fedora: unkown.
+   * on ArchLinux: ``/usr/share/restauth/wsgi/restauth``
+
+.. only:: source
+
+   The wsgi-script is located in the ``wsgi`` folder of your source-folder.
 
 Don't forget to restart your Apache after you've added the configuration.
 
