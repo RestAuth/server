@@ -25,6 +25,26 @@ from django.utils.crypto import constant_time_compare, get_random_string
 from django.utils.datastructures import SortedDict
 
 
+class Sha512Hasher(BasePasswordHasher):
+    algorithm = 'sha512'
+
+    def encode(self, password, salt):
+        hash = hashlib.sha512('%s%s' % (salt, password)).hexdigest()
+        return '%s$%s$%s' % (self.algorithm, salt, hash)
+
+    def verify(self, password, encoded):
+        algorithm, salt, hash = encoded.split('$', 3)
+        return constant_time_compare(encoded, self.encode(password, salt))
+
+    def safe_summary(self, encoded):
+        algorithm, salt, hash = encoded.split('$', 3)
+        assert algorithm == self.algorithm
+        return SortedDict([
+            ('algorithm', algorithm),
+            ('salt', mask_hash(salt)),
+            ('hash', mask_hash(hash)),
+        ])
+
 class MediaWikiHasher(BasePasswordHasher):
     """
     Returns hashes as stored in a `MediaWiki <https://www.mediawiki.org>`_ user

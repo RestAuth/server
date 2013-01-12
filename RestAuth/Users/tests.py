@@ -686,6 +686,23 @@ class HashTestMixin(object):
             user_backend.remove(username=username1)
 
 
+class Sha512Test(HashTestBase, HashTestMixin):
+    hashers = ['RestAuth.Users.hashes.Sha512Hasher']
+    algorithm = 'sha512'
+
+    testdata = {
+        '0123456': {'salt': 'NDuF22tTDpgEWj0T',
+                    'hash': '2006d00c8168f3a2520c24ffee25cb099dbf9ceea7e5f2286bfb86fb02c1be51d3322a162aee1a4bd5908c4468346f45a98a959128ddd5eb106aaad4d9b2ecdd'},
+        '01234567': {'salt': 'dWOGt5pdhcBabI7T',
+                     'hash': '6c560f8634f83fc127d27cfb3a3394f01045565874da8697aaef2ac599903e63eccf93bbda055bfb8504f1eec5d4388e165d7155418c646a061f4475bdd64154'},
+        '012345678': {'salt': 'tPokxHTJSrKcOehr',
+                     'hash': '5ae80da515729596cf4d4b36092e063bd38c75bd9de0a1372453a38dafdaa16bd0719e632769806c153234e853c4db22a39be0ca54e944efa5ab01b518921211'},
+        '0123456789': {'salt': 'vh5rweyXH150n8vX',
+                      'hash': '7cba9c9fd63e4cccc06c6715f1ccc06947dc00605bba01d636440f3f3e4b967b1de369aa5ad91d57e6a8aac094d9987ffb8d68b8a80b21fef767bcb57537b012'},
+        '01234567890': {'salt': 'ehDkCua04OasAdMY',
+                        'hash': '12cf5d5140f2a98b1caa58e20489ca487872e49831bef25a8523c2f159ed198a56cf2738391cd26ce3e9b3a59470e1d8226ab7724a706e761675884f2078a6a8'},
+    }
+
 class MediaWikiTest(HashTestBase, HashTestMixin):
     hashers = ['RestAuth.Users.hashes.MediaWikiHasher']
     algorithm = 'mediawiki'
