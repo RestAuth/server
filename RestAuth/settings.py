@@ -87,6 +87,11 @@ HASH_FUNCTIONS = [
 VALIDATORS = []
 GROUP_RECURSION_DEPTH = 3
 
+# backends:
+USER_BACKEND='RestAuth.backends.django_backend.DjangoUserBackend'
+GROUP_BACKEND='RestAuth.backends.django_backend.DjangoGroupBackend'
+PROPERTY_BACKEND='RestAuth.backends.django_backend.DjangoPropertyBackend'
+
 try:
     from localsettings import *
 except ImportError:
