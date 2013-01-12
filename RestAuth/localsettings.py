@@ -109,15 +109,23 @@ SECRET_KEY = ''
 # Reconfigure the minimum password length. Only affects new passwords.
 #MIN_PASSWORD_LENGTH = 6
 
-# Set a different hash algorithm for hashing passwords. This only affects newly
-# created passwords, so you can safely change this at any time, old hashes will
-# still work.
-#
-# You can use the general algorithms, 'crypt', 'md5' and 'sha1'. 'sha512' is
-# the default and recommended. Additionally, RestAuth supports using hashes
-# compatible with other systems, please see:
-#       https://server.restauth.net/config/all-config-values.html
-#HASH_ALGORITHM = 'sha512'
+# RestAuth uses Djangos default password hashing facilities. Please see:
+#    https://docs.djangoproject.com/en/dev/topics/auth/passwords/
+# for more information. RestAuth adds additional hashers for SHA-512, MediaWiki
+# and Apr1 (Apache .htpasswd files). The default is:
+#PASSWORD_HASHERS = (
+#    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+#    'RestAuth.Users.hashes.Sha512Hasher',
+#    'RestAuth.Users.hashes.MediaWikiHasher',
+#    'RestAuth.Users.hashes.Apr1Hasher',
+#    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+#    'django.contrib.auth.hashers.BCryptPasswordHasher',
+#    'django.contrib.auth.hashers.SHA1PasswordHasher',
+#    'django.contrib.auth.hashers.MD5PasswordHasher',
+#    'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+#    'django.contrib.auth.hashers.CryptPasswordHasher',
+#)
+
 
 ##############
 ### GROUPS ###

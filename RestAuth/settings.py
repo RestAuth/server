@@ -71,6 +71,19 @@ AUTHENTICATION_BACKENDS = (
     'RestAuth.Services.backend.InternalAuthenticationBackend',
 )
 
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'RestAuth.Users.hashes.Sha512Hasher',
+    'RestAuth.Users.hashes.MediaWikiHasher',
+    'RestAuth.Users.hashes.Apr1Hasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+    'django.contrib.auth.hashers.CryptPasswordHasher',
+)
+
 #############################################
 ### Defaults for the standard settings.py ###
 #############################################
@@ -78,12 +91,6 @@ RELAXED_LINUX_CHECKS = False
 MIN_USERNAME_LENGTH = 3
 MAX_USERNAME_LENGTH = 255
 MIN_PASSWORD_LENGTH = 6
-HASH_ALGORITHM = 'sha512'
-HASH_FUNCTIONS = [
-    'RestAuth.Users.hashes.mediawiki',
-    'RestAuth.Users.hashes.crypt',
-    'RestAuth.Users.hashes.apr1',
-]
 VALIDATORS = []
 GROUP_RECURSION_DEPTH = 3
 
