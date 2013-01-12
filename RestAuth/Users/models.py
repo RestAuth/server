@@ -15,15 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import hashlib
-
-import django
-from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
 from django.utils.http import urlquote
-from django.utils.encoding import smart_str
-
-from RestAuth.common.utils import import_path
 
 user_permissions = (
     ('users_list', 'List all users'),
@@ -42,58 +36,6 @@ prop_permissions = (
     ('prop_delete', 'Delete a property'),
 )
 
-HASH_FUNCTION_CACHE = None
-
-
-if django.get_version() >= '1.4':
-    from django.utils.crypto import get_random_string
-else:  # pragma: no cover
-    from random import random
-
-    def get_random_string(length=12):
-        """
-        Get a very random salt. The salt is the first *length* characters of a
-        sha512 hash of 5 random numbers concatenated.
-        """
-        random_string = ','.join(map(lambda a: str(random()), range(5)))
-        return hashlib.sha512(random_string).hexdigest()[:length]
-
-
-def load_hashers():
-    global HASH_FUNCTION_CACHE
-
-    cache = {}
-    for path in settings.HASH_FUNCTIONS:
-        func, name = import_path(path)
-        cache[name] = func
-
-    HASH_FUNCTION_CACHE = cache
-
-
-def get_hexdigest(algorithm, salt=None, secret=''):
-    """
-    This method overrides the standard get_hexdigest method for service
-    users. It adds support for for the 'mediawiki' hash-type and any
-    crypto-algorithm included in the hashlib module.
-    """
-    secret = smart_str(secret)
-
-    if hasattr(hashlib, algorithm):
-        func = getattr(hashlib, algorithm)
-        if salt is None:
-            return func(secret).hexdigest()
-        else:
-            return func('%s%s' % (smart_str(salt), secret)).hexdigest()
-    else:
-        if HASH_FUNCTION_CACHE is None:
-            load_hashers()
-
-        hasher = HASH_FUNCTION_CACHE[algorithm]
-        if salt is None:
-            return hasher(secret, salt)
-        else:
-            return hasher(secret, smart_str(salt))
-
 
 class ServiceUser(models.Model):
     username = models.CharField('username', max_length=60, unique=True)
@@ -109,31 +51,18 @@ class ServiceUser(models.Model):
 
     def set_password(self, raw_password):
         """Set the password to the given value."""
-        salt = get_random_string(16)
-        digest = get_hexdigest(settings.HASH_ALGORITHM, salt, raw_password)
-        self.password = '%s$%s$%s' % (settings.HASH_ALGORITHM, salt, digest)
+        self.password = make_password(raw_password)
 
     def set_unusable_password(self):
-        self.password = None
+        """Set an unusable password."""
+        self.password = make_password(None)
 
     def check_password(self, raw_password):
-        """
-        Check the users password. If the current password hash is not
-        of the same type as the current settings.HASH_ALGORITHM, the
-        hash is updated but *not* saved.
-        """
-        if self.password is None:
-            return False
-
-        algo, salt, good_digest = self.password.split('$')
-        digest = get_hexdigest(algo, salt, raw_password)
-        if good_digest == digest:
-            if algo != settings.HASH_ALGORITHM:
-                self.set_password(raw_password)
-                self.save()
-            return True
-        else:
-            return False
+        """Check a users password."""
+        def setter(raw_password):
+            self.set_password(raw_password)
+            self.save()
+        return check_password(raw_password, self.password, setter)
 
     def get_properties(self):
         return dict(self.property_set.values_list('key', 'value').all())

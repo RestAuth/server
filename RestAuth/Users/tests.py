@@ -17,10 +17,13 @@
 
 import httplib
 
+from unittest import skipUnless
+
 from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password, load_hashers
+from django.test.utils import override_settings
 
 from RestAuth.common.errors import PropertyNotFound
-from RestAuth.common.decorators import override_settings
 from RestAuth.common.testdata import (
     RestAuthTest,
     user_backend, property_backend,
@@ -29,8 +32,6 @@ from RestAuth.common.testdata import (
     propkey1, propkey2, propkey3,
     propval1, propval2, propval3, propval4, propval5,
 )
-
-from Users.models import ServiceUser
 
 
 class GetUsersTests(RestAuthTest):  # GET /users/
@@ -630,174 +631,155 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
         self.assertProperties(self.user2, {propkey1: propval1})
 
 
-class HashTest(RestAuthTest):
+class HashTestBase(RestAuthTest):
+    hashers = None
+
+    @classmethod
+    def setUpClass(cls):
+        super(HashTestBase, cls).setUpClass()
+        load_hashers(cls.hashers)
+
+
+class HashTestMixin(object):
+    algorithm = None
+    testdata = None
+
+    def generate(self, data):
+        return '%s$%s$%s' % (self.algorithm, data['salt'], data['hash'])
 
     @override_settings(MIN_PASSWORD_LENGTH=1)
-    @override_settings(MIN_USERNAME_LENGTH=1)
-    def test_crypt(self):
-        testdata = {
-            "f": {"hash": "zByHy85N5JE", "salt": "LG"},
-            "fo": {"hash": "Lb4p57NVOh6", "salt": "qO"},
-            "foo": {"hash": "SOM3CYj26Xk", "salt": "L/"},
-            "foob": {"hash": "6J6SsDmmvPE", "salt": "fq"},
-            "fooba": {"hash": "45YY/lBbQL.", "salt": "EG"},
-            "foobar": {"hash": "5RKNB0QSl4g", "salt": "wC"},
-            "foobar1": {"hash": "3.K3kCyb2AA", "salt": "st"},
-            "foobar12": {"hash": "LbMAd.nZIv2", "salt": "ca"},
-            "foobar123": {"hash": "9yA..KnYzIk", "salt": "s0"},
-            "foobar1234": {"hash": "FOG2CHhzJm.", "salt": "SF"},
-            "foobar12345": {"hash": "uqrrlepaCqE", "salt": "vB"},
-            "foobar123456": {"hash": "44fvIAOpK5U", "salt": "ep"},
-            "foobar1234567": {"hash": "TWg6AU5FFN6", "salt": "T."},
-            "foobar12345678": {"hash": "KbFo0bhBYRs", "salt": "FF"},
-            "foobar123456789": {"hash": "exX507cNB0.", "salt": "TU"},
-            "foobar1234567890": {"hash": "FITBq2CGn9k", "salt": "nO"},
-            "foobar12345678901": {"hash": "fgvFsy8H7ww", "salt": "9c"},
-            "foobar123456789012": {"hash": "6nsIfUA4bD2", "salt": "Hi"},
-            "foobar1234567890123": {"hash": "/v0NmQF2WKY", "salt": "OS"},
-            "foobar12345678901234": {"hash": "Pmfg.DUC.Rs", "salt": "G3"},
-            "foobar123456789012345": {"hash": "tXcQwpW/7Q.", "salt": "vV"},
-            "foobar1234567890123456": {"hash": "kOOW4gLfNx6", "salt": "rv"},
-            "foobar12345678901234567": {"hash": "ttw4jFym6PY", "salt": "uO"},
-            "foobar123456789012345678": {"hash": "cDX1JLZATDk", "salt": "I5"},
-            "foobar1234567890123456789": {
-                "hash": "yvWIcShdQtE", "salt": "7t",
-            },
-            "foobar12345678901234567890": {
-                "hash": "z7U9nEzM6eI", "salt": ".B",
-            },
-        }
+    def test_testdata(self):
+        for password, data in self.testdata.iteritems():
+            generated = make_password(password, data['salt'])
+            self.assertTrue(generated.startswith('%s$' % self.algorithm))
+            self.assertTrue(generated, self.generate(data))
 
-        for username, pwd_data in testdata.items():
-            u = ServiceUser.objects.create(username=username)
-            u.password = 'crypt$%(salt)s$%(hash)s' % pwd_data
-            u.save()
-
-            # call twice to make sure conversion works
-            self.assertTrue(u.check_password(username))
-            self.assertTrue(u.check_password(username))
-
-            # check that the hash was actually updated
-            algorithm = u.password.split('$', 1)[0]
-            self.assertTrue(algorithm, settings.HASH_ALGORITHM)
+            # twice to test possible override:
+            self.assertTrue(check_password(password, generated))
+            self.assertTrue(check_password(password, generated))
 
     @override_settings(MIN_PASSWORD_LENGTH=1)
-    @override_settings(MIN_USERNAME_LENGTH=1)
-    def test_apr1(self):
-        testdata = {
-            "f": {"hash": "wencZ6WkOMvuOANC/A8LZ0", "salt": "nErdosRy"},
-            "fo": {"hash": "Vyc4Thuvc/YAbWYb1nVI70", "salt": "1aigqzQz"},
-            "foo": {"hash": "cXr93EItT.sxzwewzWX4p.", "salt": "c.aI4ooC"},
-            "foob": {"hash": "jN4YoWkxbtBI8D8d/Xoo3.", "salt": "wcPr1Vxv"},
-            "fooba": {"hash": "Tn2C7XgOdv6v45XbC8TNn/", "salt": "nQp8UKRJ"},
-            "foobar": {"hash": "XD2jiMfDOvzldmLpJl9SO.", "salt": "ilSj3Uel"},
-            "foobar0": {"hash": "94YS3btM0C/5CiUvCOW.s/", "salt": "hrTvU.wk"},
-            "foobar01": {
-                "hash": "4Pqs5OTqXx3IGF3pm7QLv1", "salt": "EytZabM0"},
-            "foobar012": {
-                "hash": "eLFTYKqrZaXlLoUY6CziS/", "salt": "EkOE4ywR"},
-            "foobar0123": {
-                "hash": "K1k6x/RVk92AmiWnAFdEj.", "salt": "pMAaLcxe"},
-            "foobar01234": {
-                "hash": "PAtaCCc4kqruXb0NLoRTg0", "salt": "sAEmwZJG"},
-            "foobar012345": {
-                "hash": "I9pT1Vx.CMEO6wqelEAOP0", "salt": "aQ.R.N4o"},
-            "foobar0123456": {
-                "hash": "G4zjuqUYGU6nFSxPFyO4x0", "salt": "HvbXrlI/"},
-            "foobar01234567": {
-                "hash": "cVAXAQ42OPeHSC3SNSOHS/", "salt": "TDF/0tAf"},
-            "foobar012345678": {
-                "hash": "HASHq302/S19PI.RLbb400", "salt": "zaKZEcLq"},
-            "foobar0123456789": {
-                "hash": "TzOmxdrHqe0HfwxIPXlU10", "salt": "NjALUYrK"},
-            "foobar01234567890": {
-                "hash": "aQ127rgKtHR098iUEgW.F1", "salt": "SJJuaEKa"},
-            "foobar012345678901": {
-                "hash": "TLkfRBIjGqjL4clR0873c1", "salt": "hDJaX1Sa"},
-            "foobar0123456789012": {
-                "hash": "1OIrHIzF.HOQ72wbcFWzU0", "salt": "HlBLH.DU"},
-            "foobar01234567890123": {
-                "hash": "hnBripG.5yMPXE4FJg7Np0", "salt": "snk9PtYt"},
-            "foobar012345678901234": {
-                "hash": "zbRB1BrZmWaFKJMqKyTum0", "salt": "NyCJRWye"},
-            "foobar0123456789012345": {
-                "hash": "UugUUu7D7pABxWg2p2ovc1", "salt": "c3tj3eYu"},
-            "foobar01234567890123456": {
-                "hash": "8iXmJONIozEPLup/2KgQp/", "salt": "tecrND8A"},
-            "foobar012345678901234567": {
-                "hash": "fx2Tly.fIvybOKAbtUWMN/", "salt": "JpSOF7qJ"},
-            "foobar0123456789012345678": {
-                "hash": "fGBumUrVrJ40UB/Q2K1lI.", "salt": "fS58gR6t"},
-            "foobar01234567890123456789": {
-                "hash": "bEsAOMdUIs1GNh5LLjlP1.", "salt": "PLG28sJA"},
-            "foobar012345678901234567890": {
-                "hash": "CmoV8ccWcCEzBV01Pq496/", "salt": "MM49C.Vs"},
-            "foobar0123456789012345678901": {
-                "hash": "2tGWA3NHFeGAEmSXZhYnR/", "salt": "9n8nToVo"},
-            "foobar01234567890123456789012": {
-                "hash": "1cyFn3QVsTQf5RID7O6wC.", "salt": "88x7/ARO"},
-            "foobar012345678901234567890123": {
-                "hash": "ADOeE2pC3SIrRPpj1wdJs/", "salt": "r/oMeWiA"},
-            "foobar0123456789012345678901234": {
-                "hash": "O6pOM0l0DEfJipuhQLk1u/", "salt": "hViGYCEr"},
-            "foobar01234567890123456789012345": {
-                "hash": "WcPoFDPY2hMpalN2bZibX.", "salt": "2QBHE4/Q"},
-            "foobar012345678901234567890123456": {
-                "hash": "BHCTbYz7NZZK4HAFuHLzG.", "salt": "knaM/8D4"},
-            "foobar0123456789012345678901234567": {
-                "hash": "QyzsGHXVFAEu1aO9rkphD0", "salt": "gfdWhcS7"},
-            "foobar01234567890123456789012345678": {
-                "hash": "Frfmzydl8OC7RrMbkTUY21", "salt": "v8oc0omI"},
-            "foobar012345678901234567890123456789": {
-                "hash": "ZvOpfsrYFSUgUwtVsCUBR0", "salt": "GAAPD33a"},
-            "foobar0123456789012345678901234567890": {
-                "hash": "D2ISHi8yEIL/0MzNWiDis.", "salt": "3Glrt6Oh"},
-        }
+    @skipUnless(settings.USER_BACKEND == 'RestAuth.backends.django_backend.DjangoUserBackend', '')
+    def test_backend(self):
+        # test password during creation:
+        for password, data in self.testdata.iteritems():
+            user = user_backend.create(username=username1,
+                                       password=password,
+                                       property_backend=property_backend)
+            self.assertTrue(user.password.startswith('%s$' % self.algorithm))
+            self.assertTrue(user_backend.check_password(username1, password))
 
-        for username, pwd_data in testdata.items():
-            u = ServiceUser.objects.create(username=username)
-            u.password = 'apr1$%(salt)s$%(hash)s' % pwd_data
-            u.save()
+            user_backend.remove(username=username1)
 
-            self.assertTrue(u.check_password(username))
-            self.assertTrue(u.check_password(username))
+        # test password for set_password:
+        for password, data in self.testdata.iteritems():
+            user = user_backend.create(username=username1,
+                                       property_backend=property_backend)
+            user_backend.set_password(username=username1, password=password)
+            self.assertTrue(user_backend.check_password(username1, password))
+            self.assertTrue(user_backend.check_password(username1, password))
 
-            # check that the hash was actually updated
-            algorithm = u.password.split('$', 1)[0]
-            self.assertTrue(algorithm, settings.HASH_ALGORITHM)
+            user = user_backend.get(username1)
+            self.assertTrue(user.password.startswith('%s$' % self.algorithm))
+            self.assertTrue(check_password(password, user.password))
 
-    @override_settings(MIN_PASSWORD_LENGTH=1)
-    def test_mediawiki(self):
-        testdata = {
-            "user 1": {"salt": "4891a58e",
-                       "hash": "222ecf008e098295058d0c9a77e19d16"},
-            "user 10": {"salt": "02828b87",
-                        "hash": "555f6f62e646afc840b1995d0467ef06"},
-            "user 3": {"salt": "7bb9c41a",
-                       "hash": "f72fbb4126a0002d88cb4afc62980d49"},
-            "user 4": {"salt": "e4121fde",
-                       "hash": "2de7c06ecfee2468cc0f6cf345632d29"},
-            "user 5": {"salt": "99739c15",
-                       "hash": "5c1ddaa0fa981ac651c6bac72f640e44"},
-            "user 6": {"salt": "9650ce2d",
-                       "hash": "2ad8888099fe7ce36d84c1046638f261"},
-            "user 7": {"salt": "d0027595",
-                       "hash": "49a25052a0690e607c1f7d103c2b51b9"},
-            "user 8": {"salt": "eec0c833",
-                       "hash": "971a19cefb858a481e7b0e36137774da"},
-            "user 9": {"salt": "fb74cdba",
-                       "hash": "9e562f64b90a6445de607f30dc745c7d"},
-        }
+            user_backend.remove(username=username1)
 
-        for username, pwd_data in testdata.items():
-            u = ServiceUser.objects.create(username=username)
-            u.password = 'mediawiki$%(salt)s$%(hash)s' % pwd_data
-            u.save()
 
-            password = '0123456789'[0:int(username[5:])]
+class MediaWikiTest(HashTestBase, HashTestMixin):
+    hashers = ['RestAuth.Users.hashes.MediaWikiHasher']
+    algorithm = 'mediawiki'
 
-            self.assertTrue(u.check_password(password))
-            self.assertTrue(u.check_password(password))
+    testdata = {
+        "0": {"salt": "4891a58e",
+              "hash": "222ecf008e098295058d0c9a77e19d16"},
+        "012": {"salt": "7bb9c41a",
+                "hash": "f72fbb4126a0002d88cb4afc62980d49"},
+        "0123": {"salt": "e4121fde",
+                 "hash": "2de7c06ecfee2468cc0f6cf345632d29"},
+        "01234": {"salt": "99739c15",
+                  "hash": "5c1ddaa0fa981ac651c6bac72f640e44"},
+        "012345": {"salt": "9650ce2d",
+                   "hash": "2ad8888099fe7ce36d84c1046638f261"},
+        "0123456": {"salt": "d0027595",
+                    "hash": "49a25052a0690e607c1f7d103c2b51b9"},
+        "01234567": {"salt": "eec0c833",
+                     "hash": "971a19cefb858a481e7b0e36137774da"},
+        "012345678": {"salt": "fb74cdba",
+                      "hash": "9e562f64b90a6445de607f30dc745c7d"},
+        "0123456789": {"salt": "02828b87",
+                       "hash": "555f6f62e646afc840b1995d0467ef06"},
+    }
 
-            # check that the hash was actually updated
-            algorithm = u.password.split('$', 1)[0]
+
+class Apr1Test(HashTestBase, HashTestMixin):
+    hashers = ['RestAuth.Users.hashes.Apr1Hasher']
+    algorithm = 'apr1'
+
+    testdata = {
+        "f": {"hash": "wencZ6WkOMvuOANC/A8LZ0", "salt": "nErdosRy"},
+        "fo": {"hash": "Vyc4Thuvc/YAbWYb1nVI70", "salt": "1aigqzQz"},
+        "foo": {"hash": "cXr93EItT.sxzwewzWX4p.", "salt": "c.aI4ooC"},
+        "foob": {"hash": "jN4YoWkxbtBI8D8d/Xoo3.", "salt": "wcPr1Vxv"},
+        "fooba": {"hash": "Tn2C7XgOdv6v45XbC8TNn/", "salt": "nQp8UKRJ"},
+        "foobar": {"hash": "XD2jiMfDOvzldmLpJl9SO.", "salt": "ilSj3Uel"},
+        "foobar0": {"hash": "94YS3btM0C/5CiUvCOW.s/", "salt": "hrTvU.wk"},
+        "foobar01": {"hash": "4Pqs5OTqXx3IGF3pm7QLv1", "salt": "EytZabM0"},
+        "foobar012": {"hash": "eLFTYKqrZaXlLoUY6CziS/", "salt": "EkOE4ywR"},
+        "foobar0123": {"hash": "K1k6x/RVk92AmiWnAFdEj.", "salt": "pMAaLcxe"},
+        "foobar01234": {"hash": "PAtaCCc4kqruXb0NLoRTg0", "salt": "sAEmwZJG"},
+        "foobar012345": {"hash": "I9pT1Vx.CMEO6wqelEAOP0", "salt": "aQ.R.N4o"},
+        "foobar0123456": {
+            "hash": "G4zjuqUYGU6nFSxPFyO4x0", "salt": "HvbXrlI/"},
+        "foobar01234567": {
+            "hash": "cVAXAQ42OPeHSC3SNSOHS/", "salt": "TDF/0tAf"},
+        "foobar012345678": {
+            "hash": "HASHq302/S19PI.RLbb400", "salt": "zaKZEcLq"},
+        "foobar0123456789": {
+            "hash": "TzOmxdrHqe0HfwxIPXlU10", "salt": "NjALUYrK"},
+        "foobar01234567890": {
+            "hash": "aQ127rgKtHR098iUEgW.F1", "salt": "SJJuaEKa"},
+        "foobar012345678901": {
+            "hash": "TLkfRBIjGqjL4clR0873c1", "salt": "hDJaX1Sa"},
+        "foobar0123456789012": {
+            "hash": "1OIrHIzF.HOQ72wbcFWzU0", "salt": "HlBLH.DU"},
+        "foobar01234567890123": {
+            "hash": "hnBripG.5yMPXE4FJg7Np0", "salt": "snk9PtYt"},
+        "foobar012345678901234": {
+            "hash": "zbRB1BrZmWaFKJMqKyTum0", "salt": "NyCJRWye"},
+        "foobar0123456789012345": {
+            "hash": "UugUUu7D7pABxWg2p2ovc1", "salt": "c3tj3eYu"},
+        "foobar01234567890123456": {
+            "hash": "8iXmJONIozEPLup/2KgQp/", "salt": "tecrND8A"},
+        "foobar012345678901234567": {
+            "hash": "fx2Tly.fIvybOKAbtUWMN/", "salt": "JpSOF7qJ"},
+        "foobar0123456789012345678": {
+            "hash": "fGBumUrVrJ40UB/Q2K1lI.", "salt": "fS58gR6t"},
+        "foobar01234567890123456789": {
+            "hash": "bEsAOMdUIs1GNh5LLjlP1.", "salt": "PLG28sJA"},
+        "foobar012345678901234567890": {
+            "hash": "CmoV8ccWcCEzBV01Pq496/", "salt": "MM49C.Vs"},
+        "foobar0123456789012345678901": {
+            "hash": "2tGWA3NHFeGAEmSXZhYnR/", "salt": "9n8nToVo"},
+        "foobar01234567890123456789012": {
+            "hash": "1cyFn3QVsTQf5RID7O6wC.", "salt": "88x7/ARO"},
+        "foobar012345678901234567890123": {
+            "hash": "ADOeE2pC3SIrRPpj1wdJs/", "salt": "r/oMeWiA"},
+        "foobar0123456789012345678901234": {
+            "hash": "O6pOM0l0DEfJipuhQLk1u/", "salt": "hViGYCEr"},
+        "foobar01234567890123456789012345": {
+            "hash": "WcPoFDPY2hMpalN2bZibX.", "salt": "2QBHE4/Q"},
+        "foobar012345678901234567890123456": {
+            "hash": "BHCTbYz7NZZK4HAFuHLzG.", "salt": "knaM/8D4"},
+        "foobar0123456789012345678901234567": {
+            "hash": "QyzsGHXVFAEu1aO9rkphD0", "salt": "gfdWhcS7"},
+        "foobar01234567890123456789012345678": {
+            "hash": "Frfmzydl8OC7RrMbkTUY21", "salt": "v8oc0omI"},
+        "foobar012345678901234567890123456789": {
+            "hash": "ZvOpfsrYFSUgUwtVsCUBR0", "salt": "GAAPD33a"},
+        "foobar0123456789012345678901234567890": {
+            "hash": "D2ISHi8yEIL/0MzNWiDis.", "salt": "3Glrt6Oh"},
+    }
+
+    def setUp(self):
+        super(Apr1Test, self).setUp()
