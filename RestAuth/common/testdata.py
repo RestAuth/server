@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, TransactionTestCase
@@ -139,6 +140,10 @@ class RestAuthTestBase(object):
 
     def assertFalsePassword(self, username, password):
         self.assertFalse(user_backend.check_password(username, password))
+
+    @classmethod
+    def setUpClass(cls):
+        load_hashers(('django.contrib.auth.hashers.MD5PasswordHasher', ))
 
     def tearDown(self):
         user_backend.testTearDown()
