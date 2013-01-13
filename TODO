@@ -1,13 +1,9 @@
 0.6.1:
-* Implement CLI script actions as argparse.Action, see
-    http://docs.python.org/dev/library/argparse.html#action
-  * write tests for that
+* merge middlewares
+* restauth-import should still use the new backend
+* move RestAuth.Users.hashes to RestAuth.Users.hashers
+* Documentation is still outdated in some places.
 
 Future:
 
 * add support for /users/<user>/blobs
-
-When Django >= 1.4 is required:
-* Remove backported override_settings decorator
-* Use Django password hashers
-* Remove custom implementation of get_random_string in Users.models
