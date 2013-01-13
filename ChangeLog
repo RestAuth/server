@@ -1,12 +1,49 @@
 RestAuth 0.6.1 (DD MMMM YYYY)
 
+  Dependencies:
+  * This release requires Django 1.4 or later.
+
+  Backends:
+  * RestAuth now features a pluggable backend system to store its data.
+    Different backends can be used to store user data, properties and groups.
+	RestAuth comes with a backends using the Django ORM, providing the
+	previous functionality and a Redis plugin to store property data. Please
+	see:
+		https://server.restauth.net/developer/backends.html
+	for more information.
+
+  Password hashing
+  * RestAuth now uses the password hashing API provided by Django 1.4 or
+    later. Consequently, the HASH_ALGORITHM and HASH_FUNCTIONS settings have
+	been deprecated by the standard Django PASSWORD_HASHERS setting.
+  * Existing validators need to be rewritten. Please see the current document
+  		https://server.restauth.net/config/custom-hashes.html
+	for more information.
+  * Because of the above changes, hashing is now provided by public functions
+    that can be used in custom backends as well.
+
+  General improvements:
+  * Most received data is now validated using assertions. This makes verifying
+    the input data format both faster and more exact.
+
+  Command-line scripts:
+  * Display services in alphabetical order.
+  * Command-line scripts also use the new backend system, so changing backends
+    directly affects their output.
+
+  Testing:
+  * Update testerver fixture to include example.{com,net,org} services.
+  * Most tests (except those testing individual hashers) now use a faster MD5
+    hasher. This speeds up tests significantly.
+  * Tests also use the new backend system, so they can be used to test
+    different backends as well.
+
+  Bugfixes:
   * Fix a broken Foreign Key constraint that broke adding IP-Adresses to
     services.
-  * Display services in alphabetical order in cli scripts
-  * Bugfix: When calling group members, users were returned multiple times
-    under certain conditions.
+  * When calling group members, users were returned multiple times under
+    certain conditions.
   * Fix migrations on a bare SQLite3 database
-  * Update testerver fixture to include example.{com,net,org} services.
 
 RestAuth 0.6.0 (15 September 2012)
 
