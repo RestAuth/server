@@ -3,6 +3,7 @@
 * restauth-import should still use the new backend
 * move RestAuth.Users.hashes to RestAuth.Users.hashers
 * Documentation is still outdated in some places.
+* Optional support for storing passwords in a cache.
 
 Future:
 
