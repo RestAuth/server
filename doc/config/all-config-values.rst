@@ -107,7 +107,7 @@ groups.
    groups and other, lesser privileged services, automatically inherit
    memberships from the groups of the administration service.
 
-A :setting:`GROUP_RECURSION_DEPTH` of 3 means, that RestAuth will check 3 levels
+A :setting:`GROUP_RECURSION_DEPTH` of 3 means that RestAuth will check 3 levels
 of parent groups. Take this example, where ``Group A`` is a parent group of
 ``Group B`` and so on::
 
@@ -128,53 +128,6 @@ entirely.
 .. WARNING:: Do not set this setting to a value greater then necessary. Checking
    nested groups is relatively performance intensive. Set this setting to a
    value as low as possible.
-
-.. setting:: HASH_ALGORITHM
-
-HASH_ALGORITHM
-==============
-
-Default: ``sha512``
-
-The :setting:`HASH_ALGORITHM` setting configures which algorithm is used for
-hashing new passwords.  If you set this to a new algorithm, old password hashes
-will be updated whenever a user logs in.
-
-RestAuth supports all algorithms supported by the `hashlib module
-<http://docs.python.org/library/hashlib.html>`_. Additionally, you can add more
-algorithms using :setting:`HASH_FUNCTIONS`.
-
-.. setting:: HASH_FUNCTIONS
-
-HASH_FUNCTIONS
-==============
-
-.. versionadded:: 0.5.3
-
-Default::
-
-   [
-       'RestAuth.Users.hashes.mediawiki',
-       'RestAuth.Users.hashes.crypt',
-       'RestAuth.Users.hashes.apr1',
-   ]
-
-RestAuth can understand custom hashing algorithms in addition to those provided
-by the hashlib module shipping with your Python version. This is useful if you
-want to import userdata from a different system that stores passwords using an
-unusual hashing algorithm. RestAuth :ref:`ships with a few hash functions
-<available-hash-functions>` used by common systems, all are enabled by default.
-
-You can :ref:`implement your own hashing algorithm <own-hash-functions>` if you
-intend to import data from a system not supported by RestAuth. If you set
-:setting:`HASH_ALGORITHM` to one of the algorithms you add to this setting,
-RestAuth will also store hashes using this algorithm. This is useful if you plan
-to later export data to such a system.
-
-.. NOTE:: If all password hashes use the hash-functions included in the hashlib
-   module, this setting is effectively not used at all. If you however have some
-   custom hashes, it is recommended to include only those validators that
-   actually occur in your database to improve performance.
 
 .. setting:: LOGGING
 
@@ -295,6 +248,40 @@ Default: ``3``
 
 The minimum length of new usernames. Note that this setting might have any
 effect if a validator restricts the minimum length even further.
+
+.. setting:: PASSWORD_HASHERS
+
+PASSWORD_HASHERS
+================
+
+.. versionadded:: 0.6.1
+   This standard Django setting now replaces the old ``HASH_FUNCTIONS`` and
+   ``HASH_ALGORITHMS`` settings. Please see the :ref:`upgrade notes for 0.6.1
+   <update_settings_0.6.1>` for more information.
+
+Default::
+
+   PASSWORD_HASHERS = (
+       'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+       'RestAuth.Users.hashes.Sha512Hasher',
+       'RestAuth.Users.hashes.MediaWikiHasher',
+       'RestAuth.Users.hashes.Apr1Hasher',
+       'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+       'django.contrib.auth.hashers.BCryptPasswordHasher',
+       'django.contrib.auth.hashers.SHA1PasswordHasher',
+       'django.contrib.auth.hashers.MD5PasswordHasher',
+       'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+       'django.contrib.auth.hashers.CryptPasswordHasher',
+   )
+
+RestAuth can store password hashes in different formats. RestAuth ships with
+additional hashers for MediaWiki, Apr1 (Apache .htaccess files) and SHA-512
+hashes. Thanks to these hashers, RestAuth understands and can even create hashes
+as used by the respective systems.
+
+If you need to import hashes from a different system, you can easily write your
+own password hasher. Please see :doc:`/config/custom-hashes` for more
+information.
 
 .. setting:: PROPERTY_BACKEND
 

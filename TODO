@@ -3,6 +3,8 @@
 * restauth-import should still use the new backend
 * move RestAuth.Users.hashes to RestAuth.Users.hashers
 * Documentation is still outdated in some places.
+  * How-To write custom hashers rewrite
+  * Split backends and writing backends.
 * Optional support for storing passwords in a cache.
 
 Future:
