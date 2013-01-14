@@ -10,6 +10,7 @@
 * move cli-scripts to RestAuth/bin
 * Make content type handlers global objects that are never reloaded
   (like password hashers)
+* make RestAuth.backends.utils.*_backend a variable, not a function
 
 Future:
 
