@@ -53,10 +53,19 @@ property_backend = property_backend()
 group_backend = group_backend()
 
 data = json.load(args.file)
-services = data.pop('services', None)
-users = data.pop('users', None)
-groups = data.pop('groups', None)
+if not isinstance(data, dict):
+    parser.error("%s: No valid file." % args.file)
 
+services = data.pop('services', {})
+users = data.pop('users', {})
+groups = data.pop('groups', {})
+
+if not isinstance(services, dict):
+    parser.error("'services' does not appear to be a dictionary.")
+if not isinstance(users, dict):
+    parser.error("'users' does not appear to be a dictionary.")
+if not isinstance(groups, dict):
+    parser.error("'groups' does not appear to be a dictionary.")
 
 def gen_password(length=30):
     punct_chars = [c for c in string.punctuation if c not in ['\'', '\\']]
