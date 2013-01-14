@@ -67,12 +67,12 @@ if not isinstance(users, dict):
 if not isinstance(groups, dict):
     parser.error("'groups' does not appear to be a dictionary.")
 
+
 def gen_password(length=30):
     punct_chars = [c for c in string.punctuation if c not in ['\'', '\\']]
     punctuation = ''.join(punct_chars)
     chars = string.letters + string.digits + punctuation
     return ''.join(random.choice(chars) for x in range(length))
-
 
 from django.db import transaction
 transaction.enter_transaction_management(args.using)
