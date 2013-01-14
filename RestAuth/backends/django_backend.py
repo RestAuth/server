@@ -86,6 +86,18 @@ class DjangoUserBackend(UserBackend):
 
         user.save()
 
+    def set_password_hash(self, username, algorithm, hash, salt=None, **kwargs):
+        user = self._get_user(username, 'password')
+        parameters = [algorithm]
+        if kwargs:
+            parameters += kwargs.values()
+        if salt is not None:
+            parameters.append(salt)
+        parameters.append(hash)
+
+        user.password = '$'.join(parameters)
+        user.save()
+
     def remove(self, username):
         qs = User.objects.filter(username=username)
         if qs.exists():
