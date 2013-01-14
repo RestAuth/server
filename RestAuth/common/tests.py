@@ -29,10 +29,10 @@ from RestAuth.common.errors import UsernameInvalid
 from RestAuth.common.testdata import RestAuthTest
 from RestAuth.common.testdata import user_backend
 from RestAuth.common.testdata import username1
-from RestAuth.common.middleware import HeaderMiddleware
+from RestAuth.common.middleware import RestAuthMiddleware
 
 
-class HeaderMiddlewareTests(TestCase):
+class RestAuthMiddlewareTests(TestCase):
     def setUp(self):
         self.handler = handlers.json()
         self.extra = {
@@ -42,7 +42,7 @@ class HeaderMiddlewareTests(TestCase):
         }
 
         self.factory = RequestFactory()
-        self.mw = HeaderMiddleware()
+        self.mw = RestAuthMiddleware()
 
     def tearDown(self):
         Service.objects.all().delete()

@@ -43,8 +43,7 @@ LOG_LEVEL = 'ERROR'
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
-    'RestAuth.common.middleware.ExceptionMiddleware',
-    'RestAuth.common.middleware.HeaderMiddleware',
+    'RestAuth.common.middleware.RestAuthMiddleware',
 ]
 
 CACHE_MIDDLEWARE_SECONDS = 300

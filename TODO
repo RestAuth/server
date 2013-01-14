@@ -1,5 +1,4 @@
 0.6.1:
-* merge middlewares
 * restauth-import should still use the new backend
 * move RestAuth.Users.hashes to RestAuth.Users.hashers
 * Documentation is still outdated in some places.

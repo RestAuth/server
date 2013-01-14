@@ -34,11 +34,10 @@ from RestAuth.common.errors import UserNotFound
 CONTENT_TYPE_METHODS = set(['POST', 'PUT'])
 
 
-class ExceptionMiddleware:
-    """
-    Exception to handle RestAuth related exceptions.
-    """
+class RestAuthMiddleware:
     def process_exception(self, request, ex):
+        """Handle RestAuth related exceptions."""
+
         if isinstance(ex, UserNotFound):
             resp = HttpResponse(ex, status=404)
             resp['Resource-Type'] = 'user'
@@ -60,12 +59,9 @@ class ExceptionMiddleware:
             return HttpResponseServerError(
                 "Internal Server Error. Please see server log for details.\n")
 
-
-class HeaderMiddleware:
-    """
-    Middleware to ensure required headers are present.
-    """
     def process_request(self, request):
+        """Middleware to ensure required headers are present."""
+
         if request.method in CONTENT_TYPE_METHODS:
             if 'CONTENT_TYPE' not in request.META:
                 return HttpResponse(
