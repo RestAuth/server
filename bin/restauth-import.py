@@ -60,6 +60,7 @@ services = data.pop('services', {})
 users = data.pop('users', {})
 groups = data.pop('groups', {})
 
+# test some data structures and fail early if data doesn't look right.
 if not isinstance(services, dict):
     parser.error("'services' does not appear to be a dictionary.")
 if not isinstance(users, dict):
@@ -82,140 +83,130 @@ try:
     #######################
     ### Import services ###
     #######################
-    if services and type(services) != dict:
-        print("'services' is not a dictionary, skipping import.")
-    elif services:
+    if services:
         print('Services:')
-        for name, data in services.iteritems():
-            if Service.objects.filter(username=name).exists():
-                print('* %s: Already exists.' % name)
-                continue
+    for name, data in services.iteritems():
+        if Service.objects.filter(username=name).exists():
+            print('* %s: Already exists.' % name)
+            continue
 
-            service = Service(username=name)
+        service = Service(username=name)
 
-            # set password:
-            if 'password' in data:
-                pwd = data['password']
-                if type(pwd) == str:
-                    service.set_password(pwd)
-                elif type(pwd) == dict:
-                    format_tuple = (pwd['algorithm'], pwd['salt'], pwd['hash'])
-                    service.password = '%s%s%s' % format_tuple
-                print('* %s: Set password from input data.' % name)
-            elif args.gen_passwords:
-                raw_passwd = gen_password(30)
-                service.set_password(raw_passwd)
-                print('* %s: Generated password: %s' % (name, raw_passwd))
-            service.save()
+        # set password:
+        if 'password' in data:
+            pwd = data['password']
+            if type(pwd) == str:
+                service.set_password(pwd)
+            elif type(pwd) == dict:
+                format_tuple = (pwd['algorithm'], pwd['salt'], pwd['hash'])
+                service.password = '%s%s%s' % format_tuple
+            print('* %s: Set password from input data.' % name)
+        elif args.gen_passwords:
+            raw_passwd = gen_password(30)
+            service.set_password(raw_passwd)
+            print('* %s: Generated password: %s' % (name, raw_passwd))
+        service.save()
 
-            if 'hosts' in data:
-                for host in data['hosts']:
-                    address = ServiceAddress.objects.get_or_create(
-                        address=host)[0]
-                    service.hosts.add(address)
+        if 'hosts' in data:
+            for host in data['hosts']:
+                address = ServiceAddress.objects.get_or_create(
+                    address=host)[0]
+                service.hosts.add(address)
 
     ####################
     ### import users ###
     ####################
-    if users and type(users) != dict:
-        print("'users' not a dictionary, skipping import.")
-    elif users:
+    if users:
         print('Users:')
+    for username, data in users.iteritems():
+        username = username.lower()
 
-        for username, data in users.iteritems():
-            username = username.lower()
+        try:
+            user = user_backend.create(username=username)
+            created = True
+        except UserExists:
+            created = False
 
-            try:
-                user = user_backend.create(username=username)
-                created = True
-            except UserExists:
-                created = False
+        if not created and args.skip_existing_users:
+            continue
 
-            if not created and args.skip_existing_users:
-                continue
+        # handle password:
+        if 'password' in data and (created or args.overwrite_passwords):
+            pwd = data['password']
+            if type(pwd) == str:
+                user_backend.set_password(username=username, password=pwd)
+            elif type(pwd) == dict:
+                # TODO: catch NotImplementedError and emit warning
+                # TODO: Emit warning if no hasher is found for algorithm
+                user_backend.set_password_hash(**pwd)
+            print('* %s: Set password from input data.' % username)
+        elif created and args.gen_passwords:
+            raw_passwd = gen_password(30)
+            user_backend.set_password(username=username,
+                                      password=raw_passwd)
+            print('* %s: Generated password: %s' % (username, raw_passwd))
+        else:
+            print('* %s: User already exists.' % username)
 
-            # handle password:
-            if 'password' in data and (created or args.overwrite_passwords):
-                pwd = data['password']
-                if type(pwd) == str:
-                    user_backend.set_password(username=username, password=pwd)
-                elif type(pwd) == dict:
-                    # TODO: catch NotImplementedError and emit warning
-                    # TODO: Emit warning if no hasher is found for algorithm
-                    user_backend.set_password_hash(**pwd)
-#                    user.algorithm = pwd['algorithm']
-#                    user.salt = pwd.get('salt', None)
-#                    user.hash = pwd['hash']
-                print('* %s: Set password from input data.' % username)
-            elif created and args.gen_passwords:
-                raw_passwd = gen_password(30)
-                user_backend.set_password(username=username,
-                                          password=raw_passwd)
-                print('* %s: Generated password: %s' % (username, raw_passwd))
-            else:
-                print('* %s: User already exists.' % username)
+        if 'properties' in data:
+            # handle all other preferences
+            for key, value in data['properties'].iteritems():
+                if key in TIMESTAMP_PROPS:
+                    if value.__class__ in [int, float]:
+                        value = datetime.fromtimestamp(value)
+                    else:  # parse time, to ensure correct format
+                        value = datetime.strptime(value, TIMESTAMP_FORMAT)
+                    value = datetime.strftime(value, TIMESTAMP_FORMAT)
 
-            if 'properties' in data:
-                # handle all other preferences
-                for key, value in data['properties'].iteritems():
-                    if key in TIMESTAMP_PROPS:
-                        if value.__class__ in [int, float]:
-                            value = datetime.fromtimestamp(value)
-                        else:  # parse time, to ensure correct format
-                            value = datetime.strptime(value, TIMESTAMP_FORMAT)
-                        value = datetime.strftime(value, TIMESTAMP_FORMAT)
-
-                    if args.overwrite_properties:
-                        property_backend.set(user=user, key=key, value=value)
-                    else:
-                        try:
-                            property_backend.create(user=user,
-                                                    key=key, value=value)
-                        except PropertyExists:
-                            print('%s: Property "%s" already exists.' %
-                                  (username, key))
+                if args.overwrite_properties:
+                    property_backend.set(user=user, key=key, value=value)
+                else:
+                    try:
+                        property_backend.create(user=user,
+                                                key=key, value=value)
+                    except PropertyExists:
+                        print('%s: Property "%s" already exists.' %
+                              (username, key))
 
     #####################
     ### import groups ###
     #####################
-    if groups and type(groups) != dict:
-        print("'groups' not a dictionary, skipping import.")
-    elif groups:
+    if groups:
         print("Groups:")
-        subgroups = {}
-        for name, data in groups.iteritems():
-            service = data.pop('service', None)
+    subgroups = {}
+    for name, data in groups.iteritems():
+        service = data.pop('service', None)
+        if service:
+            service = Service.objects.get(username=service)
+
+        try:
+            group = group_backend.create(service=service, name=name)
+            print("* %s: created." % name)
+        except GroupExists:
+            if args.skip_existing_groups:
+                print("* %s: Already exists, skipping." % name)
+                continue
+            else:
+                print("* %s: Already exists, adding memberships." % name)
+
+        for username in data['users']:
+            user = user_backend.get(username=username)
+            group_backend.add_user(group=group, user=user)
+
+        if 'subgroups' in data:
+            subgroups[group] = data.pop('subgroups')
+
+    # add group-memberships *after* we created all groups to make sure
+    # groups already exist.
+    for group, subgroups_data in subgroups.iteritems():
+        for subgroup_data in subgroups_data:
+            name = subgroup_data['name']
+            service = subgroup_data.get('service')
             if service:
                 service = Service.objects.get(username=service)
 
-            try:
-                group = group_backend.create(service=service, name=name)
-                print("* %s: created." % name)
-            except GroupExists:
-                if args.skip_existing_groups:
-                    print("* %s: Already exists, skipping." % name)
-                    continue
-                else:
-                    print("* %s: Already exists, adding memberships." % name)
-
-            for username in data['users']:
-                user = user_backend.get(username=username)
-                group_backend.add_user(group=group, user=user)
-
-            if 'subgroups' in data:
-                subgroups[group] = data.pop('subgroups')
-
-        # add group-memberships *after* we created all groups to make sure
-        # groups already exist.
-        for group, subgroups_data in subgroups.iteritems():
-            for subgroup_data in subgroups_data:
-                name = subgroup_data['name']
-                service = subgroup_data.get('service')
-                if service:
-                    service = Service.objects.get(username=service)
-
-                subgroup = group_backend.get(name=name, service=service)
-                group_backend.add_subgroup(group=group, subgroup=subgroup)
+            subgroup = group_backend.get(name=name, service=service)
+            group_backend.add_subgroup(group=group, subgroup=subgroup)
 
 
 except Exception as e:
