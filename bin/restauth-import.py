@@ -34,10 +34,11 @@ sys.path.append(os.getcwd())
 
 try:
     from RestAuth.common.cli.parsers import parser
+    from RestAuth.common.errors import GroupExists, PropertyExists, UserExists
 
     from RestAuth.Services.models import Service, ServiceAddress
-    from RestAuth.Users.models import ServiceUser, Property
-    from RestAuth.Groups.models import Group
+    from RestAuth.backends.utils import user_backend
+    from RestAuth.backends.utils import group_backend, property_backend
 except ImportError, e:
     sys.stderr.write(
         'Error: Cannot import RestAuth. '
@@ -46,6 +47,10 @@ except ImportError, e:
     sys.exit(1)
 
 args = parser.parse_args()
+
+user_backend = user_backend()
+property_backend = property_backend()
+group_backend = group_backend()
 
 data = json.load(args.file)
 services = data.pop('services', None)
@@ -110,8 +115,12 @@ try:
 
         for username, data in users.iteritems():
             username = username.lower()
-            user, created = ServiceUser.objects.get_or_create(
-                username=username)
+
+            try:
+                user = user_backend.create(username=username)
+                created = True
+            except UserExists:
+                created = False
 
             if not created and args.skip_existing_users:
                 continue
@@ -120,27 +129,26 @@ try:
             if 'password' in data and (created or args.overwrite_passwords):
                 pwd = data['password']
                 if type(pwd) == str:
-                    user.set_password(pwd)
-                    # if
+                    user_backend.set_password(username=username, password=pwd)
                 elif type(pwd) == dict:
-                    user.algorithm = pwd['algorithm']
-                    user.salt = pwd.get('salt', None)
-                    user.hash = pwd['hash']
+                    # TODO: catch NotImplementedError and emit warning
+                    # TODO: Emit warning if no hasher is found for algorithm
+                    user_backend.set_password_hash(**pwd)
+#                    user.algorithm = pwd['algorithm']
+#                    user.salt = pwd.get('salt', None)
+#                    user.hash = pwd['hash']
                 print('* %s: Set password from input data.' % username)
             elif created and args.gen_passwords:
                 raw_passwd = gen_password(30)
-                user.set_password(raw_passwd)
+                user_backend.set_password(username=username,
+                                          password=raw_passwd)
                 print('* %s: Generated password: %s' % (username, raw_passwd))
             else:
                 print('* %s: User already exists.' % username)
-            user.save()
 
             if 'properties' in data:
-                props = data['properties']
-                overwrite_props = args.overwrite_properties
-
                 # handle all other preferences
-                for key, value in props.iteritems():
+                for key, value in data['properties'].iteritems():
                     if key in TIMESTAMP_PROPS:
                         if value.__class__ in [int, float]:
                             value = datetime.fromtimestamp(value)
@@ -148,14 +156,15 @@ try:
                             value = datetime.strptime(value, TIMESTAMP_FORMAT)
                         value = datetime.strftime(value, TIMESTAMP_FORMAT)
 
-                    prop, prop_created = Property.objects.get_or_create(
-                        user=user, key=key, defaults={'value': value})
-
-                    # overwrite if it already exists and we overwrite
-                    # properties:
-                    if overwrite_props and not prop_created:
-                        prop.value = value
-                        prop.save()
+                    if args.overwrite_properties:
+                        property_backend.set(user=user, key=key, value=value)
+                    else:
+                        try:
+                            property_backend.create(user=user,
+                                                    key=key, value=value)
+                        except PropertyExists:
+                            print('%s: Property "%s" already exists.' %
+                                  (username, key))
 
     #####################
     ### import groups ###
@@ -170,19 +179,19 @@ try:
             if service:
                 service = Service.objects.get(username=service)
 
-            group, created = Group.objects.get_or_create(
-                name=name, service=service)
-            if created:
+            try:
+                group = group_backend.create(service=service, name=name)
                 print("* %s: created." % name)
-            elif args.skip_existing_groups:
-                print("* %s: Already exists, skipping." % name)
-                continue
-            else:
-                print("* %s: Already exists, adding memberships." % name)
+            except GroupExists:
+                if args.skip_existing_groups:
+                    print("* %s: Already exists, skipping." % name)
+                    continue
+                else:
+                    print("* %s: Already exists, adding memberships." % name)
 
             for username in data['users']:
-                user = ServiceUser.objects.get(username=username)
-                group.users.add(user)
+                user = user_backend.get(username=username)
+                group_backend.add_user(group=group, user=user)
 
             if 'subgroups' in data:
                 subgroups[group] = data.pop('subgroups')
@@ -191,12 +200,13 @@ try:
         # groups already exist.
         for group, subgroups_data in subgroups.iteritems():
             for subgroup_data in subgroups_data:
-                name, service = subgroup_data['name'], subgroup_data['service']
+                name = subgroup_data['name']
+                service = subgroup_data.get('service')
                 if service:
                     service = Service.objects.get(username=service)
 
-                subgroup = Group.objects.get(name=name, service=service)
-                group.groups.add(subgroup)
+                subgroup = group_backend.get(name=name, service=service)
+                group_backend.add_subgroup(group=group, subgroup=subgroup)
 
 
 except Exception as e:
