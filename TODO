@@ -8,6 +8,7 @@
 * Optional support for storing passwords in a cache.
 * Add UWSGI files to documentation, so they can be referenced
 * kill the last epydoc related documentation
+* move cli-scripts to RestAuth/bin
 
 Future:
 
