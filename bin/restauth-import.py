@@ -135,11 +135,15 @@ try:
             pwd = data['password']
             if type(pwd) == str:
                 user_backend.set_password(username=username, password=pwd)
+                print('* %s: Set password from input data.' % username)
             elif type(pwd) == dict:
-                # TODO: catch NotImplementedError and emit warning
                 # TODO: Emit warning if no hasher is found for algorithm
-                user_backend.set_password_hash(**pwd)
-            print('* %s: Set password from input data.' % username)
+                try:
+                    user_backend.set_password_hash(**pwd)
+                    print('* %s: Set hash from input data.' % username)
+                except NotImplementedError:
+                    print("* %s: Setting hash is not supported, skipping." %
+                          username)
         elif created and args.gen_passwords:
             raw_passwd = gen_password(30)
             user_backend.set_password(username=username,
