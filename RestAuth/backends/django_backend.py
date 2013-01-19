@@ -112,6 +112,16 @@ class DjangoUserBackend(UserBackend):
         else:
             raise UserNotFound(username)
 
+    def init_transaction(self):
+        dj_transaction.enter_transaction_management()
+        dj_transaction.managed(True)
+
+    def commit_transaction(self):
+        dj_transaction.commit()
+
+    def rollback_transaction(self):
+        dj_transaction.rollback()
+
 
 class DjangoPropertyBackend(PropertyBackend):
     """Use the standard Django ORM to store user properties.
@@ -196,6 +206,16 @@ class DjangoPropertyBackend(PropertyBackend):
             user.del_property(key)
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
+
+    def init_transaction(self):
+        dj_transaction.enter_transaction_management()
+        dj_transaction.managed(True)
+
+    def commit_transaction(self):
+        dj_transaction.commit()
+
+    def rollback_transaction(self):
+        dj_transaction.rollback()
 
 
 class DjangoGroupBackend(GroupBackend):
@@ -288,3 +308,13 @@ class DjangoGroupBackend(GroupBackend):
 
     def parents(self, group):
         return group.parent_groups.all()
+
+    def init_transaction(self):
+        dj_transaction.enter_transaction_management()
+        dj_transaction.managed(True)
+
+    def commit_transaction(self):
+        dj_transaction.commit()
+
+    def rollback_transaction(self):
+        dj_transaction.rollback()
