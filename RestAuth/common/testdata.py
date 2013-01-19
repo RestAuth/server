@@ -27,7 +27,7 @@ from RestAuth.Services.models import service_create
 from RestAuth.Users.models import prop_permissions
 from RestAuth.Users.models import user_permissions
 from RestAuth.Groups.models import group_permissions
-from RestAuth.backends.utils import user_backend, group_backend, property_backend
+from RestAuth.backends import user_backend, group_backend, property_backend
 
 username1 = u"mati \u6111"
 username2 = u"mati \u6112"
@@ -62,10 +62,6 @@ propval2 = u"propval \u6152"
 propval3 = u"propval \u6153"
 propval4 = u"propval \u6154"
 propval5 = u"propval \u6155"
-
-user_backend = user_backend()
-property_backend = property_backend()
-group_backend = group_backend()
 
 
 class RestAuthTestBase(object):

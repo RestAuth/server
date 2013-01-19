@@ -26,7 +26,7 @@ from django.http import HttpResponseForbidden
 from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
 
-from RestAuth.backends.utils import user_backend, group_backend
+from RestAuth.backends import user_backend, group_backend
 from RestAuth.common.errors import UserNotFound
 from RestAuth.common.errors import GroupNotFound
 from RestAuth.common.responses import HttpResponseCreated
@@ -34,9 +34,6 @@ from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
-
-user_backend = user_backend()
-group_backend = group_backend()
 
 
 class GroupsView(RestAuthView):

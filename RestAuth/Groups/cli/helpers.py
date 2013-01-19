@@ -17,10 +17,8 @@
 
 from operator import attrgetter
 
-from RestAuth.backends.utils import group_backend
+from RestAuth.backends import group_backend
 from RestAuth.common.errors import GroupNotFound
-
-group_backend = group_backend()
 
 
 def print_by_service(groups, indent=''):

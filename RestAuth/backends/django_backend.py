@@ -24,6 +24,10 @@ class DjangoUserBackend(UserBackend):
     reference </config/all-config-values>`.
     """
 
+    def __init__(self, *args, **kwargs):
+        super(DjangoUserBackend, self).__init__(*args, **kwargs)
+        print('### USER BACKEND INSTANCE!')
+
     def _get_user(self, username, *fields):
         try:
             return User.objects.only(*fields).get(username=username)

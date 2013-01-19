@@ -28,11 +28,9 @@ from django.db.utils import IntegrityError
 from RestAuth.Services.models import Service
 from RestAuth.Services.models import check_service_username
 from RestAuth.Services.models import ServiceUsernameNotValid
-from RestAuth.backends.utils import user_backend
+from RestAuth.backends import user_backend
 from RestAuth.common.errors import PreconditionFailed
 from RestAuth.common.errors import UserExists, UserNotFound
-
-user_backend = user_backend()
 
 
 class ServiceAction(Action):
