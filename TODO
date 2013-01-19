@@ -1,6 +1,4 @@
 0.6.1:
-* restauth-import should still use the new backend
-* move RestAuth.Users.hashes to RestAuth.Users.hashers
 * Documentation is still outdated in some places.
   * How-To write custom hashers rewrite
   * Split backends and writing backends.
@@ -11,6 +9,8 @@
 * Make content type handlers global objects that are never reloaded
   (like password hashers)
 * make RestAuth.backends.utils.*_backend a variable, not a function
+* Use GenericIpAddressField for Services
+* Cache Services information
 
 Future:
 

@@ -263,9 +263,9 @@ Default::
 
    PASSWORD_HASHERS = (
        'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-       'RestAuth.Users.hashes.Sha512Hasher',
-       'RestAuth.Users.hashes.MediaWikiHasher',
-       'RestAuth.Users.hashes.Apr1Hasher',
+       'RestAuth.common.hashers.Sha512Hasher',
+       'RestAuth.common.hashers.MediaWikiHasher',
+       'RestAuth.common.hashers.Apr1Hasher',
        'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
        'django.contrib.auth.hashers.BCryptPasswordHasher',
        'django.contrib.auth.hashers.SHA1PasswordHasher',

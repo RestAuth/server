@@ -115,9 +115,9 @@ SECRET_KEY = ''
 # and Apr1 (Apache .htpasswd files). The default is:
 #PASSWORD_HASHERS = (
 #    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-#    'RestAuth.Users.hashes.Sha512Hasher',
-#    'RestAuth.Users.hashes.MediaWikiHasher',
-#    'RestAuth.Users.hashes.Apr1Hasher',
+#    'RestAuth.common.hashers.Sha512Hasher',
+#    'RestAuth.common.hashers.MediaWikiHasher',
+#    'RestAuth.common.hashers.Apr1Hasher',
 #    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
 #    'django.contrib.auth.hashers.BCryptPasswordHasher',
 #    'django.contrib.auth.hashers.SHA1PasswordHasher',
@@ -147,6 +147,7 @@ SECRET_KEY = ''
 #USER_BACKEND='RestAuth.backends.django_backend.DjangoUserBackend'
 #GROUP_BACKEND='RestAuth.backends.django_backend.DjangoGroupBackend'
 #PROPERTY_BACKEND='RestAuth.backends.django_backend.DjangoPropertyBackend'
+PROPERTY_BACKEND='RestAuth.backends.redis_backend.RedisPropertyBackend'
 
 ###############
 ### CACHING ###

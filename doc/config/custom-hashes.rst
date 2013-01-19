@@ -15,7 +15,7 @@ useful if you plan to later export data to such a system.
 Available hash functions
 ========================
 
-.. automodule:: RestAuth.Users.hashes
+.. automodule:: RestAuth.common.hashers
    :members: apr1, crypt, mediawiki
 
 .. _own-hash-functions:
@@ -50,10 +50,17 @@ Once you implemented your hash function, all you have to do is append the path o
 .. code-block:: python
 
    HASH_FUNCTIONS = [
-       'RestAuth.Users.hashes.mediawiki',
-       'RestAuth.Users.hashes.crypt',
-       'RestAuth.Users.hashes.apr1',
+       'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+       'RestAuth.common.hashers.Sha512Hasher',
+       'RestAuth.common.hashers.MediawikiHasher',
+       'RestAuth.common.hashers.Apr1Hasher',
        'path.to.your.func.algorithm',
+       'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+       'django.contrib.auth.hashers.BCryptPasswordHasher',
+       'django.contrib.auth.hashers.SHA1PasswordHasher',
+       'django.contrib.auth.hashers.MD5PasswordHasher',
+       'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+       'django.contrib.auth.hashers.CryptPasswordHasher',
    ]
 
 

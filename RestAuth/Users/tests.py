@@ -687,7 +687,7 @@ class HashTestMixin(object):
 
 
 class Sha512Test(HashTestBase, HashTestMixin):
-    hashers = ['RestAuth.Users.hashes.Sha512Hasher']
+    hashers = ['RestAuth.common.hashers.Sha512Hasher']
     algorithm = 'sha512'
 
     testdata = {
@@ -704,7 +704,7 @@ class Sha512Test(HashTestBase, HashTestMixin):
     }
 
 class MediaWikiTest(HashTestBase, HashTestMixin):
-    hashers = ['RestAuth.Users.hashes.MediaWikiHasher']
+    hashers = ['RestAuth.common.hashers.MediaWikiHasher']
     algorithm = 'mediawiki'
 
     testdata = {
@@ -730,7 +730,7 @@ class MediaWikiTest(HashTestBase, HashTestMixin):
 
 
 class Apr1Test(HashTestBase, HashTestMixin):
-    hashers = ['RestAuth.Users.hashes.Apr1Hasher']
+    hashers = ['RestAuth.common.hashers.Apr1Hasher']
     algorithm = 'apr1'
 
     testdata = {
