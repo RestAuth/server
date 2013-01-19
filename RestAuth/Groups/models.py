@@ -45,22 +45,6 @@ group_permissions = (
 )
 
 
-def group_create(name, service=None):
-    """
-    Create a new group.
-
-    @param name: Name of the new group
-    @type  name: str
-    @param service: The service this group should be associated to. If
-        ommitted, the group will not be associated with any service.
-    @type service: service
-    """
-    try:
-        return Group.objects.create(name=name, service=service)
-    except IntegrityError:
-        raise GroupExists('Group "%s" already exists' % name)
-
-
 class Group(models.Model):
     service = models.ForeignKey(
         Service, null=True,

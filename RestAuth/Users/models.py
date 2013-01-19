@@ -72,7 +72,7 @@ class ServiceUser(models.Model):
         Set the property identified by I{key} to I{value}. If the
         property already exists, it is overwritten.
 
-        @return: Returns a tuple. The first value represents the
+        :return: Returns a tuple. The first value represents the
             L{Property} acted upon and the second value is a string
             with the previous value or None if this was a new
             property.
@@ -91,7 +91,7 @@ class ServiceUser(models.Model):
         """
         Delete a property.
 
-        @raises Property.DoesNotExist: When the property does not exist.
+        :raises Property.DoesNotExist: When the property does not exist.
         """
         if self.property_set.filter(key=key).exists():
             self.property_set.filter(key=key).delete()

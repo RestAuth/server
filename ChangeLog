@@ -48,6 +48,7 @@ RestAuth 0.6.1 (DD MMMM YYYY)
   Other assorted changes and improvements:
   * The Exception- and Request middlewares have been merged for a minor speed
     improvement.
+  * Killed the last traces of epydoc documentation.
 
 RestAuth 0.6.0 (15 September 2012)
 

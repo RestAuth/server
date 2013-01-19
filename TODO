@@ -4,7 +4,6 @@
   * Split backends and writing backends.
 * Optional support for storing passwords in a cache.
 * Add UWSGI files to documentation, so they can be referenced
-* kill the last epydoc related documentation
 * move cli-scripts to RestAuth/bin
 * Make content type handlers global objects that are never reloaded
   (like password hashers)

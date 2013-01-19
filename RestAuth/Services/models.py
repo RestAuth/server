@@ -30,7 +30,7 @@ def check_service_username(name):
 
 def service_create(name, password, *hosts):
     """
-    @raises IntegrityError: If the service already exists.
+    :raises IntegrityError: If the service already exists.
     """
     check_service_username(name)
 
