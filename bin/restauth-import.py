@@ -33,6 +33,8 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
+    from django.db import transaction
+
     from RestAuth.common.cli.parsers import parser
     from RestAuth.common.errors import GroupExists, PropertyExists, UserExists
 
@@ -75,11 +77,31 @@ def gen_password(length=30):
     chars = string.letters + string.digits + punctuation
     return ''.join(random.choice(chars) for x in range(length))
 
-from django.db import transaction
-transaction.enter_transaction_management(args.using)
-transaction.managed(True, args.using)
+
+def init_transaction():
+    transaction.enter_transaction_management(args.using)
+    transaction.managed(True, args.using)
+    user_backend.init_transaction()
+    property_backend.init_transaction()
+    group_backend.init_transaction()
+
+
+def commit_transaction():
+    transaction.commit()
+    user_backend.commit_transaction()
+    group_backend.commit_transaction()
+    property_backend.commit_transaction()
+
+def rollback_transaction():
+    transaction.rollback()
+    user_backend.rollback_transaction()
+    group_backend.rollback_transaction()
+    property_backend.rollback_transaction()
+
 
 try:
+    init_transaction()
+
     #######################
     ### Import services ###
     #######################
@@ -216,6 +238,6 @@ try:
 except Exception as e:
     print("An error occured, rolling back transaction:")
     print("%s: %s" % (type(e), e))
-    transaction.rollback()
+    rollback_transaction()
 else:
-    transaction.commit()
+    commit_transaction()
