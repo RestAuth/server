@@ -49,7 +49,7 @@ class RedisPropertyBackend(object):
     def list(self, user):
         return conn.hgetall(user.id)
 
-    def create(self, user, key, value, dry=False):
+    def create(self, user, key, value, dry=False, transaction=True):
         if dry:
             if conn.hexists(user.id, key):
                 raise PropertyExists(key)
@@ -69,12 +69,14 @@ class RedisPropertyBackend(object):
         else:
             return value
 
-    def set(self, user, key, value):
+    def set(self, user, key, value, dry=False, transaction=True):
         old_value = conn.hget(user.id, key)
-        conn.hset(user.id, key, value)
+
+        if not dry:
+            conn.hset(user.id, key, value)
         return key, old_value
 
-    def set_multiple(self, user, props, dry=False):
+    def set_multiple(self, user, props, dry=False, transaction=True):
         if dry or not props:
             pass  # do nothing
         else:

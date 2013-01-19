@@ -104,7 +104,7 @@ class MemoryUserBackend(object):
         return self._users.keys()
 
     def create(self, username, password=None, properties=None,
-               property_backend=None, dry=False):
+               property_backend=None, dry=False, transaction=True):
         if username in self._users:
             raise UserExists(username)
 
@@ -118,7 +118,8 @@ class MemoryUserBackend(object):
             stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             properties['date joined'] = stamp
 
-        property_backend.set_multiple(user, properties, dry=dry)
+        property_backend.set_multiple(user, properties, dry=dry,
+                                      transaction=transaction)
 
         if not dry:
             self._users[username] = user
@@ -185,13 +186,13 @@ class MemoryPropertyBackend(object):
         except KeyError:
             raise PropertyNotFound(key)
 
-    def set(self, user, key, value, dry=False):
+    def set(self, user, key, value, dry=False, transaction=True):
         old = self._properties[user.username].get(key, None)
         if not dry:
             self._properties[user.username][key] = value
         return key, old
 
-    def set_multiple(self, user, props, dry=False):
+    def set_multiple(self, user, props, dry=False, transaction=True):
         if not dry:
             self._properties[user.username].update(props)
 
@@ -238,7 +239,7 @@ class MemoryGroupBackend(object):
             groups = self._groups[self._service(service)]
             return [k for k, v in groups.items() if v.is_member(user)]
 
-    def create(self, name, service=None, dry=False):
+    def create(self, name, service=None, dry=False, transaction=True):
         if name in self._groups[self._service(service)]:
             raise GroupExists(name)
         group = MemoryGroupInstance(service=service, id=id(name), name=name)
