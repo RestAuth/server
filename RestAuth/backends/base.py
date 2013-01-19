@@ -81,7 +81,7 @@ class UserBackend(object):
         raise NotImplementedError
 
     def create(self, username, password=None, properties=None,
-               property_backend=None, dry=False):
+               property_backend=None, dry=False, transaction=True):
         """Create a new user.
 
         The ``username`` is already validated, so you don't need to do any
@@ -114,6 +114,11 @@ class UserBackend(object):
         :type  property_backend: :py:class:`~.PropertyBackend`
         :param dry: Wether or not to actually create the user.
         :type  dry: boolean
+        :param transaction: If False, execute statements outside any
+            transactional context, if possible. This parameter is used by
+            restauth-import to import multiple users at once with only one
+            transaction.
+        :type  transaction: boolean
         :return: A user object providing at least the properties of the
             UserInstance class.
         :rtype: :py:class:`~.UserInstance`
@@ -224,7 +229,7 @@ class PropertyBackend(object):
         """
         raise NotImplementedError
 
-    def create(self, user, key, value, dry=False):
+    def create(self, user, key, value, dry=False, transaction=True):
         """Create a new user property.
 
         This method should return
@@ -245,6 +250,11 @@ class PropertyBackend(object):
         :type  value: str
         :param dry: Wether or not to actually create the property.
         :type  dry: boolean
+        :param transaction: If False, execute statements outside any
+            transactional context, if possible. This parameter is used by
+            restauth-import to import multiple users at once with only one
+            transaction.
+        :type  transaction: boolean
         :return: A tuple of key/value as they are stored in the database.
         :rtype: tuple
         :raise: :py:class:`~RestAuth.common.errors.PropertyExists` if the
@@ -266,7 +276,7 @@ class PropertyBackend(object):
         """
         raise NotImplementedError
 
-    def set(self, user, key, value, dry=False):
+    def set(self, user, key, value, dry=False, transaction=True):
         """Set a property for the given user.
 
         Unlike :py:meth:`~.PropertyBackend.create` this method overwrites an
@@ -281,6 +291,11 @@ class PropertyBackend(object):
         :type  key: str
         :param value: The value of the property.
         :type  value: str
+        :param transaction: If False, execute statements outside any
+            transactional context, if possible. This parameter is used by
+            restauth-import to import multiple users at once with only one
+            transaction.
+        :type  transaction: boolean
         :return: A tuple of key/value as they are stored in the database.
             The value should be ``None`` if the property didn't exist
             previously or the old value, if it did.
@@ -288,7 +303,7 @@ class PropertyBackend(object):
         """
         raise NotImplementedError
 
-    def set_multiple(self, user, props, dry=False):
+    def set_multiple(self, user, props, dry=False, transaction=True):
         """Set multiple properties at once.
 
         This method may just call :py:meth:`~.PropertyBackend.set` multiple
@@ -305,6 +320,11 @@ class PropertyBackend(object):
         :type  user: :py:class:`~.UserInstance`
         :param dry: Wether or not to actually create the properties.
         :type  dry: boolean
+        :param transaction: If False, execute statements outside any
+            transactional context, if possible. This parameter is used by
+            restauth-import to import multiple users at once with only one
+            transaction.
+        :type  transaction: boolean
         """
         raise NotImplementedError
 
@@ -383,7 +403,7 @@ class GroupBackend(object):
         """
         raise NotImplementedError
 
-    def create(self, name, service=None, dry=False):
+    def create(self, name, service=None, dry=False, transaction=True):
         """Create a new group for the given service.
 
         The ``dry`` parameter tells you if you should actually create the
@@ -399,6 +419,11 @@ class GroupBackend(object):
         :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
         :param     dry: Wether or not to actually create the group.
         :type      dry: boolean
+        :param transaction: If False, execute statements outside any
+            transactional context, if possible. This parameter is used by
+            restauth-import to import multiple users at once with only one
+            transaction.
+        :type  transaction: boolean
         :return: A group object providing at least the properties of the
             GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
