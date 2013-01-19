@@ -192,6 +192,27 @@ class UserBackend(object):
         """
         raise NotImplementedError
 
+    def init_transaction(self):
+        """Start a transaction.
+
+        This method is only used by restauth-import.
+        """
+        pass
+
+    def commit_transaction(self):
+        """Start a transaction.
+
+        This method is only used by restauth-import.
+        """
+        pass
+
+    def rollback_transaction(self):
+        """Start a transaction.
+
+        This method is only used by restauth-import.
+        """
+        pass
+
     def testSetUp(self):
         """Set up your backend for a test run.
 
@@ -339,6 +360,27 @@ class PropertyBackend(object):
             property doesn't exist.
         """
         raise NotImplementedError
+
+    def init_transaction(self):
+        """Start a transaction.
+
+        This method is only used by restauth-import.
+        """
+        pass
+
+    def commit_transaction(self):
+        """Start a transaction.
+
+        This method is only used by restauth-import.
+        """
+        pass
+
+    def rollback_transaction(self):
+        """Start a transaction.
+
+        This method is only used by restauth-import.
+        """
+        pass
 
     def testSetUp(self):
         """Set up your backend for a test run.
@@ -555,6 +597,27 @@ class GroupBackend(object):
         :rtype: list
         """
         raise NotImplementedError
+
+    def init_transaction(self):
+        """Start a transaction.
+
+        This method is only used by restauth-import.
+        """
+        pass
+
+    def commit_transaction(self):
+        """Start a transaction.
+
+        This method is only used by restauth-import.
+        """
+        pass
+
+    def rollback_transaction(self):
+        """Start a transaction.
+
+        This method is only used by restauth-import.
+        """
+        pass
 
     def testSetUp(self):
         """Set up your backend for a test run.
