@@ -147,7 +147,6 @@ SECRET_KEY = ''
 #USER_BACKEND='RestAuth.backends.django_backend.DjangoUserBackend'
 #GROUP_BACKEND='RestAuth.backends.django_backend.DjangoGroupBackend'
 #PROPERTY_BACKEND='RestAuth.backends.django_backend.DjangoPropertyBackend'
-PROPERTY_BACKEND='RestAuth.backends.redis_backend.RedisPropertyBackend'
 
 ###############
 ### CACHING ###
