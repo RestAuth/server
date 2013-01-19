@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.db import transaction
+from django.db import transaction as dj_transaction
 from django.db.utils import IntegrityError
 
 from RestAuth.backends.base import GroupBackend
@@ -37,7 +37,7 @@ class DjangoUserBackend(UserBackend):
         return list(User.objects.values_list('username', flat=True))
 
     def _create(self, username, password=None, properties=None,
-                property_backend=None, dry=False):
+                property_backend=None, dry=False, transaction=True):
         try:
             user = User(username=username)
             if password is not None and password != '':
@@ -53,22 +53,29 @@ class DjangoUserBackend(UserBackend):
             stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             properties['date joined'] = stamp
 
-        property_backend.set_multiple(user, properties, dry=dry)
+        property_backend.set_multiple(user, properties, dry=dry,
+                                      transaction=transaction)
         return user
 
     def create(self, username, password=None, properties=None,
-               property_backend=None, dry=False):
+               property_backend=None, dry=False, transaction=True):
         if dry:
-            with transaction.commit_manually():
+            with dj_transaction.commit_manually():
                 try:
                     return self._create(username, password, properties,
-                                        property_backend, dry=dry)
+                                        property_backend, dry=dry,
+                                        transaction=transaction)
                 finally:
-                    transaction.rollback()
-        else:
-            with transaction.commit_on_success():
+                    dj_transaction.rollback()
+        elif transaction:
+            with dj_transaction.commit_on_success():
                 return self._create(username, password, properties,
-                                    property_backend, dry=dry)
+                                    property_backend, dry=dry,
+                                    transaction=transaction)
+        else:
+            return self._create(username, password, properties,
+                                property_backend, dry=dry,
+                                transaction=transaction)
 
     def exists(self, username):
         return User.objects.filter(username=username).exists()
@@ -121,23 +128,29 @@ class DjangoPropertyBackend(PropertyBackend):
         qs = Property.objects.filter(user_id=user.id)
         return dict(qs.values_list('key', 'value'))
 
-    def create(self, user, key, value, dry=False):
+    def create(self, user, key, value, dry=False, transaction=True):
         if dry:
-            with transaction.commit_manually():
+            with dj_transaction.commit_manually():
                 try:
                     prop = user.property_set.create(key=key, value=value)
                     return prop.key, prop.value
                 except IntegrityError:
                     raise PropertyExists()
                 finally:
-                    transaction.rollback()
-        else:
-            with transaction.commit_on_success():
+                    dj_transaction.rollback()
+        elif transaction:
+            with dj_transaction.commit_on_success():
                 try:
                     prop = user.property_set.create(key=key, value=value)
                     return prop.key, prop.value
                 except IntegrityError:
                     raise PropertyExists()
+        else:
+            try:
+                prop = user.property_set.create(key=key, value=value)
+                return prop.key, prop.value
+            except IntegrityError:
+                raise PropertyExists()
 
     def get(self, user, key):
         try:
@@ -146,31 +159,37 @@ class DjangoPropertyBackend(PropertyBackend):
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def set(self, user, key, value, dry=False):
+    def set(self, user, key, value, dry=False, transaction=True):
         if dry:
-            with transaction.commit_manually():
+            with dj_transaction.commit_manually():
                 try:
                     prop, old_value = user.set_property(key, value)
                     return prop.key, old_value
                 finally:
-                    transaction.rollback()
-        else:
-            with transaction.commit_on_success():
+                    dj_transaction.rollback()
+        elif transaction:
+            with dj_transaction.commit_on_success():
                 prop, old_value = user.set_property(key, value)
                 return prop.key, old_value
+        else:
+            prop, old_value = user.set_property(key, value)
+            return prop.key, old_value
 
-    def set_multiple(self, user, props, dry=False):
+    def set_multiple(self, user, props, dry=False, transaction=True):
         if dry:
-            with transaction.commit_manually():
+            with dj_transaction.commit_manually():
                 try:
                     for key, value in props.iteritems():
                         user.set_property(key, value)
                 finally:
-                    transaction.rollback()
-        else:
-            with transaction.commit_on_success():
+                    dj_transaction.rollback()
+        elif transaction:
+            with dj_transaction.commit_on_success():
                 for key, value in props.iteritems():
                     user.set_property(key, value)
+        else:
+            for key, value in props.iteritems():
+                user.set_property(key, value)
 
     def remove(self, user, key):
         try:
@@ -203,23 +222,28 @@ class DjangoGroupBackend(GroupBackend):
             groups = Group.objects.member(user=user, service=service)
         return list(groups.only('id').values_list('name', flat=True))
 
-    def create(self, name, service=None, dry=False):
+    def create(self, name, service=None, dry=False, transaction=True):
         if dry:
-            with transaction.commit_manually():
+            with dj_transaction.commit_manually():
                 try:
                     return Group.objects.create(
                         name=name, service=service)
                 except IntegrityError:
                     raise GroupExists('Group "%s" already exists' % name)
                 finally:
-                    transaction.rollback()
-        else:
-            with transaction.commit_on_success():
+                    dj_transaction.rollback()
+        elif transaction:
+            with dj_transaction.commit_on_success():
                 try:
                     return Group.objects.create(
                         name=name, service=service)
                 except IntegrityError:
                     raise GroupExists('Group "%s" already exists' % name)
+        else:
+            try:
+                return Group.objects.create(name=name, service=service)
+            except IntegrityError:
+                raise GroupExists('Group "%s" already exists' % name)
 
     def exists(self, name, service=None):
         return Group.objects.filter(name=name, service=service).exists()
