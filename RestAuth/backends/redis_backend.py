@@ -36,16 +36,27 @@ class RedisPropertyBackend(object):
     Note that the backend is not really faster if you only have a few hundred
     users.
 
-    This backend uses a few additional settings:
+    This backend uses a few additional settings in |file-settings|:
 
     ``REDIS_HOST``
         The hostname where the redis installation runs.
-        Default: ``'localhsot'``.
+        Default: ``'localhost'``.
     ``REDIS_PORT``
         The port ot he redis installation. Default: ``6379``.
     ``REDIS_DB``
         The id of the Redis database. Default: ``0``.
+
+    .. NOTE:: Transaction support of this backend is limited. Basic
+       transaction management works, but no sensible values are returned
+       for method calls within a transaction.
     """
+
+    @property
+    def pipe(self):
+        if not hasattr(self, '_pipe'):
+            self._pipe = conn.pipeline()
+        return self._pipe
+
     def list(self, user):
         return conn.hgetall(user.id)
 
@@ -81,6 +92,15 @@ class RedisPropertyBackend(object):
             pass  # do nothing
         else:
             conn.hmset(user.id, props)
+
+    def init_transaction(self):
+        conn.execute_command('MULTI')
+
+    def commit_transaction(self):
+        conn.execute_command('EXEC')
+
+    def rollback_transaction(self):
+        conn.execute_command('DISCARD')
 
     def remove(self, user, key):
         value = conn.hdel(user.id, key)
