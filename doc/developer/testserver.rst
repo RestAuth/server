@@ -88,9 +88,10 @@ fixture:
    python RestAuth/manage.py flush --noinput
 
    # create testdata:
-   bin/restauth-service.py add --password=foofoo example.com ::1
-   bin/restauth-service.py add --password=barbar example.org ::1
-   bin/restauth-user.py add --password=example example
+   RestAuth/bin/restauth-service.py add --password=foobar example.com
+   RestAuth/bin/restauth-service.py set-hosts example.com ::1
+   RestAuth/bin/restauth-service.py set-permissions example.com user* group* prop*
+   RestAuth/bin/restauth-user.py add --password=example example
 
    # create fixture:
    python RestAuth/manage.py dumpdata > /path/to/your/library/fixtures/testserver.json

@@ -27,9 +27,10 @@ RestAuth 0.6.1 (DD MMMM YYYY)
     the input data format both faster and more exact.
 
   Command-line scripts:
-  * Display services in alphabetical order.
+  * Move all scripts to RestAuth/bin/ to be more virtualenv friendly.
   * Command-line scripts also use the new backend system, so changing backends
     directly affects their output.
+  * restauth-service: Display services in alphabetical order.
 
   Testing:
   * Update testerver fixture to include example.{com,net,org} services.

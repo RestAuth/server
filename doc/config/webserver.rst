@@ -136,9 +136,9 @@ setting up RestAuth with MySQL and memcached, from the start::
    (server)restauth@host:server$ python RestAuth/manage.py migrate
 
    # Set up a service that might access the RestAuth service:
-   (server)restauth@host:server$ bin/restauth-service.py add wiki.example.com
-   (server)restauth@host:server$ bin/restauth-service.py set-hosts wiki.example.com 127.0.0.1 ::1
-   (server)restauth@host:server$ bin/restauth-service.py set-permissions wiki.example.com user* group* prop*
+   (server)restauth@host:server$ RestAuth/bin/restauth-service.py add wiki.example.com
+   (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-hosts wiki.example.com 127.0.0.1 ::1
+   (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-permissions wiki.example.com user* group* prop*
 
    # Add uwsgi configuration file - see below.
    (server)restauth@host:server$ vim uwsgi.ini
