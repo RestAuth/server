@@ -16,9 +16,6 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import base64
-import sys
-
-from django.contrib.auth.models import User
 
 from RestAuth.Services.models import Service
 
