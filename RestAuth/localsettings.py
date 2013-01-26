@@ -155,11 +155,22 @@ SECRET_KEY = ''
 # due the Django caching implementation, the current performance improvement is
 # not that great.  For more information on caching, please see:
 # 	 https://docs.djangoproject.com/en/dev/topics/cache/
-
+#
 # Set your caching configuration here. Note that setting this will
 # automatically enable the caching Middlewares as described in the Django
 # documentation.
 #CACHES = {}
+#
+# If you consider your cache to be secure, RestAuth can cache some sensitive
+# data as well. If SECURE_CACHE is True, RestAuth will also store service
+# credentials and user password hashes. In general, do not set this setting
+# to True, if it is possible to read or manipulate the cache from the
+# a different host or from the same host and a different system user.
+#
+# With the default CACHES configuration (see above), the cache is definetly
+# secure. Memcached is definetly not secure, because anyone can access
+# memcached via network. If you enable SECURE_CACHES is ultimately your call.
+#SECURE_CACHE = True
 
 ###############
 ### LOGGING ###
@@ -193,11 +204,3 @@ SECRET_KEY = ''
 # If you absolutely know what you are doing, you can simply set your own
 # LOGGING config:
 #LOGGING = { ... }
-
-########################
-### Session handling ###
-########################
-# HTTP sessions are disabled by default. You might want to set ENABLE_SESSIONS
-# to True for libraries that require it. Note that this costs considerable
-# performance.
-#ENABLE_SESSIONS=False
