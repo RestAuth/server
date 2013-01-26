@@ -18,6 +18,7 @@
 from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
 
@@ -98,6 +99,8 @@ class RestAuthTestBase(object):
             p, c = Permission.objects.get_or_create(
                 codename=codename, content_type=g_ct, defaults={'name': name})
             self.service.user_permissions.add(p)
+
+        cache.clear()
 
     def get(self, url, data={}):
         return self.c.get(url, data, **self.extra)
