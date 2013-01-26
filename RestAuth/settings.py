@@ -35,15 +35,16 @@ TIME_ZONE = None  # None='same as os'
 
 # do not insert session middleware:
 ENABLE_SESSIONS = False
-CACHES = {}
 LOGGING = {}
 LOG_HANDLER = 'logging.StreamHandler'
 LOG_HANDLER_KWARGS = {}
 LOG_LEVEL = 'ERROR'
 
 MIDDLEWARE_CLASSES = [
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'RestAuth.common.middleware.RestAuthMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 CACHE_MIDDLEWARE_SECONDS = 300
@@ -207,21 +208,4 @@ if not LOGGING:
         for handler in LOGGING['handlers'].values():
             handler.update(LOG_HANDLER_KWARGS)
 
-if ENABLE_SESSIONS:
-    index = MIDDLEWARE_CLASSES.index(
-        'django.middleware.common.CommonMiddleware') + 1
-    MIDDLEWARE_CLASSES.insert(
-        index,
-        'django.contrib.auth.middleware.AuthenticationMiddleware'
-    )
-    MIDDLEWARE_CLASSES.insert(
-        index,
-        'django.contrib.sessions.middleware.SessionMiddleware'
-    )
-
-if CACHES:
-    MIDDLEWARE_CLASSES.insert(
-        0, 'django.middleware.cache.UpdateCacheMiddleware')
-    MIDDLEWARE_CLASSES.append(
-        'django.middleware.cache.FetchFromCacheMiddleware')
 SOUTH_TESTS_MIGRATE = False
