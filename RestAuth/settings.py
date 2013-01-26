@@ -39,12 +39,12 @@ LOG_HANDLER = 'logging.StreamHandler'
 LOG_HANDLER_KWARGS = {}
 LOG_LEVEL = 'ERROR'
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE_CLASSES = (
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'RestAuth.common.middleware.RestAuthMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
-]
+)
 
 CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = 'restauth'
