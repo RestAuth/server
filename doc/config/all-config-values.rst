@@ -43,32 +43,13 @@ RestAuth or are normal Django settings that RestAuth handles in a different way.
 CACHES
 ======
 
-Default: ``{}``
+Default: ``see Django documentation``
 
 This setting is `available in Django
 <https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`__.
 Please see the `official documentation
 <https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this
 setting.
-
-RestAuth automatically adjusts :setting:`MIDDLEWARE_CLASSES` (as documented
-`here <https://docs.djangoproject.com/en/dev/topics/cache/#the-per-site-cache>`_ ) if
-you configure any caches.
-
-.. setting:: ENABLE_SESSIONS
-
-ENABLE_SESSIONS
-===============
-
-Default: ``False``
-
-The RestAuth protocol by default does not use HTTP sessions, since every request
-is authenticated using HTTP Basic Authentication. Sessions are thus disabled in
-RestAuth, because they come with a considerable performance penalty.
-
-If a client still uses HTTP sessions, you can set this configuarion variable to
-``True``. This has the effect of adding the appropriate middleware classes to
-:setting:`MIDDLEWARE_CLASSES`.
 
 .. setting:: GROUP_BACKEND
 
@@ -212,23 +193,18 @@ MIDDLEWARE_CLASSES
 
 Default::
 
-   [
+   (
+       'django.middleware.cache.UpdateCacheMiddleware',
        'django.middleware.common.CommonMiddleware',
        'RestAuth.common.middleware.ExceptionMiddleware',
        'RestAuth.common.middleware.HeaderMiddleware',
-   ]
+       'django.middleware.cache.FetchFromCacheMiddleware',
+   )
 
 RestAuth uses `middlewares
 <https://docs.djangoproject.com/en/dev/topics/http/middleware/>`_ like any other
 Django project. The default however only contains the bare minimum of required
-middlewares. Various settings (currently :setting:`CACHES` and
-:setting:`ENABLE_SESSIONS`) influence the effective value of this setting.
-
-Additionally, :setting:`MIDDLEWARE_CLASSES` is a list and not a tuple. This
-allows you to add your own middleware at any position without having to
-reconfigure the entire setting. If you do, please consult :setting:`CACHES` and
-:setting:`ENABLE_SESSIONS` to see how they manipulate
-:setting:`MIDDLEWARE_CLASSES` to get the effective value.
+middlewares.
 
 .. setting:: MIN_PASSWORD_LENGTH
 
