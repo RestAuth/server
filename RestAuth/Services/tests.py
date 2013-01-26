@@ -3,6 +3,7 @@ import httplib
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.test.client import Client
 from django.test import TestCase
 
@@ -38,6 +39,7 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
             'REMOTE_ADDR': '127.0.0.1',
             'content_type': self.handler.mime,
         }
+        cache.clear()
 
     def set_auth(self, user, password):
         decoded = '%s:%s' % (user, password)
