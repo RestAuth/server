@@ -34,7 +34,6 @@ TEMPLATE_LOADERS = ()
 TIME_ZONE = None  # None='same as os'
 
 # do not insert session middleware:
-ENABLE_SESSIONS = False
 LOGGING = {}
 LOG_HANDLER = 'logging.StreamHandler'
 LOG_HANDLER_KWARGS = {}
