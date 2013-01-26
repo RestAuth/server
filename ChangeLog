@@ -26,6 +26,15 @@ RestAuth 0.6.1 (DD MMMM YYYY)
   * Most received data is now validated using assertions. This makes verifying
     the input data format both faster and more exact.
 
+  Caching:
+  * The CACHES setting is no longer overriden by settings, enabling the django
+    default caching for various views. Cache middlewares are now in the
+	default MIDDLEWARE_CLASSES configuration.
+  * The new SECURE_CACHE setting tells RestAuth if the cache can be considered
+    a secure data storage (default: False). If True, Django will cache service
+	information and password hashes within the cache, significantly speeding
+	up RestAuth.
+
   Command-line scripts:
   * Move all scripts to RestAuth/bin/ to be more virtualenv friendly.
   * Command-line scripts also use the new backend system, so changing backends

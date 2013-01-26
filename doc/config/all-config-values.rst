@@ -301,6 +301,28 @@ Never forget to set a `SECRET_KEY
 <https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>`_ in
 |file-settings-link|.
 
+.. setting:: SECURE_CACHE
+
+SECURE_CACHE
+============
+
+.. versionadded:: 0.6.1
+
+Default: ``False``
+
+If you consider your cache to be secure, RestAuth can cache some sensitive
+data as well. Note that this leads to a significant speed improvement. If
+SECURE_CACHE is True, RestAuth will also store service credentials and user
+password hashes. In general, do not set this setting to True, if it is possible
+to read or manipulate the cache from the a different host or from the same host
+and a different system user.
+
+With the default CACHES configuration (see above), the cache is definetly
+secure. Memcached is definetly not secure, because anyone can access memcached
+via network. If you enable SECURE_CACHES is ultimately your call.  As a general
+rule of thumb, enable this setting if compromising your cache is just as bad as
+compromising RestAuth itself.
+
 .. setting:: USER_BACKEND
 
 USER_BACKEND

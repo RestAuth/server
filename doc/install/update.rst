@@ -55,8 +55,8 @@ Use new settings
 
 .. _update_settings_0.6.1:
 
-New settings in 0.6.1
-+++++++++++++++++++++
+New/updated settings in 0.6.1
++++++++++++++++++++++++++++++
 
 * The ``HASH_ALGORITHM`` and ``HASH_FUNCTIONS`` settings introduced in
   :ref:`0.5.3 <update_settings_0.5.3>` have been deprecated in favour of the
@@ -73,6 +73,11 @@ New settings in 0.6.1
   backends. The default is fine for existing installations, but you can now
   store data in different backends if you like. Please see
   :doc:`/config/backends` for more information.
+* The ENABLE_SESSIONS parameter was removed. The functionality was never
+  properly tested anyway.
+* The :setting:`SECURE_CACHE` setting defines if RestAuth should store sensitive
+  data in its caching framework. The default is False and this setting should
+  only be set to True if you consider the cache store secure.
 
 .. _update_settings_0.6.0:
 
