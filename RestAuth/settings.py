@@ -32,6 +32,7 @@ USE_I18N = False
 ROOT_URLCONF = 'RestAuth.urls'
 TEMPLATE_LOADERS = ()
 TIME_ZONE = None  # None='same as os'
+CACHES = {}
 
 # do not insert session middleware:
 LOGGING = {}
@@ -40,10 +41,10 @@ LOG_HANDLER_KWARGS = {}
 LOG_LEVEL = 'ERROR'
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.cache.UpdateCacheMiddleware',
+#    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'RestAuth.common.middleware.RestAuthMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
+#    'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
 CACHE_MIDDLEWARE_SECONDS = 300
