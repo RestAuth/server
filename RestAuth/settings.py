@@ -93,6 +93,7 @@ MAX_USERNAME_LENGTH = 255
 MIN_PASSWORD_LENGTH = 6
 VALIDATORS = []
 GROUP_RECURSION_DEPTH = 3
+SECURE_CACHE = False
 
 # backends:
 USER_BACKEND='RestAuth.backends.django_backend.DjangoUserBackend'
