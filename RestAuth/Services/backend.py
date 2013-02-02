@@ -17,6 +17,9 @@
 
 import base64
 
+from django.conf import settings
+from django.core.cache import cache
+
 from RestAuth.Services.models import Service
 
 
@@ -34,16 +37,36 @@ class InternalAuthenticationBackend:
         if method.lower() != 'basic':  # pragma: no cover
             return None  # we only support basic authentication
 
-        name, password = base64.b64decode(data).split(':', 1)
 
-        try:
-            serv = Service.objects.get(username=name)
-            if serv.verify(password, host):
-                # service successfully verified
+        qs = Service.objects.only('username', 'password')
+
+        if settings.SECURE_CACHE:
+            cache_key = 'service_%s' % data
+            serv, hosts = cache.get(cache_key, (None, None, ))
+
+            if serv is None or hosts is None:
+                name, password = base64.b64decode(data).split(':', 1)
+
+                serv = qs.get(username=name)
+                hosts = serv.hosts.values_list('address', flat=True)
+
+                if serv.verify(password, host):
+                    cache.set(cache_key, (serv, hosts))
+                    return serv
+
+            if host in hosts:
                 return serv
-        except Service.DoesNotExist:
-            # service does not exist
-            return None
+        else:
+            name, password = base64.b64decode(data).split(':', 1)
+
+            try:
+                serv = qs.get(username=name)
+                if serv.verify(password, host):
+                    # service successfully verified
+                    return serv
+            except Service.DoesNotExist:
+                # service does not exist
+                return None
 
     def get_user(self, user_id):  # pragma: no cover
         """
