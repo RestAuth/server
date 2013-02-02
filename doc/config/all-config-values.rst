@@ -311,17 +311,29 @@ SECURE_CACHE
 Default: ``False``
 
 If you consider your cache to be secure, RestAuth can cache some sensitive
-data as well. Note that this leads to a significant speed improvement. If
-SECURE_CACHE is True, RestAuth will also store service credentials and user
-password hashes. In general, do not set this setting to True, if it is possible
-to read or manipulate the cache from the a different host or from the same host
-and a different system user.
+data as well. If SECURE_CACHE is True, RestAuth will also store service
+credentials and user password hashes.
 
-With the default CACHES configuration (see above), the cache is definetly
-secure. Memcached is definetly not secure, because anyone can access memcached
-via network. If you enable SECURE_CACHES is ultimately your call.  As a general
-rule of thumb, enable this setting if compromising your cache is just as bad as
-compromising RestAuth itself.
+Setting ``SECURE_CACHE`` to True leads to a *great* speed improvement (for
+example, the `RestAuthClient <https://python.restauth.net>`_ testsuite executes
+5 times faster) but naturally has grave security implications. If an attacker
+can illegitimately access your cache, he/she may gain access to the RestAuth
+server with the same privileges as the services configured.
+
+If you enable this setting, this has different implications depending on the
+cache you use:
+
+* If you use
+  `Local-memory caching <https://docs.djangoproject.com/en/dev/topics/cache/?from=olddocs#local-memory-caching>`_
+  (the default), there isn't really any difference in security. If an attacker
+  can access your local memory, the host is already fully compromised anyway.
+  There is a disadvantage, though: Since each process has its own cache, setting
+  a password via |bin-restauth-service-link| won't take effect until either the
+  cache expires or you restart all RestAuth instances.
+* If you use any other caching backend (i.e. memcached or filesystem based),
+  make sure that it is as hard as possible to access your cache. In particular,
+  don't use memcached if its running on a different host in an untrusted
+  network.
 
 .. setting:: USER_BACKEND
 
