@@ -32,7 +32,6 @@ USE_I18N = False
 ROOT_URLCONF = 'RestAuth.urls'
 TEMPLATE_LOADERS = ()
 TIME_ZONE = None  # None='same as os'
-CACHES = {}
 
 # do not insert session middleware:
 LOGGING = {}
