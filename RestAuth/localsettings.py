@@ -81,6 +81,8 @@ SECRET_KEY = ''
 # system time zone.
 #TIME_ZONE = 'Europe/Vienna'
 
+SECURE_CACHE=True
+
 #################
 ### USERNAMES ###
 #################
@@ -162,18 +164,11 @@ SECRET_KEY = ''
 #CACHES = {}
 #
 # If you consider your cache to be secure, RestAuth can cache some sensitive
-# data as well. This leads to a significant speed improvement. If SECURE_CACHE
-# is True, RestAuth will also store service credentials and user password
-# hashes. In general, do not set this setting to True, if it is possible to
-# read or manipulate the cache from the a different host or from the same host
-# and a different system user.
-#
-# With the default CACHES configuration (see above), the cache is definetly
-# secure. Memcached is definetly not secure, because anyone can access
-# memcached via network. If you enable SECURE_CACHES is ultimately your call.
-# As a general rule of thumb, enable this setting if compromising your cache is
-# just as bad as compromising RestAuth itself.
-#SECURE_CACHE = True
+# data as well. This leads to a significant speed improvement. This is a rather
+# sensitive subject, please read:
+#   https://server.restauth.net/config/all-config-values.html#secure-cache
+# before enabling this setting. The default is False.
+#SECURE_CACHE = False
 
 ###############
 ### LOGGING ###
