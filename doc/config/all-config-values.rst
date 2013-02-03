@@ -194,11 +194,8 @@ MIDDLEWARE_CLASSES
 Default::
 
    (
-       'django.middleware.cache.UpdateCacheMiddleware',
        'django.middleware.common.CommonMiddleware',
-       'RestAuth.common.middleware.ExceptionMiddleware',
-       'RestAuth.common.middleware.HeaderMiddleware',
-       'django.middleware.cache.FetchFromCacheMiddleware',
+       'RestAuth.common.middleware.RestAuthMiddleware',
    )
 
 RestAuth uses `middlewares
