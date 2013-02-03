@@ -126,6 +126,14 @@ SECRET_KEY = ''
 #    'django.contrib.auth.hashers.CryptPasswordHasher',
 #)
 
+# You may override the hasher used for hashing service passwords. Since the
+# passwords used for service authentication are usually not very valuable
+# (auto-generated, easily changeable) you may choose a faster hashing
+# algorithm from any algorithm found in PASSWORD_HASHERS. The special value
+# 'default' (which is the default) means the first hasher in PASSWORD_HASHERS.
+# This speeds up RestAuth significantly, but has the security drawback that an
+# attacker might be able to retrieve service credentials.
+#SERVICE_PASSWORD_HASHER = 'django.contrib.auth.hashers.MD5PasswordHasher'
 
 ##############
 ### GROUPS ###

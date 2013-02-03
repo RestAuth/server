@@ -256,6 +256,9 @@ If you need to import hashes from a different system, you can easily write your
 own password hasher. Please see :doc:`/config/custom-hashes` for more
 information.
 
+.. NOTE:: This setting is by default also used for services. You can speed up
+   RestAuth with the :setting:`SERVICE_PASSWORD_HASHER` setting.
+
 .. setting:: PROPERTY_BACKEND
 
 PROPERTY_BACKEND
@@ -331,6 +334,23 @@ cache you use:
   make sure that it is as hard as possible to access your cache. In particular,
   don't use memcached if its running on a different host in an untrusted
   network.
+
+.. setting:: SERVICE_PASSWORD_HASHER
+
+SERVICE_PASSWORD_HASHER
+=======================
+
+.. versionadded:: 0.6.1
+
+default: ``default``
+
+You may override the hasher used for hashing service passwords. Since the
+passwords used for service authentication are usually not very valuable
+(auto-generated, easily changeable) you may choose a faster hashing
+algorithm from any algorithm found in PASSWORD_HASHERS. The special value
+'default' (which is the default) means the first hasher in PASSWORD_HASHERS.
+This speeds up RestAuth significantly, but has the security drawback that an
+attacker might be able to retrieve service credentials.
 
 .. setting:: USER_BACKEND
 

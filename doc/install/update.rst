@@ -75,6 +75,8 @@ New/updated settings in 0.6.1
   :doc:`/config/backends` for more information.
 * The ENABLE_SESSIONS parameter was removed. The functionality was never
   properly tested anyway.
+* The :setting:`SERVICE_PASSWORD_HASHER` setting may be used to speed up
+  RestAuth.
 * The :setting:`SECURE_CACHE` setting defines if RestAuth should store sensitive
   data in its caching framework. The default is False and this setting should
   only be set to True if you consider the cache store secure.

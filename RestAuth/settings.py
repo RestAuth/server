@@ -40,10 +40,8 @@ LOG_HANDLER_KWARGS = {}
 LOG_LEVEL = 'ERROR'
 
 MIDDLEWARE_CLASSES = (
-#    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'RestAuth.common.middleware.RestAuthMiddleware',
-#    'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
 CACHE_MIDDLEWARE_SECONDS = 300
@@ -93,6 +91,7 @@ MIN_PASSWORD_LENGTH = 6
 VALIDATORS = []
 GROUP_RECURSION_DEPTH = 3
 SECURE_CACHE = False
+SERVICE_PASSWORD_HASHER = 'default'
 
 # backends:
 USER_BACKEND='RestAuth.backends.django_backend.DjangoUserBackend'

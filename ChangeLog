@@ -20,7 +20,10 @@ RestAuth 0.6.1 (DD MMMM YYYY)
   		https://server.restauth.net/config/custom-hashes.html
 	for more information.
   * Because of the above changes, hashing is now provided by public functions
-    that can be used in custom backends as well.
+    that can be used in custom backends as well (see documentation).
+  * The SERVICE_PASSWORD_HASHER setting overrides the default password hasher.
+    This may be used to increase performance, but has some security
+	implications (see documentation).
 
   General improvements:
   * Most received data is now validated using assertions. This makes verifying
