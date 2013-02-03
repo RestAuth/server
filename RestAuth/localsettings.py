@@ -81,8 +81,6 @@ SECRET_KEY = ''
 # system time zone.
 #TIME_ZONE = 'Europe/Vienna'
 
-SECURE_CACHE=True
-
 #################
 ### USERNAMES ###
 #################
