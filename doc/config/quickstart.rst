@@ -145,7 +145,7 @@ plattform. Here are the relevant parts for RestAuth:
     <VirtualHost *:443>
         # your basic configuration here...
 
-        # Django/WSGI application
+        # Django/WSGI application (WSGIScriptAlias needs full path, see below)
         WSGIScriptAlias / |wsgi-script|
         WSGIPassAuthorization on
         WSGIProcessGroup restauth
@@ -170,7 +170,8 @@ plattform. Here are the relevant parts for RestAuth:
 
 .. only:: source
 
-   The wsgi-script is located in the ``wsgi`` folder of your source-folder.
+   The wsgi-script (see line 5) is located in the ``wsgi`` folder of your
+   source-folder.
 
    .. NOTE:: If RestAuth (or one of its depending libraries) is not in your
       path, you need to add their paths to the wsgi script. Please see the
