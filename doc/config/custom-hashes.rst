@@ -16,7 +16,7 @@ Available hash functions
 ========================
 
 .. automodule:: RestAuth.common.hashers
-   :members: apr1, crypt, mediawiki
+   :members: Sha512Hasher, MediaWikiHasher, Apr1Hasher
 
 .. _own-hash-functions:
 

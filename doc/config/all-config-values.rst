@@ -57,6 +57,7 @@ CONTENT_HANDLERS
 ================
 
 Default::
+
    (
       'RestAuthCommon.handlers.json',
    )

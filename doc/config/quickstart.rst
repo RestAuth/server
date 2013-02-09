@@ -154,7 +154,6 @@ plattform. Here are the relevant parts for RestAuth:
 
 .. vim syntax highlighting for rst sucks*
 
-
 .. only:: homepage
 
    The wsgi-script (see line 5) is located in different locations depending on how you installed
