@@ -7,7 +7,7 @@
 * Make content type handlers global objects that are never reloaded
   (like password hashers)
 * Use GenericIpAddressField for Services
-* RestAuth.common.decorates contains Django 1.3 code
+* RestAuth.common.decoratorss contains Django 1.3 code
 
 Future:
 
