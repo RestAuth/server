@@ -46,7 +46,8 @@ def load_handlers(content_handlers=None):
             raise ImproperlyConfigured("Handler doesn't specify a "
                                        "MIME type: %s" % backend)
         handlers.append(handler)
-    HANDLERS = {h.mime: h for h in handlers}
+
+    HANDLERS = dict([(h.mime, h) for h in handlers])
     PREFERRED_HANDLER = handlers[0]
     SUPPORTED_HANDLERS = HANDLERS.keys()
 
