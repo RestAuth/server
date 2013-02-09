@@ -4,8 +4,6 @@
   * Split backends and writing backends.
 * Optional support for storing passwords in a cache.
 * Add UWSGI files to documentation, so they can be referenced
-* Make content type handlers global objects that are never reloaded
-  (like password hashers)
 * Use GenericIpAddressField for Services
 * RestAuth.common.decoratorss contains Django 1.3 code
 

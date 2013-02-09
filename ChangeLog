@@ -28,6 +28,8 @@ RestAuth 0.6.1 (DD MMMM YYYY)
   General improvements:
   * Most received data is now validated using assertions. This makes verifying
     the input data format both faster and more exact.
+  * Content handlers are now configured with the CONTENT_HANDLERS setting. The
+    handlers are now used as global classes and are never reloaded.
 
   Caching:
   * The CACHES setting is no longer overriden by settings, enabling Djangos

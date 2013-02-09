@@ -80,6 +80,9 @@ New/updated settings in 0.6.1
 * The :setting:`SECURE_CACHE` setting defines if RestAuth should store sensitive
   data in its caching framework. The default is False and this setting should
   only be set to True if you consider the cache store secure.
+* The :setting:`CONTENT_HANDLERS` setting now defines content handlers usable
+  for RestAuth. RestAuth keeps a global list of content handlers and no longer
+  creates new handler instances upon every page load.
 
 .. _update_settings_0.6.0:
 

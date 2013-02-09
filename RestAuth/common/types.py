@@ -20,11 +20,11 @@ import mimeparse
 from RestAuthCommon.error import BadRequest
 from RestAuthCommon.error import NotAcceptable
 from RestAuthCommon.error import UnmarshalError, UnsupportedMediaType
-from RestAuthCommon.handlers import CONTENT_HANDLERS
+from RestAuth.common.content_handlers import get_handler, get_supported
 
 
 def get_response_type(request):
-    supported = CONTENT_HANDLERS.keys()
+    supported = get_supported()
 
     header = request.META['HTTP_ACCEPT']
     match = mimeparse.best_match(supported, header)
@@ -35,15 +35,13 @@ def get_response_type(request):
 
 
 def parse_dict(request):
-    # parse response body:
-    supported = CONTENT_HANDLERS.keys()
+    supported = get_supported()
 
     header = request.META['CONTENT_TYPE']
     mime_type = mimeparse.best_match(supported, header)
     if mime_type:
         body = request.raw_post_data
-
-        handler = CONTENT_HANDLERS[mime_type]()
+        handler = get_handler(mime_type)
 
         try:
             data = handler.unmarshal_dict(body)

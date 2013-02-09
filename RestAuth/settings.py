@@ -81,6 +81,10 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.CryptPasswordHasher',
 )
 
+CONTENT_HANDLERS = (
+    'RestAuthCommon.handlers.json',
+)
+
 #############################################
 ### Defaults for the standard settings.py ###
 #############################################

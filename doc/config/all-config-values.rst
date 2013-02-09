@@ -51,6 +51,22 @@ Please see the `official documentation
 <https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this
 setting.
 
+.. setting:: CONTENT_HANDLERS
+
+CONTENT_HANDLERS
+================
+
+Default::
+   (
+      'RestAuthCommon.handlers.json',
+   )
+
+.. versionadded:: 0.6.1
+
+The handlers used to encode/decode content. If you write custom content
+handlers, add them here.
+
+
 .. setting:: GROUP_BACKEND
 
 GROUP_BACKEND

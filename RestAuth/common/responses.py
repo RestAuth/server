@@ -20,13 +20,13 @@ from django.http import HttpResponse as HttpResponseBase
 from django.http import HttpResponseNotFound
 
 from RestAuth.common.types import get_response_type
-from RestAuthCommon.handlers import CONTENT_HANDLERS
+from RestAuth.common.content_handlers import get_handler
 
 
 class HttpRestAuthResponse(HttpResponseBase):
     def __init__(self, request, response_object, status=200):
         mime_type = get_response_type(request)
-        handler = CONTENT_HANDLERS[mime_type]()
+        handler = get_handler(mime_type)
         body = handler.marshal(response_object)
 
         HttpResponseBase.__init__(self, body, mime_type, status, mime_type)
