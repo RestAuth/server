@@ -21,6 +21,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
+from django.test.utils import override_settings
 
 from RestAuthCommon import handlers
 
@@ -29,7 +30,6 @@ from RestAuth.Users.models import prop_permissions
 from RestAuth.Users.models import user_permissions
 from RestAuth.Groups.models import group_permissions
 from RestAuth.backends import user_backend, group_backend, property_backend
-from RestAuth.common.decorators import override_settings
 
 username1 = u"mati \u6111"
 username2 = u"mati \u6112"

@@ -4,13 +4,13 @@ import httplib
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.test.client import Client
 from django.test import TestCase
+from django.test.client import Client
+from django.test.utils import override_settings
 
 import RestAuthCommon
 
 from RestAuth.common.testdata import RestAuthTest
-from RestAuth.common.decorators import override_settings
 from RestAuth.Services.models import Service
 from RestAuth.Services.models import service_create
 from RestAuth.Services.models import ServiceUsernameNotValid
