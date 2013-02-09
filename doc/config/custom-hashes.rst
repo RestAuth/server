@@ -1,14 +1,16 @@
 Custom password hashes
 ----------------------
 
-RestAuth can understand custom hashing algorithms if you add functions to handle them with the
-:setting:`HASH_FUNCTIONS` setting. This is useful if you want to import userdata from a different
-system that stores passwords using an unusual hashing algorithm.
+RestAuth can understand custom hashing algorithms if you add functions to handle
+them with the :setting:`HASH_FUNCTIONS` setting. This is useful if you want to
+import userdata from a different system that stores passwords using an unusual
+hashing algorithm.
 
-You can :ref:`implement your own hashing algorithm <own-hash-functions>` if you intend to import
-data from a system not supported by RestAuth. If you set :setting:`HASH_ALGORITHM` to one of the
-algorithms you add to this setting, RestAuth will also store hashes using this algorithm. This is
-useful if you plan to later export data to such a system.
+You can :ref:`implement your own hashing algorithm <own-hash-functions>` if you
+intend to import data from a system not supported by RestAuth. If you set
+:setting:`HASH_ALGORITHM` to one of the algorithms you add to this setting,
+RestAuth will also store hashes using this algorithm. This is useful if you plan
+to later export data to such a system.
 
 .. _available-hash-functions:
 
@@ -23,8 +25,8 @@ Available hash functions
 Implement your own hash functions
 =================================
 
-Implementing your own hash function is very easy. The only thing you need to do is implement a
-function with the following signature:
+Implementing your own hash function is very easy. The only thing you need to do
+is implement a function with the following signature:
 
 .. code-block:: python
 
@@ -34,18 +36,21 @@ function with the following signature:
 
 There are a few things to note here:
 
-* ``my_algorithm`` is the function name and encodes a custom name of your algorithm. The only
-  restrictons for a name are that it is a valid function name (i.e. no dashes (``-``)) and that it
-  is not one of the algorithms implemented by the `hashlib module
-  <http://docs.python.org/library/hashlib.html>`_ shipping with python. The name is the same as the
-  name of the :ref:`algorithm in the password dictionary <import-format-services>` of the import
-  data format.
+* ``my_algorithm`` is the function name and encodes a custom name of your
+  algorithm. The only restrictons for a name are that it is a valid function
+  name (i.e. no dashes (``-``)) and that it is not one of the algorithms
+  implemented by the `hashlib module
+  <http://docs.python.org/library/hashlib.html>`_ shipping with python. The name
+  is the same as the name of the :ref:`algorithm in the password dictionary
+  <import-format-services>` of the import data format.
 * The ``secret`` argument is the plain password.
-* The ``salt`` argument may optionally be ``None`` if the algorithm in question may not use a salt.
-* The function must return the valid hash of ``secret`` using the ``salt`` supplied (if any).
+* The ``salt`` argument may
+  optionally be ``None`` if the algorithm in question may not use a salt.
+* The function must return the valid hash of ``secret`` using the ``salt``
+  supplied (if any).
 
-Once you implemented your hash function, all you have to do is append the path of that function to
-:setting:`HASH_FUNCTIONS` in |file-settings-link|:
+Once you implemented your hash function, all you have to do is append the path
+of that function to :setting:`HASH_FUNCTIONS` in |file-settings-link|:
 
 .. code-block:: python
 
@@ -67,10 +72,11 @@ Once you implemented your hash function, all you have to do is append the path o
 Example
 +++++++
 
-A common scenario is that a system you want to import data from does not use a very unusual hashing
-algorithm, but rather the salt is used in a different way. RestAuth prepends the salt to the
-password without any delimiter. By contrast, i.e. MediaWiki delimits the salt and password with a
-dash (``-``). Another scenario is that the hash is applied multiple times to improve security. Here
+A common scenario is that a system you want to import data from does not use a
+very unusual hashing algorithm, but rather the salt is used in a different way.
+RestAuth prepends the salt to the password without any delimiter. By contrast,
+i.e. MediaWiki delimits the salt and password with a dash (``-``). Another
+scenario is that the hash is applied multiple times to improve security. Here
 are two examples:
 
 .. code-block:: python
