@@ -29,6 +29,7 @@ from RestAuth.Users.models import prop_permissions
 from RestAuth.Users.models import user_permissions
 from RestAuth.Groups.models import group_permissions
 from RestAuth.backends import user_backend, group_backend, property_backend
+from RestAuth.common.decorators import override_settings
 
 username1 = u"mati \u6111"
 username2 = u"mati \u6112"
@@ -149,9 +150,11 @@ class RestAuthTestBase(object):
         group_backend.testTearDown()
 
 
+@override_settings(PASSWORD_HASHERS=('django.contrib.auth.hashers.MD5PasswordHasher', ))
 class RestAuthTest(RestAuthTestBase, TestCase):
     pass
 
 
+@override_settings(PASSWORD_HASHERS=('django.contrib.auth.hashers.MD5PasswordHasher', ))
 class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
     pass
