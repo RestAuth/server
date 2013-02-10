@@ -363,10 +363,11 @@ class coverage(Command):
 
         cov = coverage.coverage(cover_pylib=False, source=['RestAuth', ],
                                 branch=True, omit=omit)
-        regexp = 'class MemoryUserInstance\(UserInstance\):'
-        cov.exclude(regexp)
+
+        # exclude some patterns:
+        cov.exclude('\t*self.fail\(.*\)')
+
         cov.start()
-        cov.exclude(regexp)
 
         call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common')
 
