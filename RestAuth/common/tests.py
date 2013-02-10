@@ -18,6 +18,7 @@
 import httplib
 
 from django.test.client import RequestFactory
+from django.test.utils import override_settings
 from django.utils.unittest import TestCase
 
 from RestAuthCommon import handlers
@@ -97,24 +98,17 @@ validators = (
 )
 
 
+@override_settings(VALIDATORS=validators)
 class ValidatorTests(RestAuthTest):
-    def setUp(self):
-        load_username_validators(validators)
-        super(ValidatorTests, self).setUp()
-
-    def tearDown(self):
-        super(ValidatorTests, self).tearDown()
-        load_username_validators()
-
     def test_illegal_chars(self):
-        self.assertRaises(UsernameInvalid, validate_username, *['foo>bar'])
+        self.assertRaises(UsernameInvalid, validate_username, 'foo>bar')
 
     def test_reserved_username(self):
         self.assertRaises(UsernameInvalid, validate_username,
-                          *['mediawiki default'])
+                          'mediawiki default')
 
     def test_force_ascii(self):
-        self.assertRaises(UsernameInvalid, validate_username, *[username1])
+        self.assertRaises(UsernameInvalid, validate_username, username1)
 
     def test_no_whitespace(self):
-        self.assertRaises(UsernameInvalid, validate_username, *['foo bar'])
+        self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
