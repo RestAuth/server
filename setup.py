@@ -41,6 +41,7 @@ if os.path.exists(common_path):
     else:
         os.environ['PYTHONPATH'] = common_path
 
+from django.conf import settings
 from django.core.management import call_command
 
 LATEST_RELEASE = '0.6.0'
@@ -337,15 +338,34 @@ class coverage(Command):
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)
 
-        cov = coverage.coverage(
-            cover_pylib=False, source=['RestAuth', ], branch=True,
-            omit=[
-                '*tests.py',
-                '*testdata.py',
-                '*settings.py',
-                '*migrations/*.py',
-            ])
+        omit = [
+            '*tests.py',
+            '*testdata.py',
+            '*settings.py',
+            '*migrations/*.py',
+            'RestAuth/*/cli/*',
+        ]
+
+        # compute backend files to exclude:
+        backend_path = 'RestAuth/backends/'
+        backend_whitelist = ['__init__.py', 'base.py']
+        backend_mods = [os.path.splitext(f)[0]
+                        for f in os.listdir(backend_path)
+                        if f.endswith('py') and f not in backend_whitelist]
+        used_backend_mods = [mod.rsplit('.', 2)[1] for mod in [
+            settings.USER_BACKEND, settings.GROUP_BACKEND,
+            settings.PROPERTY_BACKEND
+        ]]
+        for mod in backend_mods:
+            if mod not in used_backend_mods:
+                omit.append('%s%s.py' % (backend_path, mod))
+
+        cov = coverage.coverage(cover_pylib=False, source=['RestAuth', ],
+                                branch=True, omit=omit)
+        regexp = 'class MemoryUserInstance\(UserInstance\):'
+        cov.exclude(regexp)
         cov.start()
+        cov.exclude(regexp)
 
         call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common')
 
