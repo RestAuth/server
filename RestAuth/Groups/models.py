@@ -101,5 +101,5 @@ class Group(models.Model):
         else:
             return "%s/None" % (self.name)
 
-    def get_absolute_url(self):
+    def get_absolute_url(self):  # pragma: no cover
         return '/groups/%s/' % urlquote(self.name)

@@ -64,9 +64,6 @@ class ServiceUser(models.Model):
             self.save()
         return check_password(raw_password, self.password, setter)
 
-    def get_properties(self):
-        return dict(self.property_set.values_list('key', 'value').all())
-
     def set_property(self, key, value):
         """
         Set the property identified by I{key} to I{value}. If the
