@@ -44,8 +44,3 @@ class HttpResponseCreated(HttpRestAuthResponse):
 
         HttpRestAuthResponse.__init__(self, request, [uri], 201)
         self['Location'] = uri
-
-class HttpResponseResourceNotFound(HttpResponseNotFound):
-    def __init__(self, typ):
-        super(HttpResponseResourceNotFound, self).__init__(status=404)
-        self['Resource-Type'] = typ
