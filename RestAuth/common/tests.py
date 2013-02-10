@@ -25,7 +25,6 @@ from RestAuthCommon import handlers
 
 from RestAuth.Services.models import Service
 from RestAuth.Users.validators import validate_username
-from RestAuth.Users.validators import load_username_validators
 from RestAuth.common.errors import UsernameInvalid
 from RestAuth.common.testdata import RestAuthTest
 from RestAuth.common.testdata import user_backend
