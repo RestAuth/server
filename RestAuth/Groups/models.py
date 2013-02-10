@@ -27,7 +27,6 @@ from RestAuthCommon.error import PreconditionFailed
 
 from RestAuth.Users.models import ServiceUser as User
 from RestAuth.Groups.managers import GroupManager
-from RestAuth.common.errors import GroupExists
 
 group_permissions = (
     ('groups_for_user', 'List groups for a user'),
@@ -84,9 +83,6 @@ class Group(models.Model):
 
     def is_member(self, username):
         return self.get_members().filter(username=username).exists()
-
-    def is_direct_member(self, username):
-        return self.get_members(depth=0).filter(username=username).exists()
 
     def save(self, *args, **kwargs):
         if self.service is None:
