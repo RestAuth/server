@@ -127,7 +127,7 @@ class ImportTests(RestAuthTest):
 
     def test_unknown_path(self):
         self.assertRaises(ImproperlyConfigured, import_path,
-                          'RestAuth.foobar')
+                          'Unknown.Module')
 
     def test_unkown_class(self):
         self.assertRaises(ImproperlyConfigured, import_path,
