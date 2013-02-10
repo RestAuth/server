@@ -45,9 +45,9 @@ elif args.action == 'rm':
 elif args.action == 'ls':
     for service in Service.objects.all().order_by('username'):
         hosts = [host.address for host in service.hosts.all()]
-        print('%s: %s' % (service.username, ', '.join(hosts)))
+        print('%s: %s' % (service.name, ', '.join(hosts)))
 elif args.action == 'view':
-    print(args.service.username)
+    print(args.service.name)
     print('Last used: %s' % (args.service.last_login))
     hosts = [str(host.address) for host in args.service.hosts.all()]
     print('Hosts: %s' % (', '.join(hosts)))
