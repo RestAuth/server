@@ -39,7 +39,9 @@ def load_username_validators(validators=None):
     if validators is None:
         validators = settings.VALIDATORS
 
-    USERNAME_VALIDATORS = []
+    used_validators = []
+    illegal_chars = set()
+    reserved = set()
     force_ascii = False
     allow_whitespace = True
 
@@ -47,10 +49,10 @@ def load_username_validators(validators=None):
         validator = import_path(validator_path)[0]
 
         if hasattr(validator, 'check'):
-            USERNAME_VALIDATORS.append(validator)
+            used_validators.append(validator)
 
-        USERNAME_ILLEGAL_CHARS |= validator.ILLEGAL_CHARACTERS
-        USERNAME_RESERVED |= validator.RESERVED
+        illegal_chars |= validator.ILLEGAL_CHARACTERS
+        reserved |= validator.RESERVED
         if validator.FORCE_ASCII:
             force_ascii = True
         if not validator.ALLOW_WHITESPACE:
@@ -65,6 +67,10 @@ def load_username_validators(validators=None):
             USERNAME_NO_WHITESPACE = re.compile('\s', re.UNICODE)
     else:
         USERNAME_NO_WHITESPACE = False
+
+    USERNAME_RESERVED = reserved
+    USERNAME_ILLEGAL_CHARS = illegal_chars
+    USERNAME_VALIDATORS = validators
 
 
 def validate_username(username):
