@@ -106,17 +106,13 @@ class install(_install):
         _install.run(self)
 
         # write symlink for restauth-manage.py
+        source = os.path.join(self.install_scripts, 'manage.py')
         target = os.path.join(self.install_scripts, 'restauth-manage.py')
-        source = os.path.join(
-            os.path.abspath(self.install_purelib),
-            'RestAuth', 'manage.py'
-        )
-        if not os.path.exists(target):
-            os.symlink(source, target)
 
-        # set execute permissions:
-        mode = os.stat(source).st_mode
-        os.chmod(source, mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        os.rename(source, target)
+#        # set execute permissions:
+#        mode = os.stat(source).st_mode
+#        os.chmod(source, mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 added_options = [
     ('prefix=', None, 'installation prefix'),
@@ -425,8 +421,9 @@ setup(
         'RestAuth.Users', 'RestAuth.Users.migrations',
         'RestAuth.common', 'RestAuth.Test'],
     scripts=[
-        'bin/restauth-service.py', 'bin/restauth-user.py',
-        'bin/restauth-group.py', 'bin/restauth-import.py',
+        'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
+        'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
+        'manage.py',
     ],
     data_files=[
         ('share/restauth', ['wsgi']),
