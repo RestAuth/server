@@ -26,6 +26,12 @@ from django.utils.datastructures import SortedDict
 
 
 class Sha512Hasher(BasePasswordHasher):
+    """A basic sha512 hasher with salt.
+
+    This hasher hashing algorithm that used to be the default before RestAuth
+    0.6.1.
+    """
+
     algorithm = 'sha512'
 
     def encode(self, password, salt):
@@ -44,6 +50,7 @@ class Sha512Hasher(BasePasswordHasher):
             ('salt', mask_hash(salt)),
             ('hash', mask_hash(hash)),
         ])
+
 
 class MediaWikiHasher(BasePasswordHasher):
     """
@@ -123,8 +130,8 @@ class Apr1Hasher(BasePasswordHasher):
 
     def _crypt(self, plainpasswd, salt):
         """
-        This function creates an md5 hash that is identical to one that would be
-        created by :cmd:`htpasswd -m`.
+        This function creates an md5 hash that is identical to one that would
+        be created by :cmd:`htpasswd -m`.
 
         Algorithm shamelessly copied from here:
             http://www.php.net/manual/de/function.crypt.php#73619
