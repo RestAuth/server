@@ -19,3 +19,6 @@ lib/
 local/
 /bin/
 share/
+/uwsgi.ini
+/log
+/run
