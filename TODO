@@ -1,5 +1,4 @@
 0.6.1:
-* Add UWSGI files to documentation, so they can be referenced
 * Use GenericIpAddressField for Services
 
 Future:
