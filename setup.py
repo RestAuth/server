@@ -339,7 +339,6 @@ class coverage(Command):
             os.makedirs(self.dir)
 
         omit = [
-            '*tests.py',
             '*testdata.py',
             '*settings.py',
             '*migrations/*.py',
