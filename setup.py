@@ -344,6 +344,7 @@ class coverage(Command):
             '*settings.py',
             '*migrations/*.py',
             'RestAuth/*/cli/*',
+            'RestAuth/common/profile.py',
         ]
 
         # compute backend files to exclude:
