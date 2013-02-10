@@ -18,7 +18,7 @@
 from django.db import connection
 
 
-def sql_profiler(view, request, *args, **kwargs):  # pragma: no cover
+def sql_profiler(view, request, *args, **kwargs):
     """
     Wrapper-function for the sql_profile decorator.
     """
@@ -32,7 +32,7 @@ def sql_profiler(view, request, *args, **kwargs):  # pragma: no cover
             print('%s; (%s secs)' % (query['sql'], query['time']))
 
 
-def sql_profile(function=None):  # pragma: no cover
+def sql_profile(function=None):
     """
     Decorator that lets you profile the sql queries made by a request. This
     isn't used anywhere by default, it is mainly used for debugging.
