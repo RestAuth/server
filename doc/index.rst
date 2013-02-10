@@ -72,6 +72,7 @@ Advanced configuration
    config/all-config-values
    config/username-validation
    config/custom-hashes
+   config/backends
    config/multiple-instances
    config/database-replication
 
