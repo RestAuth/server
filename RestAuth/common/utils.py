@@ -34,4 +34,4 @@ def import_path(path):
         return getattr(mod, attrname), attrname
     except AttributeError:
         msg = 'Middleware module "%s" does not define a "%s" class'
-        raise ImproperlyConfigured(msg % (modname, classname))
+        raise ImproperlyConfigured(msg % (modname, attrname))
