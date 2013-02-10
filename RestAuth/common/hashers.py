@@ -42,7 +42,7 @@ class Sha512Hasher(BasePasswordHasher):
         algorithm, salt, hash = encoded.split('$', 3)
         return constant_time_compare(encoded, self.encode(password, salt))
 
-    def safe_summary(self, encoded):
+    def safe_summary(self, encoded):  # pragma: no cover
         algorithm, salt, hash = encoded.split('$', 3)
         assert algorithm == self.algorithm
         return SortedDict([
@@ -85,7 +85,7 @@ class MediaWikiHasher(BasePasswordHasher):
         else:
             return constant_time_compare(encoded, self.encode(password, salt))
 
-    def safe_summary(self, encoded):
+    def safe_summary(self, encoded):  # pragma: no cover
         algorithm, salt, hash = encoded.split('$', 3)
         assert algorithm == self.algorithm
         return SortedDict([
@@ -113,7 +113,7 @@ class Apr1Hasher(BasePasswordHasher):
         hash = self._crypt(password, salt).encode('utf-8')
         return '%s$%s$%s' % (self.algorithm, salt, hash)
 
-    def safe_summary(self, encoded):
+    def safe_summary(self, encoded):  # pragma: no cover
         algorithm, salt, hash = encoded.split('$', 3)
         assert algorithm == self.algorithm
         return SortedDict([
