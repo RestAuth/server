@@ -26,6 +26,7 @@ from RestAuthCommon import handlers
 from RestAuth.Services.models import Service
 from RestAuth.Users.validators import validate_username
 from RestAuth.Users.validators import load_username_validators
+from RestAuth.backends.base import UserInstance, GroupInstance
 from RestAuth.common.errors import UsernameInvalid
 from RestAuth.common.testdata import RestAuthTest
 from RestAuth.common.testdata import user_backend
@@ -132,3 +133,15 @@ class ImportTests(RestAuthTest):
     def test_unkown_class(self):
         self.assertRaises(ImproperlyConfigured, import_path,
                           'RestAuth.Users.validators.UnknownValidator')
+
+class BaseInstancetests(RestAuthTest):
+    def test_user(self):
+        u = UserInstance(5, 'foobar')
+        self.assertEqual(u.id, 5)
+        self.assertEqual(u.username, 'foobar')
+
+    def test_group(self):
+        g = GroupInstance(5, 'foobar', 'service')
+        self.assertEqual(g.id, 5)
+        self.assertEqual(g.name, 'foobar')
+        self.assertEqual(g.service, 'service')
