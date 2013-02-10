@@ -50,7 +50,7 @@ class GroupInstance(object):
         self.service = service
 
 
-class UserBackend(object):
+class UserBackend(object):  # pragma: no cover
     """Provide the most basic user operations and password management."""
 
     def get(self, username):
@@ -237,7 +237,7 @@ class UserBackend(object):
         pass
 
 
-class PropertyBackend(object):
+class PropertyBackend(object):  # pragma: no cover
     """Provide user properties."""
 
     def list(self, user):
@@ -406,7 +406,7 @@ class PropertyBackend(object):
         pass
 
 
-class GroupBackend(object):
+class GroupBackend(object):  # pragma: no cover
     """Provide groups.
 
     A group may be identified by its name and a service.  The ``service``
