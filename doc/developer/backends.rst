@@ -1,5 +1,5 @@
 Custom backends
-===============
+---------------
 
 RestAuth :doc:`/config/backends` are written in a way that you can easily write
 a drop-in replacement, if you want to use a different storage system for users,
@@ -18,7 +18,7 @@ below.
    :members:
 
 Returning User/Group objects
-++++++++++++++++++++++++++++
+____________________________
 
 Some backend methods to implement expect (or return) a user/group object. The
 objects don't have to be of any particular class but must have a few properties
