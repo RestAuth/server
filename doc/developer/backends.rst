@@ -17,6 +17,52 @@ below.
 .. autoclass:: RestAuth.backends.base.GroupBackend
    :members:
 
+Use RestAuth to hash passwords
+______________________________
+
+If your backend has no facilities to hash passwords on its own, you should
+definetly use the hash functions used by Django/RestAuth itself when processing
+passwords. Django provides two simple functions, ``check_password()`` and
+``make_password()`` that you can use.
+
+Simply use those functions in your implementations of
+:py:func:`UserBackend.create() <RestAuth.backends.base.UserBackend.create>`,
+:py:func:`UserBackend.set_password()
+<RestAuth.backends.base.UserBackend.create>` and
+:py:func:`UserBackend.check_password()
+<RestAuth.backends.base.UserBackend.create>`. Here is a small example:
+
+.. code-block:: python
+
+   from django.contrib.auth.hashers import check_password, make_password
+
+   from RestAuth.backends.base import UserBackend
+
+
+   class CustomUserBackend(UserBackend):
+       def create(self, username, password=None, properties=None,
+                  property_backend=None, dry=False, transaction=True):
+           # generate hashed password:
+           hashed_passsword = make_password(password)
+
+           # save user with hashed password...
+
+       def set_password(self, username, password):
+           # generate hashed password:
+           hashed_passsword = make_password(password)
+
+           # ... save hashed password for user
+
+       def check_password(self, username, password):
+           """Checks password, also updates hash if using an old algorithm."""
+           # get password hash from user...
+           stored_pwdhash = ...
+
+           def setter(raw_password):
+               self.set_password(username, raw_password)
+           return check_password(raw_password, stored_pwdhash, setter)
+
+
 Returning User/Group objects
 ____________________________
 
