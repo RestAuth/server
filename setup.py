@@ -366,6 +366,8 @@ class coverage(Command):
 
         # exclude some patterns:
         cov.exclude('\t*self.fail\(.*\)')
+        if not settings.SECURE_CACHE:
+            cov.exclude('\t*if settings.SECURE_CACHE:')
 
         cov.start()
 

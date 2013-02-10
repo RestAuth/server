@@ -98,7 +98,7 @@ class ServiceUser(models.Model):
     def __unicode__(self):  # pragma: no cover
         return self.username
 
-    def get_absolute_url(self):
+    def get_absolute_url(self):  # pragma: no cover
         return '/users/%s/' % urlquote(self.username)
 
 
@@ -114,6 +114,6 @@ class Property(models.Model):
     def __unicode__(self):  # pragma: no cover
         return "%s: %s=%s" % (self.user.username, self.key, self.value)
 
-    def get_absolute_url(self):
+    def get_absolute_url(self):  # pragma: no cover
         userpath = self.user.get_absolute_url()
         return '%sprops/%s/' % (userpath, urlquote(self.key))
