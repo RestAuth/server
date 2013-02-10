@@ -19,6 +19,9 @@ such a system.
 Available hash functions
 ========================
 
+RestAuth supports all hashers shipping with Django. RestAuth also already
+implements a few other hashers.
+
 .. automodule:: RestAuth.common.hashers
    :members: Sha512Hasher, MediaWikiHasher, Apr1Hasher
 
