@@ -17,18 +17,20 @@
 
 import httplib
 
+from django.core.exceptions import ImproperlyConfigured
 from django.test.client import RequestFactory
-from django.test.utils import override_settings
 from django.utils.unittest import TestCase
 
 from RestAuthCommon import handlers
 
 from RestAuth.Services.models import Service
 from RestAuth.Users.validators import validate_username
+from RestAuth.Users.validators import load_username_validators
 from RestAuth.common.errors import UsernameInvalid
 from RestAuth.common.testdata import RestAuthTest
 from RestAuth.common.testdata import user_backend
 from RestAuth.common.testdata import username1
+from RestAuth.common.utils import import_path
 from RestAuth.common.middleware import RestAuthMiddleware
 
 
@@ -97,8 +99,15 @@ validators = (
 )
 
 
-@override_settings(VALIDATORS=validators)
 class ValidatorTests(RestAuthTest):
+    def setUp(self):
+        super(ValidatorTests, self).setUp()
+        load_username_validators(validators)
+
+    def tearDown(self):
+        super(ValidatorTests, self).tearDown()
+        load_username_validators()
+
     def test_illegal_chars(self):
         self.assertRaises(UsernameInvalid, validate_username, 'foo>bar')
 
@@ -111,3 +120,15 @@ class ValidatorTests(RestAuthTest):
 
     def test_no_whitespace(self):
         self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
+
+class ImportTests(RestAuthTest):
+    def test_malformed_path(self):
+        self.assertRaises(ImproperlyConfigured, import_path, 'foobar')
+
+    def test_unknown_path(self):
+        self.assertRaises(ImproperlyConfigured, import_path,
+                          'RestAuth.foobar')
+
+    def test_unkown_class(self):
+        self.assertRaises(ImproperlyConfigured, import_path,
+                          'RestAuth.Users.validators.UnknownValidator')
