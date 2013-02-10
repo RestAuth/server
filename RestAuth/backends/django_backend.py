@@ -93,7 +93,8 @@ class DjangoUserBackend(UserBackend):
 
         user.save()
 
-    def set_password_hash(self, username, algorithm, hash, salt=None, **kwargs):
+    def set_password_hash(self, username, algorithm, hash, salt=None,
+                          **kwargs):  # pragma: no cover
         user = self._get_user(username, 'password')
         parameters = [algorithm]
         if kwargs:
@@ -112,14 +113,14 @@ class DjangoUserBackend(UserBackend):
         else:
             raise UserNotFound(username)
 
-    def init_transaction(self):
+    def init_transaction(self):  # pragma: no cover
         dj_transaction.enter_transaction_management()
         dj_transaction.managed(True)
 
-    def commit_transaction(self):
+    def commit_transaction(self):  # pragma: no cover
         dj_transaction.commit()
 
-    def rollback_transaction(self):
+    def rollback_transaction(self):  # pragma: no cover
         dj_transaction.rollback()
 
 
@@ -207,14 +208,14 @@ class DjangoPropertyBackend(PropertyBackend):
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def init_transaction(self):
+    def init_transaction(self):  # pragma: no cover
         dj_transaction.enter_transaction_management()
         dj_transaction.managed(True)
 
-    def commit_transaction(self):
+    def commit_transaction(self):  # pragma: no cover
         dj_transaction.commit()
 
-    def rollback_transaction(self):
+    def rollback_transaction(self):  # pragma: no cover
         dj_transaction.rollback()
 
 
@@ -309,12 +310,12 @@ class DjangoGroupBackend(GroupBackend):
     def parents(self, group):
         return group.parent_groups.all()
 
-    def init_transaction(self):
+    def init_transaction(self):  # pragma: no cover
         dj_transaction.enter_transaction_management()
         dj_transaction.managed(True)
 
-    def commit_transaction(self):
+    def commit_transaction(self):  # pragma: no cover
         dj_transaction.commit()
 
-    def rollback_transaction(self):
+    def rollback_transaction(self):  # pragma: no cover
         dj_transaction.rollback()
