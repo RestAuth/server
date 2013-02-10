@@ -72,7 +72,7 @@ class DjangoUserBackend(UserBackend):
                 return self._create(username, password, properties,
                                     property_backend, dry=dry,
                                     transaction=transaction)
-        else:
+        else:  # pragma: no cover
             return self._create(username, password, properties,
                                 property_backend, dry=dry,
                                 transaction=transaction)
@@ -156,7 +156,7 @@ class DjangoPropertyBackend(PropertyBackend):
                     return prop.key, prop.value
                 except IntegrityError:
                     raise PropertyExists()
-        else:
+        else:  # pragma: no cover
             try:
                 prop = user.property_set.create(key=key, value=value)
                 return prop.key, prop.value
@@ -182,7 +182,7 @@ class DjangoPropertyBackend(PropertyBackend):
             with dj_transaction.commit_on_success():
                 prop, old_value = user.set_property(key, value)
                 return prop.key, old_value
-        else:
+        else:  # pragma: no cover
             prop, old_value = user.set_property(key, value)
             return prop.key, old_value
 
@@ -198,7 +198,7 @@ class DjangoPropertyBackend(PropertyBackend):
             with dj_transaction.commit_on_success():
                 for key, value in props.iteritems():
                     user.set_property(key, value)
-        else:
+        else:  # pragma: no cover
             for key, value in props.iteritems():
                 user.set_property(key, value)
 
@@ -260,7 +260,7 @@ class DjangoGroupBackend(GroupBackend):
                         name=name, service=service)
                 except IntegrityError:
                     raise GroupExists('Group "%s" already exists' % name)
-        else:
+        else:  # pragma: no cover
             try:
                 return Group.objects.create(name=name, service=service)
             except IntegrityError:
