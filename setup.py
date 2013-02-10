@@ -43,14 +43,6 @@ if os.path.exists(common_path):
 
 from django.core.management import call_command
 
-from RestAuth.Services.cli import parsers as service_parser
-from RestAuth.Users.cli import parsers as user_parser
-from RestAuth.Groups.cli import parsers as group_parser
-from RestAuth.common.cli import parsers as import_parser
-from RestAuth.common.cli import helpers
-from RestAuth.Users.models import user_permissions, prop_permissions
-from RestAuth.Groups.models import group_permissions
-
 LATEST_RELEASE = '0.6.0'
 
 if os.path.exists('RestAuth'):
@@ -166,6 +158,15 @@ class build_doc_meta(Command):
 
     def __init__(self, *args, **kwargs):
         Command.__init__(self, *args, **kwargs)
+
+        # import here so coverage results are not tainted:
+        from RestAuth.Users.models import user_permissions, prop_permissions
+        from RestAuth.Groups.models import group_permissions
+        from RestAuth.common.cli import helpers
+        from RestAuth.Services.cli import parsers as service_parser
+        from RestAuth.Users.cli import parsers as user_parser
+        from RestAuth.Groups.cli import parsers as group_parser
+        from RestAuth.common.cli import parsers as import_parser
 
         # generate files for cli-scripts:
         service_parser.parser.prog = '|bin-restauth-service|'
@@ -311,7 +312,7 @@ class test(Command):
             call_command('test', self.app)
         else:
             call_command('test', 'Users', 'Groups', 'Test', 'Services',
-                         'common')
+                         'common',)
 
 
 class coverage(Command):
@@ -337,13 +338,19 @@ class coverage(Command):
             os.makedirs(self.dir)
 
         cov = coverage.coverage(
-            cover_pylib=False, include='RestAuth/*',
-            omit=['*tests.py', '*testdata.py', '*settings.py'])
+            cover_pylib=False, source=['RestAuth', ], branch=True,
+            omit=[
+                '*tests.py',
+                '*testdata.py',
+                '*settings.py',
+                '*migrations/*.py',
+            ])
         cov.start()
 
         call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common')
 
         cov.stop()
+        cov.save()
         cov.html_report(directory=self.dir)
 #        cov.report()
 
