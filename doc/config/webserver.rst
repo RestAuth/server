@@ -149,8 +149,8 @@ setting up RestAuth with MySQL and memcached, from the start::
 
 You can start/reload/etc. the instances with::
 
-   (server)restauth@host:server$ uwsgi --stop /usr/local/home/restauth/run/master.pid
-   (server)restauth@host:server$ uwsgi --reload /usr/local/home/restauth/run/master.pid
+   (server)restauth@host:server$ uwsgi --stop /usr/local/home/restauth/run/restauth.pid
+   (server)restauth@host:server$ uwsgi --reload /usr/local/home/restauth/run/restauth.pid
 
 An example uwsgi-configuration ships with RestAuth. You can also
 :download:`download it here </files/uwsgi.ini>`. The documentation has a `full list
