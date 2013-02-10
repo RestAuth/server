@@ -140,40 +140,21 @@ setting up RestAuth with MySQL and memcached, from the start::
    (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-hosts wiki.example.com 127.0.0.1 ::1
    (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-permissions wiki.example.com user* group* prop*
 
-   # Add uwsgi configuration file - see below.
-   (server)restauth@host:server$ vim uwsgi.ini
+   # Add uwsgi configuration file, start the server:.
+   (server)restauth@host:server$ cd ../
+   (server)restauth@host:~$ cp server/doc/files/uwsgi.ini .
+   (server)restauth@host:~$ uwsgi --ini uwsgi.ini
 
    # Configure webserver to proxy requests to uWSGI - see below.
-
-   # Thats it - we only need to start uwsgi now:
-   (server)restauth@host:server$ uwsgi --ini uwsgi.ini
 
 You can start/reload/etc. the instances with::
 
    (server)restauth@host:server$ uwsgi --stop /usr/local/home/restauth/run/master.pid
    (server)restauth@host:server$ uwsgi --reload /usr/local/home/restauth/run/master.pid
 
-The uWSGI configuration file should look like this::
-
-   [uwsgi]
-   chdir=/usr/local/home/restauth/server
-   wsgi-file=/usr/local/home/restauth/server/wsgi/restauth
-   virtualenv=/usr/local/home/restauth/server
-   # note that this may also be a local socket:
-   socket=127.0.0.1:3031
-   # or serve http directly - no need for webserver config:
-   #http=127.0.0.1:8000
-   master=True
-   pidfile=/usr/local/home/restauth/run/master.pid
-   vacuum=True
-   max-requests=5000
-   env=DJANGO_SETTINGS_MODULE=RestAuth.settings
-   daemonize=/usr/local/home/restauth/log/uwsgi.log
-   # start 2 processes with 5 threads each:
-   workers=2
-   threads=5
-
-The documentation has a `full list of configuration directives
+An example uwsgi-configuration ships with RestAuth. You can also
+:download:`download it here </files/uwsgi.ini>`. The documentation has a `full list
+of configuration directives
 <http://uwsgi-docs.readthedocs.org/en/latest/Options.html>`_.
 
 Configure webserver
