@@ -83,6 +83,15 @@ class Service(User):
     class Meta:
         proxy = True
 
+    @property
+    def name(self):
+        """The name of this service, actually an alias for username."""
+        return self.username
+
+    @name.setter
+    def name(self, value):
+        self.username = value
+
     def set_password(self, raw_password):
         self.password = make_password(
             raw_password, hasher=get_service_hasher())
