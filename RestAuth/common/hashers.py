@@ -17,6 +17,7 @@
 
 import base64
 import hashlib
+import math
 import string
 import struct
 
@@ -93,6 +94,134 @@ class MediaWikiHasher(BasePasswordHasher):
             ('salt', mask_hash(salt)),
             ('hash', mask_hash(hash)),
         ])
+
+
+class Drupal7Hasher(BasePasswordHasher):
+    """Hasher that understands hashes as created by Drupal7.
+
+    If you want to import hashes created by Drupal7, just prefix them
+    with the string ``drupal7``. For example:
+
+    .. code-block:: php
+
+       $exported_hash = "drupal7" . $rawhash;
+    """
+    algorithm = 'drupal7'
+
+    # some constants defined in Drupal7:
+    DRUPAL_MIN_HASH_COUNT = 7
+    DRUPAL_MAX_HASH_COUNT = 30
+    DRUPAL_HASH_LENGTH = 55
+    DRUPAL_HASH_COUNT = 15
+
+    # output of _password_itoa64
+    # http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_itoa64/7
+    itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+    def salt(self):
+        count = self.itoa64[self.DRUPAL_HASH_COUNT]
+        salt = self._password_base64_encode(get_random_string(6), 6)
+        return '%s%s' % (count, salt)
+
+    def _password_enforce_log2_boundaries(self, count_log2):
+        """Implementation of _password_enforce_log2_boundaries
+
+        .. seealso:: http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_enforce_log2_boundaries/7
+        """
+        if count_log2 < self.DRUPAL_MIN_HASH_COUNT:
+            return self.DRUPAL_MIN_HASH_COUNT
+        elif count_log2 > self.DRUPAL_MAX_HASH_COUNT:
+            return self.DRUPAL_MAX_HASH_COUNT
+        else:
+            return count_log2
+
+    def _password_base64_encode(self, input, count):
+        """Implementation of _password_base64_encode.
+
+        .. seealso:: http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_base64_encode/7
+        """
+        output = ''
+        i = 0
+
+        while i < count:
+            value = ord(input[i])
+            i += 1
+
+            output += self.itoa64[value & 0x3f]
+            if (i < count):
+                value |= ord(input[i]) << 8;
+
+            output += self.itoa64[(value >> 6) & 0x3f];
+
+            if (i >= count):
+                break
+            i += 1
+
+            if i < count:
+                value |= ord(input[i]) << 16;
+
+            output += self.itoa64[(value >> 12) & 0x3f];
+            if (i >= count):
+                break
+            i += 1
+
+            output += self.itoa64[(value >> 18) & 0x3f]
+        return output
+
+    def _password_crypt(self, algo, password, setting):
+        hashfunc = getattr(hashlib, algo)
+
+        setting = setting[:12]
+
+        if setting[0] != '$' or setting[2] != '$':
+            return False
+
+        count_log2 = self.itoa64.index(setting[3])
+        # Hashes may be imported from elsewhere, so we allow != DRUPAL_HASH_COUNT
+        if count_log2 < self.DRUPAL_MIN_HASH_COUNT or count_log2 > self.DRUPAL_MAX_HASH_COUNT:
+            return False
+
+        salt = setting[4:12]
+        # Hashes must have an 8 character salt.
+        if len(salt) != 8:
+            return False
+
+        # Convert the base 2 logarithm into an integer.
+        count = 1 << count_log2
+
+        # We rely on the hash() function being available in PHP 5.2+.
+        hash = hashfunc('%s%s' % (salt, password)).digest()
+        for i in range(0, count):
+            hash = hashfunc('%s%s' % (hash, password)).digest()
+
+        length = len(hash)
+        output = '%s%s' % (setting, self._password_base64_encode(hash, length))
+        expected = 12 + math.ceil((8 * length) / 6.0)
+        if len(output) == expected:
+            return output[0:self.DRUPAL_HASH_LENGTH]
+        else:
+            return False
+
+    def verify(self, password, encoded):
+        algo, enc_hash = encoded.split('$', 1)
+        enc_hash = '$%s' % enc_hash
+        if enc_hash.startswith('$S$'):
+            recoded = self._password_crypt('sha512', password, enc_hash)
+        elif enc_hash.startswith('$H$') or enc_hash.startswith('$P$'):
+            recoded = self._password_crypt('md5', password, encoded)
+        else:
+            return False
+
+        if recoded is False:
+            return recoded
+        else:
+            return constant_time_compare(enc_hash, recoded)
+
+    def encode(self, password, salt):
+        settings = '$S$%s' % salt
+        encoded = 'drupal7%s' % self._password_crypt(
+            'sha512', password, settings)
+        return encoded
 
 
 class Apr1Hasher(BasePasswordHasher):
