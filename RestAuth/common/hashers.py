@@ -138,6 +138,8 @@ class Drupal7Hasher(BasePasswordHasher):
     def _password_base64_encode(self, input, count):
         """Implementation of _password_base64_encode.
 
+        Equivalent to the ``encode64`` function in phpass.
+
         .. seealso:: http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_base64_encode/7
         """
         output = ''
@@ -208,7 +210,7 @@ class Drupal7Hasher(BasePasswordHasher):
         if enc_hash.startswith('$S$'):
             recoded = self._password_crypt('sha512', password, enc_hash)
         elif enc_hash.startswith('$H$') or enc_hash.startswith('$P$'):
-            recoded = self._password_crypt('md5', password, encoded)
+            recoded = self._password_crypt('md5', password, enc_hash)
         else:
             return False
 
