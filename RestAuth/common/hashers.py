@@ -97,15 +97,19 @@ class MediaWikiHasher(BasePasswordHasher):
 
 
 class PhpassHasher(BasePasswordHasher):
-    """Hasher that understands hashes as created by Drupal7.
+    """Hasher that understands hashes as created by `phpass
+    <http://www.openwall.com/phpass/>`_, the "portable PHP password hashing
+    framework". This system is most prominently used by `WordPress
+    <http://wordpress.org>`_ and `phpBB3 <https://www.phpbb.com/>`_.
 
-    If you want to import hashes created by Drupal7, just prefix them
-    with the string ``drupal7``. For example:
+    If you want to import hashes created by phpass, just prefix them
+    with the string ``phpass``. For example, in PHP, do:
 
     .. code-block:: php
 
-       $exported_hash = "drupal7" . $rawhash;
+       $exported_hash = "phpass" . $rawhash;
     """
+
     algorithm = 'phpass'
 
     # some constants by PHPass
@@ -223,6 +227,21 @@ class PhpassHasher(BasePasswordHasher):
 
 
 class Drupal7Hasher(PhpassHasher):
+    """Hasher that understands hashes as created by Drupal7.
+
+    If you want to import hashes created by Drupal7, just prefix them
+    with the string ``drupal7``. For example, in PHP do:
+
+    .. code-block:: php
+
+       $exported_hash = "drupal7" . $rawhash;
+
+    This class is only a slightly modified version of the
+    :py:class:`~PhpassHasher`. This class uses Sha512 and hashes start with
+    ``$S$`` instead of ``$P$``. Like Drupal7, it does support reading normal
+    ``$P$`` hashes as well.
+    """
+
     algorithm = 'drupal7'
 
     def verify(self, password, encoded):
