@@ -686,6 +686,30 @@ class HashTestMixin(object):
             user_backend.remove(username=username1)
 
 
+class PhpassTest(HashTestBase, HashTestMixin):
+    hashers = ['RestAuth.common.hashers.PhpassHasher']
+    algorithm = 'phpass'
+
+    testdata = {
+        '1': {'salt': 'BRKt3c7uu', 'hash': 'L2aesAJo1CQjoxGzyPdWr1'},
+        '12': {'salt': 'BmM42e2cS', 'hash': '91zgpkpgP89xe3OeAIpT40'},
+        '123': {'salt': 'BP58lS6kJ', 'hash': '916dAnpf26hPCQI0whXsO1'},
+        '1234': {'salt': 'BpAYOjl1P', 'hash': '9fPA4pIKjt/q66QpFrsDW1'},
+        '12345': {'salt': 'BmuukKnan', 'hash': 'h1XwbmUT6PkxpEr/9pOI00'},
+        '123456': {'salt': 'Bc9fhNMWG', 'hash': 'FRLOT7ZpY6TAYoSf.bIdD0'},
+        '1234567': {'salt': 'BlT2XNtZD', 'hash': 'pirchpCqdGmbWRenYNpzE.'},
+        '12345678': {'salt': 'BqXel7ZCN', 'hash': '22KlBpQogL5PJC52hHuD91'},
+        'if9prH3F5Y57': {'salt': 'Bv5IkQCrO', 'hash': '7LFot6oQrkBy/ToD1kLvt.'},
+        '1YqgPVFITEyt': {'salt': 'BKhwIDVD/', 'hash': 'BfqOTbzU1HsuBbSvZdENs.'},
+        'Ji67AxtXzhKK': {'salt': 'BK0P5khBm', 'hash': 's9.dRMDutvTii5E.gT.Ji1'},
+        'riyBxGIL18vf': {'salt': 'BOkvZdLFu', 'hash': 'YEkYAaxG0g/mUladF0dNO/'},
+        'WvhQMorIXqUX': {'salt': 'BoDae5Q0Y', 'hash': 'fXvarDorOTb.fj44OqbOc1'},
+    }
+
+    def generate(self, data):
+        return '%s$P$%s%s' % (self.algorithm, data['salt'], data['hash'])
+
+
 class Drupal7Test(HashTestBase, HashTestMixin):
     hashers = ['RestAuth.common.hashers.Drupal7Hasher']
     algorithm = 'drupal7'
