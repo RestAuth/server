@@ -96,7 +96,7 @@ class MediaWikiHasher(BasePasswordHasher):
         ])
 
 
-class Drupal7Hasher(BasePasswordHasher):
+class PhpassHasher(BasePasswordHasher):
     """Hasher that understands hashes as created by Drupal7.
 
     If you want to import hashes created by Drupal7, just prefix them
@@ -106,7 +106,7 @@ class Drupal7Hasher(BasePasswordHasher):
 
        $exported_hash = "drupal7" . $rawhash;
     """
-    algorithm = 'drupal7'
+    algorithm = 'phpass'
 
     # some constants by PHPass
     MIN_HASH_COUNT = 7
@@ -171,9 +171,7 @@ class Drupal7Hasher(BasePasswordHasher):
             output += self.itoa64[(value >> 18) & 0x3f]
         return output
 
-    def _password_crypt(self, algo, password, setting):
-        hashfunc = getattr(hashlib, algo)
-
+    def _password_crypt(self, hashfunc, password, setting):
         setting = setting[:12]
 
         if setting[0] != '$' or setting[2] != '$':
@@ -206,12 +204,34 @@ class Drupal7Hasher(BasePasswordHasher):
             return False
 
     def verify(self, password, encoded):
-        algo, enc_hash = encoded.split('$', 1)
-        enc_hash = '$%s' % enc_hash
+        enc_hash = encoded[6:]
+
+        if enc_hash.startswith('$H$') or enc_hash.startswith('$P$'):
+            recoded = self._password_crypt(hashlib.md5, password, enc_hash)
+        else:
+            return False
+
+        if recoded is False:
+            return recoded
+        else:
+            return constant_time_compare(enc_hash, recoded)
+
+    def encode(self, password, salt):
+        settings = '$P$%s' % salt
+        encoded = self._password_crypt(hashlib.md5, password, settings)
+        return '%s%s' % (self.algorithm, encoded)
+
+
+class Drupal7Hasher(PhpassHasher):
+    algorithm = 'drupal7'
+
+    def verify(self, password, encoded):
+        enc_hash = encoded[7:]
+
         if enc_hash.startswith('$S$'):
-            recoded = self._password_crypt('sha512', password, enc_hash)
+            recoded = self._password_crypt(hashlib.sha512, password, enc_hash)
         elif enc_hash.startswith('$H$') or enc_hash.startswith('$P$'):
-            recoded = self._password_crypt('md5', password, enc_hash)
+            recoded = self._password_crypt(hashlib.md5, password, enc_hash)
         else:
             return False
 
@@ -222,7 +242,7 @@ class Drupal7Hasher(BasePasswordHasher):
 
     def encode(self, password, salt):
         settings = '$S$%s' % salt
-        encoded = self._password_crypt('sha512', password, settings)
+        encoded = self._password_crypt(hashlib.sha512, password, settings)
         return '%s%s' % (self.algorithm, encoded)
 
 
