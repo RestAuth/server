@@ -112,15 +112,15 @@ class Drupal7Hasher(BasePasswordHasher):
     MIN_HASH_COUNT = 7
     MAX_HASH_COUNT = 30
 
-    DRUPAL_HASH_LENGTH = 55
-    DRUPAL_HASH_COUNT = 15
+    HASH_LENGTH = 55
+    HASH_COUNT = 15
 
     # output of _password_itoa64
     # http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_itoa64/7
     itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
     def salt(self):
-        count = self.itoa64[self.DRUPAL_HASH_COUNT]
+        count = self.itoa64[self.HASH_COUNT]
         salt = self._password_base64_encode(get_random_string(6), 6)
         return '%s%s' % (count, salt)
 
@@ -180,7 +180,7 @@ class Drupal7Hasher(BasePasswordHasher):
             return False
 
         count_log2 = self.itoa64.index(setting[3])
-        # Hashes may be imported from elsewhere, so we allow != DRUPAL_HASH_COUNT
+        # Hashes may be imported from elsewhere, so we allow != HASH_COUNT
         if count_log2 < self.MIN_HASH_COUNT or count_log2 > self.MAX_HASH_COUNT:
             return False
 
@@ -201,7 +201,7 @@ class Drupal7Hasher(BasePasswordHasher):
         output = '%s%s' % (setting, self._password_base64_encode(hash, length))
         expected = 12 + math.ceil((8 * length) / 6.0)
         if len(output) == expected:
-            return output[0:self.DRUPAL_HASH_LENGTH]
+            return output[0:self.HASH_LENGTH]
         else:
             return False
 
@@ -222,9 +222,8 @@ class Drupal7Hasher(BasePasswordHasher):
 
     def encode(self, password, salt):
         settings = '$S$%s' % salt
-        encoded = 'drupal7%s' % self._password_crypt(
-            'sha512', password, settings)
-        return encoded
+        encoded = self._password_crypt('sha512', password, settings)
+        return '%s%s' % (self.algorithm, encoded)
 
 
 class Apr1Hasher(BasePasswordHasher):
