@@ -108,9 +108,10 @@ class Drupal7Hasher(BasePasswordHasher):
     """
     algorithm = 'drupal7'
 
-    # some constants defined in Drupal7:
-    DRUPAL_MIN_HASH_COUNT = 7
-    DRUPAL_MAX_HASH_COUNT = 30
+    # some constants by PHPass
+    MIN_HASH_COUNT = 7
+    MAX_HASH_COUNT = 30
+
     DRUPAL_HASH_LENGTH = 55
     DRUPAL_HASH_COUNT = 15
 
@@ -128,10 +129,10 @@ class Drupal7Hasher(BasePasswordHasher):
 
         .. seealso:: http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_enforce_log2_boundaries/7
         """
-        if count_log2 < self.DRUPAL_MIN_HASH_COUNT:
-            return self.DRUPAL_MIN_HASH_COUNT
-        elif count_log2 > self.DRUPAL_MAX_HASH_COUNT:
-            return self.DRUPAL_MAX_HASH_COUNT
+        if count_log2 < self.MIN_HASH_COUNT:
+            return self.MIN_HASH_COUNT
+        elif count_log2 > self.MAX_HASH_COUNT:
+            return self.MAX_HASH_COUNT
         else:
             return count_log2
 
@@ -180,7 +181,7 @@ class Drupal7Hasher(BasePasswordHasher):
 
         count_log2 = self.itoa64.index(setting[3])
         # Hashes may be imported from elsewhere, so we allow != DRUPAL_HASH_COUNT
-        if count_log2 < self.DRUPAL_MIN_HASH_COUNT or count_log2 > self.DRUPAL_MAX_HASH_COUNT:
+        if count_log2 < self.MIN_HASH_COUNT or count_log2 > self.MAX_HASH_COUNT:
             return False
 
         salt = setting[4:12]
