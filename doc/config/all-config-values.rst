@@ -256,6 +256,8 @@ Default::
        'RestAuth.common.hashers.Sha512Hasher',
        'RestAuth.common.hashers.MediaWikiHasher',
        'RestAuth.common.hashers.Apr1Hasher',
+       'RestAuth.common.hashers.Drupal7Hasher',
+       'RestAuth.common.hashers.PhpassHasher',
        'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
        'django.contrib.auth.hashers.BCryptPasswordHasher',
        'django.contrib.auth.hashers.SHA1PasswordHasher',
