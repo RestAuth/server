@@ -190,16 +190,16 @@ class DjangoPropertyBackend(PropertyBackend):
         if dry:
             with dj_transaction.commit_manually():
                 try:
-                    for key, value in props.iteritems():
+                    for key, value in props.items():
                         user.set_property(key, value)
                 finally:
                     dj_transaction.rollback()
         elif transaction:
             with dj_transaction.commit_on_success():
-                for key, value in props.iteritems():
+                for key, value in props.items():
                     user.set_property(key, value)
         else:  # pragma: no cover
-            for key, value in props.iteritems():
+            for key, value in props.items():
                 user.set_property(key, value)
 
     def remove(self, user, key):
