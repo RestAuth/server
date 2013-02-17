@@ -306,6 +306,7 @@ class Apr1Hasher(BasePasswordHasher):
         Algorithm shamelessly copied from here:
             http://www.php.net/manual/de/function.crypt.php#73619
         """
+        salt = str(salt)  # unicode in Django 1.5, must be str
         text = "%s$apr1$%s" % (plainpasswd, salt)
         bin = self._pack("%s%s%s" % (plainpasswd, salt, plainpasswd))
 
