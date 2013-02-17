@@ -21,11 +21,12 @@ from unittest import skipUnless
 
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password, load_hashers
+from django.test import TestCase
 from django.test.utils import override_settings
 
 from RestAuth.common.errors import PropertyNotFound
 from RestAuth.common.testdata import (
-    RestAuthTest,
+    RestAuthTest, RestAuthTestBase,
     user_backend, property_backend,
     username1, username2, username3,
     password1, password2, password3,
@@ -631,18 +632,16 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
         self.assertProperties(self.user2, {propkey1: propval1})
 
 
-class HashTestBase(RestAuthTest):
+class HashTestMixin(RestAuthTestBase):
     hashers = None
-
-    @classmethod
-    def setUpClass(cls):
-        super(HashTestBase, cls).setUpClass()
-        load_hashers(cls.hashers)
-
-
-class HashTestMixin(object):
     algorithm = None
     testdata = None
+
+    def setUp(self):
+        # Required in Django 1.4, not in 1.5
+        super(HashTestMixin, self).setUp()
+        with self.settings(PASSWORD_HASHERS=self.hashers):
+            load_hashers()
 
     def generate(self, data):
         return '%s$%s$%s' % (self.algorithm, data['salt'], data['hash'])
@@ -650,7 +649,8 @@ class HashTestMixin(object):
     @override_settings(MIN_PASSWORD_LENGTH=1)
     def test_testdata(self):
         for password, data in self.testdata.iteritems():
-            generated = make_password(password, data['salt'])
+            generated = make_password(password, data['salt'],
+                                      hasher=self.algorithm)
             self.assertTrue(generated.startswith('%s$' % self.algorithm))
             self.assertEqual(generated, self.generate(data))
 
@@ -686,8 +686,9 @@ class HashTestMixin(object):
             user_backend.remove(username=username1)
 
 
-class PhpassTest(HashTestBase, HashTestMixin):
-    hashers = ['RestAuth.common.hashers.PhpassHasher']
+@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.PhpassHasher',))
+class PhpassTest(HashTestMixin, TestCase):
+    hashers = ('RestAuth.common.hashers.PhpassHasher',)
     algorithm = 'phpass'
 
     testdata = {
@@ -710,8 +711,9 @@ class PhpassTest(HashTestBase, HashTestMixin):
         return '%s$P$%s%s' % (self.algorithm, data['salt'], data['hash'])
 
 
-class Drupal7Test(HashTestBase, HashTestMixin):
-    hashers = ['RestAuth.common.hashers.Drupal7Hasher']
+@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.Drupal7Hasher',))
+class Drupal7Test(HashTestMixin, TestCase):
+    hashers = ('RestAuth.common.hashers.Drupal7Hasher',)
     algorithm = 'drupal7'
 
     testdata = {
@@ -746,8 +748,9 @@ class Drupal7Test(HashTestBase, HashTestMixin):
     def generate(self, data):
         return '%s$S$%s%s' % (self.algorithm, data['salt'], data['hash'])
 
-class Sha512Test(HashTestBase, HashTestMixin):
-    hashers = ['RestAuth.common.hashers.Sha512Hasher']
+@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.Sha512Hasher',))
+class Sha512Test(HashTestMixin, TestCase):
+    hashers = ('RestAuth.common.hashers.Sha512Hasher',)
     algorithm = 'sha512'
 
     testdata = {
@@ -763,8 +766,10 @@ class Sha512Test(HashTestBase, HashTestMixin):
                         'hash': '12cf5d5140f2a98b1caa58e20489ca487872e49831bef25a8523c2f159ed198a56cf2738391cd26ce3e9b3a59470e1d8226ab7724a706e761675884f2078a6a8'},
     }
 
-class MediaWikiTest(HashTestBase, HashTestMixin):
-    hashers = ['RestAuth.common.hashers.MediaWikiHasher']
+
+@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.MediaWikiHasher',))
+class MediaWikiTest(HashTestMixin, TestCase):
+    hashers = ('RestAuth.common.hashers.MediaWikiHasher',)
     algorithm = 'mediawiki'
 
     testdata = {
@@ -789,8 +794,9 @@ class MediaWikiTest(HashTestBase, HashTestMixin):
     }
 
 
-class Apr1Test(HashTestBase, HashTestMixin):
-    hashers = ['RestAuth.common.hashers.Apr1Hasher']
+@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.Apr1Hasher',))
+class Apr1Test(HashTestMixin, TestCase):
+    hashers = ('RestAuth.common.hashers.Apr1Hasher',)
     algorithm = 'apr1'
 
     testdata = {
