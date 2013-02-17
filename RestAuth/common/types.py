@@ -47,9 +47,9 @@ def parse_dict(request):
             assert isinstance(data, dict), "Request body is not a dictionary."
             return data
         except UnmarshalError:
-            raise BadRequest
+            raise BadRequest()
     else:
-        raise UnsupportedMediaType
+        raise UnsupportedMediaType()
 
 
 def assert_format(data, required=None, optional=None):
