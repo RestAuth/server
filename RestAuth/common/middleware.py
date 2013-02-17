@@ -51,9 +51,9 @@ class RestAuthMiddleware:
             resp['Resource-Type'] = 'property'
             return resp
         elif isinstance(ex, AssertionError):
-            return HttpResponse(ex.message, status=400)
+            return HttpResponse(' '.join(ex.args), status=400)
         elif isinstance(ex, RestAuthException):
-            return HttpResponse(ex.message, status=ex.response_code)
+            return HttpResponse(' '.join(ex.args), status=ex.response_code)
         else:  # pragma: no cover
             logging.critical(traceback.format_exc())
             return HttpResponseServerError(
