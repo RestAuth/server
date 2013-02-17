@@ -18,6 +18,7 @@
 from __future__ import unicode_literals  # unicode literals from python
 
 import re
+import sys
 
 from django.conf import settings
 
@@ -97,7 +98,10 @@ def validate_username(username):
     # force ascii if necessary
     if USERNAME_FORCE_ASCII:
         try:
-            username.decode('ascii')
+            if sys.version_info < (3, 0):
+                username.decode('ascii')
+            else:
+                bytes(username, 'ascii')
         except (UnicodeDecodeError, UnicodeEncodeError):
             raise UsernameInvalid(
                 "Username must only contain ASCII characters")
