@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.views import (UsersView, UserHandlerView,
