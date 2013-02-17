@@ -47,6 +47,7 @@ RestAuth 0.6.1 (DD MMMM YYYY)
   * Command-line scripts also use the new backend system, so changing backends
     directly affects their output.
   * restauth-service: Display services in alphabetical order.
+  * restauht-service: Verify set/added hosts to be valid IPv4/IPv6 addresses.
 
   Testing:
   * Update testerver fixture to include example.{com,net,org} services.

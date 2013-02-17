@@ -120,11 +120,8 @@ class Service(User):
             return False
 
     def set_hosts(self, *raw_hosts):
-        cleaned_hosts = [h.strip(', ') for h in raw_hosts]
-        hosts = [ServiceAddress.objects.get_or_create(address=raw)[0]
-                 for raw in cleaned_hosts]
         self.hosts.clear()
-        self.hosts.add(*hosts)
+        self.add_hosts(*raw_hosts)
 
     def add_hosts(self, *raw_hosts):
         cleaned_hosts = [h.strip(', ') for h in raw_hosts]
