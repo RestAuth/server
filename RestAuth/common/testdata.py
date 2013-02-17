@@ -154,7 +154,13 @@ class RestAuthTestBase(object):
 
 @override_settings(PASSWORD_HASHERS=('django.contrib.auth.hashers.MD5PasswordHasher', ))
 class RestAuthTest(RestAuthTestBase, TestCase):
-    pass
+    def assertItemsEqual(self, actual, expected, msg=None):
+        """This method is not present in python3."""
+        try:
+            return super(RestAuthTest, self).assertItemsEqual(
+                actual, expected, msg)
+        except AttributeError:
+            return self.assertEqual(sorted(actual), sorted(expected), msg)
 
 
 @override_settings(PASSWORD_HASHERS=('django.contrib.auth.hashers.MD5PasswordHasher', ))
