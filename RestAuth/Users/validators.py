@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals  # unicode literals from python
+
 import re
 
 from django.conf import settings
@@ -309,27 +311,27 @@ class drupal(validator):
             raise UsernameInvalid(
                 'Username cannot contain multiple spaces in a row')
 
-        if re.match(u'[^\u0080-\u00F7 a-z0-9@_.\'-]', name, re.IGNORECASE):
+        if re.match('[^\u0080-\u00F7 a-z0-9@_.\'-]', name, re.IGNORECASE):
             raise UsernameInvalid("Username contains an illegal character")
-        if re.match(u'[%s%s%s%s%s%s%s%s%s]' % (
+        if re.match('[%s%s%s%s%s%s%s%s%s]' % (
                 # \x{80}-\x{A0}     // Non-printable ISO-8859-1 + NBSP
-                u'\u0080-\u00A0',
+                '\u0080-\u00A0',
                 # \x{AD}            // Soft-hyphen
-                u'\u00AD',
+                '\u00AD',
                 # \x{2000}-\x{200F} // Various space characters
-                u'\u2000-\u200F',
+                '\u2000-\u200F',
                 # \x{2028}-\x{202F} // Bidirectional text overrides
-                u'\u2028-\u202F',
+                '\u2028-\u202F',
                 # \x{205F}-\x{206F} // Various text hinting characters
-                u'\u205F-\u206F',
+                '\u205F-\u206F',
                 # \x{FEFF}          // Byte order mark
-                u'\uFEFF',
+                '\uFEFF',
                 # \x{FF01}-\x{FF60} // Full-width latin
-                u'\uFF01-\uFF60',
+                '\uFF01-\uFF60',
                 # \x{FFF9}-\x{FFFD} // Replacement characters
-                u'\uFFF9-\uFFFD',
+                '\uFFF9-\uFFFD',
                 # \x{0}-\x{1F}]  // NULL byte and control characters
-                u'\u0000-\u001f'),
+                '\u0000-\u001f'),
                 name, re.UNICODE):
             raise UsernameInvalid("Username contains an illegal character")
 

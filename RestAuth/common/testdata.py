@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals  # unicode literals from python3
+
 from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -31,39 +33,39 @@ from RestAuth.Users.models import user_permissions
 from RestAuth.Groups.models import group_permissions
 from RestAuth.backends import user_backend, group_backend, property_backend
 
-username1 = u"mati \u6111"
-username2 = u"mati \u6112"
-username3 = u"mati \u6113"
-username4 = u"mati \u6114"
-username5 = u"mati \u6115"
+username1 = "mati \u6111"
+username2 = "mati \u6112"
+username3 = "mati \u6113"
+username4 = "mati \u6114"
+username5 = "mati \u6115"
 
-password1 = u"password \u6121"
-password2 = u"password \u6122"
-password3 = u"password \u6123"
-password4 = u"password \u6124"
-password5 = u"password \u6125"
+password1 = "password \u6121"
+password2 = "password \u6122"
+password3 = "password \u6123"
+password4 = "password \u6124"
+password5 = "password \u6125"
 
-groupname1 = u"group 1 \u6131"
-groupname2 = u"group 2 \u6132"
-groupname3 = u"group 3 \u6133"
-groupname4 = u"group 4 \u6134"
-groupname5 = u"group 5 \u6135"
-groupname6 = u"group 6 \u6136"
-groupname7 = u"group 7 \u6137"
-groupname8 = u"group 8 \u6138"
-groupname9 = u"group 9 \u6139"
+groupname1 = "group 1 \u6131"
+groupname2 = "group 2 \u6132"
+groupname3 = "group 3 \u6133"
+groupname4 = "group 4 \u6134"
+groupname5 = "group 5 \u6135"
+groupname6 = "group 6 \u6136"
+groupname7 = "group 7 \u6137"
+groupname8 = "group 8 \u6138"
+groupname9 = "group 9 \u6139"
 
-propkey1 = u"propkey \u6141"
-propkey2 = u"propkey \u6142"
-propkey3 = u"propkey \u6143"
-propkey4 = u"propkey \u6144"
-propkey5 = u"propkey \u6145"
+propkey1 = "propkey \u6141"
+propkey2 = "propkey \u6142"
+propkey3 = "propkey \u6143"
+propkey4 = "propkey \u6144"
+propkey5 = "propkey \u6145"
 
-propval1 = u"propval \u6151"
-propval2 = u"propval \u6152"
-propval3 = u"propval \u6153"
-propval4 = u"propval \u6154"
-propval5 = u"propval \u6155"
+propval1 = "propval \u6151"
+propval2 = "propval \u6152"
+propval3 = "propval \u6153"
+propval4 = "propval \u6154"
+propval5 = "propval \u6155"
 
 
 class RestAuthTestBase(object):

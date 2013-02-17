@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import httplib
+try:
+    import httplib as httpclient  # python 2.x
+except ImportError:
+    from http import client as httpclient  # python 3.x
 
 from django.core.exceptions import ImproperlyConfigured
 from django.test.client import RequestFactory
@@ -55,14 +58,14 @@ class RestAuthMiddlewareTests(TestCase):
         request = self.factory.post('/users/', content, **self.extra)
         del request.META['CONTENT_TYPE']
         resp = self.mw.process_request(request)
-        self.assertEquals(resp.status_code, httplib.UNSUPPORTED_MEDIA_TYPE)
+        self.assertEquals(resp.status_code, httpclient.UNSUPPORTED_MEDIA_TYPE)
 
     def test_put_missing_content_type(self):
         content = self.handler.marshal_dict({'user': username1})
         request = self.factory.put('/users/', content, **self.extra)
         del request.META['CONTENT_TYPE']
         resp = self.mw.process_request(request)
-        self.assertEquals(resp.status_code, httplib.UNSUPPORTED_MEDIA_TYPE)
+        self.assertEquals(resp.status_code, httpclient.UNSUPPORTED_MEDIA_TYPE)
 
 
 class ContentTypeTests(RestAuthTest):
@@ -75,20 +78,20 @@ class ContentTypeTests(RestAuthTest):
         extra = self.extra
         del extra['content_type']
         resp = self.c.post('/users/', content, content_type='foo/bar', **extra)
-        self.assertEquals(resp.status_code, httplib.UNSUPPORTED_MEDIA_TYPE)
+        self.assertEquals(resp.status_code, httpclient.UNSUPPORTED_MEDIA_TYPE)
         self.assertItemsEqual(user_backend.list(), [])
 
     def test_wrong_accept_header(self):
         extra = self.extra
         extra['HTTP_ACCEPT'] = 'foo/bar'
         resp = self.c.get('/users/', **extra)
-        self.assertEquals(resp.status_code, httplib.NOT_ACCEPTABLE)
+        self.assertEquals(resp.status_code, httpclient.NOT_ACCEPTABLE)
         self.assertItemsEqual(user_backend.list(), [])
 
     def test_wrong_content(self):
         content = 'no_json_at_all}}}'
         resp = self.c.post('/users/', content, **self.extra)
-        self.assertEquals(resp.status_code, httplib.BAD_REQUEST)
+        self.assertEquals(resp.status_code, httpclient.BAD_REQUEST)
         self.assertItemsEqual(user_backend.list(), [])
 
 validators = (
