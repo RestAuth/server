@@ -154,6 +154,15 @@ class ServiceHostTests(TestCase):
     def get_hosts(self):
         return self.get_service().hosts.values_list('address', flat=True)
 
+    def assertItemsEqual(self, actual, expected, msg=None):
+        """This method is not present in python3."""
+        try:
+            super(ServiceHostTests, self).assertItemsEqual(
+                actual, expected, msg)
+        except AttributeError:
+            self.assertEqual(set(actual), set(expected), msg)
+            self.assertEqual(len(actual), len(expected))
+
     def test_add_host(self):
         hosts = ['127.0.0.1']
         self.assertIsNone(self.service.add_hosts(*hosts))
