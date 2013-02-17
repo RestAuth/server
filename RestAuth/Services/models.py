@@ -132,6 +132,7 @@ class Service(User):
             except ServiceAddress.DoesNotExist:
                 host = ServiceAddress(address=raw_host)
                 host.clean_fields()
+                host.save()
             hosts.append(host)
 
         self.hosts.add(*hosts)
