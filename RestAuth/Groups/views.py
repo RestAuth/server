@@ -35,6 +35,11 @@ from RestAuth.common.responses import HttpRestAuthResponse
 from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
                                    RestAuthSubResourceView)
 
+try:
+        strtype = basestring  # python2.x
+except NameError:
+        strtype = str  # python3.x
+
 
 class GroupsView(RestAuthView):
     """
@@ -43,7 +48,7 @@ class GroupsView(RestAuthView):
     log = logging.getLogger('groups')
     http_method_names = ['get', 'post']
 
-    post_required = (('group', basestring),)
+    post_required = (('group', strtype),)
 
     def get(self, request, largs):
         """
@@ -125,7 +130,7 @@ class GroupUsersIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.users')
     http_method_names = ['get', 'post']
 
-    post_required = (('user', basestring),)
+    post_required = (('user', strtype),)
 
     def get(self, request, largs, name):
         """
@@ -212,7 +217,7 @@ class GroupGroupsIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.groups')
     http_method_names = ['get', 'post']
 
-    post_required = (('group', basestring),)
+    post_required = (('group', strtype),)
 
     def get(self, request, largs, name):
         """
