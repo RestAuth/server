@@ -651,7 +651,7 @@ class HashTestMixin(RestAuthTestBase):
 
     @override_settings(MIN_PASSWORD_LENGTH=1)
     def test_testdata(self):
-        for password, data in self.testdata.iteritems():
+        for password, data in self.testdata.items():
             generated = make_password(password, data['salt'],
                                       hasher=self.algorithm)
             self.assertTrue(generated.startswith('%s$' % self.algorithm))
@@ -665,7 +665,7 @@ class HashTestMixin(RestAuthTestBase):
     @skipUnless(settings.USER_BACKEND == 'RestAuth.backends.django_backend.DjangoUserBackend', '')
     def test_backend(self):
         # test password during creation:
-        for password, data in self.testdata.iteritems():
+        for password, data in self.testdata.items():
             user = user_backend.create(username=username1,
                                        password=password,
                                        property_backend=property_backend)
@@ -675,7 +675,7 @@ class HashTestMixin(RestAuthTestBase):
             user_backend.remove(username=username1)
 
         # test password for set_password:
-        for password, data in self.testdata.iteritems():
+        for password, data in self.testdata.items():
             user = user_backend.create(username=username1,
                                        property_backend=property_backend)
             user_backend.set_password(username=username1, password=password)
