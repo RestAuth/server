@@ -125,8 +125,15 @@ class Service(User):
 
     def add_hosts(self, *raw_hosts):
         cleaned_hosts = [h.strip(', ') for h in raw_hosts]
-        hosts = [ServiceAddress.objects.get_or_create(address=raw)[0]
-                 for raw in cleaned_hosts]
+        hosts = []
+        for raw_host in cleaned_hosts:
+            try:
+                host = ServiceAddress.objects.get(address=raw_host)
+            except ServiceAddress.DoesNotExist:
+                host = ServiceAddress(address=raw_host)
+                host.clean_fields()
+            hosts.append(host)
+
         self.hosts.add(*hosts)
 
     def del_hosts(self, *raw_hosts):

@@ -25,6 +25,8 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
+    from django.core.exceptions import ValidationError
+
     from RestAuth.Services.models import Service
     from RestAuth.Services.cli.parsers import parser
 except ImportError as e:
@@ -54,9 +56,17 @@ elif args.action == 'view':
     perms = [p.codename for p in args.service.user_permissions.all()]
     print('Permissions: %s' % (', '.join(perms)))
 elif args.action == 'set-hosts':
-    args.service.set_hosts(*args.hosts)
+    try:
+        args.service.set_hosts(*args.hosts)
+    except ValidationError as e:
+        print(e.messages[0])
+        sys.exit(1)
 elif args.action == 'add-hosts':
-    args.service.add_hosts(*args.hosts)
+    try:
+        args.service.add_hosts(*args.hosts)
+    except ValidationError as e:
+        print(e.messages[0])
+        sys.exit(1)
 elif args.action == 'rm-hosts':
     args.service.del_hosts(*args.hosts)
 elif args.action == 'set-password':
