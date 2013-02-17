@@ -40,11 +40,10 @@ def parse_dict(request):
     header = request.META['CONTENT_TYPE']
     mime_type = mimeparse.best_match(supported, header)
     if mime_type:
-        body = request.raw_post_data
         handler = get_handler(mime_type)
 
         try:
-            data = handler.unmarshal_dict(body)
+            data = handler.unmarshal_dict(request.body)
             assert isinstance(data, dict), "Request body is not a dictionary."
             return data
         except UnmarshalError:
