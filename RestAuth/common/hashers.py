@@ -27,6 +27,12 @@ from django.utils.crypto import constant_time_compare, get_random_string
 from django.utils.datastructures import SortedDict
 
 
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
+
+
 class Sha512Hasher(BasePasswordHasher):
     """A basic sha512 hasher with salt.
 
@@ -281,7 +287,10 @@ class Apr1Hasher(BasePasswordHasher):
         return constant_time_compare(hash, new_hash)
 
     def encode(self, password, salt):
-        hash = self._crypt(password, salt).encode('utf-8')
+        if IS_PYTHON3:
+            hash = self._crypt(password, salt).decode('utf-8')
+        else:
+            hash = self._crypt(password, salt).encode('utf-8')
         return '%s$%s$%s' % (self.algorithm, salt, hash)
 
     def safe_summary(self, encoded):  # pragma: no cover
@@ -305,11 +314,17 @@ class Apr1Hasher(BasePasswordHasher):
         values = [int(c, 16) for c in cs]
         return str(struct.pack('16B', *values))
 
-    def _pack(self, val):
-        if sys.version_info < (3, 0):
-            return self._pack2(bytes(val))
-        else:
-            return self._pack3(val)
+    def _trans2(self, val):
+        frm = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+        to = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        trans = string.maketrans(frm, to)
+        return base64.b64encode(val)[2:][::-1].translate(trans)
+
+    def _trans3(self, val):
+        frm = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+        to = b"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        trans = bytes.maketrans(frm, to)
+        return base64.b64encode(bytes(val, 'utf-8'))[2:][::-1].translate(trans)
 
     def _crypt(self, plainpasswd, salt):
         """
@@ -372,7 +387,12 @@ class Apr1Hasher(BasePasswordHasher):
 
         tmp = "%s%s%s%s" % (chr(0), chr(0), bin[11], tmp)
 
-        frm = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-        to = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-        trans = string.maketrans(frm, to)
-        return base64.b64encode(tmp)[2:][::-1].translate(trans)
+        return self._trans(tmp)
+
+    if IS_PYTHON3:
+        _trans = _trans3
+        _pack = _pack3
+    else:
+        _trans = _trans2
+        _pack = _pack2
+
