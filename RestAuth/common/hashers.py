@@ -20,6 +20,7 @@ import hashlib
 import math
 import string
 import struct
+import sys
 
 from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
 from django.utils.crypto import constant_time_compare, get_random_string
@@ -292,11 +293,23 @@ class Apr1Hasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    def _pack(self, val):
+    def _pack2(self, val):
         md5 = hashlib.md5(val).hexdigest()
         cs = [md5[i:i + 2] for i in xrange(0, len(md5), 2)]
         values = [int(c, 16) for c in cs]
         return struct.pack('16B', *values)
+
+    def _pack3(self, val):
+        md5 = hashlib.md5(bytes(val, 'utf-8')).hexdigest()
+        cs = [md5[i:i + 2] for i in range(0, len(md5), 2)]
+        values = [int(c, 16) for c in cs]
+        return str(struct.pack('16B', *values))
+
+    def _pack(self, val):
+        if sys.version_info < (3, 0):
+            return self._pack2(bytes(val))
+        else:
+            return self._pack3(val)
 
     def _crypt(self, plainpasswd, salt):
         """
@@ -306,6 +319,7 @@ class Apr1Hasher(BasePasswordHasher):
         Algorithm shamelessly copied from here:
             http://www.php.net/manual/de/function.crypt.php#73619
         """
+        plainpasswd = str(plainpasswd)
         salt = str(salt)  # unicode in Django 1.5, must be str
         text = "%s$apr1$%s" % (plainpasswd, salt)
         bin = self._pack("%s%s%s" % (plainpasswd, salt, plainpasswd))
