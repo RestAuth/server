@@ -37,7 +37,6 @@ class InternalAuthenticationBackend:
         if method.lower() != 'basic':  # pragma: no cover
             return None  # we only support basic authentication
 
-
         qs = Service.objects.only('username', 'password')
 
         if settings.SECURE_CACHE:
