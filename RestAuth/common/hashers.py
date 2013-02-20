@@ -283,12 +283,15 @@ class Apr1Hasher(BasePasswordHasher):
 
     def verify(self, password, encoded):
         algorithm, salt, hash = encoded.split('$', 3)
-        new_hash = self._crypt(password, salt)
-        return constant_time_compare(hash, new_hash)
+        if IS_PYTHON3:
+            newhash = self._crypt3(password, salt).decode('utf-8')
+        else:
+            newhash = self._crypt(password, salt).encode('utf-8')
+        return constant_time_compare(hash, newhash)
 
     def encode(self, password, salt):
         if IS_PYTHON3:
-            hash = self._crypt(password, salt).decode('utf-8')
+            hash = self._crypt3(password, salt).decode('utf-8')
         else:
             hash = self._crypt(password, salt).encode('utf-8')
         return '%s$%s$%s' % (self.algorithm, salt, hash)
@@ -309,10 +312,10 @@ class Apr1Hasher(BasePasswordHasher):
         return struct.pack('16B', *values)
 
     def _pack3(self, val):
-        md5 = hashlib.md5(bytes(val, 'utf-8')).hexdigest()
+        md5 = hashlib.md5(val).hexdigest()
         cs = [md5[i:i + 2] for i in range(0, len(md5), 2)]
         values = [int(c, 16) for c in cs]
-        return str(struct.pack('16B', *values))
+        return struct.pack('16B', *values)
 
     def _trans2(self, val):
         frm = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
@@ -324,9 +327,66 @@ class Apr1Hasher(BasePasswordHasher):
         frm = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
         to = b"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         trans = bytes.maketrans(frm, to)
-        return base64.b64encode(bytes(val, 'utf-8'))[2:][::-1].translate(trans)
+        return base64.b64encode(val)[2:][::-1].translate(trans)
 
-    def _crypt(self, plainpasswd, salt):
+    def _crypt3(self, plainpasswd, salt):
+        text = bytes("%s$apr1$%s" % (plainpasswd, salt), 'utf-8')
+
+        bin = self._pack3(bytes("%s%s%s" % (plainpasswd, salt, plainpasswd), 'utf-8'))
+
+        # first loop
+        i = len(plainpasswd)
+        while i > 0:
+            x = bin[0:min(16, i)]
+            text += bin[0:min(16, i)]
+            i -= 16
+
+        # second loop
+        i = len(plainpasswd)
+        while i > 0:
+            if i & 1:
+                text += bytes(chr(0), 'utf-8')
+            else:
+                text += bytes(plainpasswd[0], 'utf-8')
+
+            # shift bits by one (/2 rounded down)
+            i >>= 1
+
+        # 1000er loop
+        bin = self._pack3(text)
+        for i in range(0, 1000):
+            if i & 1:
+                new = bytes(plainpasswd, 'utf-8')
+            else:
+                new = bin
+
+            if i % 3:
+                new += bytes(salt, 'utf-8')
+            if i % 7:
+                new += bytes(plainpasswd, 'utf-8')
+
+            if i & 1:
+                new += bin
+            else:
+                new += bytes(plainpasswd, 'utf-8')
+
+            bin = self._pack3(new)
+
+        tmp = b''
+        for i in range(0, 5):
+            k = i + 6
+            j = i + 12
+            if j == 16:
+                j = 5
+
+            tmp = "%s%s%s%s" % (chr(bin[i]), chr(bin[k]), chr(bin[j]), tmp.decode('iso-8859-1'))
+            tmp = bytes(tmp, 'iso-8859-1')
+        tmp = "%s%s%s%s" % (chr(0), chr(0), chr(bin[11]), tmp.decode('iso-8859-1'))
+        tmp = bytes(tmp, 'iso-8859-1')
+
+        return self._trans(tmp)
+
+    def _crypt2(self, plainpasswd, salt):
         """
         This function creates an md5 hash that is identical to one that would
         be created by :cmd:`htpasswd -m`.
@@ -392,7 +452,9 @@ class Apr1Hasher(BasePasswordHasher):
     if IS_PYTHON3:
         _trans = _trans3
         _pack = _pack3
+        _crypt = _crypt3
     else:
         _trans = _trans2
         _pack = _pack2
+        _crypt = _crypt2
 
