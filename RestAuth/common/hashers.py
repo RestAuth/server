@@ -225,9 +225,7 @@ class PhpassHasher(BasePasswordHasher):
         hash = hashfunc('%s%s' % (salt, password)).digest()
         for i in range(0, count):
             hash = hashfunc('%s%s' % (hash, password)).digest()
-
-        length = len(hash)
-        return length, self._password_base64_encode(hash, length)
+        return hash
 
     def _compute_hash3(self, hashfunc, count, salt, password):
         salt = bytes(salt, 'utf-8')
@@ -236,9 +234,7 @@ class PhpassHasher(BasePasswordHasher):
         hash = hashfunc(salt + password).digest()
         for i in range(0, count):
             hash = hashfunc(hash + password).digest()
-
-        length = len(hash)
-        return length, self._password_base64_encode(hash, length)
+        return hash
 
     def _password_crypt(self, hashfunc, password, setting):
         setting = setting[:12]
@@ -260,9 +256,11 @@ class PhpassHasher(BasePasswordHasher):
         count = 1 << count_log2
 
         # We rely on the hash() function being available in PHP 5.2+.
-        length, output = self._compute_hash(hashfunc, count, salt, password)
+        hash = self._compute_hash(hashfunc, count, salt, password)
 
-        output = '%s%s' % (setting, output)
+        length = len(hash)
+
+        output = '%s%s' % (setting, self._password_base64_encode(hash, length))
         expected = 12 + math.ceil((8 * length) / 6.0)
         if len(output) == expected:
             return output[0:self.HASH_LENGTH]
