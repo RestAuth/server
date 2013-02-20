@@ -81,13 +81,28 @@ class MediaWikiHasher(BasePasswordHasher):
         return get_random_string(8)
 
     def encode(self, password, salt=None):
+        hash = self._encode(password, salt=salt)
         if salt is None:
-            salt = ''
-            hash = hashlib.md5(hash).hexdigest()
+            return '%s$$%s' % (self.algorithm, hash)
+        else:
+            return '%s$%s$%s' % (self.algorithm, salt, hash)
+
+    def _encode2(self, password, salt=None):
+        if salt is None:
+            return hashlib.md5(password).hexdigest()
         else:
             secret_hash = hashlib.md5(password).hexdigest()
-            hash = hashlib.md5('%s-%s' % (salt, secret_hash)).hexdigest()
-        return '%s$%s$%s' % (self.algorithm, salt, hash)
+            return hashlib.md5('%s-%s' % (salt, secret_hash)).hexdigest()
+
+    def _encode3(self, password, salt=None):
+        password = bytes(password, 'utf-8')
+
+        if salt is None or salt == '':
+            return hashlib.md5(password).hexdigest()
+        else:
+            secret_hash = hashlib.md5(password).hexdigest()
+            message = bytes('%s-%s' % (salt, secret_hash), 'utf-8')
+            return hashlib.md5(message).hexdigest()
 
     def verify(self, password, encoded):
         algorithm, salt, hash = encoded.split('$', 3)
@@ -104,6 +119,11 @@ class MediaWikiHasher(BasePasswordHasher):
             ('salt', mask_hash(salt)),
             ('hash', mask_hash(hash)),
         ])
+
+    if IS_PYTHON3:
+        _encode = _encode3
+    else:
+        _encode = _encode2
 
 
 class PhpassHasher(BasePasswordHasher):
