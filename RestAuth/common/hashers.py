@@ -326,7 +326,7 @@ class Apr1Hasher(BasePasswordHasher):
     def _crypt3(self, plainpasswd, salt):
         text = bytes("%s$apr1$%s" % (plainpasswd, salt), 'utf-8')
 
-        bin = self._pack3(bytes("%s%s%s" % (plainpasswd, salt, plainpasswd), 'utf-8'))
+        bin = self._pack(bytes("%s%s%s" % (plainpasswd, salt, plainpasswd), 'utf-8'))
 
         # first loop
         i = len(plainpasswd)
@@ -347,7 +347,7 @@ class Apr1Hasher(BasePasswordHasher):
             i >>= 1
 
         # 1000er loop
-        bin = self._pack3(text)
+        bin = self._pack(text)
         for i in range(0, 1000):
             if i & 1:
                 new = bytes(plainpasswd, 'utf-8')
@@ -364,7 +364,7 @@ class Apr1Hasher(BasePasswordHasher):
             else:
                 new += bytes(plainpasswd, 'utf-8')
 
-            bin = self._pack3(new)
+            bin = self._pack(new)
 
         tmp = b''
         for i in range(0, 5):
