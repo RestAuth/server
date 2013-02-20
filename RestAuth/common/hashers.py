@@ -163,7 +163,6 @@ class PhpassHasher(BasePasswordHasher):
 
     # works in both python2 and python3
     def salt(self):
-        return 'DqNLEjBbA'  # TODO: remove this line
         count = self.itoa64[self.HASH_COUNT]
         salt = self._password_base64_encode(get_random_string(6), 6)
         return '%s%s' % (count, salt)
