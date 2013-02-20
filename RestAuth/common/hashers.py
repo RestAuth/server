@@ -43,7 +43,10 @@ class Sha512Hasher(BasePasswordHasher):
     algorithm = 'sha512'
 
     def encode(self, password, salt):
-        hash = hashlib.sha512('%s%s' % (salt, password)).hexdigest()
+        if IS_PYTHON3:
+            hash = hashlib.sha512(bytes('%s%s' % (salt, password), 'utf-8')).hexdigest()
+        else:
+            hash = hashlib.sha512('%s%s' % (salt, password)).hexdigest()
         return '%s$%s$%s' % (self.algorithm, salt, hash)
 
     def verify(self, password, encoded):
