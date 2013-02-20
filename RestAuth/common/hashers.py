@@ -197,6 +197,11 @@ class PhpassHasher(BasePasswordHasher):
         i = 0
 
         while i < count:
+            # NOTE: We use these weird indizes for python 3 compatability:
+            # in python2:  'foo'[0]   --> 'f'
+            # in python3:  'foo'[0]   --> 'f'
+            #             b'foo'[0]   --> 102  <-- this breaks ord()
+            #             b'foo'[0:1] --> 'f'
             value = ord(input[i:i + 1])
             i += 1
 
