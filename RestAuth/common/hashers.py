@@ -197,12 +197,12 @@ class PhpassHasher(BasePasswordHasher):
         i = 0
 
         while i < count:
-            value = ord(input[i])
+            value = ord(input[i:i + 1])
             i += 1
 
             output += self.itoa64[value & 0x3f]
             if (i < count):
-                value |= ord(input[i]) << 8;
+                value |= ord(input[i:i + 1]) << 8;
 
             output += self.itoa64[(value >> 6) & 0x3f];
 
@@ -211,47 +211,7 @@ class PhpassHasher(BasePasswordHasher):
             i += 1
 
             if i < count:
-                value |= ord(input[i]) << 16;
-
-            output += self.itoa64[(value >> 12) & 0x3f];
-            if (i >= count):
-                break
-            i += 1
-
-            output += self.itoa64[(value >> 18) & 0x3f]
-        return output
-
-    def _password_base64_encode_bytes(self, input, count):
-        """Implementation of _password_base64_encode.
-
-        Equivalent to the ``encode64`` function in phpass.
-
-        .. seealso:: http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_base64_encode/7
-
-        :param input: string to encode
-        :type  input: str
-        :return:      The encoded string
-        :rtype:       str
-        """
-        output = ''
-        i = 0
-
-        while i < count:
-            value = input[i]
-            i += 1
-
-            output += self.itoa64[value & 0x3f]
-            if (i < count):
-                value |= input[i] << 8;
-
-            output += self.itoa64[(value >> 6) & 0x3f];
-
-            if (i >= count):
-                break
-            i += 1
-
-            if i < count:
-                value |= input[i] << 16;
+                value |= ord(input[i:i + 1]) << 16;
 
             output += self.itoa64[(value >> 12) & 0x3f];
             if (i >= count):
@@ -270,14 +230,15 @@ class PhpassHasher(BasePasswordHasher):
         return length, self._password_base64_encode(hash, length)
 
     def _compute_hash3(self, hashfunc, count, salt, password):
-        hash = hashfunc(bytes('%s%s' % (salt, password), 'utf-8')).digest()
-        pwd_in_bytes = bytes(password, 'utf-8')
+        salt = bytes(salt, 'utf-8')
+        password = bytes(password, 'utf-8')
+
+        hash = hashfunc(salt + password).digest()
         for i in range(0, count):
-            hash = hashfunc(hash + pwd_in_bytes).digest()
+            hash = hashfunc(hash + password).digest()
 
         length = len(hash)
-        return length, self._password_base64_encode_bytes(hash, length)
-        return hash
+        return length, self._password_base64_encode(hash, length)
 
     def _password_crypt(self, hashfunc, password, setting):
         setting = setting[:12]
