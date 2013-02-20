@@ -283,17 +283,11 @@ class Apr1Hasher(BasePasswordHasher):
 
     def verify(self, password, encoded):
         algorithm, salt, hash = encoded.split('$', 3)
-        if IS_PYTHON3:
-            newhash = self._crypt3(password, salt).decode('utf-8')
-        else:
-            newhash = self._crypt(password, salt).encode('utf-8')
+        newhash = self._crypt(password, salt)
         return constant_time_compare(hash, newhash)
 
     def encode(self, password, salt):
-        if IS_PYTHON3:
-            hash = self._crypt3(password, salt).decode('utf-8')
-        else:
-            hash = self._crypt(password, salt).encode('utf-8')
+        hash = self._crypt(password, salt)
         return '%s$%s$%s' % (self.algorithm, salt, hash)
 
     def safe_summary(self, encoded):  # pragma: no cover
@@ -384,7 +378,7 @@ class Apr1Hasher(BasePasswordHasher):
         tmp = "%s%s%s%s" % (chr(0), chr(0), chr(bin[11]), tmp.decode('iso-8859-1'))
         tmp = bytes(tmp, 'iso-8859-1')
 
-        return self._trans(tmp)
+        return self._trans(tmp).decode('utf-8')
 
     def _crypt2(self, plainpasswd, salt):
         """
@@ -447,7 +441,7 @@ class Apr1Hasher(BasePasswordHasher):
 
         tmp = "%s%s%s%s" % (chr(0), chr(0), bin[11], tmp)
 
-        return self._trans(tmp)
+        return self._trans(tmp).encode('utf-8')
 
     if IS_PYTHON3:
         _trans = _trans3
