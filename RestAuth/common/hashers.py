@@ -161,11 +161,14 @@ class PhpassHasher(BasePasswordHasher):
     # http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_itoa64/7
     itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
+    # works in both python2 and python3
     def salt(self):
+        return 'DqNLEjBbA'  # TODO: remove this line
         count = self.itoa64[self.HASH_COUNT]
         salt = self._password_base64_encode(get_random_string(6), 6)
         return '%s%s' % (count, salt)
 
+    # works in both python2 and python3
     def _password_enforce_log2_boundaries(self, count_log2):
         """Implementation of _password_enforce_log2_boundaries
 
@@ -184,6 +187,11 @@ class PhpassHasher(BasePasswordHasher):
         Equivalent to the ``encode64`` function in phpass.
 
         .. seealso:: http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_base64_encode/7
+
+        :param input: string to encode
+        :type  input: str
+        :return:      The encoded string
+        :rtype:       str
         """
         output = ''
         i = 0
@@ -213,6 +221,64 @@ class PhpassHasher(BasePasswordHasher):
             output += self.itoa64[(value >> 18) & 0x3f]
         return output
 
+    def _password_base64_encode_bytes(self, input, count):
+        """Implementation of _password_base64_encode.
+
+        Equivalent to the ``encode64`` function in phpass.
+
+        .. seealso:: http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_base64_encode/7
+
+        :param input: string to encode
+        :type  input: str
+        :return:      The encoded string
+        :rtype:       str
+        """
+        output = ''
+        i = 0
+
+        while i < count:
+            value = input[i]
+            i += 1
+
+            output += self.itoa64[value & 0x3f]
+            if (i < count):
+                value |= input[i] << 8;
+
+            output += self.itoa64[(value >> 6) & 0x3f];
+
+            if (i >= count):
+                break
+            i += 1
+
+            if i < count:
+                value |= input[i] << 16;
+
+            output += self.itoa64[(value >> 12) & 0x3f];
+            if (i >= count):
+                break
+            i += 1
+
+            output += self.itoa64[(value >> 18) & 0x3f]
+        return output
+
+    def _compute_hash2(self, hashfunc, count, salt, password):
+        hash = hashfunc('%s%s' % (salt, password)).digest()
+        for i in range(0, count):
+            hash = hashfunc('%s%s' % (hash, password)).digest()
+
+        length = len(hash)
+        return length, self._password_base64_encode(hash, length)
+
+    def _compute_hash3(self, hashfunc, count, salt, password):
+        hash = hashfunc(bytes('%s%s' % (salt, password), 'utf-8')).digest()
+        pwd_in_bytes = bytes(password, 'utf-8')
+        for i in range(0, count):
+            hash = hashfunc(hash + pwd_in_bytes).digest()
+
+        length = len(hash)
+        return length, self._password_base64_encode_bytes(hash, length)
+        return hash
+
     def _password_crypt(self, hashfunc, password, setting):
         setting = setting[:12]
 
@@ -233,12 +299,9 @@ class PhpassHasher(BasePasswordHasher):
         count = 1 << count_log2
 
         # We rely on the hash() function being available in PHP 5.2+.
-        hash = hashfunc('%s%s' % (salt, password)).digest()
-        for i in range(0, count):
-            hash = hashfunc('%s%s' % (hash, password)).digest()
+        length, output = self._compute_hash(hashfunc, count, salt, password)
 
-        length = len(hash)
-        output = '%s%s' % (setting, self._password_base64_encode(hash, length))
+        output = '%s%s' % (setting, output)
         expected = 12 + math.ceil((8 * length) / 6.0)
         if len(output) == expected:
             return output[0:self.HASH_LENGTH]
@@ -263,6 +326,10 @@ class PhpassHasher(BasePasswordHasher):
         encoded = self._password_crypt(hashlib.md5, password, settings)
         return '%s%s' % (self.algorithm, encoded)
 
+    if IS_PYTHON3:
+        _compute_hash = _compute_hash3
+    else:
+        _compute_hash = _compute_hash2
 
 class Drupal7Hasher(PhpassHasher):
     """Hasher that understands hashes as created by Drupal7.
