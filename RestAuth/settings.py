@@ -107,7 +107,10 @@ PROPERTY_BACKEND='RestAuth.backends.django_backend.DjangoPropertyBackend'
 try:
     from localsettings import *
 except ImportError:
-    pass
+    try:
+        from RestAuth.localsettings import *
+    except ImportError:
+        pass
 
 if not LOGGING:
     LOGGING = {
