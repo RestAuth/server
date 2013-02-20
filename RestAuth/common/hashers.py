@@ -42,11 +42,14 @@ class Sha512Hasher(BasePasswordHasher):
 
     algorithm = 'sha512'
 
+    def _hash2(self, payload):
+        return hashlib.sha512(payload).hexdigest()
+
+    def _hash3(self, payload):
+        return hashlib.sha512(bytes(payload, 'utf-8')).hexdigest()
+
     def encode(self, password, salt):
-        if IS_PYTHON3:
-            hash = hashlib.sha512(bytes('%s%s' % (salt, password), 'utf-8')).hexdigest()
-        else:
-            hash = hashlib.sha512('%s%s' % (salt, password)).hexdigest()
+        hash = self._hash('%s%s' % (salt, password))
         return '%s$%s$%s' % (self.algorithm, salt, hash)
 
     def verify(self, password, encoded):
@@ -61,6 +64,11 @@ class Sha512Hasher(BasePasswordHasher):
             ('salt', mask_hash(salt)),
             ('hash', mask_hash(hash)),
         ])
+
+    if IS_PYTHON3:
+        _hash = _hash3
+    else:
+        _hash = _hash2
 
 
 class MediaWikiHasher(BasePasswordHasher):
