@@ -15,12 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import base64
 
 from django.conf import settings
 from django.core.cache import cache
 
 from RestAuth.Services.models import Service
+
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
 
 
 class InternalAuthenticationBackend:
@@ -56,7 +62,11 @@ class InternalAuthenticationBackend:
             if host in hosts:
                 return serv
         else:
-            name, password = base64.b64decode(data).split(':', 1)
+            if IS_PYTHON3 and isinstance(data, str):
+                decoded = base64.b64decode(bytes(data, 'utf-8'))
+                name, password = decoded.decode('utf-8').split(':', 1)
+            else:
+                name, password = base64.b64decode(data).split(':', 1)
 
             try:
                 serv = qs.get(username=name)
