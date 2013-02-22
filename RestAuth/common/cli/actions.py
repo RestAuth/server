@@ -28,7 +28,7 @@ from django.db.utils import IntegrityError
 from RestAuth.Services.models import Service
 from RestAuth.Services.models import check_service_username
 from RestAuth.Services.models import ServiceUsernameNotValid
-from RestAuth.backends import user_backend
+from RestAuth.backends import user_backend, property_backend
 from RestAuth.common.errors import PreconditionFailed
 from RestAuth.common.errors import UserExists, UserNotFound
 
@@ -57,7 +57,7 @@ class UsernameAction(Action):
         username = value.lower().decode('utf-8')
         if namespace.create_user:
             try:
-                user = user_backend.create(username=username)
+                user = user_backend.create(username=username, property_backend=property_backend)
             except UserExists:
                 raise ArgumentError(self, 'User already exists.')
             except PreconditionFailed as e:
