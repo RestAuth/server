@@ -1,7 +1,8 @@
 RestAuth 0.6.1 (DD MMMM YYYY)
 
   Dependencies:
-  * This release requires Django 1.4 or later.
+  * This release requires Django 1.4 or later and is tested with Django 1.5.
+  * This release requires Python 2.6 or newer or Python 3.2 or newer.
 
   Backends:
   * RestAuth now features a pluggable backend system to store its data.
