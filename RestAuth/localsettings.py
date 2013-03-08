@@ -70,7 +70,7 @@ DATABASES = {
 #DATABASE_ROUTERS = []
 
 # Set your SECRET_KEY to some long random string:
-SECRET_KEY = ''
+SECRET_KEY = 'foobasr'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

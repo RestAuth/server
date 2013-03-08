@@ -17,10 +17,12 @@
 
 import mimeparse
 
+from RestAuth.common.content_handlers import get_handler
+from RestAuth.common.content_handlers import get_supported
 from RestAuthCommon.error import BadRequest
 from RestAuthCommon.error import NotAcceptable
-from RestAuthCommon.error import UnmarshalError, UnsupportedMediaType
-from RestAuth.common.content_handlers import get_handler, get_supported
+from RestAuthCommon.error import UnmarshalError
+from RestAuthCommon.error import UnsupportedMediaType
 
 
 def get_response_type(request):

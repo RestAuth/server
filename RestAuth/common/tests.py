@@ -27,15 +27,16 @@ from django.utils.unittest import TestCase
 from RestAuthCommon import handlers
 
 from RestAuth.Services.models import Service
-from RestAuth.Users.validators import validate_username
 from RestAuth.Users.validators import load_username_validators
-from RestAuth.backends.base import UserInstance, GroupInstance
+from RestAuth.Users.validators import validate_username
+from RestAuth.backends.base import GroupInstance
+from RestAuth.backends.base import UserInstance
 from RestAuth.common.errors import UsernameInvalid
+from RestAuth.common.middleware import RestAuthMiddleware
 from RestAuth.common.testdata import RestAuthTest
 from RestAuth.common.testdata import user_backend
 from RestAuth.common.testdata import username1
 from RestAuth.common.utils import import_path
-from RestAuth.common.middleware import RestAuthMiddleware
 
 
 class RestAuthMiddlewareTests(TestCase):

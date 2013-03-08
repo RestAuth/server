@@ -23,19 +23,32 @@ except ImportError:
 from unittest import skipUnless
 
 from django.conf import settings
-from django.contrib.auth.hashers import check_password, make_password, load_hashers
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import load_hashers
+from django.contrib.auth.hashers import make_password
 from django.test import TestCase
 from django.test.utils import override_settings
 
 from RestAuth.common.errors import PropertyNotFound
-from RestAuth.common.testdata import (
-    RestAuthTest, RestAuthTestBase,
-    user_backend, property_backend,
-    username1, username2, username3,
-    password1, password2, password3,
-    propkey1, propkey2, propkey3,
-    propval1, propval2, propval3, propval4, propval5,
-)
+from RestAuth.common.testdata import RestAuthTest
+from RestAuth.common.testdata import RestAuthTestBase
+from RestAuth.common.testdata import password1
+from RestAuth.common.testdata import password2
+from RestAuth.common.testdata import password3
+from RestAuth.common.testdata import property_backend
+from RestAuth.common.testdata import propkey1
+from RestAuth.common.testdata import propkey2
+from RestAuth.common.testdata import propkey3
+from RestAuth.common.testdata import propval1
+from RestAuth.common.testdata import propval2
+from RestAuth.common.testdata import propval3
+from RestAuth.common.testdata import propval4
+from RestAuth.common.testdata import propval5
+from RestAuth.common.testdata import user_backend
+from RestAuth.common.testdata import username1
+from RestAuth.common.testdata import username2
+from RestAuth.common.testdata import username3
+
 
 
 class GetUsersTests(RestAuthTest):  # GET /users/

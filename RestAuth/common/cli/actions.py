@@ -19,18 +19,22 @@
 Collect various reusable parsers.
 """
 
-from argparse import Action, ArgumentError
 import random
 import string
+
+from argparse import Action
+from argparse import ArgumentError
 
 from django.db.utils import IntegrityError
 
 from RestAuth.Services.models import Service
-from RestAuth.Services.models import check_service_username
 from RestAuth.Services.models import ServiceUsernameNotValid
-from RestAuth.backends import user_backend, property_backend
+from RestAuth.Services.models import check_service_username
+from RestAuth.backends import property_backend
+from RestAuth.backends import user_backend
 from RestAuth.common.errors import PreconditionFailed
-from RestAuth.common.errors import UserExists, UserNotFound
+from RestAuth.common.errors import UserExists
+from RestAuth.common.errors import UserNotFound
 
 
 class ServiceAction(Action):

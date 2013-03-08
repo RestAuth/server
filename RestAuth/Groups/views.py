@@ -26,14 +26,16 @@ from django.http import HttpResponseForbidden
 from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
 
-from RestAuth.backends import user_backend, group_backend
+from RestAuth.backends import user_backend
+from RestAuth.backends import group_backend
 from RestAuth.common.errors import UserNotFound
 from RestAuth.common.errors import GroupNotFound
 from RestAuth.common.responses import HttpResponseCreated
 from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
-from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
-                                   RestAuthSubResourceView)
+from RestAuth.common.views import RestAuthView
+from RestAuth.common.views import RestAuthResourceView
+from RestAuth.common.views import RestAuthSubResourceView
 
 try:
         strtype = basestring  # python2.x

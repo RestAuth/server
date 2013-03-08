@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import make_password
 from django.db import models
 from django.utils.http import urlquote
 

@@ -20,7 +20,8 @@ This module implements common baseclasses used in other RestAuth views..
 
 from django.views.generic.base import View
 
-from RestAuth.common.types import assert_format, parse_dict
+from RestAuth.common.types import assert_format
+from RestAuth.common.types import parse_dict
 
 
 class RestAuthView(View):

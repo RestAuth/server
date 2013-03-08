@@ -27,7 +27,8 @@ sys.path.append(os.getcwd())
 try:
     from RestAuth.Services.models import Service
     from RestAuth.Users.cli.parsers import parser
-    from RestAuth.backends import user_backend, property_backend
+    from RestAuth.backends import user_backend
+    from RestAuth.backends import property_backend
     from RestAuth.backends import group_backend
     from RestAuth.common import errors
 except ImportError as e:

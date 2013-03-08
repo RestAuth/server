@@ -15,9 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from RestAuth.Users.views import UsersView, UserPropsIndex
 from RestAuth.Groups.views import GroupsView
 from RestAuth.Services.decorator import login_required
+from RestAuth.Users.views import UserPropsIndex
+from RestAuth.Users.views import UsersView
 
 users_view = UsersView.as_view()
 props_view = UserPropsIndex.as_view()

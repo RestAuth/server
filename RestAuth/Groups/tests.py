@@ -20,14 +20,26 @@ try:
 except ImportError:
     from http import client as httpclient  # python 3.x
 
+from RestAuth.Services.models import Service
+from RestAuth.Services.models import service_create
 from RestAuth.common.testdata import RestAuthTest
-from RestAuth.common.testdata import (
-    username1, username2, username3, username4, username5,
-    password1, password2, password3, password4, password5,
-    groupname1, groupname2, groupname3, groupname4, groupname5, groupname6,
-    group_backend,
-)
-from RestAuth.Services.models import Service, service_create
+from RestAuth.common.testdata import group_backend
+from RestAuth.common.testdata import groupname1
+from RestAuth.common.testdata import groupname2
+from RestAuth.common.testdata import groupname3
+from RestAuth.common.testdata import groupname4
+from RestAuth.common.testdata import groupname5
+from RestAuth.common.testdata import groupname6
+from RestAuth.common.testdata import password1
+from RestAuth.common.testdata import password2
+from RestAuth.common.testdata import password3
+from RestAuth.common.testdata import password4
+from RestAuth.common.testdata import password5
+from RestAuth.common.testdata import username1
+from RestAuth.common.testdata import username2
+from RestAuth.common.testdata import username3
+from RestAuth.common.testdata import username4
+from RestAuth.common.testdata import username5
 
 
 class GroupTests(RestAuthTest):

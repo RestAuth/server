@@ -28,14 +28,17 @@ from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
 
 from RestAuth.Users.validators import validate_username
-from RestAuth.backends import user_backend, property_backend
-from RestAuth.common.errors import PasswordInvalid, UserNotFound
+from RestAuth.backends import property_backend
+from RestAuth.backends import user_backend
+from RestAuth.common.errors import PasswordInvalid
+from RestAuth.common.errors import UserNotFound
 from RestAuth.common.responses import HttpResponseCreated
 from RestAuth.common.responses import HttpResponseNoContent
 from RestAuth.common.responses import HttpRestAuthResponse
 from RestAuth.common.types import parse_dict
-from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
-                                   RestAuthSubResourceView)
+from RestAuth.common.views import RestAuthResourceView
+from RestAuth.common.views import RestAuthSubResourceView
+from RestAuth.common.views import RestAuthView
 
 try:
     strtype = basestring  # python2.x

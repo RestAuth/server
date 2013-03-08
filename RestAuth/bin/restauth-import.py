@@ -35,12 +35,15 @@ sys.path.append(os.getcwd())
 try:
     from django.db import transaction
 
-    from RestAuth.common.cli.parsers import parser
-    from RestAuth.common.errors import GroupExists, PropertyExists, UserExists
-
-    from RestAuth.Services.models import Service, ServiceAddress
+    from RestAuth.Services.models import Service
+    from RestAuth.Services.models import ServiceAddress
+    from RestAuth.backends.utils import group_backend
+    from RestAuth.backends.utils import property_backend
     from RestAuth.backends.utils import user_backend
-    from RestAuth.backends.utils import group_backend, property_backend
+    from RestAuth.common.cli.parsers import parser
+    from RestAuth.common.errors import GroupExists
+    from RestAuth.common.errors import PropertyExists
+    from RestAuth.common.errors import UserExists
 except ImportError, e:
     sys.stderr.write(
         'Error: Cannot import RestAuth. '

@@ -19,7 +19,8 @@ import redis
 
 from django.conf import settings
 
-from RestAuth.common.errors import PropertyExists, PropertyNotFound
+from RestAuth.common.errors import PropertyExists
+from RestAuth.common.errors import PropertyNotFound
 
 conn = redis.StrictRedis(
     host=getattr(settings, 'REDIS_HOST', 'localhost'),

@@ -24,9 +24,12 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
-    from RestAuth.Groups.cli.parsers import parser, get_group, print_by_service
+    from RestAuth.Groups.cli.parsers import parser
+    from RestAuth.Groups.cli_parsers import get_group
+    from RestAuth.Groups.cli_parsers import print_by_service
     from RestAuth.backends.utils import group_backend
-    from RestAuth.common.errors import GroupExists, GroupNotFound
+    from RestAuth.common.errors import GroupExists
+    from RestAuth.common.errors import GroupNotFound
     from RestAuth.common.errors import UserNotFound
 except ImportError as e:
     sys.stderr.write('Error: Cannot import RestAuth. '

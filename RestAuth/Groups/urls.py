@@ -15,12 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns
+from django.conf.urls import url
 
+from RestAuth.Groups.views import GroupGroupHandler
+from RestAuth.Groups.views import GroupGroupsIndex
+from RestAuth.Groups.views import GroupHandlerView
+from RestAuth.Groups.views import GroupUserHandler
+from RestAuth.Groups.views import GroupUsersIndex
+from RestAuth.Groups.views import GroupsView
 from RestAuth.Services.decorator import login_required
-from RestAuth.Groups.views import (GroupsView, GroupHandlerView,
-                          GroupUsersIndex, GroupUserHandler,
-                          GroupGroupsIndex, GroupGroupHandler)
 
 urlpatterns = patterns(
     'RestAuth.Groups.views',

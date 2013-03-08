@@ -21,17 +21,20 @@ from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase
+from django.test import TransactionTestCase
 from django.test.client import Client
 from django.test.utils import override_settings
 
 from RestAuthCommon import handlers
 
+from RestAuth.Groups.models import group_permissions
 from RestAuth.Services.models import service_create
 from RestAuth.Users.models import prop_permissions
 from RestAuth.Users.models import user_permissions
-from RestAuth.Groups.models import group_permissions
-from RestAuth.backends import user_backend, group_backend, property_backend
+from RestAuth.backends import group_backend
+from RestAuth.backends import property_backend
+from RestAuth.backends import user_backend
 
 username1 = "mati \u6111"
 username2 = "mati \u6112"

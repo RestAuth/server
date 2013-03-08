@@ -22,8 +22,10 @@ import string
 import struct
 import sys
 
-from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
-from django.utils.crypto import constant_time_compare, get_random_string
+from django.contrib.auth.hashers import BasePasswordHasher
+from django.contrib.auth.hashers import mask_hash
+from django.utils.crypto import constant_time_compare
+from django.utils.crypto import get_random_string
 from django.utils.datastructures import SortedDict
 
 
