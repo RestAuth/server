@@ -90,7 +90,8 @@ class GroupsView(RestAuthView):
                                      dry=dry)
 
         self.log.info('%s: Created group', group.name, extra=largs)
-        return HttpResponseCreated(request, 'groups.group', name=group.name)  # Created
+        return HttpResponseCreated(request,
+                                   'groups.group', name=group.name)  # Created
 
 
 class GroupHandlerView(RestAuthResourceView):

@@ -365,7 +365,8 @@ class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
         group_backend.add_user(self.group5, self.user2)
         group_backend.add_subgroup(self.group5, self.group1)
         group_backend.add_user(self.group1, self.user3)
-        group_backend.add_subgroup(self.group1, self.group4)  # group4 is fsinf service
+        group_backend.add_subgroup(self.group1,
+                                   self.group4)  # group4 is fsinf service
         group_backend.add_user(self.group4, self.user4)
         group_backend.add_subgroup(self.group4, self.group2)
         group_backend.add_user(self.group2, self.user5)
@@ -534,7 +535,8 @@ class VerifyUserInGroupTests(GroupUserTests):
         group_backend.add_user(self.group5, self.user2)
         group_backend.add_subgroup(self.group5, self.group1)
         group_backend.add_user(self.group1, self.user3)
-        group_backend.add_subgroup(self.group1, self.group4)  # group4 is fsinf service
+        group_backend.add_subgroup(self.group1,
+                                   self.group4)  # group4 is fsinf service
         group_backend.add_user(self.group4, self.user4)
         group_backend.add_subgroup(self.group4, self.group2)
         group_backend.add_user(self.group2, self.user5)
@@ -648,7 +650,8 @@ class GetSubGroupTests(GroupUserTests):  # GET /groups/<group>/groups/
         resp = self.get('/groups/%s/groups/' % groupname1)
         self.assertEquals(resp.status_code, httpclient.OK)
 
-        self.assertItemsEqual(self.parse(resp, 'list'), [groupname2, groupname3])
+        self.assertItemsEqual(self.parse(resp, 'list'),
+                              [groupname2, groupname3])
 
     def test_service_isolation(self):
         group_backend.add_subgroup(self.group1, self.group2)
@@ -668,8 +671,10 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertEquals(resp.status_code, httpclient.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(group_backend.exists(name=groupname6, service=self.vowi))
-        self.assertEquals(group_backend.subgroups(group=self.group1, filter=True), [])
+        self.assertFalse(group_backend.exists(name=groupname6,
+                                              service=self.vowi))
+        subgroups = group_backend.subgroups(group=self.group1, filter=True)
+        self.assertEquals(subgroups, [])
 
     def test_subgroup_doesnt_exist(self):
         resp = self.post(
@@ -677,7 +682,8 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertEquals(resp.status_code, httpclient.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(group_backend.exists(name=groupname6, service=self.vowi))
+        self.assertFalse(group_backend.exists(name=groupname6,
+                                              service=self.vowi))
         self.assertItemsEqual(group_backend.subgroups(
             self.get_grp(groupname1, self.vowi)), [])
 
@@ -758,7 +764,8 @@ class RemoveSubGroupTests(GroupUserTests):
         self.assertEquals(resp.status_code, httpclient.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(group_backend.exists(name=groupname6, service=self.vowi))
+        self.assertFalse(group_backend.exists(name=groupname6,
+                                              service=self.vowi))
         self.assertItemsEqual(group_backend.subgroups(
             group=self.get_grp(groupname1, self.vowi), filter=False), [])
 
@@ -767,7 +774,8 @@ class RemoveSubGroupTests(GroupUserTests):
         self.assertEquals(resp.status_code, httpclient.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
-        self.assertFalse(group_backend.exists(name=groupname6, service=self.vowi))
+        self.assertFalse(group_backend.exists(name=groupname6,
+                                              service=self.vowi))
         self.assertItemsEqual(group_backend.subgroups(
             group=self.get_grp(groupname1, self.vowi), filter=False), [])
 

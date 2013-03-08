@@ -100,9 +100,9 @@ SECURE_CACHE = False
 SERVICE_PASSWORD_HASHER = 'default'
 
 # backends:
-USER_BACKEND='RestAuth.backends.django_backend.DjangoUserBackend'
-GROUP_BACKEND='RestAuth.backends.django_backend.DjangoGroupBackend'
-PROPERTY_BACKEND='RestAuth.backends.django_backend.DjangoPropertyBackend'
+USER_BACKEND = 'RestAuth.backends.django_backend.DjangoUserBackend'
+GROUP_BACKEND = 'RestAuth.backends.django_backend.DjangoGroupBackend'
+PROPERTY_BACKEND = 'RestAuth.backends.django_backend.DjangoPropertyBackend'
 
 try:
     from localsettings import *

@@ -35,6 +35,7 @@ class MemoryUserInstance(UserInstance):
         super(MemoryUserInstance, self).__init__(id, username)
         self.password = password
 
+
 class MemoryGroupInstance(GroupInstance):
     def __init__(self, id, name, service):
         super(MemoryGroupInstance, self).__init__(id, name, service)
@@ -60,7 +61,7 @@ class MemoryGroupInstance(GroupInstance):
             depth = settings.GROUP_RECURSION_DEPTH
 
         for parent in self.parents:
-            users |= parent.members(depth=depth-1)
+            users |= parent.members(depth=depth - 1)
         return users
 
     def is_member(self, user):

@@ -208,18 +208,18 @@ class PhpassHasher(BasePasswordHasher):
 
             output += self.itoa64[value & 0x3f]
             if (i < count):
-                value |= ord(input[i:i + 1]) << 8;
+                value |= ord(input[i:i + 1]) << 8
 
-            output += self.itoa64[(value >> 6) & 0x3f];
+            output += self.itoa64[(value >> 6) & 0x3f]
 
             if (i >= count):
                 break
             i += 1
 
             if i < count:
-                value |= ord(input[i:i + 1]) << 16;
+                value |= ord(input[i:i + 1]) << 16
 
-            output += self.itoa64[(value >> 12) & 0x3f];
+            output += self.itoa64[(value >> 12) & 0x3f]
             if (i >= count):
                 break
             i += 1
@@ -295,6 +295,7 @@ class PhpassHasher(BasePasswordHasher):
         _compute_hash = _compute_hash3
     else:
         _compute_hash = _compute_hash2
+
 
 class Drupal7Hasher(PhpassHasher):
     """Hasher that understands hashes as created by Drupal7.
@@ -389,12 +390,12 @@ class Apr1Hasher(BasePasswordHasher):
     def _crypt3(self, plainpasswd, salt):
         text = bytes("%s$apr1$%s" % (plainpasswd, salt), 'utf-8')
 
-        bin = self._pack(bytes("%s%s%s" % (plainpasswd, salt, plainpasswd), 'utf-8'))
+        to_pack = "%s%s%s" % (plainpasswd, salt, plainpasswd)
+        bin = self._pack(bytes(to_pack, 'utf-8'))
 
         # first loop
         i = len(plainpasswd)
         while i > 0:
-            x = bin[0:min(16, i)]
             text += bin[0:min(16, i)]
             i -= 16
 
@@ -436,9 +437,11 @@ class Apr1Hasher(BasePasswordHasher):
             if j == 16:
                 j = 5
 
-            tmp = "%s%s%s%s" % (chr(bin[i]), chr(bin[k]), chr(bin[j]), tmp.decode('iso-8859-1'))
+            tmp = "%s%s%s%s" % (chr(bin[i]), chr(bin[k]), chr(bin[j]),
+                                tmp.decode('iso-8859-1'))
             tmp = bytes(tmp, 'iso-8859-1')
-        tmp = "%s%s%s%s" % (chr(0), chr(0), chr(bin[11]), tmp.decode('iso-8859-1'))
+        tmp = "%s%s%s%s" % (chr(0), chr(0), chr(bin[11]),
+                            tmp.decode('iso-8859-1'))
         tmp = bytes(tmp, 'iso-8859-1')
 
         return self._trans(tmp).decode('utf-8')
@@ -514,4 +517,3 @@ class Apr1Hasher(BasePasswordHasher):
         _trans = _trans2
         _pack = _pack2
         _crypt = _crypt2
-

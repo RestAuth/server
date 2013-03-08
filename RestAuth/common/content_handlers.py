@@ -65,6 +65,7 @@ def get_handler(mimetype=None):
             raise ValueError("Unknown mimetype %s. Did you specify it in the "
                              "CONTENT_HANDLERS setting?" % mimetype)
 
+
 def get_supported():
     if SUPPORTED_HANDLERS is None:
         load_handlers()

@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import getpass
 import os
 import sys
 
@@ -30,7 +29,8 @@ try:
     from RestAuth.Services.models import Service
     from RestAuth.Services.cli.parsers import parser
 except ImportError as e:
-    sys.stderr.write('Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
+    sys.stderr.write('Error: Cannot import RestAuth. '
+                     'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
 args = parser.parse_args()

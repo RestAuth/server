@@ -61,7 +61,8 @@ class UsernameAction(Action):
         username = value.lower().decode('utf-8')
         if namespace.create_user:
             try:
-                user = user_backend.create(username=username, property_backend=property_backend)
+                user = user_backend.create(username=username,
+                                           property_backend=property_backend)
             except UserExists:
                 raise ArgumentError(self, 'User already exists.')
             except PreconditionFailed as e:

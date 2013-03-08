@@ -95,6 +95,7 @@ def commit_transaction():
     group_backend.commit_transaction()
     property_backend.commit_transaction()
 
+
 def rollback_transaction():
     transaction.rollback()
     user_backend.rollback_transaction()

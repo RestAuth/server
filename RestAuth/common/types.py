@@ -68,11 +68,12 @@ def assert_format(data, required=None, optional=None):
     if optional is not None:
         for key, typ in optional:
             field = data.pop(key, None)
-            assert (isinstance(field, typ) or field == None), \
-                    "%s is of wrong type: %s" % (key, field)
+            assert isinstance(field, typ) or field is None, \
+                "%s is of wrong type: %s" % (key, field)
             retlist.append(field)
 
-    assert not data, "Submitted data has unknown keys: %s" % ', '.join(data.keys())
+    keylist = ', '.join(data.keys())
+    assert not data, "Submitted data has unknown keys: %s" % keylist
 
     if len(retlist) == 1:
         return retlist[0]

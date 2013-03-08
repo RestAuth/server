@@ -126,6 +126,7 @@ class ValidatorTests(RestAuthTest):
     def test_no_whitespace(self):
         self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
 
+
 class ImportTests(RestAuthTest):
     def test_malformed_path(self):
         self.assertRaises(ImproperlyConfigured, import_path, 'foobar')
@@ -137,6 +138,7 @@ class ImportTests(RestAuthTest):
     def test_unkown_class(self):
         self.assertRaises(ImproperlyConfigured, import_path,
                           'RestAuth.Users.validators.UnknownValidator')
+
 
 class BaseInstancetests(RestAuthTest):
     def test_user(self):

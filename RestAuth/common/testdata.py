@@ -70,6 +70,8 @@ propval3 = "propval \u6153"
 propval4 = "propval \u6154"
 propval5 = "propval \u6155"
 
+PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
+
 
 class RestAuthTestBase(object):
     def setUp(self):
@@ -155,7 +157,7 @@ class RestAuthTestBase(object):
         group_backend.testTearDown()
 
 
-@override_settings(PASSWORD_HASHERS=('django.contrib.auth.hashers.MD5PasswordHasher', ))
+@override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTest(RestAuthTestBase, TestCase):
     def assertItemsEqual(self, actual, expected, msg=None):
         """This method is not present in python3."""
@@ -167,7 +169,7 @@ class RestAuthTest(RestAuthTestBase, TestCase):
             self.assertEqual(len(actual), len(expected))
 
 
-@override_settings(PASSWORD_HASHERS=('django.contrib.auth.hashers.MD5PasswordHasher', ))
+@override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
     def assertItemsEqual(self, actual, expected, msg=None):
         """This method is not present in python3."""

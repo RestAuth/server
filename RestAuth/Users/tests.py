@@ -50,7 +50,6 @@ from RestAuth.common.testdata import username2
 from RestAuth.common.testdata import username3
 
 
-
 class GetUsersTests(RestAuthTest):  # GET /users/
     def test_get_empty_users(self):
         resp = self.get('/users/')
@@ -716,11 +715,16 @@ class PhpassTest(HashTestMixin, TestCase):
         '123456': {'salt': 'Bc9fhNMWG', 'hash': 'FRLOT7ZpY6TAYoSf.bIdD0'},
         '1234567': {'salt': 'BlT2XNtZD', 'hash': 'pirchpCqdGmbWRenYNpzE.'},
         '12345678': {'salt': 'BqXel7ZCN', 'hash': '22KlBpQogL5PJC52hHuD91'},
-        'if9prH3F5Y57': {'salt': 'Bv5IkQCrO', 'hash': '7LFot6oQrkBy/ToD1kLvt.'},
-        '1YqgPVFITEyt': {'salt': 'BKhwIDVD/', 'hash': 'BfqOTbzU1HsuBbSvZdENs.'},
-        'Ji67AxtXzhKK': {'salt': 'BK0P5khBm', 'hash': 's9.dRMDutvTii5E.gT.Ji1'},
-        'riyBxGIL18vf': {'salt': 'BOkvZdLFu', 'hash': 'YEkYAaxG0g/mUladF0dNO/'},
-        'WvhQMorIXqUX': {'salt': 'BoDae5Q0Y', 'hash': 'fXvarDorOTb.fj44OqbOc1'},
+        'if9prH3F5Y57': {'salt': 'Bv5IkQCrO',
+                         'hash': '7LFot6oQrkBy/ToD1kLvt.'},
+        '1YqgPVFITEyt': {'salt': 'BKhwIDVD/',
+                         'hash': 'BfqOTbzU1HsuBbSvZdENs.'},
+        'Ji67AxtXzhKK': {'salt': 'BK0P5khBm',
+                         'hash': 's9.dRMDutvTii5E.gT.Ji1'},
+        'riyBxGIL18vf': {'salt': 'BOkvZdLFu',
+                         'hash': 'YEkYAaxG0g/mUladF0dNO/'},
+        'WvhQMorIXqUX': {'salt': 'BoDae5Q0Y',
+                         'hash': 'fXvarDorOTb.fj44OqbOc1'},
     }
 
     def generate(self, data):
@@ -749,20 +753,31 @@ class Drupal7Test(HashTestMixin, TestCase):
                     'hash': 'd8eZk/MB65Wb7Mzihm2M/WEfAYthl2aPTjSSBLJ/wX5'},
         '12345678': {'salt': 'D/YGN6xK5',
                      'hash': '0wPvroaZq4QLT.vLCbt0JGMAPSCYxcN6BO4uSxjRrux'},
-        's8zm3mPH88mY': {'salt': 'DzGBWhU4E',
-                         'hash': 'QifJeFvwTPvJvc03yvOrI1PebgOj9GCAZvoKMtRVmuZ'},
-        'dfi31ps18XaR': {'salt': 'DHFKOWOc.',
-                         'hash': '2pgOGy5s59k1WzhTiMUcHrdPlIzFnbuEK7m54j2zrkT'},
-        'izfqISu3hVrx': {'salt': 'Dnspf7cF3',
-                         'hash': '.Pk793BzmyMtonIlWJp3Vh8Zix0wMCV.j.KCAGamoz0'},
-        'rGUo7cpMTv1f': {'salt': 'Dcm.rOynf',
-                         'hash': 'SWVgqarUIk9Vemk/txNQbaPaWJqTPR4gcSrHMor4o8K'},
-        'qJreivhrj04Y': {'salt': 'DorDKO73p',
-                         'hash': 'PICBMd2BgWbowvDk3y7L159JaYmjvSV/hyQJnHGmgak'},
+        's8zm3mPH88mY': {
+            'salt': 'DzGBWhU4E',
+            'hash': 'QifJeFvwTPvJvc03yvOrI1PebgOj9GCAZvoKMtRVmuZ',
+        },
+        'dfi31ps18XaR': {
+            'salt': 'DHFKOWOc.',
+            'hash': '2pgOGy5s59k1WzhTiMUcHrdPlIzFnbuEK7m54j2zrkT',
+        },
+        'izfqISu3hVrx': {
+            'salt': 'Dnspf7cF3',
+            'hash': '.Pk793BzmyMtonIlWJp3Vh8Zix0wMCV.j.KCAGamoz0',
+        },
+        'rGUo7cpMTv1f': {
+            'salt': 'Dcm.rOynf',
+            'hash': 'SWVgqarUIk9Vemk/txNQbaPaWJqTPR4gcSrHMor4o8K',
+        },
+        'qJreivhrj04Y': {
+            'salt': 'DorDKO73p',
+            'hash': 'PICBMd2BgWbowvDk3y7L159JaYmjvSV/hyQJnHGmgak',
+        },
     }
 
     def generate(self, data):
         return '%s$S$%s%s' % (self.algorithm, data['salt'], data['hash'])
+
 
 @override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.Sha512Hasher',))
 class Sha512Test(HashTestMixin, TestCase):
@@ -783,7 +798,8 @@ class Sha512Test(HashTestMixin, TestCase):
     }
 
 
-@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.MediaWikiHasher',))
+@override_settings(
+    PASSWORD_HASHERS=('RestAuth.common.hashers.MediaWikiHasher',))
 class MediaWikiTest(HashTestMixin, TestCase):
     hashers = ('RestAuth.common.hashers.MediaWikiHasher',)
     algorithm = 'mediawiki'
