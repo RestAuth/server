@@ -27,18 +27,14 @@ sys.path.append(os.getcwd())
 try:
     from RestAuth.Services.models import Service
     from RestAuth.Users.cli.parsers import parser
-    from RestAuth.backends.utils import user_backend, property_backend
-    from RestAuth.backends.utils import group_backend
+    from RestAuth.backends import user_backend, property_backend
+    from RestAuth.backends import group_backend
     from RestAuth.common import errors
 except ImportError as e:
     print e
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
                      'sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
-
-user_backend = user_backend()
-property_backend = property_backend()
-group_backend = group_backend()
 
 # parse arguments
 args = parser.parse_args()
