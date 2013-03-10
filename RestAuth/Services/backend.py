@@ -52,7 +52,10 @@ class InternalAuthenticationBackend:
             if serv is None or hosts is None:
                 name, password = base64.b64decode(data).split(':', 1)
 
-                serv = qs.get(username=name)
+                try:
+                    serv = qs.get(username=name)
+                except Service.DoesNotExist:
+                    return None
                 hosts = serv.hosts.values_list('address', flat=True)
 
                 if serv.verify(password, host):
