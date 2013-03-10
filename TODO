@@ -1,7 +1,7 @@
 0.6.1:
-* Use HttpRequest.get_host() for services
-  https://docs.djangoproject.com/en/1.5/ref/request-response/#django.http.HttpRequest.get_host
 * Fix compatablity issues with Pytho2.6 (@skipUnless)
+* Have setup.py test(server) use its own ready-to-use setting file
+* If Debug=False and request.is_secure() is also false, fail!
 
 
 Future:
