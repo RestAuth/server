@@ -308,6 +308,7 @@ class test(Command):
         pass
 
     def run(self):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
         if self.app:
             print(self.app)
             call_command('test', self.app)
@@ -391,6 +392,8 @@ class testserver(Command):
         pass
 
     def run(self):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
+
         import django
         from django.core import management
 
