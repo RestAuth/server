@@ -32,18 +32,13 @@
 # Note: This file is imported from the real settings.py file, most settings are
 #   already defined there. Given here are some settings that are typically of
 #   interest for a system administrator, but you can always set any of the
-#   other settings available in django, if you know what you are doing.
+#   other settings available in Django, if you know what you are doing.
 
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
 # It is highly recommended to set DEBUG = False in any production environment.
-#DEBUG = False
-
-# Adresses that will receive backtraces when DEBUG=False
-#ADMINS = (
-#	('Your Name', 'your_email@domain.com'),
-#)
+#DEBUG = True
 
 # Configure your database settings
 DATABASES = {
@@ -64,13 +59,29 @@ DATABASES = {
     }
 }
 
+
+ALLOWED_HOSTS = [
+#    '127.0.0.1',
+#    '[::1]',
+]
+
+# Set your SECRET_KEY to some long random string:
+SECRET_KEY = ''
+
+# Adresses that will receive backtraces when DEBUG=False
+#ADMINS = (
+#	('Your Name', 'your_email@domain.com'),
+#)
+
+# If you want to receive backtraces, some settings are required. See also:
+#   https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-EMAIL_HOST
+#EMAIL_PORT = 25
+#EMAIL_HOST = 'localhost'
+
 # You may want to configure a database router if you use some sort of database
 # replication. For more information, please see:
 #       https://server.restauth.net/config/database-replication.html
 #DATABASE_ROUTERS = []
-
-# Set your SECRET_KEY to some long random string:
-SECRET_KEY = 'foobasr'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
