@@ -20,7 +20,7 @@ try:
 except ImportError:
     from http import client as httpclient  # python 3.x
 
-from unittest import skipUnless
+#from unittest import skipUnless
 
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
@@ -674,8 +674,12 @@ class HashTestMixin(RestAuthTestBase):
             self.assertTrue(check_password(password, generated))
 
     @override_settings(MIN_PASSWORD_LENGTH=1)
-    @skipUnless(settings.USER_BACKEND == 'RestAuth.backends.django_backend.DjangoUserBackend', '')
+#    @skipUnless(settings.USER_BACKEND == 'RestAuth.backends.django_backend.DjangoUserBackend', '')
     def test_backend(self):
+        if settings.USER_BACKEND != 'RestAuth.backends.django_backend.DjangoUserBackend':
+            # we do not use skipUnless because its introduced in python2.7.
+            return
+
         # test password during creation:
         for password, data in self.testdata.items():
             user = user_backend.create(username=username1,
