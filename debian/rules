@@ -8,15 +8,14 @@ BINPKGDIR=debian/restauth/
 DOCPKGDIR=debian/restauth-doc/
 
 DH_ARGS=--with python2,python3
+DEB_BUILD_OPTIONS=-t debian1
+
 
 %:
 	dh $@ ${DH_ARGS}
 
 override_dh_auto_build:
-	# build documentation:
-	python setup.py build_doc -t debian
-
-	dh_auto_build
+	dh_auto_build -- -t debian2
 
 #override_dh_installchangelogs:
 #	dh_installchangelogs ChangeLog
