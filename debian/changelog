@@ -1,6 +1,8 @@
 restauth (0.6.0-453-gae22b55-1) unstable; urgency=low
 
   * Start preperations for 0.6.1 release
+  * Deprecate paths.patch, documentation should be generated with -t debian.
+  * Deprecate wsgi-check-permissions.patch, should not be needed.
 
  -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 23 Mar 2013 13:24:16 +0100
 
