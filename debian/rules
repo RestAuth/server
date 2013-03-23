@@ -33,6 +33,11 @@ override_dh_auto_install:
         #        $$python setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb; \
         #done;
 
+	# rename language scripts:
+	rm -f $(CURDIR)/debian/tmp/usr/bin/restauth-manage.py
+	rename s/.py// $(CURDIR)/debian/tmp/usr/bin/*
+	
+
 #override_dh_installchangelogs:
 #	dh_installchangelogs ChangeLog
 #
