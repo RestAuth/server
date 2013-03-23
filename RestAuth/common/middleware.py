@@ -20,60 +20,54 @@ The ExceptionMiddleware is located in its own class to avoid circular imports.
 """
 
 import logging
-import sys
 import traceback
 
 from django.http import HttpResponse
 from django.http import HttpResponseServerError
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 
 from RestAuthCommon.error import RestAuthException
 
-from RestAuth.Users.models import Property
-from RestAuth.Users.models import ServiceUser
-from RestAuth.Groups.models import Group
+from RestAuth.common.errors import GroupNotFound
+from RestAuth.common.errors import PropertyNotFound
+from RestAuth.common.errors import UserNotFound
 
-CONTENT_TYPE_METHODS = ['POST', 'PUT']
+CONTENT_TYPE_METHODS = set(['POST', 'PUT'])
 
 
-class ExceptionMiddleware:
-    """
-    Exception to handle RestAuth related exceptions.
-    """
+class RestAuthMiddleware:
     def process_exception(self, request, ex):
-        if isinstance(ex, ServiceUser.DoesNotExist):
+        """Handle RestAuth related exceptions."""
+
+        if isinstance(ex, UserNotFound):
             resp = HttpResponse(ex, status=404)
             resp['Resource-Type'] = 'user'
             return resp
-        if isinstance(ex, Group.DoesNotExist):
+        elif isinstance(ex, GroupNotFound):
             resp = HttpResponse(ex, status=404)
             resp['Resource-Type'] = 'group'
             return resp
-        if isinstance(ex, Property.DoesNotExist):
+        elif isinstance(ex, PropertyNotFound):
             resp = HttpResponse(ex, status=404)
             resp['Resource-Type'] = 'property'
             return resp
-
-        if isinstance(ex, RestAuthException):
-            return HttpResponse(ex.message, status=ex.response_code)
+        elif isinstance(ex, AssertionError):
+            return HttpResponse(' '.join(ex.args), status=400)
+        elif isinstance(ex, RestAuthException):
+            return HttpResponse(' '.join(ex.args), status=ex.response_code)
         else:  # pragma: no cover
             logging.critical(traceback.format_exc())
             return HttpResponseServerError(
                 "Internal Server Error. Please see server log for details.\n")
 
-
-class HeaderMiddleware:
-    """
-    Middleware to ensure required headers are present.
-    """
     def process_request(self, request):
-        if request.method in CONTENT_TYPE_METHODS and \
-                'CONTENT_TYPE' not in request.META:
-            return HttpResponse(
-                'POST/PUT requests must include a Content-Type header.',
-                status=415
-            )
+        """Middleware to ensure required headers are present."""
+
+        if request.method in CONTENT_TYPE_METHODS:
+            if 'CONTENT_TYPE' not in request.META:
+                return HttpResponse(
+                    'POST/PUT requests must include a Content-Type header.',
+                    status=415
+                )
 
         if 'HTTP_ACCEPT' not in request.META:  # pragma: no cover
             logging.warn('Accept header is recommended in all requests.')

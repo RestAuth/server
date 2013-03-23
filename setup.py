@@ -15,15 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-import glob
 import os
 import re
 import shutil
 import stat
 from subprocess import Popen, PIPE
 import sys
-import time
 
 from distutils.core import setup, Command
 from distutils.command.install_data import install_data as _install_data
@@ -44,11 +41,8 @@ if os.path.exists(common_path):
     else:
         os.environ['PYTHONPATH'] = common_path
 
+from django.conf import settings
 from django.core.management import call_command
-
-from RestAuth.common import cli
-from RestAuth.Users.models import user_permissions, prop_permissions
-from RestAuth.Groups.models import group_permissions
 
 LATEST_RELEASE = '0.6.0'
 
@@ -64,7 +58,6 @@ def get_version():
     if os.path.exists('.version'):  # get from file
         version = open('.version').readlines()[0]
     elif os.path.exists('.git'):  # get from git
-        date = time.strftime('%Y.%m.%d')
         cmd = ['git', 'describe', 'master']
         p = Popen(cmd, stdout=PIPE)
         version = p.communicate()[0].decode('utf-8')
@@ -106,17 +99,13 @@ class install(_install):
         _install.run(self)
 
         # write symlink for restauth-manage.py
+        source = os.path.join(self.install_scripts, 'manage.py')
         target = os.path.join(self.install_scripts, 'restauth-manage.py')
-        source = os.path.join(
-            os.path.abspath(self.install_purelib),
-            'RestAuth', 'manage.py'
-        )
-        if not os.path.exists(target):
-            os.symlink(source, target)
 
-        # set execute permissions:
-        mode = os.stat(source).st_mode
-        os.chmod(source, mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        os.rename(source, target)
+#        # set execute permissions:
+#        mode = os.stat(source).st_mode
+#        os.chmod(source, mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 added_options = [
     ('prefix=', None, 'installation prefix'),
@@ -171,11 +160,20 @@ class build_doc_meta(Command):
     def __init__(self, *args, **kwargs):
         Command.__init__(self, *args, **kwargs)
 
+        # import here so coverage results are not tainted:
+        from RestAuth.Users.models import user_permissions, prop_permissions
+        from RestAuth.Groups.models import group_permissions
+        from RestAuth.common.cli import helpers
+        from RestAuth.Services.cli import parsers as service_parser
+        from RestAuth.Users.cli import parsers as user_parser
+        from RestAuth.Groups.cli import parsers as group_parser
+        from RestAuth.common.cli import parsers as import_parser
+
         # generate files for cli-scripts:
-        cli.service_parser.prog = '|bin-restauth-service|'
-        cli.user_parser.prog = '|bin-restauth-user|'
-        cli.group_parser.prog = '|bin-restauth-group|'
-        cli.import_parser.prog = '|bin-restauth-import|'
+        service_parser.parser.prog = '|bin-restauth-service|'
+        user_parser.parser.prog = '|bin-restauth-user|'
+        group_parser.parser.prog = '|bin-restauth-group|'
+        import_parser.parser.prog = '|bin-restauth-import|'
 
         # create necesarry folders:
         if not os.path.exists('doc/_static'):
@@ -183,16 +181,16 @@ class build_doc_meta(Command):
         if not os.path.exists('doc/gen'):
             os.mkdir('doc/gen')
 
-        for parser, name in [(cli.service_parser, 'restauth-service'),
-                             (cli.user_parser, 'restauth-user'),
-                             (cli.group_parser, 'restauth-group'),
-                             (cli.import_parser, 'restauth-import')]:
+        for parser, name in [(service_parser, 'restauth-service'),
+                             (user_parser, 'restauth-user'),
+                             (group_parser, 'restauth-group'),
+                             (import_parser, 'restauth-import')]:
 
             for suffix in ['usage', 'commands', 'parameters']:
                 filename = 'doc/gen/%s-%s.rst' % (name, suffix)
-                if self.should_generate(cli.__file__, filename):
-                    func = getattr(cli, 'write_%s' % suffix)
-                    func(parser, filename, name)
+                if self.should_generate(parser.__file__, filename):
+                    func = getattr(helpers, 'write_%s' % suffix)
+                    func(parser.parser, filename, name)
 
         # generate permissions:
         self.write_perm_table('users', user_permissions)
@@ -251,6 +249,8 @@ class build_doc_meta(Command):
     def finalize_options(self):
         if self.target:
             os.environ['SPHINXOPTS'] += ' -t %s' % self.target
+        else:
+            os.environ['SPHINXOPTS'] += ' -t source'
 
 
 class build_doc(build_doc_meta):
@@ -308,12 +308,13 @@ class test(Command):
         pass
 
     def run(self):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
         if self.app:
             print(self.app)
             call_command('test', self.app)
         else:
             call_command('test', 'Users', 'Groups', 'Test', 'Services',
-                         'common')
+                         'common',)
 
 
 class coverage(Command):
@@ -338,19 +339,50 @@ class coverage(Command):
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)
 
-        cov = coverage.coverage(
-            cover_pylib=False, include='RestAuth/*',
-            omit=['*tests.py', '*testdata.py', '*settings.py'])
+        omit = [
+            '*testdata.py',
+            '*settings.py',
+            '*migrations/*.py',
+            'RestAuth/*/cli/*',
+            'RestAuth/common/decorators.py',
+            'RestAuth/common/profile.py',
+            'RestAuth/common/routers.py',
+        ]
+
+        # compute backend files to exclude:
+        backend_path = 'RestAuth/backends/'
+        backend_whitelist = ['__init__.py', 'base.py']
+        backend_mods = [os.path.splitext(f)[0]
+                        for f in os.listdir(backend_path)
+                        if f.endswith('py') and f not in backend_whitelist]
+        used_backend_mods = [mod.rsplit('.', 2)[1] for mod in [
+            settings.USER_BACKEND, settings.GROUP_BACKEND,
+            settings.PROPERTY_BACKEND
+        ]]
+        for mod in backend_mods:
+            if mod not in used_backend_mods:
+                omit.append('%s%s.py' % (backend_path, mod))
+
+        cov = coverage.coverage(cover_pylib=False, source=['RestAuth', ],
+                                branch=True, omit=omit)
+
+        # exclude some patterns:
+        cov.exclude('\t*self.fail\(.*\)')
+        if not settings.SECURE_CACHE:
+            cov.exclude('\t*if settings.SECURE_CACHE:')
+
         cov.start()
 
         call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common')
 
         cov.stop()
+        cov.save()
         cov.html_report(directory=self.dir)
 #        cov.report()
 
 
 class testserver(Command):
+    description = "Run a testserver on http://[::1]:8000"
     user_options = []
 
     def initialize_options(self):
@@ -360,6 +392,8 @@ class testserver(Command):
         pass
 
     def run(self):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
+
         import django
         from django.core import management
 
@@ -373,7 +407,7 @@ class testserver(Command):
             from django.db import connection as conn
 
             # Create a test database.
-            db_name = conn.creation.create_test_db()
+            conn.creation.create_test_db()
 
             # Import the fixture data into the test database.
             call_command('loaddata', fixture)
@@ -422,8 +456,9 @@ setup(
         'RestAuth.Users', 'RestAuth.Users.migrations',
         'RestAuth.common', 'RestAuth.Test'],
     scripts=[
-        'bin/restauth-service.py', 'bin/restauth-user.py',
-        'bin/restauth-group.py', 'bin/restauth-import.py',
+        'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
+        'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
+        'manage.py',
     ],
     data_files=[
         ('share/restauth', ['wsgi']),

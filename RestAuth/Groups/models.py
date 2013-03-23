@@ -27,7 +27,6 @@ from RestAuthCommon.error import PreconditionFailed
 
 from RestAuth.Users.models import ServiceUser as User
 from RestAuth.Groups.managers import GroupManager
-from RestAuth.common.errors import GroupExists
 
 group_permissions = (
     ('groups_for_user', 'List groups for a user'),
@@ -43,22 +42,6 @@ group_permissions = (
     ('group_add_group', 'Add a subgroup to a group'),
     ('group_remove_group', 'Remove a subgroup from a group'),
 )
-
-
-def group_create(name, service=None):
-    """
-    Create a new group.
-
-    @param name: Name of the new group
-    @type  name: str
-    @param service: The service this group should be associated to. If
-        ommitted, the group will not be associated with any service.
-    @type service: service
-    """
-    try:
-        return Group.objects.create(name=name, service=service)
-    except IntegrityError:
-        raise GroupExists('Group "%s" already exists' % name)
 
 
 class Group(models.Model):
@@ -96,13 +79,10 @@ class Group(models.Model):
         for i in range(depth):
             kwarg += '__groups'
             expr |= models.Q(**{kwarg: self})
-        return User.objects.filter(expr)
+        return User.objects.filter(expr).distinct()
 
     def is_member(self, username):
         return self.get_members().filter(username=username).exists()
-
-    def is_direct_member(self, username):
-        return self.get_members(depth=0).filter(username=username).exists()
 
     def save(self, *args, **kwargs):
         if self.service is None:
@@ -121,5 +101,5 @@ class Group(models.Model):
         else:
             return "%s/None" % (self.name)
 
-    def get_absolute_url(self):
+    def get_absolute_url(self):  # pragma: no cover
         return '/groups/%s/' % urlquote(self.name)

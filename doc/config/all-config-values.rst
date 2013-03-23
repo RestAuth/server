@@ -43,7 +43,7 @@ RestAuth or are normal Django settings that RestAuth handles in a different way.
 CACHES
 ======
 
-Default: ``{}``
+Default: ``see Django documentation``
 
 This setting is `available in Django
 <https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`__.
@@ -51,24 +51,39 @@ Please see the `official documentation
 <https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this
 setting.
 
-RestAuth automatically adjusts :setting:`MIDDLEWARE_CLASSES` (as documented
-`here <https://docs.djangoproject.com/en/dev/topics/cache/#the-per-site-cache>`_ ) if
-you configure any caches.
+.. setting:: CONTENT_HANDLERS
 
-.. setting:: ENABLE_SESSIONS
+CONTENT_HANDLERS
+================
 
-ENABLE_SESSIONS
-===============
+Default::
 
-Default: ``False``
+   (
+      'RestAuthCommon.handlers.json',
+   )
 
-The RestAuth protocol by default does not use HTTP sessions, since every request
-is authenticated using HTTP Basic Authentication. Sessions are thus disabled in
-RestAuth, because they come with a considerable performance penalty.
+.. versionadded:: 0.6.1
 
-If a client still uses HTTP sessions, you can set this configuarion variable to
-``True``. This has the effect of adding the appropriate middleware classes to
-:setting:`MIDDLEWARE_CLASSES`.
+The handlers used to encode/decode content. If you write custom content
+handlers, add them here.
+
+
+.. setting:: GROUP_BACKEND
+
+GROUP_BACKEND
+=============
+
+.. versionadded:: 0.6.1
+
+Default: ``'RestAuth.backends.django_backend.DjangoGroupBackend'``
+
+The backend to use to store groups. Please see :ref:`group-backends` for a more
+comprehensive description of available backends.  The default is the only
+backend shipping with RestAuth, but other backends may be available elsewhere.
+
+If you need a custom backend to store groups, please see
+:doc:`/developer/backends`.
+
 
 .. setting:: GROUP_RECURSION_DEPTH
 
@@ -90,7 +105,7 @@ groups.
    groups and other, lesser privileged services, automatically inherit
    memberships from the groups of the administration service.
 
-A :setting:`GROUP_RECURSION_DEPTH` of 3 means, that RestAuth will check 3 levels
+A :setting:`GROUP_RECURSION_DEPTH` of 3 means that RestAuth will check 3 levels
 of parent groups. Take this example, where ``Group A`` is a parent group of
 ``Group B`` and so on::
 
@@ -111,53 +126,6 @@ entirely.
 .. WARNING:: Do not set this setting to a value greater then necessary. Checking
    nested groups is relatively performance intensive. Set this setting to a
    value as low as possible.
-
-.. setting:: HASH_ALGORITHM
-
-HASH_ALGORITHM
-==============
-
-Default: ``sha512``
-
-The :setting:`HASH_ALGORITHM` setting configures which algorithm is used for
-hashing new passwords.  If you set this to a new algorithm, old password hashes
-will be updated whenever a user logs in.
-
-RestAuth supports all algorithms supported by the `hashlib module
-<http://docs.python.org/library/hashlib.html>`_. Additionally, you can add more
-algorithms using :setting:`HASH_FUNCTIONS`.
-
-.. setting:: HASH_FUNCTIONS
-
-HASH_FUNCTIONS
-==============
-
-.. versionadded:: 0.5.3
-
-Default::
-
-   [
-       'RestAuth.Users.hashes.mediawiki',
-       'RestAuth.Users.hashes.crypt',
-       'RestAuth.Users.hashes.apr1',
-   ]
-
-RestAuth can understand custom hashing algorithms in addition to those provided
-by the hashlib module shipping with your Python version. This is useful if you
-want to import userdata from a different system that stores passwords using an
-unusual hashing algorithm. RestAuth :ref:`ships with a few hash functions
-<available-hash-functions>` used by common systems, all are enabled by default.
-
-You can :ref:`implement your own hashing algorithm <own-hash-functions>` if you
-intend to import data from a system not supported by RestAuth. If you set
-:setting:`HASH_ALGORITHM` to one of the algorithms you add to this setting,
-RestAuth will also store hashes using this algorithm. This is useful if you plan
-to later export data to such a system.
-
-.. NOTE:: If all password hashes use the hash-functions included in the hashlib
-   module, this setting is effectively not used at all. If you however have some
-   custom hashes, it is recommended to include only those validators that
-   actually occur in your database to improve performance.
 
 .. setting:: LOGGING
 
@@ -242,23 +210,15 @@ MIDDLEWARE_CLASSES
 
 Default::
 
-   [
+   (
        'django.middleware.common.CommonMiddleware',
-       'RestAuth.common.middleware.ExceptionMiddleware',
-       'RestAuth.common.middleware.HeaderMiddleware',
-   ]
+       'RestAuth.common.middleware.RestAuthMiddleware',
+   )
 
 RestAuth uses `middlewares
 <https://docs.djangoproject.com/en/dev/topics/http/middleware/>`_ like any other
 Django project. The default however only contains the bare minimum of required
-middlewares. Various settings (currently :setting:`CACHES` and
-:setting:`ENABLE_SESSIONS`) influence the effective value of this setting.
-
-Additionally, :setting:`MIDDLEWARE_CLASSES` is a list and not a tuple. This
-allows you to add your own middleware at any position without having to
-reconfigure the entire setting. If you do, please consult :setting:`CACHES` and
-:setting:`ENABLE_SESSIONS` to see how they manipulate
-:setting:`MIDDLEWARE_CLASSES` to get the effective value.
+middlewares.
 
 .. setting:: MIN_PASSWORD_LENGTH
 
@@ -279,6 +239,68 @@ Default: ``3``
 The minimum length of new usernames. Note that this setting might have any
 effect if a validator restricts the minimum length even further.
 
+.. setting:: PASSWORD_HASHERS
+
+PASSWORD_HASHERS
+================
+
+.. versionadded:: 0.6.1
+   This standard Django setting now replaces the old ``HASH_FUNCTIONS`` and
+   ``HASH_ALGORITHMS`` settings. Please see the :ref:`upgrade notes for 0.6.1
+   <update_settings_0.6.1>` for more information.
+
+Default::
+
+   PASSWORD_HASHERS = (
+       'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+       'RestAuth.common.hashers.Sha512Hasher',
+       'RestAuth.common.hashers.MediaWikiHasher',
+       'RestAuth.common.hashers.Apr1Hasher',
+       'RestAuth.common.hashers.Drupal7Hasher',
+       'RestAuth.common.hashers.PhpassHasher',
+       'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+       'django.contrib.auth.hashers.BCryptPasswordHasher',
+       'django.contrib.auth.hashers.SHA1PasswordHasher',
+       'django.contrib.auth.hashers.MD5PasswordHasher',
+       'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+       'django.contrib.auth.hashers.CryptPasswordHasher',
+   )
+
+RestAuth can store password hashes in different formats. RestAuth ships with
+additional hashers for MediaWiki, Apr1 (Apache .htaccess files) and SHA-512
+hashes. Thanks to these hashers, RestAuth understands and can even create hashes
+as used by the respective systems.
+
+If you need to import hashes from a different system, you can easily write your
+own password hasher. Please see :doc:`/config/custom-hashes` for more
+information.
+
+.. NOTE:: This setting is by default also used for services. You can speed up
+   RestAuth with the :setting:`SERVICE_PASSWORD_HASHER` setting.
+
+.. setting:: PROPERTY_BACKEND
+
+PROPERTY_BACKEND
+================
+
+.. versionadded:: 0.6.1
+
+Default: ``'RestAuth.backends.django_backend.DjangoPropertyBackend'``
+
+The backend to use to store user properties. RestAuth comes with two property
+backends:
+
+``'RestAuth.backends.django_backend.DjangoPropertyBackend'``
+   Use the standard Django ORM to store property data. This backend requireds
+   that you also use the DjangoUserBackend.
+
+``'RestAuth.backends.redis_backend.RedisPropertyBackend'``
+   Use a `Redis <http://redis.io>`_ server to store properties.
+
+Please see :ref:`property-backends` for a more comprehensive description of
+available backends. Other backends may be available elsewhere, if you need to
+develop your own backend, please see :doc:`/developer/backends`.
+
 .. setting:: RELAXED_LINUX_CHECKS
 
 RELAXED_LINUX_CHECKS
@@ -297,6 +319,74 @@ SECRET_KEY
 Never forget to set a `SECRET_KEY
 <https://docs.djangoproject.com/en/dev/ref/settings/#secret-key>`_ in
 |file-settings-link|.
+
+.. setting:: SECURE_CACHE
+
+SECURE_CACHE
+============
+
+.. versionadded:: 0.6.1
+
+Default: ``False``
+
+If you consider your cache to be secure, RestAuth can cache some sensitive
+data as well. If SECURE_CACHE is True, RestAuth will also store service
+credentials and user password hashes.
+
+Setting ``SECURE_CACHE`` to True leads to a *great* speed improvement (for
+example, the `RestAuthClient <https://python.restauth.net>`_ testsuite executes
+5 times faster) but naturally has grave security implications. If an attacker
+can illegitimately access your cache, he/she may gain access to the RestAuth
+server with the same privileges as the services configured.
+
+If you enable this setting, this has different implications depending on the
+cache you use:
+
+* If you use
+  `Local-memory caching <https://docs.djangoproject.com/en/dev/topics/cache/?from=olddocs#local-memory-caching>`_
+  (the default), there isn't really any difference in security. If an attacker
+  can access your local memory, the host is already fully compromised anyway.
+  There is a disadvantage, though: Since each process has its own cache, setting
+  a password via |bin-restauth-service-link| won't take effect until either the
+  cache expires or you restart all RestAuth instances.
+* If you use any other caching backend (i.e. memcached or filesystem based),
+  make sure that it is as hard as possible to access your cache. In particular,
+  don't use memcached if its running on a different host in an untrusted
+  network.
+
+.. setting:: SERVICE_PASSWORD_HASHER
+
+SERVICE_PASSWORD_HASHER
+=======================
+
+.. versionadded:: 0.6.1
+
+default: ``default``
+
+You may override the hasher used for hashing service passwords. Since the
+passwords used for service authentication are usually not very valuable
+(auto-generated, easily changeable) you may choose a faster hashing
+algorithm from any algorithm found in :setting:`PASSWORD_HASHERS`. The special
+value ``default`` (which is the default) means the first hasher in
+:setting:`PASSWORD_HASHERS`.  This speeds up RestAuth significantly, but has the
+security drawback that an attacker might be able to retrieve service
+credentials from the cache..
+
+.. setting:: USER_BACKEND
+
+USER_BACKEND
+============
+
+.. versionadded:: 0.6.1
+
+Default: ``'RestAuth.backends.django_backend.UserBackend'``
+
+The backend used for storing user data. Please see :ref:`user-backends` for a
+more comprehensive description of available backends. The default is the only
+backend shipping with RestAuth, but other backends may be available elsewhere.
+
+If you need a custom backend to store user data, please see
+:doc:`/developer/backends`.
 
 .. setting:: VALIDATORS
 

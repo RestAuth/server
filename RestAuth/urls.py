@@ -15,13 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import include
-from django.conf.urls.defaults import patterns
+from django.conf.urls import include
+from django.conf.urls import patterns
+from django.conf.urls import url
 
 urlpatterns = patterns(
     '',
-    (r'^/?$', 'RestAuth.views.index'),
-    (r'^users/',  include('RestAuth.Users.urls')),
-    (r'^groups/', include('RestAuth.Groups.urls')),
-    (r'^test/', include('RestAuth.Test.urls')),
+    url(r'^/?$', 'RestAuth.views.index'),
+    url(r'^users/',  include('RestAuth.Users.urls')),
+    url(r'^groups/', include('RestAuth.Groups.urls')),
+    url(r'^test/', include('RestAuth.Test.urls')),
 )

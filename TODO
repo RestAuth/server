@@ -1,13 +1,9 @@
 0.6.1:
-* Implement CLI script actions as argparse.Action, see
-    http://docs.python.org/dev/library/argparse.html#action
-  * write tests for that
+* Fix compatablity issues with Pytho2.6 (@skipUnless)
+* Have setup.py test(server) use its own ready-to-use setting file
+* If Debug=False and request.is_secure() is also false, fail!
+
 
 Future:
 
 * add support for /users/<user>/blobs
-
-When Django >= 1.4 is required:
-* Remove backported override_settings decorator
-* Use Django password hashers
-* Remove custom implementation of get_random_string in Users.models

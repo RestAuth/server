@@ -15,31 +15,33 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns
+from django.conf.urls import url
 
 from RestAuth.Services.decorator import login_required
-from RestAuth.Users.views import (UsersView, UserHandlerView,
-                         UserPropsIndex, UserPropHandler)
+from RestAuth.Users.views import UserHandlerView
+from RestAuth.Users.views import UserPropHandler
+from RestAuth.Users.views import UserPropsIndex
+from RestAuth.Users.views import UsersView
 
 urlpatterns = patterns(
     'RestAuth.Users.views',
 
-    (
-        r'^$', login_required(realm='/users/')(UsersView.as_view())
+    url(r'^$', login_required(realm='/users/')(UsersView.as_view()),
+        name="users",
     ),
-    (
-        r'^(?P<name>[^/]+)/$',
-        login_required(realm='/users/<user>/')(
-            UserHandlerView.as_view())
+    url(r'^(?P<name>[^/]+)/$',
+        login_required(realm='/users/<user>/')(UserHandlerView.as_view()),
+        name="users.user",
     ),
-    (
-        r'^(?P<name>[^/]+)/props/$',
+    url(r'^(?P<name>[^/]+)/props/$',
         login_required(realm='/users/<user>/props/')(
-            UserPropsIndex.as_view())
+            UserPropsIndex.as_view()),
+        name='users.user.props'
     ),
-    (
-        r'^(?P<name>[^/]+)/props/(?P<subname>.+)/$',
+    url(r'^(?P<name>[^/]+)/props/(?P<subname>.+)/$',
         login_required(realm='/users/<user>/props/<prop>/')(
-            UserPropHandler.as_view())
+            UserPropHandler.as_view()),
+        name='users.user.props.prop'
     ),
 )

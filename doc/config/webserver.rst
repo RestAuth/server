@@ -40,6 +40,8 @@ Configuring Apache is very simple, only the basic WSGI configuration directives 
        WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
    </VirtualHost>
 
+.. vim syntax-higlighiting suxx*
+
 The HTTP Basic Authentication is already taken care of by RestAuth itself as long as you set
 ``WSGIPassAuthorization on`` in the Apache configuration.
 
@@ -81,5 +83,90 @@ are unsupported and if enabled, cost considerable performance without being usef
       </Location>
    </VirtualHost>
 
+.. vim syntax-highlighting sux.*
+
 For further reading, please also consult `Integration with Django
 <http://code.google.com/p/modwsgi/wiki/IntegrationWithDjango>`_ from the mod_wsgi project itself.
+
+uWSGI
+-----
+
+You can also run RestAuth using `uWSGI <http://projects.unbit.it/uwsgi/>`_. You
+will still need to run a webserver, but it only needs very little configuration.
+This setup works especially well if you want to run RestAuth inside a
+*virtualenv*, because uWSGI is available via pip. Here is a full walkthrough for
+setting up RestAuth with MySQL and memcached, from the start::
+
+   # Install dependencies, adapt to your system if you don't use Debian/Ubuntu.
+   # Note that all other dependencies are only installed inside the virtual
+   # environment.
+   root@host:~$ apt-get install git python-virtualenv python-pip memcached mysql-server libapache2-mod-uwsgi
+
+   # Create the database:
+   root@host:~$ mysql --defaults-file=/etc/mysql/debian.cnf -e "CREATE DATABASE restauth CHARACTER SET utf8;"
+   root@host:~$ mysql --defaults-file=/etc/mysql/debian.cnf -e "GRANT ALL PRIVILEGES ON restauth.* TO 'restauth'@'localhost' IDENTIFIED BY 'MYSQL_PASSWORD';"
+
+   # Add a daemon user:
+   root@host:~$ adduser --system --group --home /usr/local/home/restauth --disabled-login restauth
+   root@host:~$ sudo su restauth -s /bin/bash
+   restauth@host:/root$ cd
+
+   # Create some runtime directories:
+   restauth@host:~$ mkdir run log
+
+   # Clone source:
+   restauth@host:~$ git clone https://git.fsinf.at/restauth/server.git
+   restauth@host:~$ cd server/
+
+   # Create virtualenv, install dependencies:
+   restauth@host:server$ virtualenv .
+   restauth@host:server$ source bin/activate
+   (server)restauth@host:server$ pip install -r requirements.txt
+   (server)restauth@host:server$ pip install -U distribute # mysql needs distribute >= 0.6.28
+   (server)restauth@host:server$ pip install uWSGI MySQL-python python-memcached
+
+   # Edit RestAuth/localsettings.py.
+   # The file is well-documented and contains many links to further
+   # documentation. Especially configure the DATABASES, VALIDATORS and CACHES
+   # settings.
+   (server)restauth@host:server$ vim RestAuth/localsettings.py
+
+   # Setup the database:
+   (server)restauth@host:server$ python RestAuth/manage.py syncdb --noinput
+   (server)restauth@host:server$ python RestAuth/manage.py migrate
+
+   # Set up a service that might access the RestAuth service:
+   (server)restauth@host:server$ RestAuth/bin/restauth-service.py add wiki.example.com
+   (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-hosts wiki.example.com 127.0.0.1 ::1
+   (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-permissions wiki.example.com user* group* prop*
+
+   # Add uwsgi configuration file, start the server:.
+   (server)restauth@host:server$ cd ../
+   (server)restauth@host:~$ cp server/doc/files/uwsgi.ini .
+   (server)restauth@host:~$ uwsgi --ini uwsgi.ini
+
+   # Configure webserver to proxy requests to uWSGI - see below.
+
+You can start/reload/etc. the instances with::
+
+   (server)restauth@host:server$ uwsgi --stop /usr/local/home/restauth/run/restauth.pid
+   (server)restauth@host:server$ uwsgi --reload /usr/local/home/restauth/run/restauth.pid
+
+An example uwsgi-configuration ships with RestAuth. You can also
+:download:`download it here </files/uwsgi.ini>`. The documentation has a `full list
+of configuration directives
+<http://uwsgi-docs.readthedocs.org/en/latest/Options.html>`_.
+
+Configure webserver
+___________________
+
+The uWSGI documentation has `many examples
+<http://projects.unbit.it/uwsgi/wiki/Example>`_. This is how an apache config
+would look like for the uwsgi.ini given above.
+
+.. code-block:: apache
+
+   <Location />
+       SetHandler uwsgi-handler
+       uWSGISocket 127.0.0.1:3031
+   </Location>

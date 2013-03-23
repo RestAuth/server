@@ -1,4 +1,5 @@
 *.pyc
+*.pyo
 *.swp
 *.sqlite3
 build/
@@ -12,3 +13,12 @@ doc/coverage
 Makefile.local
 .pc
 profile.py
+include/
+src/
+lib/
+local/
+/bin/
+share/
+/uwsgi.ini
+/log
+/run

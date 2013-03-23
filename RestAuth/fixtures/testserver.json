@@ -139,12 +139,517 @@
         }
     },
     {
+        "pk": 2,
+        "model": "auth.user",
+        "fields": {
+            "username": "example.com",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-11-01T18:38:56.476",
+            "groups": [],
+            "user_permissions": [
+                [
+                    "group_add_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_add_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_create",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_delete",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_exists",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_groups_list",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_user_in_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_users",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_for_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_list",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "prop_create",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_delete",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_get",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_set",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "props_list",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "user_change_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_create",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_delete",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_delete_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_exists",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_verify_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "users_list",
+                    "Users",
+                    "serviceuser"
+                ]
+            ],
+            "password": "pbkdf2_sha256$10000$atlIUFRshv5m$N+tIe0SlqRbKDy+OoRvcOwCOqgPiI2QxAvtBW8gijbU=",
+            "email": "",
+            "date_joined": "2012-11-01T18:38:56.476"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "auth.user",
+        "fields": {
+            "username": "example.org",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-11-01T18:39:15.628",
+            "groups": [],
+            "user_permissions": [
+                [
+                    "group_add_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_add_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_create",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_delete",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_exists",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_groups_list",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_user_in_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_users",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_for_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_list",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "prop_create",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_delete",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_get",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_set",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "props_list",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "user_change_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_create",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_delete",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_delete_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_exists",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_verify_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "users_list",
+                    "Users",
+                    "serviceuser"
+                ]
+            ],
+            "password": "pbkdf2_sha256$10000$3k02aWSSAbIg$Cl0TS2tISuGKElj30xeRKnJo+9htIPpxf+UinkHn42A=",
+            "email": "",
+            "date_joined": "2012-11-01T18:39:15.628"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "auth.user",
+        "fields": {
+            "username": "example.net",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-11-01T18:39:19.268",
+            "groups": [],
+            "user_permissions": [
+                [
+                    "group_add_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_add_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_create",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_delete",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_exists",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_groups_list",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_user_in_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_users",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_for_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_list",
+                    "Groups",
+                    "group"
+                ]
+            ],
+            "password": "pbkdf2_sha256$10000$MQDVbXeqgf9Q$6lsfNdA5X9wFumbQAMUi92nsZbzH+tZtJizuZPsWQuM=",
+            "email": "",
+            "date_joined": "2012-11-01T18:39:19.268"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "auth.user",
+        "fields": {
+            "username": "nohosts.example.com",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-11-01T18:53:20.454",
+            "groups": [],
+            "user_permissions": [
+                [
+                    "group_add_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_add_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_create",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_delete",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_exists",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_groups_list",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_remove_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_user_in_group",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "group_users",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_for_user",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "groups_list",
+                    "Groups",
+                    "group"
+                ],
+                [
+                    "prop_create",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_delete",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_get",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "prop_set",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "props_list",
+                    "Users",
+                    "property"
+                ],
+                [
+                    "user_change_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_create",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_delete",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_delete_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_exists",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "user_verify_password",
+                    "Users",
+                    "serviceuser"
+                ],
+                [
+                    "users_list",
+                    "Users",
+                    "serviceuser"
+                ]
+            ],
+            "password": "pbkdf2_sha256$10000$b08yODvdTcMR$nRtxOOjlaUgr4izFff3LqCEklet+oQgxqMvkaV3I9+Q=",
+            "email": "",
+            "date_joined": "2012-11-01T18:53:20.454"
+        }
+    },
+    {
         "pk": 1,
         "model": "Services.serviceaddress",
         "fields": {
             "services": [
                 [
                     "vowi"
+                ],
+                [
+                    "example.com"
+                ],
+                [
+                    "example.org"
+                ],
+                [
+                    "example.net"
                 ]
             ],
             "address": "::1"
@@ -157,9 +662,54 @@
             "services": [
                 [
                     "vowi"
+                ],
+                [
+                    "example.com"
+                ],
+                [
+                    "example.org"
+                ],
+                [
+                    "example.net"
                 ]
             ],
             "address": "127.0.0.1"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "Groups.group",
+        "fields": {
+            "groups": [],
+            "name": "top-level",
+            "service": null,
+            "users": []
+        }
+    },
+    {
+        "pk": 2,
+        "model": "Groups.group",
+        "fields": {
+            "groups": [],
+            "name": "netgroup",
+            "service": [
+                "example.net"
+            ],
+            "users": []
+        }
+    },
+    {
+        "pk": 3,
+        "model": "Groups.group",
+        "fields": {
+            "groups": [
+                2
+            ],
+            "name": "orggroup",
+            "service": [
+                "example.org"
+            ],
+            "users": []
         }
     }
 ]

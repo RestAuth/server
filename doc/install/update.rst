@@ -53,6 +53,37 @@ There are no schema changes in earlier releases.
 Use new settings
 ================
 
+.. _update_settings_0.6.1:
+
+New/updated settings in 0.6.1
++++++++++++++++++++++++++++++
+
+* The ``HASH_ALGORITHM`` and ``HASH_FUNCTIONS`` settings introduced in
+  :ref:`0.5.3 <update_settings_0.5.3>` have been deprecated in favour of the
+  :setting:`PASSWORD_HASHERS` setting provided by Django itself. Hashers are now
+  classes, which means that any custom hashers have to be rewritten. Please see
+  :doc:`/config/custom-hashes` for more information.
+
+  The default is the same as the `Django default
+  <https://docs.djangoproject.com/en/dev/ref/settings/#password-hashers>`_ but
+  with additional hashers for MediaWiki, Apr1 (Apache .htaccess files) and for
+  standard SHA-512-hashes with salts. As a consequence, RestAuth now by default
+  stores User hashes with `PBKDF2 <http://en.wikipedia.org/wiki/PBKDF2>`_.
+* Django now supports storing its user-data, properties and groups in different
+  backends. The default is fine for existing installations, but you can now
+  store data in different backends if you like. Please see
+  :doc:`/config/backends` for more information.
+* The ENABLE_SESSIONS parameter was removed. The functionality was never
+  properly tested anyway.
+* The :setting:`SERVICE_PASSWORD_HASHER` setting may be used to speed up
+  RestAuth.
+* The :setting:`SECURE_CACHE` setting defines if RestAuth should store sensitive
+  data in its caching framework. The default is False and this setting should
+  only be set to True if you consider the cache store secure.
+* The :setting:`CONTENT_HANDLERS` setting now defines content handlers usable
+  for RestAuth. RestAuth keeps a global list of content handlers and no longer
+  creates new handler instances upon every page load.
+
 .. _update_settings_0.6.0:
 
 New settings in 0.6.0

@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from RestAuthCommon.error import PreconditionFailed, ResourceConflict
+from RestAuthCommon.error import PreconditionFailed
+from RestAuthCommon.error import ResourceConflict
+from RestAuthCommon.error import ResourceNotFound
 
 
 class PasswordInvalid(PreconditionFailed):
@@ -35,4 +37,16 @@ class PropertyExists(ResourceConflict):
 
 
 class GroupExists(ResourceConflict):
+    pass
+
+
+class UserNotFound(ResourceNotFound):
+    pass
+
+
+class PropertyNotFound(ResourceNotFound):
+    pass
+
+
+class GroupNotFound(ResourceNotFound):
     pass

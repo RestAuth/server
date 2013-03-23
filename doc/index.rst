@@ -72,6 +72,7 @@ Advanced configuration
    config/all-config-values
    config/username-validation
    config/custom-hashes
+   config/backends
    config/multiple-instances
    config/database-replication
 
@@ -96,6 +97,7 @@ Developers
 
    developer/contribute
    developer/testserver
+   developer/backends
    developer/views
 
 Indices and tables

@@ -34,18 +34,15 @@ TEMPLATE_LOADERS = ()
 TIME_ZONE = None  # None='same as os'
 
 # do not insert session middleware:
-ENABLE_SESSIONS = False
-CACHES = {}
 LOGGING = {}
 LOG_HANDLER = 'logging.StreamHandler'
 LOG_HANDLER_KWARGS = {}
 LOG_LEVEL = 'ERROR'
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    'RestAuth.common.middleware.ExceptionMiddleware',
-    'RestAuth.common.middleware.HeaderMiddleware',
-]
+    'RestAuth.common.middleware.RestAuthMiddleware',
+)
 
 CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = 'restauth'
@@ -71,6 +68,25 @@ AUTHENTICATION_BACKENDS = (
     'RestAuth.Services.backend.InternalAuthenticationBackend',
 )
 
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'RestAuth.common.hashers.Sha512Hasher',
+    'RestAuth.common.hashers.MediaWikiHasher',
+    'RestAuth.common.hashers.Apr1Hasher',
+    'RestAuth.common.hashers.Drupal7Hasher',
+    'RestAuth.common.hashers.PhpassHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+    'django.contrib.auth.hashers.CryptPasswordHasher',
+)
+
+CONTENT_HANDLERS = (
+    'RestAuthCommon.handlers.json',
+)
+
 #############################################
 ### Defaults for the standard settings.py ###
 #############################################
@@ -78,19 +94,23 @@ RELAXED_LINUX_CHECKS = False
 MIN_USERNAME_LENGTH = 3
 MAX_USERNAME_LENGTH = 255
 MIN_PASSWORD_LENGTH = 6
-HASH_ALGORITHM = 'sha512'
-HASH_FUNCTIONS = [
-    'RestAuth.Users.hashes.mediawiki',
-    'RestAuth.Users.hashes.crypt',
-    'RestAuth.Users.hashes.apr1',
-]
 VALIDATORS = []
-GROUP_RECURSION_DEPTH=3
+GROUP_RECURSION_DEPTH = 3
+SECURE_CACHE = False
+SERVICE_PASSWORD_HASHER = 'default'
+
+# backends:
+USER_BACKEND = 'RestAuth.backends.django_backend.DjangoUserBackend'
+GROUP_BACKEND = 'RestAuth.backends.django_backend.DjangoGroupBackend'
+PROPERTY_BACKEND = 'RestAuth.backends.django_backend.DjangoPropertyBackend'
 
 try:
     from localsettings import *
 except ImportError:
-    pass
+    try:
+        from RestAuth.localsettings import *
+    except ImportError:
+        pass
 
 if not LOGGING:
     LOGGING = {
@@ -196,21 +216,4 @@ if not LOGGING:
         for handler in LOGGING['handlers'].values():
             handler.update(LOG_HANDLER_KWARGS)
 
-if ENABLE_SESSIONS:
-    index = MIDDLEWARE_CLASSES.index(
-        'django.middleware.common.CommonMiddleware') + 1
-    MIDDLEWARE_CLASSES.insert(
-        index,
-        'django.contrib.auth.middleware.AuthenticationMiddleware'
-    )
-    MIDDLEWARE_CLASSES.insert(
-        index,
-        'django.contrib.sessions.middleware.SessionMiddleware'
-    )
-
-if CACHES:
-    MIDDLEWARE_CLASSES.insert(
-        0, 'django.middleware.cache.UpdateCacheMiddleware')
-    MIDDLEWARE_CLASSES.append(
-        'django.middleware.cache.FetchFromCacheMiddleware')
 SOUTH_TESTS_MIGRATE = False

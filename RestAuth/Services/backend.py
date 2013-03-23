@@ -15,12 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import base64
 import sys
+import base64
 
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.core.cache import cache
 
 from RestAuth.Services.models import Service
+
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
 
 
 class InternalAuthenticationBackend:
@@ -37,16 +43,42 @@ class InternalAuthenticationBackend:
         if method.lower() != 'basic':  # pragma: no cover
             return None  # we only support basic authentication
 
-        name, password = base64.b64decode(data).split(':', 1)
+        qs = Service.objects.only('username', 'password')
 
-        try:
-            serv = Service.objects.get(username=name)
-            if serv.verify(password, host):
-                # service successfully verified
+        if settings.SECURE_CACHE:
+            cache_key = 'service_%s' % data
+            serv, hosts = cache.get(cache_key, (None, None, ))
+
+            if serv is None or hosts is None:
+                name, password = base64.b64decode(data).split(':', 1)
+
+                try:
+                    serv = qs.get(username=name)
+                except Service.DoesNotExist:
+                    return None
+                hosts = serv.hosts.values_list('address', flat=True)
+
+                if serv.verify(password, host):
+                    cache.set(cache_key, (serv, hosts))
+                    return serv
+
+            if host in hosts:
                 return serv
-        except Service.DoesNotExist:
-            # service does not exist
-            return None
+        else:
+            if IS_PYTHON3 and isinstance(data, str):
+                decoded = base64.b64decode(bytes(data, 'utf-8'))
+                name, password = decoded.decode('utf-8').split(':', 1)
+            else:
+                name, password = base64.b64decode(data).split(':', 1)
+
+            try:
+                serv = qs.get(username=name)
+                if serv.verify(password, host):
+                    # service successfully verified
+                    return serv
+            except Service.DoesNotExist:
+                # service does not exist
+                return None
 
     def get_user(self, user_id):  # pragma: no cover
         """

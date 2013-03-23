@@ -14,24 +14,36 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+
 """
-This module implements all HTTP queries to /user/*.
+This module implements all HTTP queries to ``/user/*``.
 """
 
 import logging
-from datetime import datetime
 
+from django.conf import settings
 from django.http import HttpResponseForbidden
-from django.db import transaction
 
-from RestAuthCommon.error import BadRequest
-from RestAuth.Users.models import ServiceUser, Property, user_create
-from RestAuth.common.types import get_dict, get_freeform_dict
-from RestAuth.common.responses import *
-from RestAuth.common.views import (RestAuthView, RestAuthResourceView,
-                                   RestAuthSubResourceView)
+from RestAuthCommon import resource_validator
+from RestAuthCommon.error import PreconditionFailed
 
-from RestAuth.common.decorators import sql_profile
+from RestAuth.Users.validators import validate_username
+from RestAuth.backends import property_backend
+from RestAuth.backends import user_backend
+from RestAuth.common.errors import PasswordInvalid
+from RestAuth.common.errors import UserNotFound
+from RestAuth.common.responses import HttpResponseCreated
+from RestAuth.common.responses import HttpResponseNoContent
+from RestAuth.common.responses import HttpRestAuthResponse
+from RestAuth.common.types import parse_dict
+from RestAuth.common.views import RestAuthResourceView
+from RestAuth.common.views import RestAuthSubResourceView
+from RestAuth.common.views import RestAuthView
+
+try:
+    strtype = basestring  # python2.x
+except NameError:
+    strtype = str  # python3.x
 
 
 class UsersView(RestAuthView):
@@ -40,7 +52,16 @@ class UsersView(RestAuthView):
     """
     http_method_names = ['get', 'post']
     log = logging.getLogger('users')
-    manage_transactions = True
+
+    post_format = {
+        'mandatory': (('user', strtype),),
+        'optional': (('password', strtype),
+                     ('properties', dict),
+                    )
+    }
+    post_required = (('user', strtype),)
+    post_optional = (('password', strtype),
+                     ('properties', dict))
 
     def get(self, request, largs, *args, **kwargs):
         """
@@ -49,45 +70,45 @@ class UsersView(RestAuthView):
         if not request.user.has_perm('Users.users_list'):
             return HttpResponseForbidden()
 
-        names = ServiceUser.objects.values_list('username', flat=True)
+        names = user_backend.list()
+        return HttpRestAuthResponse(request, names)
 
-        self.log.debug("Got list of users", extra=largs)
-        return HttpRestAuthResponse(request, list(names))
-
-    def create_user(self, name, password, props):
-        user = user_create(name, password)
-        if props:
-            if props.__class__ != dict:
-                raise BadRequest('Properties not a dictionary!')
-            [user.set_property(key, value) for key, value in props.iteritems()]
-
-        if not props or 'date joined' not in props:
-            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            user.set_property('date joined', stamp)
-        return user
-
-    def post(self, request, largs, *args, **kwargs):
+    def post(self, request, largs, dry=False):
         """
         Create a new user.
         """
         if not request.user.has_perm('Users.user_create'):
             return HttpResponseForbidden()
 
-        # If BadRequest: 400 Bad Request
-        name, password, props = get_dict(
-            request, [u'user'], [u'password', u'properties'])
+        name, password, properties = self._parse_post(request)
+
+        # check username:
+        if not resource_validator(name):
+            raise PreconditionFailed("Username contains invalid characters")
+        # If UsernameInvalid: 412 Precondition Failed
+        validate_username(name)
+
+        # check password:
+        if password is not None and password != '':
+            if len(password) < settings.MIN_PASSWORD_LENGTH:
+                raise PasswordInvalid("Password too short")
+
+        # check properties:
+        if properties is not None:
+            for key in properties.keys():
+                if not resource_validator(key):
+                    raise PreconditionFailed(
+                        "Property contains invalid characters")
 
         # If ResourceExists: 409 Conflict
-        # If UsernameInvalid: 412 Precondition Failed
         # If PasswordInvalid: 412 Precondition Failed
-        if self.manage_transactions:
-            with transaction.commit_on_success():
-                user = self.create_user(name, password, props)
-        else:
-            user = self.create_user(name, password, props)
+        user = user_backend.create(username=name, password=password,
+                                   properties=properties,
+                                   property_backend=property_backend,
+                                   dry=dry)
 
-        self.log.info('%s: Created user', name, extra=largs)
-        return HttpResponseCreated(request, user)
+        self.log.info('%s: Created user', user.username, extra=largs)
+        return HttpResponseCreated(request, 'users.user', name=user.username)
 
 
 class UserHandlerView(RestAuthResourceView):
@@ -97,6 +118,9 @@ class UserHandlerView(RestAuthResourceView):
     http_method_names = ['get', 'post', 'put', 'delete']
     log = logging.getLogger('users.user')
 
+    post_required = (('password', strtype),)
+    put_optional = (('password', strtype),)
+
     def get(self, request, largs, name):
         """
         Verify that a user exists.
@@ -104,11 +128,10 @@ class UserHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Users.user_exists'):
             return HttpResponseForbidden()
 
-        self.log.debug("Check if user exists", extra=largs)
-        if ServiceUser.objects.filter(username=name).exists():
+        if user_backend.exists(username=name):
             return HttpResponseNoContent()
         else:
-            raise ServiceUser.DoesNotExist()
+            raise UserNotFound(name)  # 404 Not Found
 
     def post(self, request, largs, name):
         """
@@ -118,18 +141,12 @@ class UserHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        password = get_dict(request, [u'password'])
+        password = self._parse_post(request)
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('password').get(username=name)
-
-        if not user.check_password(password):
-            # password does not match - raises 404
-            self.log.info("Wrong password checked", extra=largs)
-            raise ServiceUser.DoesNotExist("Password invalid for this user.")
-
-        self.log.debug("Checked password (ok)", extra=largs)
-        return HttpResponseNoContent()  # Ok
+        if user_backend.check_password(username=name, password=password):
+            return HttpResponseNoContent()
+        else:
+            raise UserNotFound(name)
 
     def put(self, request, largs, name):
         """
@@ -139,20 +156,12 @@ class UserHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        password, = get_dict(request, optional=[u'password'])
+        password = self._parse_put(request)
+        if password is not None and password != '':
+            if len(password) < settings.MIN_PASSWORD_LENGTH:
+                raise PasswordInvalid("Password too short")
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
-
-        # If UsernameInvalid: 412 Precondition Failed
-        if password:
-            user.set_password(password)
-        else:
-            user.set_unusable_password()
-
-        user.save()
-
-        self.log.info("Updated password", extra=largs)
+        user_backend.set_password(username=name, password=password)
         return HttpResponseNoContent()
 
     def delete(self, request, largs, name):
@@ -162,14 +171,7 @@ class UserHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Users.user_delete'):
             return HttpResponseForbidden()
 
-        # If User.DoesNotExist: 404 Not Found
-        qs = ServiceUser.objects.filter(username=name)
-        if qs.exists():
-            qs.delete()
-        else:
-            raise ServiceUser.DoesNotExist
-
-        self.log.info("Deleted user", extra=largs)
+        user_backend.remove(username=name)
         return HttpResponseNoContent()
 
 
@@ -180,6 +182,8 @@ class UserPropsIndex(RestAuthResourceView):
     log = logging.getLogger('users.user.props')
     http_method_names = ['get', 'post', 'put']
 
+    post_required = (('prop', strtype), ('value', strtype),)
+
     def get(self, request, largs, name):
         """
         Get all properties of a user.
@@ -187,32 +191,35 @@ class UserPropsIndex(RestAuthResourceView):
         if not request.user.has_perm('Users.props_list'):
             return HttpResponseForbidden()
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
-        props = user.get_properties()
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
 
-        self.log.debug("Got properties", extra=largs)
+        props = property_backend.list(user=user)
         return HttpRestAuthResponse(request, props)
 
-    def post(self, request, largs, name):
+    def post(self, request, largs, name, dry=False):
         """
         Create a new property.
         """
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
-        # If BadRequest: 400 Bad Request
-        prop, value = get_dict(request, [u'prop', u'value'])
+        # If AssertionError: 400 Bad Request
+        key, value = self._parse_post(request)
+        if not resource_validator(key):
+            raise PreconditionFailed("Property contains invalid characters")
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
 
         # If PropertyExists: 409 Conflict
-        property = user.add_property(prop, value)
+        key, value = property_backend.create(user=user, key=key,
+                                             value=value, dry=dry)
 
         self.log.info(
-            'Created property "%s" as "%s"', prop, value, extra=largs)
-        return HttpResponseCreated(request, property)
+            'Created property "%s" as "%s"', key, value, extra=largs)
+        return HttpResponseCreated(request, 'users.user.props.prop',
+                                   name=name, subname=key)
 
     def put(self, request, largs, name):
         """
@@ -221,12 +228,16 @@ class UserPropsIndex(RestAuthResourceView):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
+        properties = parse_dict(request)
+        for key in properties.keys():
+            if not resource_validator(key):
+                raise PreconditionFailed(
+                    "Property contains invalid characters")
 
-        with transaction.commit_on_success():
-            for key, value in get_freeform_dict(request).iteritems():
-                user.set_property(key, value)
+        property_backend.set_multiple(user=user,
+                                      props=properties)
         return HttpResponseNoContent()
 
 
@@ -237,6 +248,8 @@ class UserPropHandler(RestAuthSubResourceView):
     log = logging.getLogger('users.user.props.prop')
     http_method_names = ['get', 'put', 'delete']
 
+    put_required = (('value', strtype),)
+
     def get(self, request, largs, name, subname):
         """
         Get value of a single property.
@@ -244,14 +257,12 @@ class UserPropHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Users.prop_get'):
             return HttpResponseForbidden()
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
 
-        # If Property.DoesNotExist: 404 Not Found
-        prop = user.get_property(subname)
+        value = property_backend.get(user=user, key=subname)
 
-        self.log.debug('Got property', extra=largs)
-        return HttpRestAuthResponse(request, prop.value)
+        return HttpRestAuthResponse(request, value)
 
     def put(self, request, largs, name, subname):
         """
@@ -261,15 +272,18 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        value = get_dict(request, [u'value'])
+        value = self._parse_put(request)
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
 
-        prop, old_value = user.set_property(subname, value)
+        key, old_value = property_backend.set(user=user, key=subname,
+                                              value=value)
+
         if old_value is None:  # new property
             self.log.info('Set to "%s"', value, extra=largs)
-            return HttpResponseCreated(request, prop)
+            return HttpResponseCreated(request, 'users.user.props.prop',
+                                       name=name, subname=key)
         else:  # existing property
             self.log.info('Changed from "%s" to "%s"',
                           old_value, value, extra=largs)
@@ -282,11 +296,8 @@ class UserPropHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Users.prop_delete'):
             return HttpResponseForbidden()
 
-        # If User.DoesNotExist: 404 Not Found
-        user = ServiceUser.objects.only('id').get(username=name)
+        # If UserNotFound: 404 Not Found
+        user = user_backend.get(username=name)
 
-        # If Property.DoesNotExist: 404 Not Found
-        user.del_property(subname)
-
-        self.log.info('Delete property', extra=largs)
+        property_backend.remove(user=user, key=subname)
         return HttpResponseNoContent()

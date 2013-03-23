@@ -15,11 +15,104 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals  # unicode literals from python
+
 import re
-import stringprep
-from RestAuth.common.errors import UsernameInvalid
+import sys
 
 from django.conf import settings
+
+from RestAuth.common.errors import UsernameInvalid
+from RestAuth.common.utils import import_path
+
+USERNAME_VALIDATORS = None
+USERNAME_ILLEGAL_CHARS = set()
+USERNAME_RESERVED = set()
+USERNAME_FORCE_ASCII = False
+USERNAME_NO_WHITESPACE = False
+
+
+def load_username_validators(validators=None):
+    global USERNAME_VALIDATORS
+    global USERNAME_ILLEGAL_CHARS
+    global USERNAME_RESERVED
+    global USERNAME_FORCE_ASCII
+    global USERNAME_NO_WHITESPACE
+
+    if validators is None:
+        validators = settings.VALIDATORS
+
+    used_validators = []
+    illegal_chars = set()
+    reserved = set()
+    force_ascii = False
+    allow_whitespace = True
+
+    for validator_path in validators:
+        validator = import_path(validator_path)[0]
+
+        if hasattr(validator, 'check'):
+            used_validators.append(validator)
+
+        illegal_chars |= validator.ILLEGAL_CHARACTERS
+        reserved |= validator.RESERVED
+        if validator.FORCE_ASCII:
+            force_ascii = True
+        if not validator.ALLOW_WHITESPACE:
+            allow_whitespace = False
+
+    USERNAME_FORCE_ASCII = force_ascii
+    # use different regular expressions, depending on if we force ASCII
+    if not allow_whitespace:
+        if force_ascii:
+            USERNAME_NO_WHITESPACE = re.compile('\s')
+        else:
+            USERNAME_NO_WHITESPACE = re.compile('\s', re.UNICODE)
+    else:
+        USERNAME_NO_WHITESPACE = False
+
+    USERNAME_RESERVED = reserved
+    USERNAME_ILLEGAL_CHARS = illegal_chars
+    USERNAME_VALIDATORS = validators
+
+
+def validate_username(username):
+    if len(username) < settings.MIN_USERNAME_LENGTH:
+        raise UsernameInvalid("Username too short")
+    if len(username) > settings.MAX_USERNAME_LENGTH:
+        raise UsernameInvalid("Username too long")
+
+    if USERNAME_VALIDATORS is None:
+        load_username_validators()
+
+    # check for illegal characters:
+    for char in USERNAME_ILLEGAL_CHARS:
+        if char in username:
+            raise UsernameInvalid(
+                "Username must not contain character '%s'" % char)
+
+    # reserved names
+    if username in USERNAME_RESERVED:
+        raise UsernameInvalid("Username is reserved")
+
+    # force ascii if necessary
+    if USERNAME_FORCE_ASCII:
+        try:
+            if sys.version_info < (3, 0):
+                username.decode('ascii')
+            else:
+                bytes(username, 'ascii')
+        except (UnicodeDecodeError, UnicodeEncodeError):
+            raise UsernameInvalid(
+                "Username must only contain ASCII characters")
+
+    # check for whitespace
+    if USERNAME_NO_WHITESPACE is not False:
+        if USERNAME_NO_WHITESPACE.search(username):
+            raise UsernameInvalid("Username must not contain any whitespace")
+
+    for validator in USERNAME_VALIDATORS:
+        validator.check(username)
 
 
 class validator(object):
@@ -222,27 +315,27 @@ class drupal(validator):
             raise UsernameInvalid(
                 'Username cannot contain multiple spaces in a row')
 
-        if re.match(u'[^\u0080-\u00F7 a-z0-9@_.\'-]', name, re.IGNORECASE):
+        if re.match('[^\u0080-\u00F7 a-z0-9@_.\'-]', name, re.IGNORECASE):
             raise UsernameInvalid("Username contains an illegal character")
-        if re.match(u'[%s%s%s%s%s%s%s%s%s]' % (
+        if re.match('[%s%s%s%s%s%s%s%s%s]' % (
                 # \x{80}-\x{A0}     // Non-printable ISO-8859-1 + NBSP
-                u'\u0080-\u00A0',
+                '\u0080-\u00A0',
                 # \x{AD}            // Soft-hyphen
-                u'\u00AD',
+                '\u00AD',
                 # \x{2000}-\x{200F} // Various space characters
-                u'\u2000-\u200F',
+                '\u2000-\u200F',
                 # \x{2028}-\x{202F} // Bidirectional text overrides
-                u'\u2028-\u202F',
+                '\u2028-\u202F',
                 # \x{205F}-\x{206F} // Various text hinting characters
-                u'\u205F-\u206F',
+                '\u205F-\u206F',
                 # \x{FEFF}          // Byte order mark
-                u'\uFEFF',
+                '\uFEFF',
                 # \x{FF01}-\x{FF60} // Full-width latin
-                u'\uFF01-\uFF60',
+                '\uFF01-\uFF60',
                 # \x{FFF9}-\x{FFFD} // Replacement characters
-                u'\uFFF9-\uFFFD',
+                '\uFFF9-\uFFFD',
                 # \x{0}-\x{1F}]  // NULL byte and control characters
-                u'\u0000-\u001f'),
+                '\u0000-\u001f'),
                 name, re.UNICODE):
             raise UsernameInvalid("Username contains an illegal character")
 

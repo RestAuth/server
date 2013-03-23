@@ -20,11 +20,30 @@ This module implements common baseclasses used in other RestAuth views..
 
 from django.views.generic.base import View
 
+from RestAuth.common.types import assert_format
+from RestAuth.common.types import parse_dict
+
 
 class RestAuthView(View):
     """
     Base view for all RestAuth related views.
     """
+
+    def _parse_post(self, request):
+        data = parse_dict(request)
+        return assert_format(
+            data=data,
+            required=getattr(self, 'post_required'),
+            optional=getattr(self, 'post_optional', None)
+        )
+
+    def _parse_put(self, request):
+        data = parse_dict(request)
+        return assert_format(
+            data=data,
+            required=getattr(self, 'put_required', None),
+            optional=getattr(self, 'put_optional', None)
+        )
 
     def dispatch(self, request, **kwargs):
         """
@@ -33,8 +52,10 @@ class RestAuthView(View):
         """
         largs = kwargs.pop('largs', {})
         largs['service'] = request.user.username
+
         return super(RestAuthView, self).dispatch(
             request, largs=largs, **kwargs)
+
 
 class RestAuthResourceView(RestAuthView):
     """
@@ -42,7 +63,7 @@ class RestAuthResourceView(RestAuthView):
     ``/users/<user>/props/``.
     """
 
-    def dispatch(self, request, name):
+    def dispatch(self, request, name, **kwargs):
         """
         Adds the 'name' logging argument, and passes that as extra
         keyword-argument to the parents dispatch method.
@@ -51,7 +72,8 @@ class RestAuthResourceView(RestAuthView):
         largs = {'name': name}
 
         return super(RestAuthResourceView, self).dispatch(
-            request, largs=largs, name=name)
+            request, largs=largs, name=name, **kwargs)
+
 
 class RestAuthSubResourceView(RestAuthView):
     """
@@ -59,7 +81,7 @@ class RestAuthSubResourceView(RestAuthView):
     ``/users/<user>/props/<prop>/``.
     """
 
-    def dispatch(self, request, name, subname):
+    def dispatch(self, request, name, subname, **kwargs):
         """
         Adds the 'subname' logging argument, and passes that as extra
         keyword-argument to the parents dispatch method.
@@ -69,4 +91,4 @@ class RestAuthSubResourceView(RestAuthView):
         largs = {'name': name, 'subname': subname}
 
         return super(RestAuthSubResourceView, self).dispatch(
-            request, largs=largs, name=name, subname=subname)
+            request, largs=largs, name=name, subname=subname, **kwargs)

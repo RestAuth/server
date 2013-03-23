@@ -17,7 +17,8 @@
 
 from django.http import HttpResponse
 
-def index(request):
+
+def index(request):  # pragma: no cover
     return HttpResponse("""<html>
 <head>
 <title>Welcome to RestAuth</title>
