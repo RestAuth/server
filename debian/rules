@@ -12,6 +12,12 @@ DH_ARGS=--with python2,python3
 %:
 	dh $@ ${DH_ARGS}
 
+override_dh_auto_build:
+	# build documentation:
+	python setup.py build_doc -t debian
+
+	dh_auto_build
+
 #override_dh_installchangelogs:
 #	dh_installchangelogs ChangeLog
 #
