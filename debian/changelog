@@ -1,3 +1,9 @@
+restauth (0.6.0-453-gae22b55-1) unstable; urgency=low
+
+  * Start preperations for 0.6.1 release
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 23 Mar 2013 13:24:16 +0100
+
 restauth (0.6.0-5-gf4efead-1) unstable; urgency=low
 
   * Minor improvements from git
