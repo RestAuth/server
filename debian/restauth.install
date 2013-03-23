@@ -1,4 +1,3 @@
 usr/share/restauth/wsgi
 munin/* usr/share/munin/plugins/
-usr/lib/python3
 usr/lib/python2*

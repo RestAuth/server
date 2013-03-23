@@ -18,18 +18,20 @@ override_dh_auto_build:
 	# build documentation
 	python setup.py build_doc -t debian
 
-	set -ex; for python in $(shell py3versions -r); do \
-                $$python setup.py build; \
-        done;
+	# Disable python3 for now, depends on Django1.5
+	#set -ex; for python in $(shell py3versions -r); do \
+        #        $$python setup.py build; \
+        #done;
 
 	dh_auto_build
 
 override_dh_auto_install:
 	dh_auto_install
 
-	set -ex; for python in $(shell py3versions -r); do \
-                $$python setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb; \
-        done;
+	#Disable python3 for now, depends on Django1.5
+	#set -ex; for python in $(shell py3versions -r); do \
+        #        $$python setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb; \
+        #done;
 
 #override_dh_installchangelogs:
 #	dh_installchangelogs ChangeLog
