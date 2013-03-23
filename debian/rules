@@ -15,7 +15,10 @@ DEB_BUILD_OPTIONS=-t debian1
 	dh $@ ${DH_ARGS}
 
 override_dh_auto_build:
-	dh_auto_build -- -t debian2
+	# build documentation
+	python setup.py build_doc -t debian
+
+	dh_auto_build
 
 #override_dh_installchangelogs:
 #	dh_installchangelogs ChangeLog
