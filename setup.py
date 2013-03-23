@@ -18,15 +18,16 @@
 import os
 import re
 import shutil
-import stat
-from subprocess import Popen, PIPE
 import sys
 
-from distutils.core import setup, Command
-from distutils.command.install_data import install_data as _install_data
-from distutils.command.build import build as _build
+from subprocess import Popen
+from subprocess import PIPE
+
 from distutils.command.clean import clean as _clean
 from distutils.command.install import install as _install
+from distutils.command.install_data import install_data as _install_data
+from distutils.core import Command
+from distutils.core import setup
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -280,22 +281,6 @@ class build_man(build_doc_meta):
         p.communicate()
 
 
-class build(_build):
-    def initialize_options(self):
-        """
-        Modify this class so that we also understand --install-dir.
-        """
-        _build.initialize_options(self)
-        self.prefix = None
-        self.exec_prefix = None
-
-    sub_commands = [
-        ('build_man', lambda self: True),
-        ('build_man', lambda self: True)
-    ] + _build.sub_commands
-    user_options = _build.user_options + added_options
-
-
 class test(Command):
     user_options = [
         ('app=', None, 'Only test the specified app'),
@@ -465,7 +450,7 @@ setup(
         ('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT']),
     ],
     cmdclass={
-        'build': build, 'clean': clean,
+        'clean': clean,
         'build_doc': build_doc, 'build_man': build_man,
         'build_html': build_html,
         'install': install, 'install_data': install_data,
