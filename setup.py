@@ -258,6 +258,8 @@ class build_doc(build_doc_meta):
     description = "Build documentation as HTML and man-pages"
 
     def run(self):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
+
         cmd = ['make', '-C', 'doc', 'man', 'html']
         p = Popen(cmd)
         p.communicate()
@@ -267,6 +269,8 @@ class build_html(build_doc_meta):
     description = "Build HTML documentation"
 
     def run(self):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
+
         cmd = ['make', '-C', 'doc', 'html']
         p = Popen(cmd)
         p.communicate()
@@ -276,6 +280,8 @@ class build_man(build_doc_meta):
     description = "Build man-pages"
 
     def run(self):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
+
         cmd = ['make', '-C', 'doc', 'man']
         p = Popen(cmd)
         p.communicate()
@@ -294,6 +300,7 @@ class test(Command):
 
     def run(self):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
+
         if self.app:
             print(self.app)
             call_command('test', self.app)
