@@ -115,7 +115,7 @@ except ImportError:
 if not LOGGING:
     LOGGING = {
         'version': 1,
-        'disable_existing_loggers': True,
+        'disable_existing_loggers': False,
         'formatters': {
             'general': {
                 'format': '%(levelname)s %(message)s'
