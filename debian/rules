@@ -37,6 +37,9 @@ override_dh_auto_install:
 	rm -f $(CURDIR)/debian/tmp/usr/bin/restauth-manage.py
 	rename s/.py// $(CURDIR)/debian/tmp/usr/bin/*
 	
+override_dh_python2:
+	dh_python2
+	mv ${BINPKGDIR}usr/share/pyshared/RestAuth/localsettings.py ${BINPKGDIR}etc/restauth/settings.py
 
 #override_dh_installchangelogs:
 #	dh_installchangelogs ChangeLog
@@ -71,9 +74,6 @@ override_dh_auto_install:
 #	cp bin/restauth-group.py debian/restauth/usr/bin/restauth-group
 #	cp bin/restauth-import.py debian/restauth/usr/bin/restauth-import
 #
-#override_dh_python2:
-#	dh_python2
-#	mv ${BINPKGDIR}usr/share/pyshared/RestAuth/localsettings.py ${BINPKGDIR}etc/restauth/settings.py
 #
 #test-python%:
 #	python$* setup.py test
