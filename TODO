@@ -1,7 +1,8 @@
 0.6.1:
-* Fix compatablity issues with Pytho2.6 (@skipUnless)
-* Have setup.py test(server) use its own ready-to-use setting file
 * If Debug=False and request.is_secure() is also false, fail!
+* Update Debian/Ubuntu installation instructions on supported distributions
+* Add ability for backend modules to load modules at first use (like password
+  hashers), good for Redis backend.
 
 
 Future:
