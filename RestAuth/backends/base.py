@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.utils import importlib
+
 
 class UserInstance(object):
     """Class representing a user.
@@ -50,7 +52,56 @@ class GroupInstance(object):
         self.service = service
 
 
-class UserBackend(object):  # pragma: no cover
+class RestAuthBackend(object):  # pragma: no cover
+    """Base class for all RestAuth data backends.
+
+    ``RestAuthBackend`` provides the ``_load_library`` method that allows
+    loading python modules upon first use. This is useful if you want to
+    implement a backend that uses third-party libraries and do not want to
+    cause immediate ImportErrors every time the module is loaded.
+
+    To use this featurr, simply set the ``library`` class attribute and use
+    ``self.load_library()`` to load the module into the methods namespace.
+
+    Example::
+
+        from RestAuth.backends.base import UserBackend
+
+        class MyCustomBackend(UserBackend):
+            library = 'redis'
+
+            def get(self, username):
+                redis = self._load_library()
+
+                # use the redis module...
+    """
+
+    _library = None
+    library = None
+
+    def _load_library(self):
+        """Load a library.
+
+        This method is almost a 100% copy from Djangos
+        ``django.contrib.auth.hashers.BasePasswordHasher._load_library()``.
+        """
+        if self._library is not None:
+            return self._library
+        elif self.library is not None:
+            if isinstance(self.library, (tuple, list)):
+                name, mod_path = self.library
+            else:
+                name = mod_path = self.library
+            try:
+                module = importlib.import_module(mod_path)
+            except ImportError:
+                raise ValueError("Couldn't load %s backend library" % name)
+            return module
+        raise ValueError("Hasher '%s' doesn't specify a library attribute" %
+                         self.__class__)
+
+
+class UserBackend(RestAuthBackend):  # pragma: no cover
     """Provide the most basic user operations and password management."""
 
     def get(self, username):
@@ -237,7 +288,7 @@ class UserBackend(object):  # pragma: no cover
         pass
 
 
-class PropertyBackend(object):  # pragma: no cover
+class PropertyBackend(RestAuthBackend):  # pragma: no cover
     """Provide user properties."""
 
     def list(self, user):
@@ -406,7 +457,7 @@ class PropertyBackend(object):  # pragma: no cover
         pass
 
 
-class GroupBackend(object):  # pragma: no cover
+class GroupBackend(RestAuthBackend):  # pragma: no cover
     """Provide groups.
 
     A group may be identified by its name and a service.  The ``service``

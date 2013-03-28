@@ -62,6 +62,15 @@ Simply use those functions in your implementations of
                self.set_password(username, raw_password)
            return check_password(raw_password, stored_pwdhash, setter)
 
+Use third-party libraries
+_________________________
+
+If you want to use a third-party library for your backend, use the
+``_load_library()`` method implemented in ``RestAuthBackend``. All Backend
+classes mentioned above inherit from this class.
+
+.. autoclass:: RestAuth.backends.base.RestAuthBackend
+   :members:
 
 Returning User/Group objects
 ____________________________
