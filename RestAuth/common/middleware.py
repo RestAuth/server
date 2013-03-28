@@ -35,6 +35,19 @@ CONTENT_TYPE_METHODS = set(['POST', 'PUT'])
 
 
 class RestAuthMiddleware:
+    def process_request(self, request):
+        """Middleware to ensure required headers are present."""
+
+        if request.method in CONTENT_TYPE_METHODS:
+            if 'CONTENT_TYPE' not in request.META:
+                return HttpResponse(
+                    'POST/PUT requests must include a Content-Type header.',
+                    status=415
+                )
+
+        if 'HTTP_ACCEPT' not in request.META:  # pragma: no cover
+            logging.warn('Accept header is recommended in all requests.')
+
     def process_exception(self, request, ex):
         """Handle RestAuth related exceptions."""
 
@@ -58,16 +71,3 @@ class RestAuthMiddleware:
             logging.critical(traceback.format_exc())
             return HttpResponseServerError(
                 "Internal Server Error. Please see server log for details.\n")
-
-    def process_request(self, request):
-        """Middleware to ensure required headers are present."""
-
-        if request.method in CONTENT_TYPE_METHODS:
-            if 'CONTENT_TYPE' not in request.META:
-                return HttpResponse(
-                    'POST/PUT requests must include a Content-Type header.',
-                    status=415
-                )
-
-        if 'HTTP_ACCEPT' not in request.META:  # pragma: no cover
-            logging.warn('Accept header is recommended in all requests.')
