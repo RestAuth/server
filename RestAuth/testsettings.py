@@ -85,7 +85,10 @@ PASSWORD_HASHERS = (
 )
 
 CONTENT_HANDLERS = (
-    'RestAuthCommon.handlers.json',
+    'RestAuthCommon.handlers.JSONContentHandler',
+    'RestAuthCommon.handlers.FormContentHandler',
+    'RestAuthCommon.handlers.PickleContentHandler',
+    'RestAuthCommon.handlers.YamlContentHandler',
 )
 
 # South settings:
