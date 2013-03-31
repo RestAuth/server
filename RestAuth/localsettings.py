@@ -59,10 +59,14 @@ DATABASES = {
     }
 }
 
-
+# Configure any known hostnames this service will be contacted as. For
+# connections from localhost this is typically the IP-Adress (e.g. 127.0.0.1),
+# otherwise it is the hostname of the configured webserver (e.g.
+# auth.example.com)
 ALLOWED_HOSTS = [
 #    '127.0.0.1',
 #    '[::1]',
+#    'auth.example.com',
 ]
 
 # Set your SECRET_KEY to some long random string:
@@ -73,7 +77,9 @@ SECRET_KEY = ''
 #	('Your Name', 'your_email@domain.com'),
 #)
 
-# If you want to receive backtraces, some settings are required. See also:
+# If you want to receive backtraces via email and don't have a local
+# mail server, you may want to configure some email-related settings.
+# See also:
 #   https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-EMAIL_HOST
 #EMAIL_PORT = 25
 #EMAIL_HOST = 'localhost'
@@ -142,8 +148,8 @@ SECRET_KEY = ''
 # (auto-generated, easily changeable) you may choose a faster hashing
 # algorithm from any algorithm found in PASSWORD_HASHERS. The special value
 # 'default' (which is the default) means the first hasher in PASSWORD_HASHERS.
-# This speeds up RestAuth significantly, but has the security drawback that an
-# attacker might be able to retrieve service credentials.
+# This can speed up RestAuth significantly, but has the security drawback that
+# an attacker might be able to retrieve service credentials.
 #SERVICE_PASSWORD_HASHER = 'django.contrib.auth.hashers.MD5PasswordHasher'
 
 ##############

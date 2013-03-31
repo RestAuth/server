@@ -6,6 +6,10 @@ Repositories are available for all distributions that are currently maintained
 by the Debian project and Canonical respectively except Debian 5.0 ("*lenny*")
 and Ubuntu 8.04 (*Hardy Heron*).
 
+.. NOTE:: Repositories for older distributions may contain older versions of
+   RestAuth. If you use an older distribution, install the ``restauth-doc``
+   package to get documentation for the specific version of RestAuth.
+
 Adding our APT repository
 -------------------------
 To add the repositories, simply add this line to your
@@ -14,9 +18,8 @@ To add the repositories, simply add this line to your
    deb http://apt.fsinf.at <dist> restauth
 
 ... where :samp:`{<dist>}` is any of the supported distributions. At the time of
-writing, possible values are ``lucid``, ``maverick``, ``natty``, ``oneiric``,
-``precise``, ``squeeze`` or ``wheezy``.  Please see the WikiPedia pages for
-`Ubuntu
+writing, possible values are ``lucid``, ``oneiric``, ``precise``, ``squeeze`` or
+``wheezy``.  Please see the WikiPedia pages for `Ubuntu
 <http://en.wikipedia.org/wiki/List_of_Ubuntu_releases#Table_of_versions>`_ and
 `Debian <http://en.wikipedia.org/wiki/Debian#Release_history>`_ to see how they
 map to your installation.  You can also check the `APT repository itself
@@ -51,11 +54,12 @@ Once you have added the repositories, installing RestAuth is as simple as
 
 Next steps
 ----------
+
 Now that you have installed RestAuth, you still need to
 
 #. :doc:`configure your webserver <../config/webserver>`
-#. :doc:`setup your database <../config/database>`
 #. :doc:`configure RestAuth <../config/restauth>`
+#. :doc:`setup your database <../config/database>`
 
 
 .. _debian-update:

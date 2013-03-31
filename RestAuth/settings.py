@@ -84,7 +84,10 @@ PASSWORD_HASHERS = (
 )
 
 CONTENT_HANDLERS = (
-    'RestAuthCommon.handlers.json',
+    'RestAuthCommon.handlers.JSONContentHandler',
+    'RestAuthCommon.handlers.FormContentHandler',
+    'RestAuthCommon.handlers.PickleContentHandler',
+    'RestAuthCommon.handlers.YamlContentHandler',
 )
 
 #############################################
@@ -115,7 +118,7 @@ except ImportError:
 if not LOGGING:
     LOGGING = {
         'version': 1,
-        'disable_existing_loggers': True,
+        'disable_existing_loggers': False,
         'formatters': {
             'general': {
                 'format': '%(levelname)s %(message)s'

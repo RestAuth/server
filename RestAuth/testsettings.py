@@ -85,7 +85,10 @@ PASSWORD_HASHERS = (
 )
 
 CONTENT_HANDLERS = (
-    'RestAuthCommon.handlers.json',
+    'RestAuthCommon.handlers.JSONContentHandler',
+    'RestAuthCommon.handlers.FormContentHandler',
+    'RestAuthCommon.handlers.PickleContentHandler',
+    'RestAuthCommon.handlers.YamlContentHandler',
 )
 
 # South settings:
@@ -107,3 +110,4 @@ SERVICE_PASSWORD_HASHER = 'django.contrib.auth.hashers.MD5PasswordHasher'
 USER_BACKEND = 'RestAuth.backends.django_backend.DjangoUserBackend'
 GROUP_BACKEND = 'RestAuth.backends.django_backend.DjangoGroupBackend'
 PROPERTY_BACKEND = 'RestAuth.backends.django_backend.DjangoPropertyBackend'
+#PROPERTY_BACKEND = 'RestAuth.backends.redis_backend.RedisPropertyBackend'

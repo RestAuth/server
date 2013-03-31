@@ -1,9 +1,5 @@
 0.6.1:
-* If Debug=False and request.is_secure() is also false, fail!
-* Update Debian/Ubuntu installation instructions on supported distributions
-* Add ability for backend modules to load modules at first use (like password
-  hashers), good for Redis backend.
-
+None.
 
 Future:
 

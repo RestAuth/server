@@ -15,22 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import redis
-
 from django.conf import settings
 
+from RestAuth.backends.base import PropertyBackend
 from RestAuth.common.errors import PropertyExists
 from RestAuth.common.errors import PropertyNotFound
 
-conn = redis.StrictRedis(
-    host=getattr(settings, 'REDIS_HOST', 'localhost'),
-    port=getattr(settings, 'REDIS_PORT', 6379),
-    db=getattr(settings, 'REDIS_DB', 0),
-    decode_responses=True
-)
 
-
-class RedisPropertyBackend(object):
+class RedisPropertyBackend(PropertyBackend):
     """Store properties in a Redis key/value store.
 
     This backend enables you to store user properties in a key/value store.
@@ -52,61 +44,77 @@ class RedisPropertyBackend(object):
        for method calls within a transaction.
     """
 
+    library = 'redis'
+
+    _conn = None
+
+    @property
+    def conn(self):
+        if self._conn is None:
+            redis = self._load_library()
+            self._conn = redis.StrictRedis(
+                host=getattr(settings, 'REDIS_HOST', 'localhost'),
+                port=getattr(settings, 'REDIS_PORT', 6379),
+                db=getattr(settings, 'REDIS_DB', 0),
+                decode_responses=True
+            )
+        return self._conn
+
     @property
     def pipe(self):
         if not hasattr(self, '_pipe'):
-            self._pipe = conn.pipeline()
+            self._pipe = self.conn.pipeline()
         return self._pipe
 
     def list(self, user):
-        return conn.hgetall(user.id)
+        return self.conn.hgetall(user.id)
 
     def create(self, user, key, value, dry=False, transaction=True):
         if dry:
-            if conn.hexists(user.id, key):
+            if self.conn.hexists(user.id, key):
                 raise PropertyExists(key)
             else:
                 return key, value
         else:
-            value = conn.hsetnx(user.id, key, value)
+            value = self.conn.hsetnx(user.id, key, value)
             if value == 0:
                 raise PropertyExists(key)
             else:
                 return key, value
 
     def get(self, user, key):
-        value = conn.hget(user.id, key)
+        value = self.conn.hget(user.id, key)
         if value is None:
             raise PropertyNotFound(key)
         else:
             return value
 
     def set(self, user, key, value, dry=False, transaction=True):
-        old_value = conn.hget(user.id, key)
+        old_value = self.conn.hget(user.id, key)
 
         if not dry:
-            conn.hset(user.id, key, value)
+            self.conn.hset(user.id, key, value)
         return key, old_value
 
     def set_multiple(self, user, props, dry=False, transaction=True):
         if dry or not props:
             pass  # do nothing
         else:
-            conn.hmset(user.id, props)
+            self.conn.hmset(user.id, props)
 
     def init_transaction(self):
-        conn.execute_command('MULTI')
+        self.conn.execute_command('MULTI')
 
     def commit_transaction(self):
-        conn.execute_command('EXEC')
+        self.conn.execute_command('EXEC')
 
     def rollback_transaction(self):
-        conn.execute_command('DISCARD')
+        self.conn.execute_command('DISCARD')
 
     def remove(self, user, key):
-        value = conn.hdel(user.id, key)
+        value = self.conn.hdel(user.id, key)
         if value == 0:
             raise PropertyNotFound(key)
 
     def testTearDown(self):
-        conn.flushdb()
+        self.conn.flushdb()
