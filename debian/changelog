@@ -1,4 +1,4 @@
-restauth (0.6.0-471-g3c3cac0-1) unstable; urgency=low
+restauth (0.6.0-471-g3c3cac0-2) unstable; urgency=low
 
   * Start preperations for 0.6.1 release
   * Deprecate paths.patch, documentation should be generated with -t debian.

@@ -41,9 +41,16 @@ override_dh_python2:
 	dh_python2
 	mv ${BINPKGDIR}usr/share/pyshared/RestAuth/localsettings.py ${BINPKGDIR}etc/restauth/settings.py
 
-#override_dh_installchangelogs:
-#	dh_installchangelogs ChangeLog
-#
+test-python%:
+	python$* setup.py test
+
+ifeq (,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
+override_dh_auto_test: ${PYVERS:%=test-python%}
+endif
+
+override_dh_installchangelogs:
+	dh_installchangelogs ChangeLog
+
 #install-python%:
 #	dh_testdir
 #	python$* setup.py install --force --root ${BINPKGDIR} --no-compile -O0 --install-layout=deb
@@ -75,10 +82,4 @@ override_dh_python2:
 #	cp bin/restauth-import.py debian/restauth/usr/bin/restauth-import
 #
 #
-#test-python%:
-#	python$* setup.py test
-#
-#ifeq (,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
-#override_dh_auto_test: ${PYVERS:%=test-python%}
-#endif
 	
