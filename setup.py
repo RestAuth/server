@@ -510,12 +510,12 @@ setup(
         "Topic :: System :: Systems Administration :: Authentication/Directory",
     ],
     long_description="""RestAuth is the server-side reference implementation of
-the `RestAuth protocol <https://restauth.net/Specification>`. Please see
-`server.restauth.net <https://server.restauth.net>` for extensive
+the `RestAuth protocol <https://restauth.net/Specification>`_. Please see
+`server.restauth.net <https://server.restauth.net>`_ for extensive
 documentation.
 
 This project requires `RestAuthCommon <https://common.restauth.net>`_
-(`PyPI <http://pypi.python.org/pypi/RestAuthCommon/>`_) and
+(`PyPI <https://pypi.python.org/pypi/RestAuthCommon/>`_) and
 `mimeparse <http://code.google.com/p/mimeparse/>`_
 (`PyPI <https://pypi.python.org/pypi/mimeparse/>`_).
 """
