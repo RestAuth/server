@@ -1,5 +1,5 @@
 Django==1.5
--e git+https://git.fsinf.at/restauth/restauth-common.git#egg=RestAuthCommon
+RestAuthCommon==0.6.1
 mimeparse==0.1.3
 PyYAML==3.10
 wsgiref==0.1.2
