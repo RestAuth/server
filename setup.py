@@ -466,8 +466,9 @@ setup(
         'manage.py',
     ],
     data_files=[
-        ('share/restauth', ['wsgi']),
-        ('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT']),
+        ('share/restauth', ['wsgi', 'RestAuth/fixtures', 'munin', ]),
+        ('share/restauth/uwsgi', ['doc/files/uwsgi.ini', ]),
+        ('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
     ],
     cmdclass={
         'clean': clean,
