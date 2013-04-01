@@ -5,6 +5,8 @@ restauth (0.6.0-471-g3c3cac0-2) unstable; urgency=low
   * Deprecate wsgi-check-permissions.patch, should not be needed.
   * No longer build with --upstream-tree=branch
   * Now depend on >= Django 1.4
+  * Add VCS-* fields to debian/control
+  * Switch debian package to its own git respository
 
  -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 23 Mar 2013 13:24:16 +0100
 

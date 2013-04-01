@@ -8,6 +8,8 @@ Build-Depends: debhelper (>= 8),
  python-django (>= 1.4), python-mimeparse, python-django-south
 Standards-Version: 3.9.2
 X-Python-Version: >= 2.6
+Vcs-Browser: https://git.fsinf.at/apt/restauth
+Vcs-Git: https://git.fsinf.at/apt/restauth.git
 Homepage: https://restauth.net
 
 Package: restauth
