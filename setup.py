@@ -450,11 +450,13 @@ class prepare_debian_changelog(Command):
 setup(
     name='RestAuth',
     version=str(get_version()),
-    description='RestAuth web service',
+    description='RestAuth server',
     author='Mathias Ertl',
     author_email='mati@restauth.net',
     url='https://restauth.net',
+    download_url='https://server.restauth.net/download',
     install_requires=requires,
+    license="GNU General Public License (GPL) v3",
     packages=[
         'RestAuth',
         'RestAuth.Groups',
@@ -506,5 +508,15 @@ setup(
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: System :: Systems Administration :: Authentication/Directory",
-    ]
+    ],
+    long_description="""RestAuth is the server-side reference implementation of
+the `RestAuth protocol <https://restauth.net/Specification>`. Please see
+`server.restauth.net <https://server.restauth.net>` for extensive
+documentation.
+
+This project requires `RestAuthCommon <https://common.restauth.net>`_
+(`PyPI <http://pypi.python.org/pypi/RestAuthCommon/>`_) and
+`mimeparse <http://code.google.com/p/mimeparse/>`_
+(`PyPI <https://pypi.python.org/pypi/mimeparse/>`_).
+"""
 )
