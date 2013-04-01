@@ -24,10 +24,20 @@ from subprocess import Popen
 from subprocess import PIPE
 
 from distutils.command.clean import clean as _clean
-from distutils.command.install import install as _install
 from distutils.command.install_data import install_data as _install_data
-from distutils.core import Command
-from distutils.core import setup
+
+try:
+    from setuptools import Command
+    from setuptools import setup
+    from setuptools.command.install import install as _install
+except ImportError:
+    import distribute_setup
+    distribute_setup.use_setuptools()
+    from setuptools import Command
+    from setuptools import setup
+    from setuptools.command.install import install as _install
+
+requires = ['RestAuthCommon>=0.6.1', 'mimeparse>=0.1.3', ]
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -444,6 +454,7 @@ setup(
     author='Mathias Ertl',
     author_email='mati@restauth.net',
     url='https://restauth.net',
+    install_requires=requires,
     packages=[
         'RestAuth',
         'RestAuth.Groups',
