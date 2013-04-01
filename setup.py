@@ -479,4 +479,21 @@ setup(
         'test': test, 'coverage': coverage, 'testserver': testserver,
         'prepare_debian_changelog': prepare_debian_changelog,
     },
+    classifiers=[
+        "Development Status :: 6 - Mature",
+        "Environment :: Other Environment",
+        "Environment :: Web Environment",
+        "Framework :: Django",
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: System :: Systems Administration :: Authentication/Directory",
+    ]
 )
