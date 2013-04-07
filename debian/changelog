@@ -1,3 +1,11 @@
+restauth (0.6.1-1) unstable; urgency=low
+
+  * Version bump from upstream
+  * Require python-sphinx (>= 1.0.7) and use dh_sphinxdoc substitution
+    variables.
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 07 Apr 2013 17:30:26 +0200
+
 restauth (0.6.0-471-g3c3cac0-2) unstable; urgency=low
 
   * Start preperations for 0.6.1 release

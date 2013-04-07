@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Mathias Ertl <apt-repository@fsinf.at>
 Build-Depends: debhelper (>= 8), 
  python-all (>= 2.6.6-3~), 
- python-restauth-common, python-sphinx, python-argparse,
+ python-restauth-common, python-sphinx (>= 1.0.7), python-argparse,
  python-django (>= 1.4), python-mimeparse, python-django-south
 Standards-Version: 3.9.2
 X-Python-Version: >= 2.6
@@ -27,7 +27,7 @@ Description: service for managing shared authentication, authorization and prefe
 Package: restauth-doc
 Architecture: all
 Section: doc
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, ${sphinxdoc:Depends}
 Description: documentation for restauth
  This package contains all documentation available for the restauth package in
  HTML format.
