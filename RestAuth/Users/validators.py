@@ -115,7 +115,7 @@ def validate_username(username):
         validator.check(username)
 
 
-class validator(object):
+class Validator(object):
     ILLEGAL_CHARACTERS = set()
     """A set of characters that are forbidden on this system. By default, no
     characters are forbidden."""
@@ -131,7 +131,7 @@ class validator(object):
     """A set of reserved usernames. By default, no usernames are reserved."""
 
 
-class xmpp(validator):
+class XMPPValidator(Validator):
     """
     This validator ensures that usernames are valid username-parts for
     Jabber/XMPP accounts. You can use this validator if you want to provide
@@ -147,7 +147,7 @@ class xmpp(validator):
     ALLOW_WHITESPACE = False
 
 
-class email(validator):
+class EmailValidator(Validator):
     """
     This validator ensures that usernames are valid username-parts of
     email-addresses. You can use this validator if you want to provide
@@ -175,7 +175,7 @@ class email(validator):
                 "Username must be no longer than 64 characters.")
 
 
-class mediawiki(validator):
+class MediaWikiValidator(Validator):
     """
     This validator ensures that usernames are compatible with
     `MediaWiki <http://www.mediawiki.org>`_.
@@ -209,7 +209,7 @@ class mediawiki(validator):
                 "Username must not be longer than 255 characters")
 
 
-class linux(validator):
+class LinuxValidator(Validator):
     """
     This validator ensures that usernames are Linux system users.
 
@@ -244,7 +244,7 @@ class linux(validator):
                 '%s: Username must match regex "[a-z_][a-z0-9_-]*[$]?"' % name)
 
 
-class windows(validator):
+class WindowsValidator(Validator):
     """
     This validator ensures that usernames are valid Windows system users.
 
@@ -286,7 +286,7 @@ class windows(validator):
     ])
 
 
-class drupal(validator):
+class DrupalValidator(Validator):
     """
     This validator ensures that usernames are valid
     `Drupal <https://drupal.or>`_ usernames.

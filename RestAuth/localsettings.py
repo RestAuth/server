@@ -108,8 +108,12 @@ ADMINS = (
 #   https://server.restauth.net/config/username-validation.html
 #
 VALIDATORS = (
-#    'RestAuth.Users.validators.xmpp',
-#    'RestAuth.Users.validators.mediawiki',
+#    'RestAuth.Users.validators.DrupalValidator',
+#    'RestAuth.Users.validators.EmailValidator',
+#    'RestAuth.Users.validators.LinuxValidator',
+#    'RestAuth.Users.validators.MediaWikiValidator',
+#    'RestAuth.Users.validators.WindowsValidator',
+#    'RestAuth.Users.validators.XMPPValidator',
 )
 
 # You can override the minimum and maximum username length. Note that this

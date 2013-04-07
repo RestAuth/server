@@ -96,11 +96,11 @@ class ContentTypeTests(RestAuthTest):
         self.assertItemsEqual(user_backend.list(), [])
 
 validators = (
-    'RestAuth.Users.validators.email',
-    'RestAuth.Users.validators.mediawiki',
-    'RestAuth.Users.validators.linux',
-    'RestAuth.Users.validators.windows',
-    'RestAuth.Users.validators.xmpp',
+    'RestAuth.Users.validators.EmailValidator',
+    'RestAuth.Users.validators.MediaWikiValidator',
+    'RestAuth.Users.validators.LinuxValidator',
+    'RestAuth.Users.validators.WindowsValidator',
+    'RestAuth.Users.validators.XMPPValidator',
 )
 
 
