@@ -73,7 +73,7 @@ def load_username_validators(validators=None):
 
     USERNAME_RESERVED = reserved
     USERNAME_ILLEGAL_CHARS = illegal_chars
-    USERNAME_VALIDATORS = validators
+    USERNAME_VALIDATORS = used_validators
 
 
 def validate_username(username):
