@@ -115,6 +115,13 @@ def validate_username(username):
         validator.check(username)
 
 
+def get_validators():
+    if USERNAME_VALIDATORS is None:
+        load_username_validators()
+
+    return USERNAME_VALIDATORS
+
+
 class Validator(object):
     ILLEGAL_CHARACTERS = set()
     """A set of characters that are forbidden on this system. By default, no
