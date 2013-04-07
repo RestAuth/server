@@ -73,9 +73,9 @@ ALLOWED_HOSTS = [
 SECRET_KEY = ''
 
 # Adresses that will receive backtraces when DEBUG=False
-#ADMINS = (
-#	('Your Name', 'your_email@domain.com'),
-#)
+ADMINS = (
+#    ('Your Name', 'your_email@domain.com'),
+)
 
 # If you want to receive backtraces via email and don't have a local
 # mail server, you may want to configure some email-related settings.
@@ -107,10 +107,10 @@ SECRET_KEY = ''
 # information please see:
 #   https://server.restauth.net/config/username-validation.html
 #
-#VALIDATORS = [
+VALIDATORS = (
 #    'RestAuth.Users.validators.xmpp',
 #    'RestAuth.Users.validators.mediawiki',
-#]
+)
 
 # You can override the minimum and maximum username length. Note that this
 # might be restricted even further if you add validators (see above).
