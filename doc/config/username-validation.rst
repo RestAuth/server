@@ -31,7 +31,7 @@ available, but are of course in no way guaranteed to really catch all illegal us
 find inconsistencies, please consider to :ref:`contribute <contribute-validators>`.
 
 .. automodule:: RestAuth.Users.validators
-   :members: email, mediawiki, linux, windows, xmpp, drupal
+   :members: EmailValidator, MediaWikiValidator, LinuxValidator, WindowsValidator, XMPPValidator, DrupalValidator
 
 .. _implement-validators:
 
@@ -41,18 +41,19 @@ Implement your own validators
 You can easily implement your own validators, if you now a little Python. This chapter assumes at
 least a little knowledge of Python, but you don't have to be an expert.
 
-To implement a validator, simply inherit from :py:class:`validator` and override any fields or
+To implement a validator, simply inherit from :py:class:`Validator` and override any fields or
 methods. This is the class you want to inherit from:
 
-.. autoclass:: RestAuth.Users.validators.validator
+.. autoclass:: RestAuth.Users.validators.Validator
    :members:
 
 More complex validations
 ++++++++++++++++++++++++
 
-If the fields in :py:class:`validator` do not cover your needs, you can add a classmethod called
-``check`` to implement your own, more complex checks. This method must raise
-:py:class:`RestAuth.common.errors.UsernameInvalid` if the check fails.
+If the fields in :py:class:`Validator` do not cover your needs, you can add a
+method called ``check`` to implement your own, more complex checks. This method
+must raise :py:class:`RestAuth.common.errors.UsernameInvalid` if the check
+fails.
 
 Example
 +++++++
@@ -62,10 +63,10 @@ be skipped, if you don't need it (and you should, to improve performance).
 
 .. code-block:: python
 
-   from RestAuth.common.validators import validator
+   from RestAuth.common.validators import Validator
    from RestAuth.common.errors import UsernameInvalid
 
-   class MyOwnValidator( validator ):
+   class MyOwnValidator(Validator):
        # The characters 'a', 'f' and '#' are not allowed:
        ILLEGAL_CHARACTERS = set(['a', 'f', '#'])
 
@@ -78,18 +79,20 @@ be skipped, if you don't need it (and you should, to improve performance).
        # "user", "admin" and "root" are reserved usernames:
        RESERVED = set(["user", "root", "admin"])
 
-       @classmethod
-       def check(cls, username):
+       def check(self, username):
            """A more advanced check: Usernames must not end with a 'z'."""
-	   if username.endswith('z'):
-	       raise UsernameInvalid("Usernames must not end with a 'z'")
+           if username.endswith('z'):
+               raise UsernameInvalid("Usernames must not end with a 'z'")
 
 All you need to do to enable this validator is to put this validator in a .py file somewhere where
 the Python interpreter will find it and add the classpath to your :setting:`VALIDATORS`:
 
 .. code-block:: python
 
-   VALIDATORS = [ 'some.path.myvalidators.MyOwnValidator' ]
+   VALIDATORS = [
+       # ...
+       'some.path.myvalidators.MyOwnValidator',
+   ]
 
 .. _contribute-validators:
 
