@@ -5,7 +5,7 @@ PY2VERS=$(shell pyversions -rv)
 PY2DIR=${CURDIR}/debian/restauth/
 DOCDIR=${CURDIR}/debian/restauth-doc/
 
-DH_ARGS=--with python2
+DH_ARGS=--with python2,sphinxdoc
 
 
 %:
