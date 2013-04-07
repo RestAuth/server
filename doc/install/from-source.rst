@@ -12,12 +12,11 @@ new software versions.
 * Any database `supported by Django
   <https://docs.djangoproject.com/en/dev/ref/databases/>`_ that supports
   transactions
-* `RestAuthCommon`_
-* `mimeparse`_
+* `RestAuthCommon`_ 0.6.1 or later
+* `mimeparse`_ 0.1.3 or later
 * The `argparse <http://docs.python.org/library/argparse.html>`_ module ships
   with Python 2.7 and is available for Python 2.6
-* `Django South`_ is used for handeling schema
-  migrations.
+* `Django South`_ is used for handeling schema migrations.
 
 .. Note:: Although Django 1.4 still supports older versions of Python 2.5,
    RestAuth is only compatible with Python 2.6 or later.

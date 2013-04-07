@@ -24,10 +24,20 @@ from subprocess import Popen
 from subprocess import PIPE
 
 from distutils.command.clean import clean as _clean
-from distutils.command.install import install as _install
 from distutils.command.install_data import install_data as _install_data
-from distutils.core import Command
-from distutils.core import setup
+
+try:
+    from setuptools import Command
+    from setuptools import setup
+    from setuptools.command.install import install as _install
+except ImportError:
+    import distribute_setup
+    distribute_setup.use_setuptools()
+    from setuptools import Command
+    from setuptools import setup
+    from setuptools.command.install import install as _install
+
+requires = ['RestAuthCommon>=0.6.1', 'mimeparse>=0.1.3', ]
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -440,10 +450,13 @@ class prepare_debian_changelog(Command):
 setup(
     name='RestAuth',
     version=str(get_version()),
-    description='RestAuth web service',
+    description='RestAuth server',
     author='Mathias Ertl',
     author_email='mati@restauth.net',
     url='https://restauth.net',
+    download_url='https://server.restauth.net/download',
+    install_requires=requires,
+    license="GNU General Public License (GPL) v3",
     packages=[
         'RestAuth',
         'RestAuth.Groups',
@@ -466,8 +479,9 @@ setup(
         'manage.py',
     ],
     data_files=[
-        ('share/restauth', ['wsgi']),
-        ('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT']),
+        ('share/restauth', ['wsgi', 'RestAuth/fixtures', 'munin', ]),
+        ('share/restauth/uwsgi', ['doc/files/uwsgi.ini', ]),
+        ('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
     ],
     cmdclass={
         'clean': clean,
@@ -478,4 +492,31 @@ setup(
         'test': test, 'coverage': coverage, 'testserver': testserver,
         'prepare_debian_changelog': prepare_debian_changelog,
     },
+    classifiers=[
+        "Development Status :: 6 - Mature",
+        "Environment :: Other Environment",
+        "Environment :: Web Environment",
+        "Framework :: Django",
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: System :: Systems Administration :: Authentication/Directory",
+    ],
+    long_description="""RestAuth is the server-side reference implementation of
+the `RestAuth protocol <https://restauth.net/Specification>`_. Please see
+`server.restauth.net <https://server.restauth.net>`_ for extensive
+documentation.
+
+This project requires `RestAuthCommon <https://common.restauth.net>`_
+(`PyPI <https://pypi.python.org/pypi/RestAuthCommon/>`_) and
+`mimeparse <http://code.google.com/p/mimeparse/>`_
+(`PyPI <https://pypi.python.org/pypi/mimeparse/>`_).
+"""
 )

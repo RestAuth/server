@@ -22,3 +22,5 @@ share/
 /uwsgi.ini
 /log
 /run
+/py2
+/py3
