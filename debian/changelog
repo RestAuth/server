@@ -4,6 +4,7 @@ restauth (0.6.1-1) unstable; urgency=low
   * Require python-sphinx (>= 1.0.7) and use dh_sphinxdoc substitution
     variables.
   * Require python-restauth-common (>= 0.6.1)
+  * Cleanup debian/rules.
 
  -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 07 Apr 2013 17:30:26 +0200
 

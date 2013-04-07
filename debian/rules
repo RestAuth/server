@@ -1,85 +1,52 @@
 #!/usr/bin/make -f
 
-PYVERS=$(shell pyversions -rv)
-PY3VERS=$(shell py3versions -rv)
+PY2VERS=$(shell pyversions -rv)
 
-PKGDIR=debian/tmp/
-BINPKGDIR=debian/restauth/
-DOCPKGDIR=debian/restauth-doc/
+PY2DIR=${CURDIR}/debian/restauth/
+DOCDIR=${CURDIR}/debian/restauth-doc/
 
-DH_ARGS=--with python2,python3
-DEB_BUILD_OPTIONS=-t debian1
+DH_ARGS=--with python2
 
 
 %:
 	dh $@ ${DH_ARGS}
 
-override_dh_auto_build:
+build-python%:
+	dh_testdir
+	python$* setup.py build
+
+override_dh_auto_build: ${PY2VERS:%=build-python%}
 	# build documentation
 	python setup.py build_doc -t debian
 
 	# Disable python3 for now, depends on Django1.5
 	#set -ex; for python in $(shell py3versions -r); do \
-        #        $$python setup.py build; \
-        #done;
+	#	$$python setup.py build; \
+	#done;
 
 	dh_auto_build
 
-override_dh_auto_install:
+install-python2%:
+	dh_testdir
+	python2$* setup.py install --force --root ${PY2DIR} --no-compile -O0 --install-layout=deb
+
+override_dh_auto_install: ${PY2VERS:%=install-python%}
 	dh_auto_install
-
-	#Disable python3 for now, depends on Django1.5
-	#set -ex; for python in $(shell py3versions -r); do \
-        #        $$python setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb; \
-        #done;
-
+	
 	# rename language scripts:
-	rm -f $(CURDIR)/debian/tmp/usr/bin/restauth-manage.py
-	rename s/.py// $(CURDIR)/debian/tmp/usr/bin/*
+	rm -f ${PY2DIR}usr/bin/restauth-manage.py
+	rename s/.py// ${PY2DIR}usr/bin/*
 	
 override_dh_python2:
 	dh_python2
-	mv ${BINPKGDIR}usr/share/pyshared/RestAuth/localsettings.py ${BINPKGDIR}etc/restauth/settings.py
+	mv ${PY2DIR}usr/share/pyshared/RestAuth/localsettings.py ${PY2DIR}etc/restauth/settings.py
 
 test-python%:
 	python$* setup.py test
 
 ifeq (,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
-override_dh_auto_test: ${PYVERS:%=test-python%}
+override_dh_auto_test: ${PY2VERS:%=test-python%}
 endif
 
 override_dh_installchangelogs:
 	dh_installchangelogs ChangeLog
-
-#install-python%:
-#	dh_testdir
-#	python$* setup.py install --force --root ${BINPKGDIR} --no-compile -O0 --install-layout=deb
-#
-#build-python%:
-#	dh_testdir
-#	python$* setup.py build
-#
-#override_dh_auto_build: ${PYVERS:%=build-python%}
-#	dh_testdir
-#	python setup.py build_doc -t debian
-#	rm doc/_build/html/_static/underscore.js
-#	rm doc/_build/html/_static/jquery.js
-#
-#	#dh_auto_build
-#
-#override_dh_fixperms:
-#	dh_fixperms --exclude manage.py
-#	find debian/restauth/usr/ -type f -name manage.py | tee | xargs chmod a+rx
-#
-#override_dh_auto_install: ${PYVERS:%=install-python%}
-#	rm -f ${BINPKGDIR}usr/share/doc/restauth/COPYING
-#	dh_auto_install
-#	
-#	rm debian/restauth/usr/bin/*.py
-#	cp bin/restauth-service.py debian/restauth/usr/bin/restauth-service
-#	cp bin/restauth-user.py debian/restauth/usr/bin/restauth-user
-#	cp bin/restauth-group.py debian/restauth/usr/bin/restauth-group
-#	cp bin/restauth-import.py debian/restauth/usr/bin/restauth-import
-#
-#
-	
