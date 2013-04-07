@@ -108,8 +108,8 @@ SECRET_KEY = ''
 #   https://server.restauth.net/config/username-validation.html
 #
 #VALIDATORS = [
-#    'RestAuth.common.validators.xmpp',
-#    'RestAuth.common.validators.mediawiki',
+#    'RestAuth.Users.validators.xmpp',
+#    'RestAuth.Users.validators.mediawiki',
 #]
 
 # You can override the minimum and maximum username length. Note that this
