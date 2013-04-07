@@ -24,3 +24,4 @@ share/
 /run
 /py2
 /py3
+/*.egg-info
