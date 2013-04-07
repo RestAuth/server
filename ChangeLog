@@ -2,6 +2,8 @@ RestAuth 0.6.2 (XX XXXX XXXX)
 
   * Fix loading of validators.
   * Validator classes now are in CamelCase.
+  * Loaded validators are now instances, which mostly enables more rigid
+    testing of validator-loading.
 
 RestAuth 0.6.1 (01 April 2013)
 

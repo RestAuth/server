@@ -51,8 +51,8 @@ def load_username_validators(validators=None):
     for validator_path in validators:
         validator = import_path(validator_path)[0]
 
-        if hasattr(validator, 'check'):
-            used_validators.append(validator)
+        if issubclass(validator, Validator):
+            used_validators.append(validator())
 
         illegal_chars |= validator.ILLEGAL_CHARACTERS
         reserved |= validator.RESERVED
@@ -175,8 +175,7 @@ class EmailValidator(Validator):
     ALLOWS_WHITESPACE = False
     FORCE_ASCII = True
 
-    @classmethod
-    def check(cls, name):
+    def check(self, name):
         if len(name) > 64:
             raise UsernameInvalid(
                 "Username must be no longer than 64 characters.")
@@ -208,8 +207,7 @@ class MediaWikiValidator(Validator):
         'msg:double-redirect-fixer', 'template namespace initialisation script'
     ])
 
-    @classmethod
-    def check(cls, name):
+    def check(self, name):
         if len(name.encode('utf-8')) > 255:  # pragma: no cover
             # Page titles only up to 255 bytes:
             raise UsernameInvalid(
@@ -312,8 +310,7 @@ class DrupalValidator(Validator):
        allowed, while 'ü' is not. It is thus not advisable to use this
        validator at this moment.
     """
-    @classmethod
-    def check(cls, name):
+    def check(self, name):
         if name[0] == ' ':
             raise UsernameInvalid("Username cannot start with a space")
         if name[-1] == ' ':

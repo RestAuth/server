@@ -27,6 +27,8 @@ from django.utils.unittest import TestCase
 from RestAuthCommon import handlers
 
 from RestAuth.Services.models import Service
+from RestAuth.Users.validators import Validator
+from RestAuth.Users.validators import get_validators
 from RestAuth.Users.validators import load_username_validators
 from RestAuth.Users.validators import validate_username
 from RestAuth.backends.base import GroupInstance
@@ -125,6 +127,25 @@ class ValidatorTests(RestAuthTest):
 
     def test_no_whitespace(self):
         self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
+
+    def assert_validators(self, validators):
+        load_username_validators(validators)
+
+        new_validators = get_validators()
+        self.assertEquals(len(validators), len(new_validators))
+        for val in new_validators:
+            self.assertTrue(isinstance(val, Validator), type(val))
+
+    def test_loading(self):
+        self.assert_validators((
+            'RestAuth.Users.validators.MediaWikiValidator',
+        ))
+
+        self.assert_validators((
+            'RestAuth.Users.validators.EmailValidator',
+            'RestAuth.Users.validators.MediaWikiValidator',
+            'RestAuth.Users.validators.XMPPValidator',
+        ))
 
 
 class ImportTests(RestAuthTest):
