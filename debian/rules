@@ -18,12 +18,6 @@ build-python%:
 override_dh_auto_build: ${PY2VERS:%=build-python%}
 	# build documentation
 	python setup.py build_doc -t debian
-
-	# Disable python3 for now, depends on Django1.5
-	#set -ex; for python in $(shell py3versions -r); do \
-	#	$$python setup.py build; \
-	#done;
-
 	dh_auto_build
 
 install-python2%:
