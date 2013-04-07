@@ -6,6 +6,7 @@ restauth (0.6.1-1) unstable; urgency=low
   * Require python-restauth-common (>= 0.6.1)
   * Cleanup debian/rules.
   * Use machine-readable debian/copyright
+  * Remove redundant license file
 
  -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 07 Apr 2013 17:30:26 +0200
 
