@@ -36,6 +36,7 @@ override_dh_auto_install: ${PY2VERS:%=install-python%}
 
 	# move munin script to standard location:
 	mv ${PY2DIR}usr/share/restauth/munin/restauth_accounts ${PY2DIR}usr/share/munin/plugins
+	rmdir ${PY2DIR}usr/share/restauth/munin/
 	
 override_dh_python2:
 	dh_python2
