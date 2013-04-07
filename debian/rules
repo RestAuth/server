@@ -29,8 +29,13 @@ override_dh_auto_install: ${PY2VERS:%=install-python%}
 	
 	# rename language scripts:
 	rm -f ${PY2DIR}usr/bin/restauth-manage.py
-	rm -f ${PY2DIR}usr/share/doc/restauth/COPYING
 	rename s/.py// ${PY2DIR}usr/bin/*
+	
+	# remove redundant license file:
+	rm -f ${PY2DIR}usr/share/doc/restauth/COPYING
+
+	# move munin script to standard location:
+	mv ${PY2DIR}usr/share/munin/plugins/restauth_accounts ${PY2DIR}usr/share/munin/plugins
 	
 override_dh_python2:
 	dh_python2
