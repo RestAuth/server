@@ -4,6 +4,9 @@ RestAuth 0.6.2 (XX XXXX XXXX)
   * Validator classes now are in CamelCase.
   * Loaded validators are now instances, which mostly enables more rigid
     testing of validator-loading.
+  
+  Testing:
+  * Use djangos backport of unittest in some cases
 
 RestAuth 0.6.1 (01 April 2013)
 
