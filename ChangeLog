@@ -6,9 +6,8 @@ RestAuth 0.6.2 (XX XXXX XXXX)
     testing of validator-loading.
   * Update requirements.txt
   * Add the CONTENT_HANDLERS setting to localsettings.py
-  
-  Testing:
-  * Use djangos backport of unittest in some cases
+  * Add installation instructions for PIP
+  * Use djangos backport of unittest in some cases.
 
 RestAuth 0.6.1 (01 April 2013)
 
