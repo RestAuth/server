@@ -1,3 +1,9 @@
+restauth (0.6.2-1) unstable; urgency=low
+
+  * Version-bump from upstream
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Mon, 22 Apr 2013 22:09:09 +0200
+
 restauth (0.6.1-2) unstable; urgency=low
 
   * no longer manually install sphinxdoc links
