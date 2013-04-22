@@ -32,9 +32,9 @@ USERNAME_FORCE_ASCII = False
 USERNAME_NO_WHITESPACE = False
 
 if sys.version_info < (3, 0):
-    IS_PYTHON3 = True
-else:
     IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
 
 
 def load_username_validators(validators=None):
