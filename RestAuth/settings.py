@@ -87,7 +87,7 @@ CONTENT_HANDLERS = (
     'RestAuthCommon.handlers.JSONContentHandler',
     'RestAuthCommon.handlers.FormContentHandler',
     'RestAuthCommon.handlers.PickleContentHandler',
-    'RestAuthCommon.handlers.YamlContentHandler',
+    'RestAuthCommon.handlers.YAMLContentHandler',
 )
 
 #############################################

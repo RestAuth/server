@@ -72,6 +72,18 @@ ALLOWED_HOSTS = [
 # Set your SECRET_KEY to some long random string:
 SECRET_KEY = ''
 
+# You may add additional content handlers here:
+CONTENT_HANDLERS = (
+    'RestAuthCommon.handlers.JSONContentHandler',
+    'RestAuthCommon.handlers.FormContentHandler',
+    'RestAuthCommon.handlers.PickleContentHandler',
+    'RestAuthCommon.handlers.YAMLContentHandler',
+
+# When using RestAuthCommon 0.6.2 or later, you can enable the XMLValidator.
+# This Validator requires lxml to be installed.
+    'RestAuthCommon.handlers.XMLContentHandler',
+)
+
 # Adresses that will receive backtraces when DEBUG=False
 ADMINS = (
 #    ('Your Name', 'your_email@domain.com'),

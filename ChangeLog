@@ -5,6 +5,7 @@ RestAuth 0.6.2 (XX XXXX XXXX)
   * Loaded validators are now instances, which mostly enables more rigid
     testing of validator-loading.
   * Update requirements.txt
+  * Add the CONTENT_HANDLERS setting to localsettings.py
   
   Testing:
   * Use djangos backport of unittest in some cases
