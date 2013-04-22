@@ -340,6 +340,7 @@ class coverage(Command):
             print("You need coverage.py installed.")
             return
 
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)
 
