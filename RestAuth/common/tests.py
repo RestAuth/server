@@ -21,6 +21,7 @@ except ImportError:
     from http import client as httpclient  # python 3.x
 
 from django.core.exceptions import ImproperlyConfigured
+from django.test.client import Client
 from django.test.client import RequestFactory
 from django.utils.unittest import TestCase
 
@@ -172,3 +173,9 @@ class BaseInstancetests(RestAuthTest):
         self.assertEqual(g.id, 5)
         self.assertEqual(g.name, 'foobar')
         self.assertEqual(g.service, 'service')
+
+class BasicTests(RestAuthTest):
+    def test_index(self):
+        c = Client()
+        response = c.get('/')
+        self.assertEqual(response.status_code, 200)
