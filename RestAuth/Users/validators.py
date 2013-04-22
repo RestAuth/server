@@ -31,6 +31,11 @@ USERNAME_RESERVED = set()
 USERNAME_FORCE_ASCII = False
 USERNAME_NO_WHITESPACE = False
 
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = True
+else:
+    IS_PYTHON3 = False
+
 
 def load_username_validators(validators=None):
     global USERNAME_VALIDATORS
@@ -98,10 +103,10 @@ def validate_username(username):
     # force ascii if necessary
     if USERNAME_FORCE_ASCII:
         try:
-            if sys.version_info < (3, 0):
-                username.decode('ascii')
-            else:
+            if IS_PYTHON3:
                 bytes(username, 'ascii')
+            else:
+                username.decode('ascii')
         except (UnicodeDecodeError, UnicodeEncodeError):
             raise UsernameInvalid(
                 "Username must only contain ASCII characters")
