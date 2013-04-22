@@ -129,11 +129,11 @@ class ValidatorTests(RestAuthTest):
     def test_no_whitespace(self):
         self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
 
-    def assert_validators(self, validators):
+    def assert_validators(self, validators, substract=0):
         load_username_validators(validators)
 
         new_validators = get_validators()
-        self.assertEquals(len(validators), len(new_validators))
+        self.assertEquals(len(validators) - substract, len(new_validators))
         for val in new_validators:
             self.assertTrue(isinstance(val, Validator), type(val))
 
@@ -142,11 +142,12 @@ class ValidatorTests(RestAuthTest):
             'RestAuth.Users.validators.MediaWikiValidator',
         ))
 
+        # substract 1 because one validator has no 'check' method:
         self.assert_validators((
             'RestAuth.Users.validators.EmailValidator',
             'RestAuth.Users.validators.MediaWikiValidator',
-            'RestAuth.Users.validators.XMPPValidator',
-        ))
+            'RestAuth.Users.validators.XMPPValidator',  # no check method!
+        ), substract=1)
 
 
 class ImportTests(RestAuthTest):

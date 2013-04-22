@@ -51,7 +51,7 @@ def load_username_validators(validators=None):
     for validator_path in validators:
         validator = import_path(validator_path)[0]
 
-        if issubclass(validator, Validator):
+        if hasattr(validator, 'check'):
             used_validators.append(validator())
 
         illegal_chars |= validator.ILLEGAL_CHARACTERS
