@@ -81,7 +81,7 @@ CONTENT_HANDLERS = (
 
 # When using RestAuthCommon 0.6.2 or later, you can enable the XMLValidator.
 # This Validator requires lxml to be installed.
-    'RestAuthCommon.handlers.XMLContentHandler',
+#    'RestAuthCommon.handlers.XMLContentHandler',
 )
 
 # Adresses that will receive backtraces when DEBUG=False
