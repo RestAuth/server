@@ -377,8 +377,11 @@ class coverage(Command):
             cov.exclude('\t*if settings.SECURE_CACHE:')
         if sys.version_info < (3, 0):
             cov.exclude('\t*if IS_PYTHON3')
+            cov.exclude('\t*def _[a-zA-Z0-9_]*3\(')
+            cov.exclude('^if sys.version_info < \(3, 0\)')
         else:
             cov.exclude('\t*if IS_PYTHON2')
+            cov.exclude('\t*def _[a-zA-Z0-9_]*2\(')
 
         cov.start()
 
