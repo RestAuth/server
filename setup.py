@@ -55,7 +55,7 @@ if os.path.exists(common_path):
 from django.conf import settings
 from django.core.management import call_command
 
-LATEST_RELEASE = '0.6.0'
+LATEST_RELEASE = '0.6.1'
 
 if os.path.exists('RestAuth'):
     sys.path.insert(0, 'RestAuth')
