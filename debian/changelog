@@ -1,6 +1,7 @@
 restauth (0.6.2-1) unstable; urgency=low
 
   * Version-bump from upstream
+  * Bump version dependency for RestAuthCommon to 0.6.2
 
  -- Mathias Ertl <apt-repository@fsinf.at>  Mon, 22 Apr 2013 22:09:09 +0200
 

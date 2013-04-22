@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Mathias Ertl <apt-repository@fsinf.at>
 Build-Depends: debhelper (>= 8), 
  python-all (>= 2.6.6-3~), 
- python-restauth-common (>= 0.6.1), python-sphinx (>= 1.0.7), python-argparse,
+ python-restauth-common (>= 0.6.2), python-sphinx (>= 1.0.7), python-argparse,
  python-django (>= 1.4), python-mimeparse, python-django-south
 Standards-Version: 3.9.2
 X-Python-Version: >= 2.6
@@ -17,7 +17,7 @@ Architecture: all
 Section: web
 Depends: python-django (>= 1.4), python (>= 2.6), ${python:Depends},
  ${misc:Depends}, python-django-south (>= 0.7.5),
- python-restauth-common (>= 0.6.1), python-mimeparse, python-argparse, adduser,
+ python-restauth-common (>= 0.6.2), python-mimeparse, python-argparse, adduser,
  libjs-jquery, libjs-underscore
 Description: service for managing shared authentication, authorization and preferences
  A RestAuth service can manage shared user authentication, authorization and
