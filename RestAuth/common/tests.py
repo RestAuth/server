@@ -21,12 +21,15 @@ except ImportError:
     from http import client as httpclient  # python 3.x
 
 from django.core.exceptions import ImproperlyConfigured
+from django.test.client import Client
 from django.test.client import RequestFactory
 from django.utils.unittest import TestCase
 
 from RestAuthCommon import handlers
 
 from RestAuth.Services.models import Service
+from RestAuth.Users.validators import Validator
+from RestAuth.Users.validators import get_validators
 from RestAuth.Users.validators import load_username_validators
 from RestAuth.Users.validators import validate_username
 from RestAuth.backends.base import GroupInstance
@@ -96,11 +99,11 @@ class ContentTypeTests(RestAuthTest):
         self.assertItemsEqual(user_backend.list(), [])
 
 validators = (
-    'RestAuth.Users.validators.email',
-    'RestAuth.Users.validators.mediawiki',
-    'RestAuth.Users.validators.linux',
-    'RestAuth.Users.validators.windows',
-    'RestAuth.Users.validators.xmpp',
+    'RestAuth.Users.validators.EmailValidator',
+    'RestAuth.Users.validators.MediaWikiValidator',
+    'RestAuth.Users.validators.LinuxValidator',
+    'RestAuth.Users.validators.WindowsValidator',
+    'RestAuth.Users.validators.XMPPValidator',
 )
 
 
@@ -125,6 +128,26 @@ class ValidatorTests(RestAuthTest):
 
     def test_no_whitespace(self):
         self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
+
+    def assert_validators(self, validators, substract=0):
+        load_username_validators(validators)
+
+        new_validators = get_validators()
+        self.assertEquals(len(validators) - substract, len(new_validators))
+        for val in new_validators:
+            self.assertTrue(isinstance(val, Validator), type(val))
+
+    def test_loading(self):
+        self.assert_validators((
+            'RestAuth.Users.validators.MediaWikiValidator',
+        ))
+
+        # substract 1 because one validator has no 'check' method:
+        self.assert_validators((
+            'RestAuth.Users.validators.EmailValidator',
+            'RestAuth.Users.validators.MediaWikiValidator',
+            'RestAuth.Users.validators.XMPPValidator',  # no check method!
+        ), substract=1)
 
 
 class ImportTests(RestAuthTest):
@@ -151,3 +174,9 @@ class BaseInstancetests(RestAuthTest):
         self.assertEqual(g.id, 5)
         self.assertEqual(g.name, 'foobar')
         self.assertEqual(g.service, 'service')
+
+class BasicTests(RestAuthTest):
+    def test_index(self):
+        c = Client()
+        response = c.get('/')
+        self.assertEqual(response.status_code, 200)

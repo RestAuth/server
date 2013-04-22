@@ -31,6 +31,11 @@ USERNAME_RESERVED = set()
 USERNAME_FORCE_ASCII = False
 USERNAME_NO_WHITESPACE = False
 
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
+
 
 def load_username_validators(validators=None):
     global USERNAME_VALIDATORS
@@ -52,7 +57,7 @@ def load_username_validators(validators=None):
         validator = import_path(validator_path)[0]
 
         if hasattr(validator, 'check'):
-            used_validators.append(validator)
+            used_validators.append(validator())
 
         illegal_chars |= validator.ILLEGAL_CHARACTERS
         reserved |= validator.RESERVED
@@ -73,7 +78,7 @@ def load_username_validators(validators=None):
 
     USERNAME_RESERVED = reserved
     USERNAME_ILLEGAL_CHARS = illegal_chars
-    USERNAME_VALIDATORS = validators
+    USERNAME_VALIDATORS = used_validators
 
 
 def validate_username(username):
@@ -98,10 +103,10 @@ def validate_username(username):
     # force ascii if necessary
     if USERNAME_FORCE_ASCII:
         try:
-            if sys.version_info < (3, 0):
-                username.decode('ascii')
-            else:
+            if IS_PYTHON3:
                 bytes(username, 'ascii')
+            else:
+                username.decode('ascii')
         except (UnicodeDecodeError, UnicodeEncodeError):
             raise UsernameInvalid(
                 "Username must only contain ASCII characters")
@@ -115,7 +120,14 @@ def validate_username(username):
         validator.check(username)
 
 
-class validator(object):
+def get_validators():
+    if USERNAME_VALIDATORS is None:
+        load_username_validators()
+
+    return USERNAME_VALIDATORS
+
+
+class Validator(object):
     ILLEGAL_CHARACTERS = set()
     """A set of characters that are forbidden on this system. By default, no
     characters are forbidden."""
@@ -131,7 +143,7 @@ class validator(object):
     """A set of reserved usernames. By default, no usernames are reserved."""
 
 
-class xmpp(validator):
+class XMPPValidator(Validator):
     """
     This validator ensures that usernames are valid username-parts for
     Jabber/XMPP accounts. You can use this validator if you want to provide
@@ -147,7 +159,7 @@ class xmpp(validator):
     ALLOW_WHITESPACE = False
 
 
-class email(validator):
+class EmailValidator(Validator):
     """
     This validator ensures that usernames are valid username-parts of
     email-addresses. You can use this validator if you want to provide
@@ -168,14 +180,13 @@ class email(validator):
     ALLOWS_WHITESPACE = False
     FORCE_ASCII = True
 
-    @classmethod
-    def check(cls, name):
+    def check(self, name):
         if len(name) > 64:
             raise UsernameInvalid(
                 "Username must be no longer than 64 characters.")
 
 
-class mediawiki(validator):
+class MediaWikiValidator(Validator):
     """
     This validator ensures that usernames are compatible with
     `MediaWiki <http://www.mediawiki.org>`_.
@@ -201,15 +212,14 @@ class mediawiki(validator):
         'msg:double-redirect-fixer', 'template namespace initialisation script'
     ])
 
-    @classmethod
-    def check(cls, name):
+    def check(self, name):
         if len(name.encode('utf-8')) > 255:  # pragma: no cover
             # Page titles only up to 255 bytes:
             raise UsernameInvalid(
                 "Username must not be longer than 255 characters")
 
 
-class linux(validator):
+class LinuxValidator(Validator):
     """
     This validator ensures that usernames are Linux system users.
 
@@ -244,7 +254,7 @@ class linux(validator):
                 '%s: Username must match regex "[a-z_][a-z0-9_-]*[$]?"' % name)
 
 
-class windows(validator):
+class WindowsValidator(Validator):
     """
     This validator ensures that usernames are valid Windows system users.
 
@@ -286,7 +296,7 @@ class windows(validator):
     ])
 
 
-class drupal(validator):
+class DrupalValidator(Validator):
     """
     This validator ensures that usernames are valid
     `Drupal <https://drupal.or>`_ usernames.
@@ -305,8 +315,7 @@ class drupal(validator):
        allowed, while 'ü' is not. It is thus not advisable to use this
        validator at this moment.
     """
-    @classmethod
-    def check(cls, name):
+    def check(self, name):
         if name[0] == ' ':
             raise UsernameInvalid("Username cannot start with a space")
         if name[-1] == ' ':

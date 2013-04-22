@@ -72,10 +72,22 @@ ALLOWED_HOSTS = [
 # Set your SECRET_KEY to some long random string:
 SECRET_KEY = ''
 
+# You may add additional content handlers here:
+CONTENT_HANDLERS = (
+    'RestAuthCommon.handlers.JSONContentHandler',
+    'RestAuthCommon.handlers.FormContentHandler',
+    'RestAuthCommon.handlers.PickleContentHandler',
+    'RestAuthCommon.handlers.YAMLContentHandler',
+
+# When using RestAuthCommon 0.6.2 or later, you can enable the XMLValidator.
+# This Validator requires lxml to be installed.
+#    'RestAuthCommon.handlers.XMLContentHandler',
+)
+
 # Adresses that will receive backtraces when DEBUG=False
-#ADMINS = (
-#	('Your Name', 'your_email@domain.com'),
-#)
+ADMINS = (
+#    ('Your Name', 'your_email@domain.com'),
+)
 
 # If you want to receive backtraces via email and don't have a local
 # mail server, you may want to configure some email-related settings.
@@ -107,10 +119,14 @@ SECRET_KEY = ''
 # information please see:
 #   https://server.restauth.net/config/username-validation.html
 #
-#VALIDATORS = [
-#    'RestAuth.common.validators.xmpp',
-#    'RestAuth.common.validators.mediawiki',
-#]
+VALIDATORS = (
+#    'RestAuth.Users.validators.DrupalValidator',
+#    'RestAuth.Users.validators.EmailValidator',
+#    'RestAuth.Users.validators.LinuxValidator',
+#    'RestAuth.Users.validators.MediaWikiValidator',
+#    'RestAuth.Users.validators.WindowsValidator',
+#    'RestAuth.Users.validators.XMPPValidator',
+)
 
 # You can override the minimum and maximum username length. Note that this
 # might be restricted even further if you add validators (see above).

@@ -28,9 +28,9 @@ The configuration file is a plain Python file. Don't worry if you have no
 experience writing Python, the syntax is pretty straight forward. Be careful of
 syntax errors, though, as this would cause hard-to-debug errors.
 
-The only settings you really have to make are the ``DATABASES`` and the
-``SECRET_KEY`` settings, which are almost at the beginning of the file. After
-your editing, the relevant sections should look like this:
+The only settings you really have to make are the ``DATABASES``, ``SECRET_KEY``
+and ``ALLOWED_HOSTS`` settings, which are almost at the beginning of the file.
+After your editing, the relevant sections should look like this:
 
 .. code-block:: python
     :linenos:
@@ -52,7 +52,12 @@ your editing, the relevant sections should look like this:
     }
 
     # ...
-    SECRET_KEY='pleasechangethisstring'
+    SECRET_KEY = 'pleasechangethisstring'
+
+    ALLOWED_HOSTS = (
+        '127.0.0.1',  # IP, i.e. if your setup allows local connections
+        'auth.example.com',  # hostname used by your RestAuth server
+    )
 
 .. WARNING:: Please do not forget to set the password for the database (line 6)
    and SECRET KEY (line 18) to some random string. The two strings should not be

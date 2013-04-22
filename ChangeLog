@@ -1,3 +1,14 @@
+RestAuth 0.6.2 (XX XXXX XXXX)
+
+  * Fix loading of validators.
+  * Validator classes now are in CamelCase.
+  * Loaded validators are now instances, which mostly enables more rigid
+    testing of validator-loading.
+  * Update requirements.txt
+  * Add the CONTENT_HANDLERS setting to localsettings.py
+  * Add installation instructions for PIP
+  * Use djangos backport of unittest in some cases.
+
 RestAuth 0.6.1 (01 April 2013)
 
   Dependencies:

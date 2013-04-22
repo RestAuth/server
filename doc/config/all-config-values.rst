@@ -59,7 +59,10 @@ CONTENT_HANDLERS
 Default::
 
    (
-      'RestAuthCommon.handlers.json',
+      'RestAuthCommon.handlers.JSONContentHandler',
+      'RestAuthCommon.handlers.FormContentHandler',
+      'RestAuthCommon.handlers.PickleContentHandler',
+      'RestAuthCommon.handlers.YAMLContentHandler',
    )
 
 .. versionadded:: 0.6.1

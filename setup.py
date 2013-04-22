@@ -37,7 +37,7 @@ except ImportError:
     from setuptools import setup
     from setuptools.command.install import install as _install
 
-requires = ['RestAuthCommon>=0.6.1', 'mimeparse>=0.1.3', ]
+requires = ['RestAuthCommon>=0.6.2', 'mimeparse>=0.1.3', ]
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -55,7 +55,7 @@ if os.path.exists(common_path):
 from django.conf import settings
 from django.core.management import call_command
 
-LATEST_RELEASE = '0.6.0'
+LATEST_RELEASE = '0.6.2'
 
 if os.path.exists('RestAuth'):
     sys.path.insert(0, 'RestAuth')
@@ -340,6 +340,7 @@ class coverage(Command):
             print("You need coverage.py installed.")
             return
 
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)
 
@@ -374,6 +375,13 @@ class coverage(Command):
         cov.exclude('\t*self.fail\(.*\)')
         if not settings.SECURE_CACHE:
             cov.exclude('\t*if settings.SECURE_CACHE:')
+        if sys.version_info < (3, 0):
+            cov.exclude('\t*if IS_PYTHON3')
+            cov.exclude('\t*def _[a-zA-Z0-9_]*3\(')
+            cov.exclude('^if sys.version_info < \(3, 0\)')
+        else:
+            cov.exclude('\t*if IS_PYTHON2')
+            cov.exclude('\t*def _[a-zA-Z0-9_]*2\(')
 
         cov.start()
 
