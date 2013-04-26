@@ -1,4 +1,8 @@
-RestAuth 0.6.2 (XX XXXX XXXX)
+RestAuth 0.6.3 (XX XXXX 2013)
+
+  * Fix imports in cli scripts
+
+RestAuth 0.6.2 (22 April 2013)
 
   * Fix loading of validators.
   * Validator classes now are in CamelCase.

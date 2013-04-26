@@ -37,9 +37,9 @@ try:
 
     from RestAuth.Services.models import Service
     from RestAuth.Services.models import ServiceAddress
-    from RestAuth.backends.utils import group_backend
-    from RestAuth.backends.utils import property_backend
-    from RestAuth.backends.utils import user_backend
+    from RestAuth.backends import group_backend
+    from RestAuth.backends import property_backend
+    from RestAuth.backends import user_backend
     from RestAuth.common.cli.parsers import parser
     from RestAuth.common.errors import GroupExists
     from RestAuth.common.errors import PropertyExists
@@ -52,10 +52,6 @@ except ImportError, e:
     sys.exit(1)
 
 args = parser.parse_args()
-
-user_backend = user_backend()
-property_backend = property_backend()
-group_backend = group_backend()
 
 data = json.load(args.file)
 if not isinstance(data, dict):

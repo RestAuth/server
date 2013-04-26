@@ -25,9 +25,9 @@ sys.path.append(os.getcwd())
 
 try:
     from RestAuth.Groups.cli.parsers import parser
-    from RestAuth.Groups.cli_parsers import get_group
-    from RestAuth.Groups.cli_parsers import print_by_service
-    from RestAuth.backends.utils import group_backend
+    from RestAuth.Groups.cli.parsers import get_group
+    from RestAuth.Groups.cli.parsers import print_by_service
+    from RestAuth.backends import group_backend
     from RestAuth.common.errors import GroupExists
     from RestAuth.common.errors import GroupNotFound
     from RestAuth.common.errors import UserNotFound
@@ -35,8 +35,6 @@ except ImportError as e:
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
-
-group_backend = group_backend()
 
 # parse arguments
 args = parser.parse_args()
