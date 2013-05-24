@@ -33,6 +33,14 @@ class InternalAuthenticationBackend:
     supports_anonymous_user = False
     supports_object_permissions = False
 
+    def _decode3(self, data):
+        data = base64.b64decode(data)
+        return data.decode('utf-8').split(':', 1)
+
+    def _decode2(self, data):
+        data = base64.b64decode(data)
+        return data.split(':', 1)
+
     def authenticate(self, header, host):
         """
         Authenticate against a header as send by HTTP basic
@@ -50,7 +58,10 @@ class InternalAuthenticationBackend:
             serv, hosts = cache.get(cache_key, (None, None, ))
 
             if serv is None or hosts is None:
-                name, password = base64.b64decode(data).split(':', 1)
+                try:
+                    name, password = self._decode(data)
+                except:
+                    return None
 
                 try:
                     serv = qs.get(username=name)
@@ -65,11 +76,10 @@ class InternalAuthenticationBackend:
             if host in hosts:
                 return serv
         else:
-            if IS_PYTHON3 and isinstance(data, str):
-                decoded = base64.b64decode(bytes(data, 'utf-8'))
-                name, password = decoded.decode('utf-8').split(':', 1)
-            else:
-                name, password = base64.b64decode(data).split(':', 1)
+            try:
+                name, password = self._decode(data)
+            except:
+                return None
 
             try:
                 serv = qs.get(username=name)
@@ -86,3 +96,8 @@ class InternalAuthenticationBackend:
         sessions.
         """
         return Service.objects.get(id=user_id)
+
+    if IS_PYTHON3:
+        _decode = _decode3
+    else:
+        _decode = _decode2
