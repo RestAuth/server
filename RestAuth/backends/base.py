@@ -178,6 +178,20 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
+    def rename(self, username, name):
+        """Rename a user.
+
+        This operation is only available via |bin-restauth-user-doc|.
+
+        :param username: The username.
+        :type  username: str
+        :param     name: The new username.
+        :type      name: str
+        :raise: :py:class:`~RestAuth.common.errors.UserNotFound` if the user
+            doesn't exist.
+        """
+        raise NotImplementedError
+
     def exists(self, username):
         """Determine if the username exists.
 
@@ -522,6 +536,22 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :rtype: :py:class:`.GroupInstance`
         :raises: :py:class:`RestAuth.common.errors.GroupExists` if the group
             already exists.
+        """
+        raise NotImplementedError
+
+    def rename(self, group, name):
+        """Rename a group.
+
+        This operation is only available via |bin-restauth-group-doc|.
+
+        :param   group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type    group: :py:class:`.GroupInstance`
+        :param    name: The new groupname.
+        :type     name: str
+        :param service: The service of the group to query.
+        :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
+        :return: True if the group exists, False otherwise.
+        :rtype: boolean
         """
         raise NotImplementedError
 
