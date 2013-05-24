@@ -41,6 +41,16 @@ subparser.set_defaults(create_user=True)
 subparsers.add_parser(
     'ls', help="List all users.", description="List all users.")
 
+# rename
+subparser = subparsers.add_parser(
+    'rename', help="Rename a user.", parents=[user_parser],
+    description='Rename a user.'
+)
+subparser.add_argument(
+    'name', metavar='NAME',
+    help="The new name for the user."
+)
+
 # verify:
 subparsers.add_parser(
     'verify', help="Verify a users password.",
