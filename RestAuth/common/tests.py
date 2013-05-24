@@ -133,7 +133,7 @@ class ValidatorTests(RestAuthTest):
         load_username_validators(validators)
 
         new_validators = get_validators()
-        self.assertEquals(len(validators) - substract, len(new_validators))
+        self.assertEqual(len(validators) - substract, len(new_validators))
         for val in new_validators:
             self.assertTrue(isinstance(val, Validator), type(val))
 
