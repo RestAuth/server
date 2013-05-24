@@ -46,6 +46,9 @@ class InternalAuthenticationBackend:
         Authenticate against a header as send by HTTP basic
         authentication and a host. This method takes care of decoding
         the header.
+
+        .. NOTE:: We return none as soon as any check fails in order to avoid
+           any accidental pass-through to other parts of the authentication.
         """
         method, data = header.split()
         if method.lower() != 'basic':  # pragma: no cover
@@ -55,9 +58,9 @@ class InternalAuthenticationBackend:
 
         if settings.SECURE_CACHE:
             cache_key = 'service_%s' % data
-            serv, hosts = cache.get(cache_key, (None, None, ))
+            cache_data = cache.get(cache_key)
 
-            if serv is None or hosts is None:
+            if cache_data is None:
                 try:
                     name, password = self._decode(data)
                 except:
@@ -67,14 +70,24 @@ class InternalAuthenticationBackend:
                     serv = qs.get(username=name)
                 except Service.DoesNotExist:
                     return None
-                hosts = serv.hosts.values_list('address', flat=True)
 
-                if serv.verify(password, host):
+                if serv.check_password(password):
+                    # get hosts, store data in cache:
+                    hosts = serv.hosts.values_list('address', flat=True)
                     cache.set(cache_key, (serv, hosts))
-                    return serv
 
-            if host in hosts:
-                return serv
+                    if host in hosts:
+                        return serv
+                    else:
+                        return None
+                else:
+                    return None
+            else:
+                serv, hosts = cache_data
+                if host in hosts:
+                    return serv
+                else:
+                    return None
         else:
             try:
                 name, password = self._decode(data)
@@ -86,6 +99,8 @@ class InternalAuthenticationBackend:
                 if serv.verify(password, host):
                     # service successfully verified
                     return serv
+                else:
+                    return None
             except Service.DoesNotExist:
                 # service does not exist
                 return None
