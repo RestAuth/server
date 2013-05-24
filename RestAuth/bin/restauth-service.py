@@ -42,6 +42,9 @@ if args.action == 'add':
 
     args.service.set_password(password)
     args.service.save()
+elif args.action == 'rename':
+    args.service.username = args.name
+    args.service.save()
 elif args.action == 'rm':
     args.service.delete()
 elif args.action == 'ls':

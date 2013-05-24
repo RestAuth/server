@@ -95,6 +95,9 @@ elif args.action in ['remove-user', 'rm-user', 'del-user']:
     except UserNotFound:
         parser.error('User "%s" not member of group %s.' %
                      (args.user.username, group.name))
+elif args.action == 'rename':
+    group = get_group(parser, args.group, args.service)
+    group_backend.rename(group, args.name)
 elif args.action in ['remove-group', 'rm-group', 'del-group']:
     group = get_group(parser, args.group, args.service)
     subgroup = get_group(parser, args.subgroup, args.sub_service)

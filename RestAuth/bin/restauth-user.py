@@ -93,5 +93,7 @@ elif args.action == 'view':
             groups = group_backend.list(service=service, user=args.user)
             if groups:
                 print('* %s: %s' % (service.username, ', '.join(sorted(groups))))
+elif args.action == 'rename':
+    user_backend.rename(args.user.username, args.name)
 elif args.action in ['delete', 'rm', 'remove']:
     user_backend.remove(args.user.username)
