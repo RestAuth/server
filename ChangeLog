@@ -1,6 +1,8 @@
 RestAuth 0.6.3 (XX XXXX 2013)
 
   * Fix imports in cli scripts
+  * Fix a major bug that meant no password verification for services when
+    using SECURE_CACHE = True
 
 RestAuth 0.6.2 (22 April 2013)
 
