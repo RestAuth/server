@@ -32,7 +32,6 @@ try:
     from RestAuth.backends import group_backend
     from RestAuth.common import errors
 except ImportError as e:
-    print e
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
                      'sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
