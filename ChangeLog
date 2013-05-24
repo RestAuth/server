@@ -5,6 +5,11 @@ RestAuth 0.6.3 (XX XXXX 2013)
     using SECURE_CACHE = True
   * restauth-service, restauth-user and restauth-group now have a rename
     action.
+  * Add requirements3.txt file which excludes wsgiref as dependency
+  * Generally relax dependencies in requirements.txt
+  * Remove some warnings in python3.3
+  * Thanks to the release of South 0.8, this release is now tested with
+    python3.
 
 RestAuth 0.6.2 (22 April 2013)
 
