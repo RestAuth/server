@@ -15,32 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from operator import attrgetter
+import sys
+
+from itertools import groupby
 
 from RestAuth.backends import group_backend
 from RestAuth.common.errors import GroupNotFound
 
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
+
+
+
 
 def print_by_service(groups, indent=''):
-    servs = {}
-    for group in groups:
-        if group.service in servs:
-            servs[group.service].append(group)
-        else:
-            servs[group.service] = [group]
+    by_service = groupby(groups, key=lambda g: g.service)
 
-    if None in servs:
-        none_names = [service.name.encode('utf-8') for service in servs[None]]
-        none_names.sort()
-        print('%sNone: %s' % (indent, ', '.join(none_names)))
-        del servs[None]
+    for service, groups in sorted(by_service, key=lambda t: t[0] if t[0] else ''):
+        names = sorted([group.name for group in groups])
+        if not IS_PYTHON3:
+            names = [name.encode('utf-8') for name in names]
 
-    service_names = sorted(servs.keys(), key=attrgetter('username'))
-
-    for name in service_names:
-        names = [service.name.encode('utf-8') for service in servs[name]]
-        names.sort()
-        print('%s%s: %s' % (indent, name, ', '.join(names)))
+        if not service:
+            service = '<no service>'
+        print("%s%s: %s" % (indent, service, ', '.join(names)))
 
 
 def get_group(parser, name, service):

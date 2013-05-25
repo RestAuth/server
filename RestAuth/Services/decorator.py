@@ -49,7 +49,7 @@ def login_user(view, request, realm, *args, **kwargs):
             request.user.is_authenticated():  # pragma: no cover
         return view(request, *args, **kwargs)
     else:
-        logger.warn("Unable to get authentication source.")
+        logger.warning("Unable to get authentication source.")
         return get_auth_challenge(realm)
 
     if user:
@@ -63,7 +63,7 @@ def login_user(view, request, realm, *args, **kwargs):
         return view(request, *args, **kwargs)
     else:
         # send an authentication challenge:
-        logger.warn("Client provided wrong authentication credentials")
+        logger.warning("Client provided wrong authentication credentials")
         return get_auth_challenge(realm)
 
 

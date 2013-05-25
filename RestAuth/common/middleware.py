@@ -46,7 +46,7 @@ class RestAuthMiddleware:
                 )
 
         if 'HTTP_ACCEPT' not in request.META:  # pragma: no cover
-            logging.warn('Accept header is recommended in all requests.')
+            logging.warning('Accept header is recommended in all requests.')
 
     def process_exception(self, request, ex):
         """Handle RestAuth related exceptions."""

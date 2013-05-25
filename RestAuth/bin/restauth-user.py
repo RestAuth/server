@@ -30,12 +30,18 @@ try:
     from RestAuth.backends import user_backend
     from RestAuth.backends import property_backend
     from RestAuth.backends import group_backend
-    from RestAuth.common import errors
+    from RestAuth.common.errors import PasswordInvalid
+    from RestAuth.common.errors import PreconditionFailed
+    from RestAuth.common.errors import UserExists
 except ImportError as e:
-    print e
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
                      'sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
+
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
 
 # parse arguments
 args = parser.parse_args()
@@ -47,12 +53,15 @@ if args.action == 'add':
             print(args.pwd)
 
         user_backend.set_password(args.user.username, password)
-    except errors.PreconditionFailed as e:
+    except PreconditionFailed as e:
         print("Error: %s" % e)
         sys.exit(1)
 elif args.action in ['ls', 'list']:
     for username in sorted(user_backend.list()):
-        print(username.encode('utf-8'))
+        if IS_PYTHON3:
+            print(username)
+        else:
+            print(username.encode('utf-8'))
 elif args.action == 'verify':
     if not args.pwd:
         args.pwd = getpass.getpass('password: ')
@@ -68,7 +77,7 @@ elif args.action == 'set-password':
             print(args.pwd)
 
         user_backend.set_password(args.user.username, args.pwd)
-    except errors.PasswordInvalid as e:
+    except PasswordInvalid as e:
         print("Error: %s" % e)
         sys.exit(1)
 elif args.action == 'view':
@@ -93,5 +102,10 @@ elif args.action == 'view':
             groups = group_backend.list(service=service, user=args.user)
             if groups:
                 print('* %s: %s' % (service.username, ', '.join(sorted(groups))))
+elif args.action == 'rename':
+    try:
+        user_backend.rename(args.user.username, args.name)
+    except UserExists as e:
+        parser.error("%s: %s" % (args.name, e))
 elif args.action in ['delete', 'rm', 'remove']:
     user_backend.remove(args.user.username)

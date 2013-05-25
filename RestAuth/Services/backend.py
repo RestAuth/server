@@ -33,11 +33,22 @@ class InternalAuthenticationBackend:
     supports_anonymous_user = False
     supports_object_permissions = False
 
+    def _decode3(self, data):
+        data = base64.b64decode(data)
+        return data.decode('utf-8').split(':', 1)
+
+    def _decode2(self, data):
+        data = base64.b64decode(data)
+        return data.split(':', 1)
+
     def authenticate(self, header, host):
         """
         Authenticate against a header as send by HTTP basic
         authentication and a host. This method takes care of decoding
         the header.
+
+        .. NOTE:: We return none as soon as any check fails in order to avoid
+           any accidental pass-through to other parts of the authentication.
         """
         method, data = header.split()
         if method.lower() != 'basic':  # pragma: no cover
@@ -47,35 +58,49 @@ class InternalAuthenticationBackend:
 
         if settings.SECURE_CACHE:
             cache_key = 'service_%s' % data
-            serv, hosts = cache.get(cache_key, (None, None, ))
+            cache_data = cache.get(cache_key)
 
-            if serv is None or hosts is None:
-                name, password = base64.b64decode(data).split(':', 1)
+            if cache_data is None:
+                try:
+                    name, password = self._decode(data)
+                except:
+                    return None
 
                 try:
                     serv = qs.get(username=name)
                 except Service.DoesNotExist:
                     return None
-                hosts = serv.hosts.values_list('address', flat=True)
 
-                if serv.verify(password, host):
+                if serv.check_password(password):
+                    # get hosts, store data in cache:
+                    hosts = serv.hosts.values_list('address', flat=True)
                     cache.set(cache_key, (serv, hosts))
-                    return serv
 
-            if host in hosts:
-                return serv
-        else:
-            if IS_PYTHON3 and isinstance(data, str):
-                decoded = base64.b64decode(bytes(data, 'utf-8'))
-                name, password = decoded.decode('utf-8').split(':', 1)
+                    if host in hosts:
+                        return serv
+                    else:
+                        return None
+                else:
+                    return None
             else:
-                name, password = base64.b64decode(data).split(':', 1)
+                serv, hosts = cache_data
+                if host in hosts:
+                    return serv
+                else:
+                    return None
+        else:
+            try:
+                name, password = self._decode(data)
+            except:
+                return None
 
             try:
                 serv = qs.get(username=name)
                 if serv.verify(password, host):
                     # service successfully verified
                     return serv
+                else:
+                    return None
             except Service.DoesNotExist:
                 # service does not exist
                 return None
@@ -86,3 +111,8 @@ class InternalAuthenticationBackend:
         sessions.
         """
         return Service.objects.get(id=user_id)
+
+    if IS_PYTHON3:
+        _decode = _decode3
+    else:
+        _decode = _decode2

@@ -71,10 +71,29 @@ group_subparsers.add_parser(
     description="View details of a group."
 )
 
+# set-service
+set_service = group_subparsers.add_parser(
+    'set-service', help="Set service of a group.", parents=[group_arg_parser],
+    description='Set service of a group.'
+)
+set_service.add_argument(
+    'new_service', metavar='NEW_SERVICE', action=ServiceAction, nargs="?",
+    help="New service. If omitted, group will have no service.",
+)
+
 # add-user
 group_subparsers.add_parser(
     'add-user', parents=[group_arg_parser, user_parser],
     help="Add a user to a group.", description="Add a user to a group."
+)
+# rename
+subparser = group_subparsers.add_parser(
+    'rename', help="Rename a group.", parents=[group_arg_parser],
+    description='Rename a group.'
+)
+subparser.add_argument(
+    'name', metavar='NAME',
+    help="The new name for the group."
 )
 group_subparsers.add_parser(
     'add-group', parents=[group_arg_parser, subgroup_parser],

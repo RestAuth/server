@@ -54,6 +54,14 @@ subparsers.add_parser(
     description='Completely remove a service. This will also remove any '
     'groups associated with that service.'
 )
+subparser = subparsers.add_parser(
+    'rename', help="Rename a service.", parents=[service_arg_parser],
+    description='Rename a service.'
+)
+subparser.add_argument(
+    'name', metavar='NAME',
+    help="The new name for the service."
+)
 
 subparsers.add_parser(
     'view', help="View details of a service.", parents=[service_arg_parser],

@@ -277,12 +277,12 @@ elif tags.has('homepage'):
     substitutions['wsgi-script'] = '/path/to/your/wsgi/script/restauth'
 
 elif tags.has('bogus-platform'):
-    for key, value in substitutions.iteritems():
+    for key, value in substitutions.items():
         substitutions[key] = 'REPLACED-%s-REPLACED' % key
 
 rst_prolog = ""
 
-for key, value in substitutions.iteritems():
+for key, value in substitutions.items():
     rst_prolog += ".. |%s| replace:: %s\n" % (key, value)
 
     if key.startswith('bin-') or key.startswith('file-'):
@@ -326,7 +326,7 @@ if tags.has('homepage'):
         'bin-restauth-import':
             '/restauth-import.html#dist-specific-bin-restauth-import',
     }
-    for key, value in dist_conf_targets.iteritems():
+    for key, value in dist_conf_targets.items():
         rst_prolog += ".. _%s-link-hp: %s\n" % (key, value)
 
 # links to binary documents:

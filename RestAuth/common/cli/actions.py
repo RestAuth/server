@@ -21,6 +21,7 @@ Collect various reusable parsers.
 
 import random
 import string
+import sys
 
 from argparse import Action
 from argparse import ArgumentError
@@ -36,9 +37,22 @@ from RestAuth.common.errors import PreconditionFailed
 from RestAuth.common.errors import UserExists
 from RestAuth.common.errors import UserNotFound
 
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
+
+
+PASSWORD_CHARS = string.digits + string.ascii_letters + string.punctuation
+PASSWORD_CHARS = ''.join([c for c in PASSWORD_CHARS
+                          if c not in ['\\', '"', "'", '`']])
+
 
 class ServiceAction(Action):
     def __call__(self, parser, namespace, value, option_string):
+        if self.nargs == '?' and value is None:
+            return
+
         if namespace.create_service:
             try:
                 check_service_username(value)
@@ -58,7 +72,10 @@ class ServiceAction(Action):
 
 class UsernameAction(Action):
     def __call__(self, parser, namespace, value, option_string):
-        username = value.lower().decode('utf-8')
+        username = value.lower()
+        if not IS_PYTHON3:
+            username = username.decode('utf-8')
+
         if namespace.create_user:
             try:
                 user = user_backend.create(username=username,
@@ -77,9 +94,6 @@ class UsernameAction(Action):
 
 class PasswordGeneratorAction(Action):
     def __call__(self, parser, namespace, values, option_string):
-        chars = string.digits + string.letters + string.punctuation
-        chars = chars.translate(None, '\\\'"`')
-
-        passwd = ''.join(random.choice(chars) for x in range(30))
+        passwd = ''.join(random.choice(PASSWORD_CHARS) for x in range(30))
         setattr(namespace, 'password_generated', True)
         setattr(namespace, self.dest, passwd)

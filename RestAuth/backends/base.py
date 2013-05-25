@@ -178,6 +178,22 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
+    def rename(self, username, name):
+        """Rename a user.
+
+        This operation is only available via |bin-restauth-user-doc|.
+
+        :param username: The username.
+        :type  username: str
+        :param     name: The new username.
+        :type      name: str
+        :raise: :py:class:`~RestAuth.common.errors.UserNotFound` if the user
+            doesn't exist.
+        :raise: :py:class:`~RestAuth.common.errors.UserExists` if the user
+            already exist.
+        """
+        raise NotImplementedError
+
     def exists(self, username):
         """Determine if the username exists.
 
@@ -475,7 +491,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type     name: str
         :param service: The service of the named group. If None, the group
             should not belong to any service.
-        :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
+        :type  service: :py:class:`~RestAuth.Services.models.Service` or None
         :return: A group object providing at least the properties of the
             GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
@@ -509,7 +525,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type     name: str
         :param service: The service of the named group. If None, the group
             should not belong to any service.
-        :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
+        :type  service: :py:class:`~RestAuth.Services.models.Service` or None
         :param     dry: Wether or not to actually create the group.
         :type      dry: boolean
         :param transaction: If False, execute statements outside any
@@ -525,13 +541,39 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
+    def rename(self, group, name):
+        """Rename a group.
+
+        This operation is only available via |bin-restauth-group-doc|.
+
+        :param   group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type    group: :py:class:`.GroupInstance`
+        :param    name: The new groupname.
+        :type     name: str
+        :raise: :py:class:`~RestAuth.common.errors.GroupExists` if the group
+            already exist.
+        """
+        raise NotImplementedError
+
+    def set_service(self, group, service=None):
+        """Set the service of a group.
+
+        This operation is only available via |bin-restauth-group-doc|.
+
+        :param   group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type    group: :py:class:`.GroupInstance`
+        :param service: The new service of the group.
+        :type  service: :py:class:`~RestAuth.Services.models.Service` or None
+        """
+        raise NotImplementedError
+
     def exists(self, name, service=None):
         """Determine if a group exists for the given service.
 
         :param    name: The name of the group.
         :type     name: str
         :param service: The service of the group to query.
-        :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
+        :type  service: :py:class:`~RestAuth.Services.models.Service` or None
         :return: True if the group exists, False otherwise.
         :rtype: boolean
         """

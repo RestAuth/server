@@ -25,18 +25,23 @@ sys.path.append(os.getcwd())
 
 try:
     from RestAuth.Groups.cli.parsers import parser
-    from RestAuth.Groups.cli_parsers import get_group
-    from RestAuth.Groups.cli_parsers import print_by_service
-    from RestAuth.backends.utils import group_backend
+    from RestAuth.Groups.cli.parsers import get_group
+    from RestAuth.Groups.cli.parsers import print_by_service
+    from RestAuth.backends import group_backend
     from RestAuth.common.errors import GroupExists
     from RestAuth.common.errors import GroupNotFound
     from RestAuth.common.errors import UserNotFound
 except ImportError as e:
+    print(e)
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
-group_backend = group_backend()
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
+
 
 # parse arguments
 args = parser.parse_args()
@@ -53,7 +58,10 @@ elif args.action in ['list', 'ls']:
     else:
         groups = group_backend.list(service=None)
     for name in sorted(groups):
-        print(name.encode('utf-8'))
+        if IS_PYTHON3:
+            print(name)
+        else:
+            print(name.encode('utf-8'))
 elif args.action == 'view':
     group = get_group(parser, args.group, args.service)
 
@@ -80,6 +88,9 @@ elif args.action == 'view':
         print_by_service(sub_groups, '    ')
     else:
         print('* No subgroups')
+elif args.action == 'set-service':
+    group = get_group(parser, args.group, args.service)
+    group_backend.set_service(group, args.new_service)
 elif args.action == 'add-user':
     group = get_group(parser, args.group, args.service)
     group_backend.add_user(group, args.user)
@@ -89,7 +100,8 @@ elif args.action == 'add-group':
 
     group_backend.add_subgroup(group, subgroup)
 elif args.action in ['delete', 'del', 'rm']:
-    group_backend.remove(args.service, args.group)
+    group = get_group(parser, args.group, args.service)
+    group_backend.remove(group)
 elif args.action in ['remove-user', 'rm-user', 'del-user']:
     group = get_group(parser, args.group, args.service)
     try:
@@ -97,6 +109,12 @@ elif args.action in ['remove-user', 'rm-user', 'del-user']:
     except UserNotFound:
         parser.error('User "%s" not member of group %s.' %
                      (args.user.username, group.name))
+elif args.action == 'rename':
+    group = get_group(parser, args.group, args.service)
+    try:
+        group_backend.rename(group, args.name)
+    except GroupExists as e:
+        parser.error("%s: %s" % (args.name, e))
 elif args.action in ['remove-group', 'rm-group', 'del-group']:
     group = get_group(parser, args.group, args.service)
     subgroup = get_group(parser, args.subgroup, args.sub_service)

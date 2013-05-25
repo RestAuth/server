@@ -80,6 +80,15 @@ class DjangoUserBackend(UserBackend):
                                 property_backend, dry=dry,
                                 transaction=transaction)
 
+    def rename(self, username, name):
+        user = self._get_user(username)
+
+        user.username = name
+        try:
+            user.save()
+        except IntegrityError:
+            raise UserExists("User already exists.")
+
     def exists(self, username):
         return User.objects.filter(username=username).exists()
 
@@ -268,6 +277,17 @@ class DjangoGroupBackend(GroupBackend):
                 return Group.objects.create(name=name, service=service)
             except IntegrityError:
                 raise GroupExists('Group "%s" already exists' % name)
+
+    def rename(self, group, name):
+        try:
+            group.name = name
+            group.save()
+        except IntegrityError:
+            raise GroupExists("Group already exists.")
+
+    def set_service(self, group, service=None):
+        group.service = service
+        group.save()
 
     def exists(self, name, service=None):
         return Group.objects.filter(name=name, service=service).exists()
