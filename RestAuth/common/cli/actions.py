@@ -21,6 +21,7 @@ Collect various reusable parsers.
 
 import random
 import string
+import sys
 
 from argparse import Action
 from argparse import ArgumentError
@@ -35,6 +36,11 @@ from RestAuth.backends import user_backend
 from RestAuth.common.errors import PreconditionFailed
 from RestAuth.common.errors import UserExists
 from RestAuth.common.errors import UserNotFound
+
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
 
 
 class ServiceAction(Action):
@@ -58,7 +64,10 @@ class ServiceAction(Action):
 
 class UsernameAction(Action):
     def __call__(self, parser, namespace, value, option_string):
-        username = value.lower().decode('utf-8')
+        username = value.lower()
+        if not IS_PYTHON3:
+            username = username.decode('utf-8')
+
         if namespace.create_user:
             try:
                 user = user_backend.create(username=username,
