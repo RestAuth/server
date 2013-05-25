@@ -1,15 +1,20 @@
 RestAuth 0.6.3 (XX XXXX 2013)
 
-  * Fix imports in cli scripts
   * Fix a major bug that meant no password verification for services when
     using SECURE_CACHE = True
-  * restauth-service, restauth-user and restauth-group now have a rename
-    action.
-  * Add requirements3.txt file which excludes wsgiref as dependency
+
+  Dependencies:
+  * RestAuth is now fully tested with Python3.2 and higher.
+  * Running RestAuth with Python3 requires Django>=1.5 and South>=0.8.
+  * Add requirements3.txt file which excludes wsgiref as dependency.
   * Generally relax dependencies in requirements.txt
-  * Remove some warnings in python3.3
-  * Thanks to the release of South 0.8, this release is now tested with
-    python3.
+
+  Command-line scripts:
+  * Fix imports in restauth-group.
+  * restauth-service, restauth-user and restauth-group now have a rename
+    action, renaming services/users/groups.
+  * New 'set-service' action for restauth-group which sets the service of a
+    group.
 
 RestAuth 0.6.2 (22 April 2013)
 
