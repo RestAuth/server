@@ -36,6 +36,12 @@ except ImportError as e:
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
+
+
 # parse arguments
 args = parser.parse_args()
 
@@ -51,7 +57,10 @@ elif args.action in ['list', 'ls']:
     else:
         groups = group_backend.list(service=None)
     for name in sorted(groups):
-        print(name.encode('utf-8'))
+        if IS_PYTHON3:
+            print(name)
+        else:
+            print(name.encode('utf-8'))
 elif args.action == 'view':
     group = get_group(parser, args.group, args.service)
 
