@@ -32,6 +32,7 @@ try:
     from RestAuth.common.errors import GroupNotFound
     from RestAuth.common.errors import UserNotFound
 except ImportError as e:
+    print(e)
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
@@ -87,6 +88,9 @@ elif args.action == 'view':
         print_by_service(sub_groups, '    ')
     else:
         print('* No subgroups')
+elif args.action == 'set-service':
+    group = get_group(parser, args.group, args.service)
+    group_backend.set_service(group, args.new_service)
 elif args.action == 'add-user':
     group = get_group(parser, args.group, args.service)
     group_backend.add_user(group, args.user)
