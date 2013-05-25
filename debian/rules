@@ -29,11 +29,7 @@ override_dh_auto_install: ${PY2VERS:%=install-python%}
 	
 	# NOTE: At this point, setup.py has installed manage.py to
 	# /usr/bin/restauth-manage.py
-	ls ${PY2DIR}/usr/share/
-	find ${PY2DIR} | grep manage
-	ls -l ${PY2DIR}/usr/bin/restauth-manage.py
-	ls ${PY2DIR}/usr/share/pyshared
-	ls ${PY2DIR}/usr/share/pyshared/RestAuth
+	mv ${PY2DIR}/usr/bin/restauth-manage.py ${PY2DIR}/usr/share/pyshared/RestAuth/manage.py
 	rename s/.py// ${PY2DIR}usr/bin/*
 	
 	# remove redundant license file:
