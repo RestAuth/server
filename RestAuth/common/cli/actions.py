@@ -50,6 +50,9 @@ PASSWORD_CHARS = ''.join([c for c in PASSWORD_CHARS
 
 class ServiceAction(Action):
     def __call__(self, parser, namespace, value, option_string):
+        if self.nargs == '?' and value is None:
+            return
+
         if namespace.create_service:
             try:
                 check_service_username(value)
