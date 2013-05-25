@@ -96,7 +96,8 @@ elif args.action == 'add-group':
 
     group_backend.add_subgroup(group, subgroup)
 elif args.action in ['delete', 'del', 'rm']:
-    group_backend.remove(args.service, args.group)
+    group = get_group(parser, args.group, args.service)
+    group_backend.remove(group)
 elif args.action in ['remove-user', 'rm-user', 'del-user']:
     group = get_group(parser, args.group, args.service)
     try:
