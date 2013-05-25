@@ -30,7 +30,9 @@ try:
     from RestAuth.backends import user_backend
     from RestAuth.backends import property_backend
     from RestAuth.backends import group_backend
-    from RestAuth.common import errors
+    from RestAuth.common.errors import PasswordInvalid
+    from RestAuth.common.errors import PreconditionFailed
+    from RestAuth.common.errors import UserExists
 except ImportError as e:
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
                      'sure RestAuth is in your PYTHONPATH.\n')
@@ -51,7 +53,7 @@ if args.action == 'add':
             print(args.pwd)
 
         user_backend.set_password(args.user.username, password)
-    except errors.PreconditionFailed as e:
+    except PreconditionFailed as e:
         print("Error: %s" % e)
         sys.exit(1)
 elif args.action in ['ls', 'list']:
@@ -75,7 +77,7 @@ elif args.action == 'set-password':
             print(args.pwd)
 
         user_backend.set_password(args.user.username, args.pwd)
-    except errors.PasswordInvalid as e:
+    except PasswordInvalid as e:
         print("Error: %s" % e)
         sys.exit(1)
 elif args.action == 'view':
@@ -101,6 +103,10 @@ elif args.action == 'view':
             if groups:
                 print('* %s: %s' % (service.username, ', '.join(sorted(groups))))
 elif args.action == 'rename':
-    user_backend.rename(args.user.username, args.name)
+    try:
+        user_backend.rename(args.user.username, args.name)
+    except UserExists as e:
+        print("Error: %s: %s" % (args.name, e))
+        sys.exit(1)
 elif args.action in ['delete', 'rm', 'remove']:
     user_backend.remove(args.user.username)
