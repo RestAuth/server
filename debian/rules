@@ -28,6 +28,9 @@ override_dh_auto_install: ${PY2VERS:%=install-python%}
 	dh_auto_install
 	
 	# rename language scripts:
+	ls ${PY2DIR}/usr/share/
+	ls ${PY2DIR}/usr/share/pyshared
+	ls ${PY2DIR}/usr/share/pyshared/RestAuth
 	rename s/.py// ${PY2DIR}usr/bin/*
 	
 	# remove redundant license file:
