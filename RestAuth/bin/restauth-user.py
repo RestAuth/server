@@ -36,6 +36,11 @@ except ImportError as e:
                      'sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
+if sys.version_info < (3, 0):
+    IS_PYTHON3 = False
+else:
+    IS_PYTHON3 = True
+
 # parse arguments
 args = parser.parse_args()
 
@@ -51,7 +56,10 @@ if args.action == 'add':
         sys.exit(1)
 elif args.action in ['ls', 'list']:
     for username in sorted(user_backend.list()):
-        print(username.encode('utf-8'))
+        if IS_PYTHON3:
+            print(username)
+        else:
+            print(username.encode('utf-8'))
 elif args.action == 'verify':
     if not args.pwd:
         args.pwd = getpass.getpass('password: ')
