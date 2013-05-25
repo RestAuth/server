@@ -25,6 +25,7 @@ sys.path.append(os.getcwd())
 
 try:
     from django.core.exceptions import ValidationError
+    from django.db.utils import IntegrityError
 
     from RestAuth.Services.models import Service
     from RestAuth.Services.cli.parsers import parser
@@ -44,7 +45,11 @@ if args.action == 'add':
     args.service.save()
 elif args.action == 'rename':
     args.service.username = args.name
-    args.service.save()
+    try:
+        args.service.save()
+    except IntegrityError:
+        print("Error: %s: Service already exists." % args.name)
+        sys.exit(1)
 elif args.action == 'rm':
     args.service.delete()
 elif args.action == 'ls':
