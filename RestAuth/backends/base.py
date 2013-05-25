@@ -552,7 +552,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type     name: str
         :param service: The service of the group to query.
         :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
-        :raise: :py:class:`~RestAuth.common.errors.UserExists` if the user
+        :raise: :py:class:`~RestAuth.common.errors.GroupExists` if the group
             already exist.
         """
         raise NotImplementedError
