@@ -28,8 +28,6 @@ override_dh_auto_install: ${PY2VERS:%=install-python%}
 	dh_auto_install
 	
 	# rename language scripts:
-	install manage.py ${PY2DIR}usr/share/pyshared/RestAuth/
-	rm -f ${PY2DIR}usr/bin/restauth-manage.py
 	rename s/.py// ${PY2DIR}usr/bin/*
 	
 	# remove redundant license file:
