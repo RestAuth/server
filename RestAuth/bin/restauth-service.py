@@ -48,8 +48,7 @@ elif args.action == 'rename':
     try:
         args.service.save()
     except IntegrityError:
-        print("Error: %s: Service already exists." % args.name)
-        sys.exit(1)
+        parser.error("%s: Service already exists." % args.name)
 elif args.action == 'rm':
     args.service.delete()
 elif args.action == 'ls':

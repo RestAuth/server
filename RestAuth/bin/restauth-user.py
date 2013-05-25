@@ -106,7 +106,6 @@ elif args.action == 'rename':
     try:
         user_backend.rename(args.user.username, args.name)
     except UserExists as e:
-        print("Error: %s: %s" % (args.name, e))
-        sys.exit(1)
+        parser.error("%s: %s" % (args.name, e))
 elif args.action in ['delete', 'rm', 'remove']:
     user_backend.remove(args.user.username)

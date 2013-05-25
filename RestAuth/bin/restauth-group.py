@@ -106,7 +106,10 @@ elif args.action in ['remove-user', 'rm-user', 'del-user']:
                      (args.user.username, group.name))
 elif args.action == 'rename':
     group = get_group(parser, args.group, args.service)
-    group_backend.rename(group, args.name)
+    try:
+        group_backend.rename(group, args.name)
+    except GroupExists as e:
+        parser.error("%s: %s" % (args.name, e))
 elif args.action in ['remove-group', 'rm-group', 'del-group']:
     group = get_group(parser, args.group, args.service)
     subgroup = get_group(parser, args.subgroup, args.sub_service)
