@@ -189,6 +189,8 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :type      name: str
         :raise: :py:class:`~RestAuth.common.errors.UserNotFound` if the user
             doesn't exist.
+        :raise: :py:class:`~RestAuth.common.errors.UserExists` if the user
+            already exist.
         """
         raise NotImplementedError
 
@@ -550,8 +552,8 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type     name: str
         :param service: The service of the group to query.
         :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
-        :return: True if the group exists, False otherwise.
-        :rtype: boolean
+        :raise: :py:class:`~RestAuth.common.errors.UserExists` if the user
+            already exist.
         """
         raise NotImplementedError
 
