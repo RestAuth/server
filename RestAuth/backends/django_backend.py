@@ -285,6 +285,10 @@ class DjangoGroupBackend(GroupBackend):
         except IntegrityError:
             raise GroupExists("Group already exists.")
 
+    def set_service(self, group, service=None):
+        group.service = service
+        group.save()
+
     def exists(self, name, service=None):
         return Group.objects.filter(name=name, service=service).exists()
 
