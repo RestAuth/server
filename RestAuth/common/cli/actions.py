@@ -43,6 +43,11 @@ else:
     IS_PYTHON3 = True
 
 
+PASSWORD_CHARS = string.digits + string.ascii_letters + string.punctuation
+PASSWORD_CHARS = ''.join([c for c in PASSWORD_CHARS
+                          if c not in ['\\', '"', "'", '`']])
+
+
 class ServiceAction(Action):
     def __call__(self, parser, namespace, value, option_string):
         if namespace.create_service:
@@ -86,9 +91,6 @@ class UsernameAction(Action):
 
 class PasswordGeneratorAction(Action):
     def __call__(self, parser, namespace, values, option_string):
-        chars = string.digits + string.letters + string.punctuation
-        chars = chars.translate(None, '\\\'"`')
-
-        passwd = ''.join(random.choice(chars) for x in range(30))
+        passwd = ''.join(random.choice(PASSWORD_CHARS) for x in range(30))
         setattr(namespace, 'password_generated', True)
         setattr(namespace, self.dest, passwd)
