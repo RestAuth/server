@@ -557,6 +557,18 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
+    def set_service(self, group, service=None):
+        """Set the service of a group.
+
+        This operation is only available via |bin-restauth-group-doc|.
+
+        :param   group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type    group: :py:class:`.GroupInstance`
+        :param service: The service of the group to query.
+        :type  service: :py:class:`~RestAuth.Users.models.ServiceUser` or None
+        """
+        raise NotImplementedError
+
     def exists(self, name, service=None):
         """Determine if a group exists for the given service.
 
