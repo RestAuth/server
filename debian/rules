@@ -27,7 +27,8 @@ install-python2%:
 override_dh_auto_install: ${PY2VERS:%=install-python%}
 	dh_auto_install
 	
-	# rename language scripts:
+	# NOTE: At this point, setup.py has installed manage.py to
+	# /usr/bin/restauth-manage.py
 	ls ${PY2DIR}/usr/share/
 	find ${PY2DIR} | grep manage
 	ls -l ${PY2DIR}/usr/bin/restauth-manage.py
