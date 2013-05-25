@@ -30,6 +30,7 @@ override_dh_auto_install: ${PY2VERS:%=install-python%}
 	# rename language scripts:
 	ls ${PY2DIR}/usr/share/
 	find ${PY2DIR} | grep manage
+	ls -l ${PY2DIR}/usr/bin/restauth-manage.py
 	ls ${PY2DIR}/usr/share/pyshared
 	ls ${PY2DIR}/usr/share/pyshared/RestAuth
 	rename s/.py// ${PY2DIR}usr/bin/*
