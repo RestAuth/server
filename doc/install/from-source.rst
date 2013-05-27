@@ -4,11 +4,10 @@ Installation from source
 Requirements
 ------------
 
-RestAuth is written as a *bleeding edge* project and thus requires relatively
-new software versions.
+RestAuth has the following requirements:
 
-* `Python`_ 2.6 or later or Python 3.2 or later
-* `Django`_ 1.4 or later - RestAuth is written as a Django project
+* `Python`_ 2.6.5 or later or Python 3.2 or later
+* `Django`_ 1.4.2 or later - RestAuth is written as a Django project
 * Any database `supported by Django
   <https://docs.djangoproject.com/en/dev/ref/databases/>`_ that supports
   transactions
@@ -19,7 +18,8 @@ new software versions.
 * `Django South`_ is used for handeling schema migrations.
 
 .. Note:: Although Django 1.4 still supports Python 2.5, RestAuth is only
-   compatible with Python 2.6 or later.
+   compatible with Python 2.6.5 or later. Earlier 2.6-versions should also work
+   but are untested.
 
 Get source
 ----------
