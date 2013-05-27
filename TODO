@@ -1,3 +1,7 @@
+Next version:
+
+* Use python-six for compatability
+
 Future:
 
 * add support for /users/<user>/blobs
