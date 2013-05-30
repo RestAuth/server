@@ -76,7 +76,7 @@ class CreateUserTest(RestAuthTransactionTest):
 class CreatePropertyTest(RestAuthTransactionTest):
     def setUp(self):
         RestAuthTransactionTest.setUp(self)
-        self.user = self.create_user(username=username0)
+        self.user = self.create_user(username=username1)
 
     def tearDown(self):
         super(CreatePropertyTest, self).tearDown()
