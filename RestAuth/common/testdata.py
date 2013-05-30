@@ -164,7 +164,7 @@ class RestAuthTest(RestAuthTestBase, TestCase):
         def assertItemsEqual(self, actual, expected, msg=None):
             """This method is not present in python3."""
             self.assertEqual(set(actual), set(expected), msg)
-            self.assertEqual(list(actual), list(expected))
+            self.assertEqual(len(list(actual)), len(list(expected)))
 
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
@@ -173,4 +173,4 @@ class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
         def assertItemsEqual(self, actual, expected, msg=None):
             """This method is not present in python3."""
             self.assertEqual(set(actual), set(expected), msg)
-            self.assertEqual(list(actual), list(expected))
+            self.assertEqual(len(list(actual)), len(list(expected)))
