@@ -22,7 +22,6 @@ import hashlib
 import math
 import string
 import struct
-import sys
 
 from django.contrib.auth.hashers import BasePasswordHasher
 from django.contrib.auth.hashers import mask_hash
@@ -225,9 +224,10 @@ class PhpassHasher(BasePasswordHasher):
         return output
 
     def _compute_hash2(self, hashfunc, count, salt, password):
-        hash = hashfunc('%s%s' % (salt, password)).digest()
+        hash = hashfunc(salt + password).digest()
+
         for i in range(0, count):
-            hash = hashfunc('%s%s' % (hash, password)).digest()
+            hash = hashfunc(hash + str(password)).digest()
         return hash
 
     def _compute_hash3(self, hashfunc, count, salt, password):
@@ -364,7 +364,7 @@ class Apr1Hasher(BasePasswordHasher):
         md5 = hashlib.md5(val).hexdigest()
         cs = [md5[i:i + 2] for i in xrange(0, len(md5), 2)]
         values = [int(c, 16) for c in cs]
-        return struct.pack('16B', *values)
+        return struct.pack(str('16B'), *values)
 
     def _pack3(self, val):
         md5 = hashlib.md5(val).hexdigest()
@@ -453,7 +453,7 @@ class Apr1Hasher(BasePasswordHasher):
         """
         plainpasswd = str(plainpasswd)
         salt = str(salt)  # unicode in Django 1.5, must be str
-        text = "%s$apr1$%s" % (plainpasswd, salt)
+        text = str("%s$apr1$%s" % (plainpasswd, salt))
         bin = self._pack("%s%s%s" % (plainpasswd, salt, plainpasswd))
 
         # first loop
@@ -500,9 +500,9 @@ class Apr1Hasher(BasePasswordHasher):
             if j == 16:
                 j = 5
 
-            tmp = "%s%s%s%s" % (bin[i], bin[k], bin[j], tmp)
+            tmp = bin[i] + bin[k] +  bin[j] + str(tmp)
 
-        tmp = "%s%s%s%s" % (chr(0), chr(0), bin[11], tmp)
+        tmp = str("%s%s%s%s") % (chr(0), chr(0), bin[11], tmp)
 
         return self._trans(tmp).encode('utf-8')
 
