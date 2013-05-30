@@ -43,11 +43,6 @@ from RestAuth.common.views import RestAuthResourceView
 from RestAuth.common.views import RestAuthSubResourceView
 from RestAuth.common.views import RestAuthView
 
-try:
-    strtype = basestring  # python2.x
-except NameError:
-    strtype = str  # python3.x
-
 
 class UsersView(RestAuthView):
     """
@@ -57,13 +52,13 @@ class UsersView(RestAuthView):
     log = logging.getLogger('users')
 
     post_format = {
-        'mandatory': (('user', strtype),),
-        'optional': (('password', strtype),
+        'mandatory': (('user', six.string_types),),
+        'optional': (('password', six.string_types),
                      ('properties', dict),
                     )
     }
-    post_required = (('user', strtype),)
-    post_optional = (('password', strtype),
+    post_required = (('user', six.string_types),)
+    post_optional = (('password', six.string_types),
                      ('properties', dict))
 
     def get(self, request, largs, *args, **kwargs):
@@ -121,8 +116,8 @@ class UserHandlerView(RestAuthResourceView):
     http_method_names = ['get', 'post', 'put', 'delete']
     log = logging.getLogger('users.user')
 
-    post_required = (('password', strtype),)
-    put_optional = (('password', strtype),)
+    post_required = (('password', six.string_types),)
+    put_optional = (('password', six.string_types),)
 
     def get(self, request, largs, name):
         """
@@ -185,7 +180,7 @@ class UserPropsIndex(RestAuthResourceView):
     log = logging.getLogger('users.user.props')
     http_method_names = ['get', 'post', 'put']
 
-    post_required = (('prop', strtype), ('value', strtype),)
+    post_required = (('prop', six.string_types), ('value', six.string_types),)
 
     def get(self, request, largs, name):
         """
@@ -251,7 +246,7 @@ class UserPropHandler(RestAuthSubResourceView):
     log = logging.getLogger('users.user.props.prop')
     http_method_names = ['get', 'put', 'delete']
 
-    put_required = (('value', strtype),)
+    put_required = (('value', six.string_types),)
 
     def get(self, request, largs, name, subname):
         """
