@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 try:
     import httplib as httpclient  # python 2.x
 except ImportError:
@@ -28,6 +30,7 @@ from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.hashers import make_password
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import six
 
 from RestAuth.common.errors import PropertyNotFound
 from RestAuth.common.testdata import RestAuthTest
@@ -663,7 +666,7 @@ class HashTestMixin(RestAuthTestBase):
 
     @override_settings(MIN_PASSWORD_LENGTH=1)
     def test_testdata(self):
-        for password, data in self.testdata.items():
+        for password, data in six.iteritems(self.testdata):
             generated = make_password(password, data['salt'],
                                       hasher=self.algorithm)
             self.assertTrue(generated.startswith('%s$' % self.algorithm))
@@ -677,7 +680,7 @@ class HashTestMixin(RestAuthTestBase):
     @skipUnless(settings.USER_BACKEND == 'RestAuth.backends.django_backend.DjangoUserBackend', '')
     def test_backend(self):
         # test password during creation:
-        for password, data in self.testdata.items():
+        for password, data in six.iteritems(self.testdata):
             user = user_backend.create(username=username1,
                                        password=password,
                                        property_backend=property_backend)
@@ -687,7 +690,7 @@ class HashTestMixin(RestAuthTestBase):
             user_backend.remove(username=username1)
 
         # test password for set_password:
-        for password, data in self.testdata.items():
+        for password, data in six.iteritems(self.testdata):
             user = user_backend.create(username=username1,
                                        property_backend=property_backend)
             user_backend.set_password(username=username1, password=password)
