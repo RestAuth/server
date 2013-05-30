@@ -21,12 +21,12 @@ Collect various reusable parsers.
 
 import random
 import string
-import sys
 
 from argparse import Action
 from argparse import ArgumentError
 
 from django.db.utils import IntegrityError
+from django.utils import six
 
 from RestAuth.Services.models import Service
 from RestAuth.Services.models import ServiceUsernameNotValid
@@ -36,11 +36,6 @@ from RestAuth.backends import user_backend
 from RestAuth.common.errors import PreconditionFailed
 from RestAuth.common.errors import UserExists
 from RestAuth.common.errors import UserNotFound
-
-if sys.version_info < (3, 0):
-    IS_PYTHON3 = False
-else:
-    IS_PYTHON3 = True
 
 
 PASSWORD_CHARS = string.digits + string.ascii_letters + string.punctuation
@@ -73,7 +68,7 @@ class ServiceAction(Action):
 class UsernameAction(Action):
     def __call__(self, parser, namespace, value, option_string):
         username = value.lower()
-        if not IS_PYTHON3:
+        if not six.PY3:
             username = username.decode('utf-8')
 
         if namespace.create_user:

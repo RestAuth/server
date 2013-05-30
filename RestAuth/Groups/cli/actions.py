@@ -15,14 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-
 from argparse import Action
 
-if sys.version_info < (3, 0):
-    IS_PYTHON3 = False
-else:
-    IS_PYTHON3 = True
+from django.utils import six
 
 
 class GroupnameAction(Action):
@@ -30,6 +25,6 @@ class GroupnameAction(Action):
         # NOTE: we do not get/create database, because --service might be given
         #   afterwards and then we'd get the group with no service.
         groupname = value.lower()
-        if not IS_PYTHON3:
+        if not six.PY3:
             groupname = groupname.decode('utf-8')
         setattr(namespace, self.dest, groupname)

@@ -25,6 +25,8 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
+    from django.utils import six
+
     from RestAuth.Services.models import Service
     from RestAuth.Users.cli.parsers import parser
     from RestAuth.backends import user_backend
@@ -38,10 +40,6 @@ except ImportError as e:
                      'sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
-if sys.version_info < (3, 0):
-    IS_PYTHON3 = False
-else:
-    IS_PYTHON3 = True
 
 # parse arguments
 args = parser.parse_args()
@@ -58,7 +56,7 @@ if args.action == 'add':
         sys.exit(1)
 elif args.action in ['ls', 'list']:
     for username in sorted(user_backend.list()):
-        if IS_PYTHON3:
+        if six.PY3:
             print(username)
         else:
             print(username.encode('utf-8'))
