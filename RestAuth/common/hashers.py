@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 import base64
 import hashlib
 import math
@@ -24,15 +26,10 @@ import sys
 
 from django.contrib.auth.hashers import BasePasswordHasher
 from django.contrib.auth.hashers import mask_hash
+from django.utils import six
 from django.utils.crypto import constant_time_compare
 from django.utils.crypto import get_random_string
 from django.utils.datastructures import SortedDict
-
-
-if sys.version_info < (3, 0):
-    IS_PYTHON3 = False
-else:
-    IS_PYTHON3 = True
 
 
 class Sha512Hasher(BasePasswordHasher):
@@ -67,7 +64,7 @@ class Sha512Hasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    if IS_PYTHON3:
+    if six.PY3:
         _hash = _hash3
     else:
         _hash = _hash2
@@ -130,7 +127,7 @@ class MediaWikiHasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    if IS_PYTHON3:
+    if six.PY3:
         _encode = _encode3
     else:
         _encode = _encode2
@@ -291,7 +288,7 @@ class PhpassHasher(BasePasswordHasher):
         encoded = self._password_crypt(hashlib.md5, password, settings)
         return '%s%s' % (self.algorithm, encoded)
 
-    if IS_PYTHON3:
+    if six.PY3:
         _compute_hash = _compute_hash3
     else:
         _compute_hash = _compute_hash2
@@ -509,7 +506,7 @@ class Apr1Hasher(BasePasswordHasher):
 
         return self._trans(tmp).encode('utf-8')
 
-    if IS_PYTHON3:
+    if six.PY3:
         _trans = _trans3
         _pack = _pack3
         _crypt = _crypt3
