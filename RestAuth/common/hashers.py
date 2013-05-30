@@ -30,6 +30,9 @@ from django.utils.crypto import constant_time_compare
 from django.utils.crypto import get_random_string
 from django.utils.datastructures import SortedDict
 
+# py2/py3 compat imports
+from django.utils.six.moves import xrange as range
+
 
 class Sha512Hasher(BasePasswordHasher):
     """A basic sha512 hasher with salt.
@@ -360,17 +363,11 @@ class Apr1Hasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    def _pack2(self, val):
-        md5 = hashlib.md5(val).hexdigest()
-        cs = [md5[i:i + 2] for i in xrange(0, len(md5), 2)]
-        values = [int(c, 16) for c in cs]
-        return struct.pack(str('16B'), *values)
-
-    def _pack3(self, val):
+    def _pack(self, val):
         md5 = hashlib.md5(val).hexdigest()
         cs = [md5[i:i + 2] for i in range(0, len(md5), 2)]
         values = [int(c, 16) for c in cs]
-        return struct.pack('16B', *values)
+        return struct.pack(str('16B'), *values)
 
     def _trans2(self, val):
         frm = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
@@ -508,9 +505,7 @@ class Apr1Hasher(BasePasswordHasher):
 
     if six.PY3:
         _trans = _trans3
-        _pack = _pack3
         _crypt = _crypt3
     else:
         _trans = _trans2
-        _pack = _pack2
         _crypt = _crypt2
