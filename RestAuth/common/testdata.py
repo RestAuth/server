@@ -25,6 +25,7 @@ from django.test import TestCase
 from django.test import TransactionTestCase
 from django.test.client import Client
 from django.test.utils import override_settings
+from django.utils import six
 
 from RestAuthCommon import handlers
 
@@ -159,15 +160,17 @@ class RestAuthTestBase(object):
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTest(RestAuthTestBase, TestCase):
-    def assertItemsEqual(self, actual, expected, msg=None):
-        """This method is not present in python3."""
-        self.assertEqual(set(actual), set(expected), msg)
-        self.assertEqual(len(actual), len(expected))
+    if six.PY3:
+        def assertItemsEqual(self, actual, expected, msg=None):
+            """This method is not present in python3."""
+            self.assertEqual(set(actual), set(expected), msg)
+            self.assertEqual(len(actual), len(expected))
 
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
-    def assertItemsEqual(self, actual, expected, msg=None):
-        """This method is not present in python3."""
-        self.assertEqual(set(actual), set(expected), msg)
-        self.assertEqual(len(actual), len(expected))
+    if six.PY3:
+        def assertItemsEqual(self, actual, expected, msg=None):
+            """This method is not present in python3."""
+            self.assertEqual(set(actual), set(expected), msg)
+            self.assertEqual(len(actual), len(expected))
