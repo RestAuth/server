@@ -34,6 +34,7 @@ sys.path.append(os.getcwd())
 
 try:
     from django.db import transaction
+    from django.utils import six
 
     from RestAuth.Services.models import Service
     from RestAuth.Services.models import ServiceAddress
@@ -44,7 +45,7 @@ try:
     from RestAuth.common.errors import GroupExists
     from RestAuth.common.errors import PropertyExists
     from RestAuth.common.errors import UserExists
-except ImportError, e:
+except ImportError as e:
     sys.stderr.write(
         'Error: Cannot import RestAuth. '
         'Please make sure RestAuth is in your PYTHONPATH.\n'
@@ -107,7 +108,7 @@ try:
     #######################
     if services:
         print('Services:')
-    for name, data in services.iteritems():
+    for name, data in six.iteritems(services):
         if Service.objects.filter(username=name).exists():
             print('* %s: Already exists.' % name)
             continue
@@ -140,7 +141,7 @@ try:
     ####################
     if users:
         print('Users:')
-    for username, data in users.iteritems():
+    for username, data in six.iteritems(users):
         username = username.lower()
 
         try:
@@ -176,7 +177,7 @@ try:
 
         if 'properties' in data:
             # handle all other preferences
-            for key, value in data['properties'].iteritems():
+            for key, value in six.iteritems(data['properties']):
                 if key in TIMESTAMP_PROPS:
                     if value.__class__ in [int, float]:
                         value = datetime.fromtimestamp(value)
@@ -200,7 +201,7 @@ try:
     if groups:
         print("Groups:")
     subgroups = {}
-    for name, data in groups.iteritems():
+    for name, data in six.iteritems(groups):
         service = data.pop('service', None)
         if service:
             service = Service.objects.get(username=service)
@@ -224,7 +225,7 @@ try:
 
     # add group-memberships *after* we created all groups to make sure
     # groups already exist.
-    for group, subgroups_data in subgroups.iteritems():
+    for group, subgroups_data in six.iteritems(subgroups):
         for subgroup_data in subgroups_data:
             name = subgroup_data['name']
             service = subgroup_data.get('service')
