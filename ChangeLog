@@ -1,4 +1,4 @@
-RestAuth 0.6.3 (XX XXXX 2013)
+RestAuth 0.6.3 (30 May 2013)
 
   * Fix a major bug that meant no password verification for services when
     using SECURE_CACHE = True
