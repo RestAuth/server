@@ -37,7 +37,11 @@ except ImportError:
     from setuptools import setup
     from setuptools.command.install import install as _install
 
-requires = ['RestAuthCommon>=0.6.2', 'python-mimeparse>=0.1.4', ]
+requires = [
+    'Django>=1.5.1',
+    'RestAuthCommon>=0.6.2',
+    'python-mimeparse>=0.1.4',
+]
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
