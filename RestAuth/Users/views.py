@@ -19,10 +19,13 @@
 This module implements all HTTP queries to ``/user/*``.
 """
 
+from __future__ import unicode_literals
+
 import logging
 
 from django.conf import settings
 from django.http import HttpResponseForbidden
+from django.utils import six
 
 from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
@@ -95,7 +98,7 @@ class UsersView(RestAuthView):
 
         # check properties:
         if properties is not None:
-            for key in properties.keys():
+            for key in six.iterkeys(properties):
                 if not resource_validator(key):
                     raise PreconditionFailed(
                         "Property contains invalid characters")
@@ -231,7 +234,7 @@ class UserPropsIndex(RestAuthResourceView):
         # If UserNotFound: 404 Not Found
         user = user_backend.get(username=name)
         properties = parse_dict(request)
-        for key in properties.keys():
+        for key in six.iterkeys(properties):
             if not resource_validator(key):
                 raise PreconditionFailed(
                     "Property contains invalid characters")
