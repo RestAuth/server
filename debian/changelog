@@ -1,4 +1,4 @@
-restauth (0.6.3-1) unstable; urgency=low
+restauth (0.6.3-1-g9df6b2c-1) unstable; urgency=low
 
   * Version bump from upstream.
   * bump dependency information
