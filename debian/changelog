@@ -2,6 +2,7 @@ restauth (0.6.3-1) unstable; urgency=low
 
   * Version bump from upstream.
   * bump dependency information
+  * add python-setuptools and python3-setuptools as build-dependency
 
  -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 01 Jun 2013 11:22:38 +0200
 
