@@ -1,3 +1,7 @@
+RestAuth 0.6.4 (XX XXX XXXX)
+
+  * Fix tests in some python2.6 versions.
+
 RestAuth 0.6.3 (30 May 2013)
 
   * Fix a major bug that meant no password verification for services when
