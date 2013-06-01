@@ -1,7 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# This file is part of RestAuth (https://restauth.net).
+#
+# RestAuth is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# RestAuth is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import unicode_literals
+
 from datetime import datetime
 
 from django.db import transaction as dj_transaction
 from django.db.utils import IntegrityError
+from django.utils import six
 
 from RestAuth.Groups.models import Group
 from RestAuth.Users.models import Property
@@ -110,7 +130,7 @@ class DjangoUserBackend(UserBackend):
         user = self._get_user(username, 'password')
         parameters = [algorithm]
         if kwargs:
-            parameters += kwargs.values()
+            parameters += six.itervalues(kwargs)
         if salt is not None:
             parameters.append(salt)
         parameters.append(hash)
@@ -202,16 +222,16 @@ class DjangoPropertyBackend(PropertyBackend):
         if dry:
             with dj_transaction.commit_manually():
                 try:
-                    for key, value in props.items():
+                    for key, value in six.iteritems(props):
                         user.set_property(key, value)
                 finally:
                     dj_transaction.rollback()
         elif transaction:
             with dj_transaction.commit_on_success():
-                for key, value in props.items():
+                for key, value in six.iteritems(props):
                     user.set_property(key, value)
         else:  # pragma: no cover
-            for key, value in props.items():
+            for key, value in six.iteritems(props):
                 user.set_property(key, value)
 
     def remove(self, user, key):

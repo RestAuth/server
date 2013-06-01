@@ -25,6 +25,7 @@ from django.test import TestCase
 from django.test import TransactionTestCase
 from django.test.client import Client
 from django.test.utils import override_settings
+from django.utils import six
 
 from RestAuthCommon import handlers
 
@@ -36,11 +37,11 @@ from RestAuth.backends import group_backend
 from RestAuth.backends import property_backend
 from RestAuth.backends import user_backend
 
-username1 = "mati \u6111"
-username2 = "mati \u6112"
-username3 = "mati \u6113"
-username4 = "mati \u6114"
-username5 = "mati \u6115"
+username1 = "mati1 \u6111"
+username2 = "mati2 \u6112"
+username3 = "mati3 \u6113"
+username4 = "mati4 \u6114"
+username5 = "mati5 \u6115"
 
 password1 = "password \u6121"
 password2 = "password \u6122"
@@ -48,15 +49,15 @@ password3 = "password \u6123"
 password4 = "password \u6124"
 password5 = "password \u6125"
 
-groupname1 = "group 1 \u6131"
-groupname2 = "group 2 \u6132"
-groupname3 = "group 3 \u6133"
-groupname4 = "group 4 \u6134"
-groupname5 = "group 5 \u6135"
-groupname6 = "group 6 \u6136"
-groupname7 = "group 7 \u6137"
-groupname8 = "group 8 \u6138"
-groupname9 = "group 9 \u6139"
+groupname1 = "group1 \u6131"
+groupname2 = "group2 \u6132"
+groupname3 = "group3 \u6133"
+groupname4 = "group4 \u6134"
+groupname5 = "group5 \u6135"
+groupname6 = "group6 \u6136"
+groupname7 = "group7 \u6137"
+groupname8 = "group8 \u6138"
+groupname9 = "group9 \u6139"
 
 propkey1 = "propkey \u6141"
 propkey2 = "propkey \u6142"
@@ -159,15 +160,17 @@ class RestAuthTestBase(object):
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTest(RestAuthTestBase, TestCase):
-    def assertItemsEqual(self, actual, expected, msg=None):
-        """This method is not present in python3."""
-        self.assertEqual(set(actual), set(expected), msg)
-        self.assertEqual(len(actual), len(expected))
+    if six.PY3:
+        def assertItemsEqual(self, actual, expected, msg=None):
+            """This method is not present in python3."""
+            self.assertEqual(set(actual), set(expected), msg)
+            self.assertEqual(len(list(actual)), len(list(expected)))
 
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
-    def assertItemsEqual(self, actual, expected, msg=None):
-        """This method is not present in python3."""
-        self.assertEqual(set(actual), set(expected), msg)
-        self.assertEqual(len(actual), len(expected))
+    if six.PY3:
+        def assertItemsEqual(self, actual, expected, msg=None):
+            """This method is not present in python3."""
+            self.assertEqual(set(actual), set(expected), msg)
+            self.assertEqual(len(list(actual)), len(list(expected)))

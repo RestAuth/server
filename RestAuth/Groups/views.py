@@ -22,6 +22,7 @@ This module implements all HTTP queries to ``/group/*``.
 import logging
 
 from django.http import HttpResponseForbidden
+from django.utils import six
 
 from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
@@ -37,11 +38,6 @@ from RestAuth.common.views import RestAuthView
 from RestAuth.common.views import RestAuthResourceView
 from RestAuth.common.views import RestAuthSubResourceView
 
-try:
-        strtype = basestring  # python2.x
-except NameError:
-        strtype = str  # python3.x
-
 
 class GroupsView(RestAuthView):
     """
@@ -50,7 +46,7 @@ class GroupsView(RestAuthView):
     log = logging.getLogger('groups')
     http_method_names = ['get', 'post']
 
-    post_required = (('group', strtype),)
+    post_required = (('group', six.string_types),)
 
     def get(self, request, largs):
         """
@@ -133,7 +129,7 @@ class GroupUsersIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.users')
     http_method_names = ['get', 'post']
 
-    post_required = (('user', strtype),)
+    post_required = (('user', six.string_types),)
 
     def get(self, request, largs, name):
         """
@@ -220,7 +216,7 @@ class GroupGroupsIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.groups')
     http_method_names = ['get', 'post']
 
-    post_required = (('group', strtype),)
+    post_required = (('group', six.string_types),)
 
     def get(self, request, largs, name):
         """

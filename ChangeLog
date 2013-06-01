@@ -1,12 +1,15 @@
-RestAuth 0.6.3 (XX XXXX 2013)
+RestAuth 0.6.3 (30 May 2013)
 
   * Fix a major bug that meant no password verification for services when
     using SECURE_CACHE = True
 
   Dependencies:
   * RestAuth is now fully tested with Python3.2 and higher.
-  * Running RestAuth with Python3 requires Django>=1.5 and South>=0.8.
+    * Running RestAuth with Python3 requires Django>=1.5 and South>=0.8.
+	* six is used to ensure Python3 compatability.
   * Add requirements3.txt file which excludes wsgiref as dependency.
+  * On Python2, RestAuth now requires Python2 >= 2.6.5. 
+  * RestAuth now requires Django >= 1.4.2 or greater.
   * Generally relax dependencies in requirements.txt
 
   Command-line scripts:

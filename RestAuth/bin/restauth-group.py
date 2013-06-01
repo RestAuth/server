@@ -24,6 +24,8 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
+    from django.utils import six
+
     from RestAuth.Groups.cli.parsers import parser
     from RestAuth.Groups.cli.parsers import get_group
     from RestAuth.Groups.cli.parsers import print_by_service
@@ -36,11 +38,6 @@ except ImportError as e:
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
-
-if sys.version_info < (3, 0):
-    IS_PYTHON3 = False
-else:
-    IS_PYTHON3 = True
 
 
 # parse arguments
@@ -58,7 +55,7 @@ elif args.action in ['list', 'ls']:
     else:
         groups = group_backend.list(service=None)
     for name in sorted(groups):
-        if IS_PYTHON3:
+        if six.PY3:
             print(name)
         else:
             print(name.encode('utf-8'))

@@ -15,19 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-
 from itertools import groupby
+
+from django.utils import six
 
 from RestAuth.backends import group_backend
 from RestAuth.common.errors import GroupNotFound
-
-if sys.version_info < (3, 0):
-    IS_PYTHON3 = False
-else:
-    IS_PYTHON3 = True
-
-
 
 
 def print_by_service(groups, indent=''):
@@ -35,7 +28,7 @@ def print_by_service(groups, indent=''):
 
     for service, groups in sorted(by_service, key=lambda t: t[0] if t[0] else ''):
         names = sorted([group.name for group in groups])
-        if not IS_PYTHON3:
+        if not six.PY3:
             names = [name.encode('utf-8') for name in names]
 
         if not service:

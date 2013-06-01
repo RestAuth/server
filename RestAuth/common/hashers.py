@@ -15,24 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 import base64
 import hashlib
 import math
 import string
 import struct
-import sys
 
 from django.contrib.auth.hashers import BasePasswordHasher
 from django.contrib.auth.hashers import mask_hash
+from django.utils import six
 from django.utils.crypto import constant_time_compare
 from django.utils.crypto import get_random_string
 from django.utils.datastructures import SortedDict
 
-
-if sys.version_info < (3, 0):
-    IS_PYTHON3 = False
-else:
-    IS_PYTHON3 = True
+# py2/py3 compat imports
+from django.utils.six.moves import xrange as range
 
 
 class Sha512Hasher(BasePasswordHasher):
@@ -67,7 +66,7 @@ class Sha512Hasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    if IS_PYTHON3:
+    if six.PY3:
         _hash = _hash3
     else:
         _hash = _hash2
@@ -130,7 +129,7 @@ class MediaWikiHasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    if IS_PYTHON3:
+    if six.PY3:
         _encode = _encode3
     else:
         _encode = _encode2
@@ -228,9 +227,10 @@ class PhpassHasher(BasePasswordHasher):
         return output
 
     def _compute_hash2(self, hashfunc, count, salt, password):
-        hash = hashfunc('%s%s' % (salt, password)).digest()
+        hash = hashfunc(salt + password).digest()
+
         for i in range(0, count):
-            hash = hashfunc('%s%s' % (hash, password)).digest()
+            hash = hashfunc(hash + str(password)).digest()
         return hash
 
     def _compute_hash3(self, hashfunc, count, salt, password):
@@ -291,7 +291,7 @@ class PhpassHasher(BasePasswordHasher):
         encoded = self._password_crypt(hashlib.md5, password, settings)
         return '%s%s' % (self.algorithm, encoded)
 
-    if IS_PYTHON3:
+    if six.PY3:
         _compute_hash = _compute_hash3
     else:
         _compute_hash = _compute_hash2
@@ -363,17 +363,11 @@ class Apr1Hasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    def _pack2(self, val):
-        md5 = hashlib.md5(val).hexdigest()
-        cs = [md5[i:i + 2] for i in xrange(0, len(md5), 2)]
-        values = [int(c, 16) for c in cs]
-        return struct.pack('16B', *values)
-
-    def _pack3(self, val):
+    def _pack(self, val):
         md5 = hashlib.md5(val).hexdigest()
         cs = [md5[i:i + 2] for i in range(0, len(md5), 2)]
         values = [int(c, 16) for c in cs]
-        return struct.pack('16B', *values)
+        return struct.pack(str('16B'), *values)
 
     def _trans2(self, val):
         frm = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
@@ -456,7 +450,7 @@ class Apr1Hasher(BasePasswordHasher):
         """
         plainpasswd = str(plainpasswd)
         salt = str(salt)  # unicode in Django 1.5, must be str
-        text = "%s$apr1$%s" % (plainpasswd, salt)
+        text = str("%s$apr1$%s" % (plainpasswd, salt))
         bin = self._pack("%s%s%s" % (plainpasswd, salt, plainpasswd))
 
         # first loop
@@ -503,17 +497,15 @@ class Apr1Hasher(BasePasswordHasher):
             if j == 16:
                 j = 5
 
-            tmp = "%s%s%s%s" % (bin[i], bin[k], bin[j], tmp)
+            tmp = bin[i] + bin[k] +  bin[j] + str(tmp)
 
-        tmp = "%s%s%s%s" % (chr(0), chr(0), bin[11], tmp)
+        tmp = str("%s%s%s%s") % (chr(0), chr(0), bin[11], tmp)
 
         return self._trans(tmp).encode('utf-8')
 
-    if IS_PYTHON3:
+    if six.PY3:
         _trans = _trans3
-        _pack = _pack3
         _crypt = _crypt3
     else:
         _trans = _trans2
-        _pack = _pack2
         _crypt = _crypt2

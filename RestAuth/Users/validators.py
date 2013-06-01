@@ -18,9 +18,9 @@
 from __future__ import unicode_literals  # unicode literals from python
 
 import re
-import sys
 
 from django.conf import settings
+from django.utils import six
 
 from RestAuth.common.errors import UsernameInvalid
 from RestAuth.common.utils import import_path
@@ -30,11 +30,6 @@ USERNAME_ILLEGAL_CHARS = set()
 USERNAME_RESERVED = set()
 USERNAME_FORCE_ASCII = False
 USERNAME_NO_WHITESPACE = False
-
-if sys.version_info < (3, 0):
-    IS_PYTHON3 = False
-else:
-    IS_PYTHON3 = True
 
 
 def load_username_validators(validators=None):
@@ -103,7 +98,7 @@ def validate_username(username):
     # force ascii if necessary
     if USERNAME_FORCE_ASCII:
         try:
-            if IS_PYTHON3:
+            if six.PY3:
                 bytes(username, 'ascii')
             else:
                 username.decode('ascii')

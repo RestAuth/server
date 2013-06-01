@@ -37,7 +37,11 @@ except ImportError:
     from setuptools import setup
     from setuptools.command.install import install as _install
 
-requires = ['RestAuthCommon>=0.6.2', 'python-mimeparse>=0.1.4', ]
+requires = [
+    'Django>=1.5.1',
+    'RestAuthCommon>=0.6.2',
+    'python-mimeparse>=0.1.4',
+]
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -55,7 +59,7 @@ if os.path.exists(common_path):
 from django.conf import settings
 from django.core.management import call_command
 
-LATEST_RELEASE = '0.6.2'
+LATEST_RELEASE = '0.6.3'
 
 if os.path.exists('RestAuth'):
     sys.path.insert(0, 'RestAuth')
@@ -513,6 +517,9 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: System :: Systems Administration :: Authentication/Directory",

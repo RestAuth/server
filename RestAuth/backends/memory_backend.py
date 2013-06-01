@@ -15,10 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 from collections import defaultdict
 from datetime import datetime
 
 from django.conf import settings
+from django.utils import six
 
 from RestAuth.backends.base import GroupInstance
 from RestAuth.backends.base import UserInstance
@@ -106,7 +109,7 @@ class MemoryUserBackend(object):
             raise UserNotFound(username)
 
     def list(self):
-        return self._users.keys()
+        return six.iterkeys(self._users)
 
     def create(self, username, password=None, properties=None,
                property_backend=None, dry=False, transaction=True):
@@ -239,10 +242,10 @@ class MemoryGroupBackend(object):
 
     def list(self, service, user=None):
         if user is None:
-            return self._groups[self._service(service)].keys()
+            return six.iterkeys(self._groups[self._service(service)])
         else:
             groups = self._groups[self._service(service)]
-            return [k for k, v in groups.items() if v.is_member(user)]
+            return [k for k, v in six.iteritems(groups) if v.is_member(user)]
 
     def create(self, name, service=None, dry=False, transaction=True):
         if name in self._groups[self._service(service)]:
