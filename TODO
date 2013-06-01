@@ -1,3 +1,6 @@
+0.6.4:
+
+* cli-scripts reset the cache upon certain actions
 
 Future:
 

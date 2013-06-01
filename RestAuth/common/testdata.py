@@ -160,17 +160,17 @@ class RestAuthTestBase(object):
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTest(RestAuthTestBase, TestCase):
-    if six.PY3:
-        def assertItemsEqual(self, actual, expected, msg=None):
-            """This method is not present in python3."""
-            self.assertEqual(set(actual), set(expected), msg)
-            self.assertEqual(len(list(actual)), len(list(expected)))
+    def assertItemsEqual(self, actual, expected, msg=None):
+        """This method is not present in python3 and behaves erratic over
+        different 2.6 versions."""
+        self.assertEqual(set(actual), set(expected), msg)
+        self.assertEqual(len(list(actual)), len(list(expected)))
 
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
-    if six.PY3:
-        def assertItemsEqual(self, actual, expected, msg=None):
-            """This method is not present in python3."""
-            self.assertEqual(set(actual), set(expected), msg)
-            self.assertEqual(len(list(actual)), len(list(expected)))
+    def assertItemsEqual(self, actual, expected, msg=None):
+        """This method is not present in python3 and behaves erratic over
+        different 2.6 versions."""
+        self.assertEqual(set(actual), set(expected), msg)
+        self.assertEqual(len(list(actual)), len(list(expected)))
