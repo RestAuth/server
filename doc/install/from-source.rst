@@ -129,6 +129,7 @@ To update the source code, just run:
 
    python setup.py clean
    git pull
+   python setup.py install
 
 After you updated the source, don't forget to :ref:`update your database schema
 <update-database>` and :ref:`check for new settings <update-settings>`.
