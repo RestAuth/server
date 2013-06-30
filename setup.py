@@ -155,6 +155,7 @@ class clean(_clean):
 
 
 class version(Command):
+    description = "Output version of this software."
     user_options = []
 
     def initialize_options(self):
