@@ -68,7 +68,7 @@ class UsersView(RestAuthView):
         if not request.user.has_perm('Users.users_list'):
             return HttpResponseForbidden()
 
-        names = user_backend.list()
+        names = [n.lower() for n in user_backend.list()]
         return HttpRestAuthResponse(request, names)
 
     def post(self, request, largs, dry=False):
@@ -79,6 +79,7 @@ class UsersView(RestAuthView):
             return HttpResponseForbidden()
 
         name, password, properties = self._parse_post(request)
+        name = name.lower()
 
         # check username:
         if not resource_validator(name):
