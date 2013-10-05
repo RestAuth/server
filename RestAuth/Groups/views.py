@@ -67,6 +67,7 @@ class GroupsView(RestAuthView):
             user = user_backend.get(username=username.lower())
             groups = group_backend.list(service=request.user, user=user)
 
+        groups = [g.lower() for g in groups]
         return HttpRestAuthResponse(request, groups)
 
     def post(self, request, largs, dry=False):
