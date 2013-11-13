@@ -2,6 +2,7 @@ RestAuth 0.6.4 (XX XXX XXXX)
 
   * Fix tests in some python2.6 versions.
   * More consistently lowercase input and output names of users and groups.
+  * RestAuth now requires Django 1.5 or newer.
 
 RestAuth 0.6.3 (30 May 2013)
 
