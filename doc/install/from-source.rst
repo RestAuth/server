@@ -7,7 +7,7 @@ Requirements
 RestAuth has the following requirements:
 
 * `Python`_ 2.6.5 or later or Python 3.2 or later
-* `Django`_ 1.4.2 or later - RestAuth is written as a Django project
+* `Django`_ 1.5 or later - RestAuth is written as a Django project
 * Any database `supported by Django
   <https://docs.djangoproject.com/en/dev/ref/databases/>`_ that supports
   transactions
