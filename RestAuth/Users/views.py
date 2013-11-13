@@ -53,9 +53,10 @@ class UsersView(RestAuthView):
 
     post_format = {
         'mandatory': (('user', six.string_types),),
-        'optional': (('password', six.string_types),
-                     ('properties', dict),
-                    )
+        'optional': (
+            ('password', six.string_types),
+            ('properties', dict),
+        ),
     }
     post_required = (('user', six.string_types),)
     post_optional = (('password', six.string_types),
