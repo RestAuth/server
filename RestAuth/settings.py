@@ -26,7 +26,7 @@
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
 # It is highly recommended to set DEBUG = False in any production environment.
-DEBUG = False
+DEBUG = True
 SITE_ID = 1
 USE_I18N = False
 ROOT_URLCONF = 'RestAuth.urls'
@@ -220,3 +220,5 @@ if not LOGGING:
             handler.update(LOG_HANDLER_KWARGS)
 
 SOUTH_TESTS_MIGRATE = False
+
+SECRET_KEY='foobar'
