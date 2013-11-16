@@ -97,10 +97,12 @@ class CreatePropertyTest(RestAuthTransactionTest):
 
     def test_create_invalid_property(self):
         url = '/test/users/%s/props/' % self.user.username
-        resp = self.post(url, {'prop': propkey1, 'value': 'foo/bar'})
-# TODO: value is not invalid, should be prop, then should return http_client.PRECONDITION_FAILED
-        self.assertEqual(resp.status_code, http_client.CREATED)
+        resp = self.post(url, {'prop': 'foo/bar', 'value': propval1})
+        self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
+        self.assertProperties(self.user, {})
 
+        resp = self.post(url, {'prop': 'foo:bar', 'value': propval1})
+        self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertProperties(self.user, {})
 
     def test_create_property_for_non_existing_user(self):
