@@ -40,10 +40,4 @@ def users_user_props(request, name):
 
 @login_required(realm="/test/groups/")
 def groups(request):
-    transaction.set_autocommit(False)
-    try:
-        resp = groups_view(request, dry=True)
-    finally:
-        transaction.rollback()
-        transaction.set_autocommit(True)
-    return resp
+    return groups_view(request, dry=True)
