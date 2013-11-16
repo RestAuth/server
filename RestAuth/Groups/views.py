@@ -84,16 +84,7 @@ class GroupsView(RestAuthView):
             raise PreconditionFailed('Group name contains invalid characters!')
 
         # If ResourceExists: 409 Conflict
-        print('dry: %s' % dry)
-        if dry:
-            transaction.set_autocommit(False)
-        try:
-            group = group_backend.create(service=request.user, name=groupname,
-                                     dry=dry)
-        finally:
-            if dry:
-                transaction.rollback()
-                transaction.set_autocommit(True)
+        group = group_backend.create(service=request.user, name=groupname, dry=dry)
 
         self.log.info('%s: Created group', group.name, extra=largs)
         return HttpResponseCreated(request,
