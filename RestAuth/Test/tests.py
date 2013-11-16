@@ -122,9 +122,6 @@ class CreateGroupTest(RestAuthTransactionTest):
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertFalse(group_backend.list(self.service))
 
-        from django.db import transaction
-        transaction.set_autocommit(True)
-
     def test_dry_run_create_existing_group(self):
         group = group_backend.create(service=self.service, name=groupname1)
 
