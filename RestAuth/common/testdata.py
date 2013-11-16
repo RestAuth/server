@@ -59,17 +59,17 @@ groupname7 = "group7 \u6137"
 groupname8 = "group8 \u6138"
 groupname9 = "group9 \u6139"
 
-propkey1 = "propkey \u6141"
-propkey2 = "propkey \u6142"
-propkey3 = "propkey \u6143"
-propkey4 = "propkey \u6144"
-propkey5 = "propkey \u6145"
+propkey1 = "propkey1 \u6141"
+propkey2 = "propkey2 \u6142"
+propkey3 = "propkey3 \u6143"
+propkey4 = "propkey4 \u6144"
+propkey5 = "propkey5 \u6145"
 
-propval1 = "propval \u6151"
-propval2 = "propval \u6152"
-propval3 = "propval \u6153"
-propval4 = "propval \u6154"
-propval5 = "propval \u6155"
+propval1 = "propval1 \u6151"
+propval2 = "propval2 \u6152"
+propval3 = "propval3 \u6153"
+propval4 = "propval4 \u6154"
+propval5 = "propval5 \u6155"
 
 PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
 
