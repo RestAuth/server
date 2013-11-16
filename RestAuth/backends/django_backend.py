@@ -83,15 +83,16 @@ class DjangoUserBackend(UserBackend):
     def create(self, username, password=None, properties=None,
                property_backend=None, dry=False, transaction=True):
         if dry:
-            with dj_transaction.commit_manually():
-                try:
-                    return self._create(username, password, properties,
-                                        property_backend, dry=dry,
-                                        transaction=transaction)
-                finally:
-                    dj_transaction.rollback()
+            sid = dj_transaction.savepoint()
+
+            try:
+                return self._create(username, password, properties,
+                                    property_backend, dry=dry,
+                                    transaction=transaction)
+            finally:
+                dj_transaction.savepoint_rollback(sid)
         elif transaction:
-            with dj_transaction.commit_on_success():
+            with dj_transaction.atomic():
                 return self._create(username, password, properties,
                                     property_backend, dry=dry,
                                     transaction=transaction)
@@ -173,14 +174,15 @@ class DjangoPropertyBackend(PropertyBackend):
 
     def create(self, user, key, value, dry=False, transaction=True):
         if dry:
-            with dj_transaction.commit_manually():
-                try:
-                    prop = user.property_set.create(key=key, value=value)
-                    return prop.key, prop.value
-                except IntegrityError:
-                    raise PropertyExists()
-                finally:
-                    dj_transaction.rollback()
+            sid = dj_transaction.savepoint()
+
+            try:
+                prop = user.property_set.create(key=key, value=value)
+                return prop.key, prop.value
+            except IntegrityError:
+                raise PropertyExists()
+            finally:
+                dj_transaction.savepoint_rollback(sid)
         elif transaction:
             with dj_transaction.commit_on_success():
                 try:
@@ -204,12 +206,13 @@ class DjangoPropertyBackend(PropertyBackend):
 
     def set(self, user, key, value, dry=False, transaction=True):
         if dry:
-            with dj_transaction.commit_manually():
-                try:
-                    prop, old_value = user.set_property(key, value)
-                    return prop.key, old_value
-                finally:
-                    dj_transaction.rollback()
+            sid = dj_transaction.savepoint()
+
+            try:
+                prop, old_value = user.set_property(key, value)
+                return prop.key, old_value
+            finally:
+                dj_transaction.savepoint_rollback(sid)
         elif transaction:
             with dj_transaction.commit_on_success():
                 prop, old_value = user.set_property(key, value)
@@ -220,14 +223,15 @@ class DjangoPropertyBackend(PropertyBackend):
 
     def set_multiple(self, user, props, dry=False, transaction=True):
         if dry:
-            with dj_transaction.commit_manually():
-                try:
-                    for key, value in six.iteritems(props):
-                        user.set_property(key, value)
-                finally:
-                    dj_transaction.rollback()
+            sid = dj_transaction.savepoint()
+
+            try:
+                for key, value in six.iteritems(props):
+                    user.set_property(key, value)
+            finally:
+                dj_transaction.savepoint_rollback(sid)
         elif transaction:
-            with dj_transaction.commit_on_success():
+            with dj_transaction.atomic():
                 for key, value in six.iteritems(props):
                     user.set_property(key, value)
         else:  # pragma: no cover
@@ -277,14 +281,14 @@ class DjangoGroupBackend(GroupBackend):
 
     def create(self, name, service=None, dry=False, transaction=True):
         if dry:
-            with dj_transaction.commit_manually():
-                try:
-                    return Group.objects.create(
-                        name=name, service=service)
-                except IntegrityError:
-                    raise GroupExists('Group "%s" already exists' % name)
-                finally:
-                    dj_transaction.rollback()
+            sid = dj_transaction.savepoint()
+
+            try:
+                return Group.objects.create(name=name, service=service)
+            except IntegrityError:
+                raise GroupExists('Group "%s" already exists' % name)
+            finally:
+                dj_transaction.savepoint_rollback(sid)
         elif transaction:
             with dj_transaction.commit_on_success():
                 try:

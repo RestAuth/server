@@ -21,11 +21,11 @@ from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.db import transaction
 from django.test import TestCase
 from django.test import TransactionTestCase
 from django.test.client import Client
 from django.test.utils import override_settings
-from django.utils import six
 
 from RestAuthCommon import handlers
 
@@ -76,8 +76,7 @@ PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
 
 class RestAuthTestBase(object):
     def setUp(self):
-        if hasattr(self, 'settings'):  # requires django-1.4:
-            self.settings(LOGGING_CONFIG=None)
+        self.settings(LOGGING_CONFIG=None)
 
         self.c = Client()
         self.handler = handlers.json()
@@ -156,6 +155,7 @@ class RestAuthTestBase(object):
     def tearDown(self):
         user_backend.testTearDown()
         group_backend.testTearDown()
+        transaction.set_autocommit(True)
 
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)

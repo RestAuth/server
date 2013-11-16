@@ -19,6 +19,9 @@ from RestAuth.Groups.views import GroupsView
 from RestAuth.Services.decorator import login_required
 from RestAuth.Users.views import UserPropsIndex
 from RestAuth.Users.views import UsersView
+from django.db import transaction
+from RestAuth.backends import group_backend
+from django.contrib.auth.models import User
 
 users_view = UsersView.as_view()
 props_view = UserPropsIndex.as_view()
@@ -37,4 +40,10 @@ def users_user_props(request, name):
 
 @login_required(realm="/test/groups/")
 def groups(request):
-    return groups_view(request, dry=True)
+    transaction.set_autocommit(False)
+    try:
+        resp = groups_view(request, dry=True)
+    finally:
+        transaction.rollback()
+        transaction.set_autocommit(True)
+    return resp
