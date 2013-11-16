@@ -186,7 +186,7 @@ class DjangoPropertyBackend(PropertyBackend):
                 dj_transaction.rollback()
                 dj_transaction.set_autocommit(True)
         elif transaction:
-            with dj_transaction.commit_on_success():
+            with dj_transaction.atomic():
                 try:
                     prop = user.property_set.create(key=key, value=value)
                     return prop.key, prop.value
