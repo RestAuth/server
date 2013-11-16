@@ -213,8 +213,8 @@ class UserPropsIndex(RestAuthResourceView):
         user = user_backend.get(username=name)
 
         # If PropertyExists: 409 Conflict
-        key, value = property_backend.create(user=user, key=key,
-                                             value=value, dry=dry)
+        key, value = property_backend.create(user=user, key=key, value=value,
+                                             dry=dry)
 
         self.log.info(
             'Created property "%s" as "%s"', key, value, extra=largs)
