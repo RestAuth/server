@@ -155,7 +155,6 @@ class RestAuthTestBase(object):
     def tearDown(self):
         user_backend.testTearDown()
         group_backend.testTearDown()
-        transaction.set_autocommit(True)
 
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
