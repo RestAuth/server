@@ -75,15 +75,16 @@ class ServiceUser(models.Model):
             with the previous value or None if this was a new
             property.
         """
-        prop, created = Property.objects.get_or_create(
-            user=self, key=key, defaults={'value': value})
-        if created:
-            return prop, None
-        else:
+        # WARNING: do not use get_or_create here, as that method has an
+        # atomic() block.
+        try:
+            prop = Property.objects.get(user=self, key=key)
             old_value = prop.value
             prop.value = value
             prop.save()
             return prop, old_value
+        except Property.DoesNotExist:
+            return Property.objects.create(user=self, key=key, value=value), None
 
     def del_property(self, key):
         """
