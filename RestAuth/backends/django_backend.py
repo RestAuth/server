@@ -148,7 +148,7 @@ class DjangoUserBackend(UserBackend):
             raise UserNotFound(username)
 
     def init_transaction(self):  # pragma: no cover
-        dj_transaction.set_autocommit(False)
+        pass
 
     def commit_transaction(self):  # pragma: no cover
         dj_transaction.commit()
@@ -248,8 +248,7 @@ class DjangoPropertyBackend(PropertyBackend):
             raise PropertyNotFound(key)
 
     def init_transaction(self):  # pragma: no cover
-        dj_transaction.enter_transaction_management()
-        dj_transaction.managed(True)
+        pass
 
     def commit_transaction(self):  # pragma: no cover
         dj_transaction.commit()
@@ -361,8 +360,7 @@ class DjangoGroupBackend(GroupBackend):
         return group.parent_groups.all()
 
     def init_transaction(self):  # pragma: no cover
-        dj_transaction.enter_transaction_management()
-        dj_transaction.managed(True)
+        pass
 
     def commit_transaction(self):  # pragma: no cover
         dj_transaction.commit()
