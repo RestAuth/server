@@ -38,7 +38,8 @@ except ImportError:
     from setuptools.command.install import install as _install
 
 requires = [
-    'Django>=1.5.1',
+    'Django>=1.6',
+    'South>=0.8.3',
     'RestAuthCommon>=0.6.2',
     'python-mimeparse>=0.1.4',
 ]
