@@ -79,22 +79,18 @@ def gen_password(length=30):
 
 
 def init_transaction():
-    transaction.enter_transaction_management(args.using)
-    transaction.managed(True, args.using)
     user_backend.init_transaction()
     property_backend.init_transaction()
     group_backend.init_transaction()
 
 
 def commit_transaction():
-    transaction.commit()
     user_backend.commit_transaction()
     group_backend.commit_transaction()
     property_backend.commit_transaction()
 
 
 def rollback_transaction():
-    transaction.rollback()
     user_backend.rollback_transaction()
     group_backend.rollback_transaction()
     property_backend.rollback_transaction()
