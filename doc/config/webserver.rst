@@ -150,9 +150,10 @@ You can start/reload/etc. the instances with::
    (server)restauth@host:server$ uwsgi --stop /usr/local/home/restauth/run/restauth.pid
    (server)restauth@host:server$ uwsgi --reload /usr/local/home/restauth/run/restauth.pid
 
-An example uwsgi-configuration ships with RestAuth. You can also
-:download:`download it here </files/uwsgi.ini>`. The documentation has a `full list
-of configuration directives
+Note that there are also many uWSGI init scripts on the internet that you could
+use to launch RestAuth. An example uwsgi-configuration ships with RestAuth. You
+can also :download:`download it here </files/uwsgi.ini>`. The documentation has
+a `full list of configuration directives
 <http://uwsgi-docs.readthedocs.org/en/latest/Options.html>`_.
 
 Configure webserver
