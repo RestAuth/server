@@ -19,8 +19,8 @@ If you want to run RestAuth as a `mod_wsgi <https://code.google.com/p/modwsgi/>`
 `Apache <https://httpd.apache.org/>`_, a WSGI script is already provided with RestAuth. If you
 :doc:`installed from source <../install/from-source>`, the script is included in the :file:`wsgi`
 directory. If you installed via our :doc:`APT repositories <../install/debian-ubuntu>` on
-Debian/Ubuntu, the file can be found at :file:`/usr/share/restauth/wsgi/restauth`. You can also
-fetch it `directly from git <https://git.fsinf.at/restauth/server/blobs/raw/master/wsgi/restauth>`_.
+Debian/Ubuntu, the file can be found at :file:`/usr/share/restauth/wsgi.py`. You can also
+fetch it `directly from git <https://git.fsinf.at/restauth/server/blobs/raw/master/RestAuth/RestAuth/wsgi.py>`_.
 
 Configuring Apache is very simple, only the basic WSGI configuration directives are needed:
 
@@ -32,7 +32,7 @@ Configuring Apache is very simple, only the basic WSGI configuration directives 
        #...
 
        # basic django configuration:
-       WSGIScriptAlias / /path/to/your/wsgi-script/restauth
+       WSGIScriptAlias / /path/to/your/wsgi.py
        WSGIPassAuthorization on
 
        # if you want to run WSGI processes as their own user:

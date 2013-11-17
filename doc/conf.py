@@ -243,7 +243,7 @@ substitutions = {
 
     'file-settings': 'RestAuth/localsettings.py',
 
-    'wsgi-script': 'wsgi/restauth',
+    'wsgi-script': 'RestAuth/RestAuth/wsgi.py',
 }
 
 if tags.has('man'):
@@ -259,12 +259,12 @@ if tags.has('debian'):
 
     substitutions['file-settings'] = '/etc/restauth/settings.py'
 
-    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi/restauth'
+    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi.py'
 
 elif tags.has('fedora') or tags.has('redhat'):
     substitutions[''] = ''
 elif tags.has('arch'):
-    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi/restauth'
+    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi.py'
 elif tags.has('homepage'):
     substitutions['bin-restauth-manage'] = 'restauth-manage'
     substitutions['bin-restauth-service'] = 'restauth-service'
@@ -274,7 +274,7 @@ elif tags.has('homepage'):
 
 
     substitutions['file-settings'] = 'localsettings.py'
-    substitutions['wsgi-script'] = '/path/to/your/wsgi/script/restauth'
+    substitutions['wsgi-script'] = '/path/to/your/wsgi.py'
 
 elif tags.has('bogus-platform'):
     for key, value in substitutions.items():
