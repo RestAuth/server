@@ -20,7 +20,7 @@ To use a database router (you can either :ref:`write your own <config-db-replica
 
 .. code-block:: python
 
-   DATABASE_ROUTERS = ['RestAuth.common.routers.MasterSlave']
+   DATABASE_ROUTERS = ['common.routers.MasterSlave']
 
 .. NOTE:: Routers shipping with RestAuth are not intended to be used together with other routers.
    If you require a more complex database routing schema you can either:
@@ -43,5 +43,5 @@ requires you to be able to code in Python.
 
 Existing database routers
 -------------------------
-.. automodule:: RestAuth.common.routers
+.. automodule:: common.routers
    :members:

@@ -180,13 +180,14 @@ class build_doc_meta(Command):
         Command.__init__(self, *args, **kwargs)
 
         # import here so coverage results are not tainted:
-        from RestAuth.Users.models import user_permissions, prop_permissions
-        from RestAuth.Groups.models import group_permissions
-        from RestAuth.common.cli import helpers
-        from RestAuth.Services.cli import parsers as service_parser
-        from RestAuth.Users.cli import parsers as user_parser
-        from RestAuth.Groups.cli import parsers as group_parser
-        from RestAuth.common.cli import parsers as import_parser
+        from Users.models import user_permissions
+        from Users.models import prop_permissions
+        from Groups.models import group_permissions
+        from common.cli import helpers
+        from Services.cli import parsers as service_parser
+        from Users.cli import parsers as user_parser
+        from Groups.cli import parsers as group_parser
+        from common.cli import parsers as import_parser
 
         # generate files for cli-scripts:
         service_parser.parser.prog = '|bin-restauth-service|'

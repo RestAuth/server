@@ -1,23 +1,23 @@
 Overview of implemented HTTP queries
 ------------------------------------
 
-RestAuth.common.views
-=====================
+common.views
+============
 
-.. automodule:: RestAuth.common.views
+.. automodule:: common.views
    :members:
    :show-inheritance:
 
-RestAuth.User.views
-===================
+User.views
+==========
 
-.. automodule:: RestAuth.Users.views
+.. automodule:: Users.views
    :members:
    :show-inheritance:
 
-RestAuth.Group.views
-====================
+Group.views
+===========
 
-.. automodule:: RestAuth.Groups.views
+.. automodule:: Groups.views
    :members:
    :show-inheritance:

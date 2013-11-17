@@ -14,9 +14,9 @@ backends:
 RestAuth can use different backends for each individual task, but property- and
 group-backends may depend on a specific user-backend being used. Most
 prominently, the default backends
-:py:class:`~RestAuth.backends.django_backend.DjangoPropertyBackend` and
-:py:class:`~RestAuth.backends.django_backend.DjangoGroupBackend` require that you
-also use :py:class:`~RestAuth.backends.django_backend.DjangoUserBackend`.
+:py:class:`~backends.django_backend.DjangoPropertyBackend` and
+:py:class:`~backends.django_backend.DjangoGroupBackend` require that you
+also use :py:class:`~backends.django_backend.DjangoUserBackend`.
 
 Configuring backends
 ____________________
@@ -39,8 +39,8 @@ A user backend handles the most basic operations related to users. The user
 backend is used to create and delete users as well as to check and update a
 users password.
 
-.. autoclass:: RestAuth.backends.django_backend.DjangoUserBackend
-.. autoclass:: RestAuth.backends.memory_backend.MemoryUserBackend
+.. autoclass:: backends.django_backend.DjangoUserBackend
+.. autoclass:: backends.memory_backend.MemoryUserBackend
 
 .. _property-backends:
 
@@ -50,10 +50,10 @@ _________________
 A property backend handles user properties such as email, full
 name and so on.
 
-.. autoclass:: RestAuth.backends.django_backend.DjangoPropertyBackend
+.. autoclass:: backends.django_backend.DjangoPropertyBackend
 
-.. autoclass:: RestAuth.backends.redis_backend.RedisPropertyBackend
-.. autoclass:: RestAuth.backends.memory_backend.MemoryPropertyBackend
+.. autoclass:: backends.redis_backend.RedisPropertyBackend
+.. autoclass:: backends.memory_backend.MemoryPropertyBackend
 
 .. _group-backends:
 
@@ -63,5 +63,5 @@ ______________
 A group backend handles user groups. Groups may be used by a service for
 authorization or similar purposes.
 
-.. autoclass:: RestAuth.backends.django_backend.DjangoGroupBackend
-.. autoclass:: RestAuth.backends.memory_backend.MemoryGroupBackend
+.. autoclass:: backends.django_backend.DjangoGroupBackend
+.. autoclass:: backends.memory_backend.MemoryGroupBackend

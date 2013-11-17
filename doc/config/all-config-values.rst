@@ -78,7 +78,7 @@ GROUP_BACKEND
 
 .. versionadded:: 0.6.1
 
-Default: ``'RestAuth.backends.django_backend.DjangoGroupBackend'``
+Default: ``'backends.django_backend.DjangoGroupBackend'``
 
 The backend to use to store groups. Please see :ref:`group-backends` for a more
 comprehensive description of available backends.  The default is the only
@@ -215,7 +215,7 @@ Default::
 
    (
        'django.middleware.common.CommonMiddleware',
-       'RestAuth.common.middleware.RestAuthMiddleware',
+       'common.middleware.RestAuthMiddleware',
    )
 
 RestAuth uses `middlewares
@@ -256,11 +256,11 @@ Default::
 
    PASSWORD_HASHERS = (
        'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-       'RestAuth.common.hashers.Sha512Hasher',
-       'RestAuth.common.hashers.MediaWikiHasher',
-       'RestAuth.common.hashers.Apr1Hasher',
-       'RestAuth.common.hashers.Drupal7Hasher',
-       'RestAuth.common.hashers.PhpassHasher',
+       'common.hashers.Sha512Hasher',
+       'common.hashers.MediaWikiHasher',
+       'common.hashers.Apr1Hasher',
+       'common.hashers.Drupal7Hasher',
+       'common.hashers.PhpassHasher',
        'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
        'django.contrib.auth.hashers.BCryptPasswordHasher',
        'django.contrib.auth.hashers.SHA1PasswordHasher',
@@ -288,16 +288,16 @@ PROPERTY_BACKEND
 
 .. versionadded:: 0.6.1
 
-Default: ``'RestAuth.backends.django_backend.DjangoPropertyBackend'``
+Default: ``'backends.django_backend.DjangoPropertyBackend'``
 
 The backend to use to store user properties. RestAuth comes with two property
 backends:
 
-``'RestAuth.backends.django_backend.DjangoPropertyBackend'``
+``'backends.django_backend.DjangoPropertyBackend'``
    Use the standard Django ORM to store property data. This backend requireds
    that you also use the DjangoUserBackend.
 
-``'RestAuth.backends.redis_backend.RedisPropertyBackend'``
+``'backends.redis_backend.RedisPropertyBackend'``
    Use a `Redis <http://redis.io>`_ server to store properties.
 
 Please see :ref:`property-backends` for a more comprehensive description of
@@ -382,7 +382,7 @@ USER_BACKEND
 
 .. versionadded:: 0.6.1
 
-Default: ``'RestAuth.backends.django_backend.UserBackend'``
+Default: ``'backends.django_backend.UserBackend'``
 
 The backend used for storing user data. Please see :ref:`user-backends` for a
 more comprehensive description of available backends. The default is the only
@@ -418,8 +418,8 @@ with either MediaWiki or XMPP:
 .. code-block:: python
 
    VALIDATORS = [
-       'RestAuth.Users.validators.mediawiki',
-       'RestAuth.Users.validators.xmpp',
+       'Users.validators.mediawiki',
+       'Users.validators.xmpp',
    ]
 
 Please see :doc:`/config/username-validation` for information on what validators

@@ -8,13 +8,13 @@ groups or user properties.
 To develop your own backend, simply implement one or all of the base classes
 below.
 
-.. autoclass:: RestAuth.backends.base.UserBackend
+.. autoclass:: backends.base.UserBackend
    :members:
 
-.. autoclass:: RestAuth.backends.base.PropertyBackend
+.. autoclass:: backends.base.PropertyBackend
    :members:
 
-.. autoclass:: RestAuth.backends.base.GroupBackend
+.. autoclass:: backends.base.GroupBackend
    :members:
 
 Use RestAuth to hash passwords
@@ -26,17 +26,17 @@ passwords. Django provides two simple functions, ``check_password()`` and
 ``make_password()`` that you can use.
 
 Simply use those functions in your implementations of
-:py:func:`UserBackend.create() <RestAuth.backends.base.UserBackend.create>`,
+:py:func:`UserBackend.create() <backends.base.UserBackend.create>`,
 :py:func:`UserBackend.set_password()
-<RestAuth.backends.base.UserBackend.create>` and
+<backends.base.UserBackend.create>` and
 :py:func:`UserBackend.check_password()
-<RestAuth.backends.base.UserBackend.create>`. Here is a small example:
+<backends.base.UserBackend.create>`. Here is a small example:
 
 .. code-block:: python
 
    from django.contrib.auth.hashers import check_password, make_password
 
-   from RestAuth.backends.base import UserBackend
+   from backends.base import UserBackend
 
 
    class CustomUserBackend(UserBackend):
@@ -69,7 +69,7 @@ If you want to use a third-party library for your backend, use the
 ``_load_library()`` method implemented in ``RestAuthBackend``. All Backend
 classes mentioned above inherit from this class.
 
-.. autoclass:: RestAuth.backends.base.RestAuthBackend
+.. autoclass:: backends.base.RestAuthBackend
    :members:
 
 Returning User/Group objects
@@ -92,5 +92,5 @@ In most cases, backends are called similar to this:
 Note that in the above case, users and groups may be stored in totally different
 backends.
 
-.. autoclass:: RestAuth.backends.base.UserInstance
-.. autoclass:: RestAuth.backends.base.GroupInstance
+.. autoclass:: backends.base.UserInstance
+.. autoclass:: backends.base.GroupInstance
