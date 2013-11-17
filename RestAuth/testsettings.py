@@ -114,3 +114,114 @@ PROPERTY_BACKEND = 'RestAuth.backends.django_backend.DjangoPropertyBackend'
 #GROUP_BACKEND = 'RestAuth.backends.memory_backend.MemoryGroupBackend'
 #PROPERTY_BACKEND = 'RestAuth.backends.memory_backend.MemoryPropertyBackend'
 #PROPERTY_BACKEND = 'RestAuth.backends.redis_backend.RedisPropertyBackend'
+
+LOG_HANDLER = 'logging.StreamHandler'
+LOG_HANDLER_KWARGS = {}
+LOG_LEVEL = 'ERROR'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s %(levelname)8s] %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'general': {
+            'format': '%(levelname)s %(message)s',
+        },
+        'base': {
+            'format': '%(levelname)s %(service)s: %(message)s',
+        },
+        'resource': {
+            'format': '%(levelname)s %(service)s: %(name)s: %(message)s',
+        },
+        'subresource': {
+            'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: '
+                      '%(message)s',
+        },
+    },
+    'handlers': {
+        'default': {
+            'level': LOG_LEVEL,
+            'class': LOG_HANDLER,
+            'formatter': 'default',
+        },
+        'general': {
+            'level': LOG_LEVEL,
+            'class': LOG_HANDLER,
+            'formatter': 'general',
+        },
+        'base': {
+            'level': LOG_LEVEL,
+            'class': LOG_HANDLER,
+            'formatter': 'base',
+        },
+        'resource': {
+            'level': LOG_LEVEL,
+            'class': LOG_HANDLER,
+            'formatter': 'resource',
+        },
+        'subresource': {
+            'level': LOG_LEVEL,
+            'class': LOG_HANDLER,
+            'formatter': 'subresource',
+        },
+    },
+'loggers': {
+        'RestAuth': {
+            'handlers': ['default'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'users': {
+            'handlers': ['base'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'users.user': {
+            'handlers': ['resource'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'users.user.props': {
+            'handlers': ['resource'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'users.user.props.prop': {
+            'handlers': ['subresource'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'groups': {
+            'handlers': ['base'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'groups.group': {
+            'handlers': ['resource'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'groups.group.users': {
+            'handlers': ['resource'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'groups.group.users.user': {
+            'handlers': ['subresource'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'groups.group.groups': {
+            'handlers': ['resource'],
+            'propagate': False,
+        'level': LOG_LEVEL,
+        },
+        'groups.group.groups.subgroup': {
+            'handlers': ['subresource'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        }
+    }
+}
