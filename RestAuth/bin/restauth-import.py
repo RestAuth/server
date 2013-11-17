@@ -15,13 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
 import os
 import sys
 import json
 import random
 import string
 import traceback
+
+from collections import defaultdict
+from datetime import datetime
 
 # Properties that may also be represented as a UNIX timestamp.
 # Otherwise the format must be "%Y-%m-%d %H:%M:%S"
@@ -96,12 +98,7 @@ def rollback_transaction():
     property_backend.rollback_transaction()
 
 
-try:
-    init_transaction()
-
-    #######################
-    ### Import services ###
-    #######################
+def save_services(services):
     if services:
         print('Services:')
     for name, data in six.iteritems(services):
@@ -114,9 +111,9 @@ try:
         # set password:
         if 'password' in data:
             pwd = data['password']
-            if type(pwd) == str:
+            if isinstance(pwd, six.string_types):
                 service.set_password(pwd)
-            elif type(pwd) == dict:
+            elif isinstance(pwd, dict):
                 format_tuple = (pwd['algorithm'], pwd['salt'], pwd['hash'])
                 service.password = '%s%s%s' % format_tuple
             print('* %s: Set password from input data.' % name)
@@ -132,9 +129,8 @@ try:
                     address=host)[0]
                 service.hosts.add(address)
 
-    ####################
-    ### import users ###
-    ####################
+def save_users(users):
+    properties = defaultdict(dict)
     if users:
         print('Users:')
     for username, data in six.iteritems(users):
@@ -153,13 +149,13 @@ try:
         # handle password:
         if 'password' in data and (created or args.overwrite_passwords):
             pwd = data['password']
-            if type(pwd) == str:
+            if isinstance(pwd, six.string_types):
                 user_backend.set_password(username=username, password=pwd)
                 print('* %s: Set password from input data.' % username)
-            elif type(pwd) == dict:
+            elif isinstance(pwd, dict):
                 # TODO: Emit warning if no hasher is found for algorithm
                 try:
-                    user_backend.set_password_hash(**pwd)
+                    user_backend.set_password_hash(username=username, **pwd)
                     print('* %s: Set hash from input data.' % username)
                 except NotImplementedError:
                     print("* %s: Setting hash is not supported, skipping." %
@@ -172,31 +168,35 @@ try:
         else:
             print('* %s: User already exists.' % username)
 
-        if 'properties' in data:
-            # handle all other preferences
-            for key, value in six.iteritems(data['properties']):
-                if key in TIMESTAMP_PROPS:
-                    if value.__class__ in [int, float]:
-                        value = datetime.fromtimestamp(value)
-                    else:  # parse time, to ensure correct format
-                        value = datetime.strptime(value, TIMESTAMP_FORMAT)
-                    value = datetime.strftime(value, TIMESTAMP_FORMAT)
+        # handle all other preferences
+        for key, value in six.iteritems(data.get('properties', {})):
+            if key in TIMESTAMP_PROPS:
+                if value.__class__ in [int, float]:
+                    value = datetime.fromtimestamp(value)
+                else:  # parse time, to ensure correct format
+                    value = datetime.strptime(value, TIMESTAMP_FORMAT)
+                value = datetime.strftime(value, TIMESTAMP_FORMAT)
 
-                if args.overwrite_properties:
-                    property_backend.set(user=user, key=key, value=value)
-                else:
-                    try:
-                        property_backend.create(user=user,
-                                                key=key, value=value)
-                    except PropertyExists:
-                        print('%s: Property "%s" already exists.' %
-                              (username, key))
+            properties[user][key] = value
+    return properties
 
-    #####################
-    ### import groups ###
-    #####################
+def save_properties(properties):
+    for user, props in six.iteritems(properties):
+        if args.overwrite_properties:
+            property_backend.set_multiple(user, props)
+        else:
+            for key, value in six.iteritems(props):
+                try:
+                    property_backend.create(user=user, key=key, value=value)
+                except PropertyExists:
+                    print('%s: Property "%s" already exists.' %
+                          (user.username, key))
+                    continue
+
+def save_groups(groups):
     if groups:
         print("Groups:")
+
     subgroups = {}
     for name, data in six.iteritems(groups):
         service = data.pop('service', None)
@@ -233,6 +233,24 @@ try:
             subgroup = group_backend.get(name=name, service=service)
             group_backend.add_subgroup(group=group, subgroup=subgroup)
 
+try:
+    init_transaction()
+
+    #######################
+    ### Import services ###
+    #######################
+    save_services(services)
+
+    ####################
+    ### import users ###
+    ####################
+    props = save_users(users)
+    save_properties(props)
+
+    #####################
+    ### import groups ###
+    #####################
+    save_groups(groups)
 
 except Exception as e:
     traceback.print_exc()
