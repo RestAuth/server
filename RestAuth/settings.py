@@ -130,8 +130,8 @@ if not LOGGING:
                 'format': '%(levelname)s %(service)s: %(name)s: %(message)s',
             },
             'subresource': {
-                'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: ',
-                          '%(message)s'
+                'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: '
+                          '%(message)s',
             },
         },
         'handlers': {
