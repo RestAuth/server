@@ -36,6 +36,7 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
+    from django.db import transaction
     from django.utils import six
 
     from RestAuth.Services.models import Service
@@ -236,21 +237,22 @@ def save_groups(groups):
 try:
     init_transaction()
 
-    #######################
-    ### Import services ###
-    #######################
-    save_services(services)
+    with transaction.atomic():
+        #######################
+        ### Import services ###
+        #######################
+        save_services(services)
 
-    ####################
-    ### import users ###
-    ####################
-    props = save_users(users)
-    save_properties(props)
+        ####################
+        ### import users ###
+        ####################
+        props = save_users(users)
+        save_properties(props)
 
-    #####################
-    ### import groups ###
-    #####################
-    save_groups(groups)
+        #####################
+        ### import groups ###
+        #####################
+        save_groups(groups)
 
 except Exception as e:
     traceback.print_exc()
