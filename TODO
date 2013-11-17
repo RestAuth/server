@@ -1,6 +1,10 @@
+0.6.5:
+
+* Cache groups if SECURE_CACHE is True.
+
 0.6.4:
 
-* cli-scripts reset the cache upon certain actions
+* None.
 
 Future:
 
