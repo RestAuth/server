@@ -451,9 +451,9 @@ class CreatePropertyTests(PropertyTests):  # POST /users/<user>/props/
         self.assertProperties(self.user2, {propkey3: propval3})
 
     def test_create_existing_property(self):
-#TODO: This kind of test doesn't exist for users/groups!
-
-        property_backend.create(user=self.user1, key=propkey1, value=propval1)
+        resp = self.post('/users/%s/props/' % username1,
+                         {'prop': propkey1, 'value': propval1})
+        self.assertEqual(resp.status_code, http_client.CONFLICT)
 
         resp = self.post('/users/%s/props/' % username1,
                          {'prop': propkey1, 'value': propval2})

@@ -154,7 +154,6 @@ def save_users(users):
                 user_backend.set_password(username=username, password=pwd)
                 print('* %s: Set password from input data.' % username)
             elif isinstance(pwd, dict):
-                # TODO: Emit warning if no hasher is found for algorithm
                 try:
                     user_backend.set_password_hash(username=username, **pwd)
                     print('* %s: Set hash from input data.' % username)
