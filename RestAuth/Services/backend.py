@@ -42,7 +42,7 @@ class InternalAuthenticationBackend:
         authentication and a host. This method takes care of decoding
         the header.
 
-        .. NOTE:: We return none as soon as any check fails in order to avoid
+        .. NOTE:: We return None as soon as any check fails in order to avoid
            any accidental pass-through to other parts of the authentication.
         """
         method, data = header.split()
