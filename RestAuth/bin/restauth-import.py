@@ -141,9 +141,10 @@ try:
         username = username.lower()
 
         try:
-            user = user_backend.create(username=username)
+            user = user_backend.create(username=username, property_backend=property_backend)
             created = True
         except UserExists:
+            user = user_backend.get(username=username)
             created = False
 
         if not created and args.skip_existing_users:
@@ -211,6 +212,7 @@ try:
                 continue
             else:
                 print("* %s: Already exists, adding memberships." % name)
+                group = group_backend.get(service=service, name=name)
 
         for username in data['users']:
             user = user_backend.get(username=username)
