@@ -22,7 +22,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.conf import settings
 
-logger = logging.getLogger('general')
+log = logging.getLogger(__name__)
 
 
 def get_auth_challenge(realm):
@@ -49,7 +49,7 @@ def login_user(view, request, realm, *args, **kwargs):
             request.user.is_authenticated():  # pragma: no cover
         return view(request, *args, **kwargs)
     else:
-        logger.warning("Unable to get authentication source.")
+        log.warning("Unable to get authentication source.")
         return get_auth_challenge(realm)
 
     if user:
@@ -63,7 +63,7 @@ def login_user(view, request, realm, *args, **kwargs):
         return view(request, *args, **kwargs)
     else:
         # send an authentication challenge:
-        logger.warning("Client provided wrong authentication credentials")
+        log.warning("Client provided wrong authentication credentials")
         return get_auth_challenge(realm)
 
 
