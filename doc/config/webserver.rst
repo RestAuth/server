@@ -140,10 +140,8 @@ setting up RestAuth with MySQL and memcached, from the start::
    (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-hosts wiki.example.com 127.0.0.1 ::1
    (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-permissions wiki.example.com user* group* prop*
 
-   # Add uwsgi configuration file, start the server:.
-   (server)restauth@host:server$ cd ../
-   (server)restauth@host:~$ cp server/doc/files/uwsgi.ini .
-   (server)restauth@host:~$ uwsgi --ini uwsgi.ini
+   # Finally start uWSGI server:.
+   (server)restauth@host:server$ uwsgi --ini doc/files/uwsgi.ini
 
    # Configure webserver to proxy requests to uWSGI - see below.
 
