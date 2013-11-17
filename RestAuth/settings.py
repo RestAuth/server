@@ -121,16 +121,16 @@ if not LOGGING:
         'disable_existing_loggers': False,
         'formatters': {
             'general': {
-                'format': '%(levelname)s %(message)s'
+                'format': '%(levelname)s %(message)s',
             },
             'base': {
-                'format': '%(levelname)s %(service)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(message)s',
             },
             'resource': {
-                'format': '%(levelname)s %(service)s: %(name)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(name)s: %(message)s',
             },
             'subresource': {
-                'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: '
+                'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: ',
                           '%(message)s'
             },
         },
@@ -138,22 +138,22 @@ if not LOGGING:
             'general': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'general'
+                'formatter': 'general',
             },
             'base': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'base'
+                'formatter': 'base',
             },
             'resource': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'resource'
+                'formatter': 'resource',
             },
             'subresource': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'subresource'
+                'formatter': 'subresource',
             },
         },
         'loggers': {
