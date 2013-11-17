@@ -453,7 +453,7 @@ class CreatePropertyTests(PropertyTests):  # POST /users/<user>/props/
     def test_create_existing_property(self):
         resp = self.post('/users/%s/props/' % username1,
                          {'prop': propkey1, 'value': propval1})
-        self.assertEqual(resp.status_code, http_client.CONFLICT)
+        self.assertEqual(resp.status_code, http_client.CREATED)
 
         resp = self.post('/users/%s/props/' % username1,
                          {'prop': propkey1, 'value': propval2})
