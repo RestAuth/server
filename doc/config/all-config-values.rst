@@ -19,14 +19,14 @@ RestAuth or are normal Django settings that RestAuth handles in a different way.
    The name and location of this file varies depending on how you installed
    RestAuth. Here is an overview of known locations:
 
-   ============================================= =========================
+   ============================================= ==================================
    Installation method                           Location
-   ============================================= =========================
-   :doc:`from source </install/from-source>`     RestAuth/localsettings.py
+   ============================================= ==================================
+   :doc:`from source </install/from-source>`     RestAuth/RestAuth/localsettings.py
    :doc:`Debian/Ubuntu </install/debian-ubuntu>` /etc/restauth/settings.py
    :doc:`Fedora </install/redhat-fedora>`        Unknown
    :doc:`Archlinux </install/archlinux>`         Unknown
-   ============================================= =========================
+   ============================================= ==================================
 
    .. TODO:: Research locations on Fedora and Archlinux
 
