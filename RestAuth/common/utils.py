@@ -29,9 +29,9 @@ def import_path(path):
         mod = import_module(modname)
     except ImportError as e:
         raise ImproperlyConfigured(
-            'Error importing middleware %s: "%s"' % (modname, e))
+            'Error importing module %s: "%s"' % (modname, e))
     try:
         return getattr(mod, attrname), attrname
     except AttributeError:
-        msg = 'Middleware module "%s" does not define a "%s" class'
+        msg = 'Module "%s" does not define a "%s" class'
         raise ImproperlyConfigured(msg % (modname, attrname))
