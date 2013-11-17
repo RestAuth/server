@@ -20,9 +20,9 @@ import sys
 
 from argparse import ArgumentParser
 
-from RestAuth.common.cli.actions import PasswordGeneratorAction
-from RestAuth.common.cli.actions import UsernameAction
-from RestAuth.common.cli.helpers import get_password
+from common.cli.actions import PasswordGeneratorAction
+from common.cli.actions import UsernameAction
+from common.cli.helpers import get_password
 
 user_parser = ArgumentParser(add_help=False)
 user_parser.set_defaults(create_user=False)

@@ -26,9 +26,9 @@ from django.http import HttpResponse
 
 from RestAuthCommon.error import RestAuthException
 
-from RestAuth.common.errors import GroupNotFound
-from RestAuth.common.errors import PropertyNotFound
-from RestAuth.common.errors import UserNotFound
+from common.errors import GroupNotFound
+from common.errors import PropertyNotFound
+from common.errors import UserNotFound
 
 log = logging.getLogger(__name__)
 CONTENT_TYPE_METHODS = set(['POST', 'PUT'])

@@ -27,7 +27,7 @@ SECRET_KEY = 'dummy'
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    'RestAuth.common.middleware.RestAuthMiddleware',
+    'common.middleware.RestAuthMiddleware',
 )
 
 CACHE_MIDDLEWARE_SECONDS = 300
@@ -57,25 +57,25 @@ INSTALLED_APPS = (
     'south',
 
     # our own apps:
-    'RestAuth.Services',
-    'RestAuth.Users',
-    'RestAuth.Groups',
-    'RestAuth.Test',
-    'RestAuth.common',
+    'Services',
+    'Users',
+    'Groups',
+    'Test',
+    'common',
 )
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.RemoteUserBackend',
-    'RestAuth.Services.backend.InternalAuthenticationBackend',
+    'Services.backend.InternalAuthenticationBackend',
 )
 
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    'RestAuth.common.hashers.Sha512Hasher',
-    'RestAuth.common.hashers.MediaWikiHasher',
-    'RestAuth.common.hashers.Apr1Hasher',
-    'RestAuth.common.hashers.Drupal7Hasher',
-    'RestAuth.common.hashers.PhpassHasher',
+    'common.hashers.Sha512Hasher',
+    'common.hashers.MediaWikiHasher',
+    'common.hashers.Apr1Hasher',
+    'common.hashers.Drupal7Hasher',
+    'common.hashers.PhpassHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
     'django.contrib.auth.hashers.BCryptPasswordHasher',
     'django.contrib.auth.hashers.SHA1PasswordHasher',
@@ -107,13 +107,13 @@ SECURE_CACHE = True
 SERVICE_PASSWORD_HASHER = 'django.contrib.auth.hashers.MD5PasswordHasher'
 
 # backends:
-USER_BACKEND = 'RestAuth.backends.django_backend.DjangoUserBackend'
-GROUP_BACKEND = 'RestAuth.backends.django_backend.DjangoGroupBackend'
-PROPERTY_BACKEND = 'RestAuth.backends.django_backend.DjangoPropertyBackend'
-#USER_BACKEND = 'RestAuth.backends.memory_backend.MemoryUserBackend'
-#GROUP_BACKEND = 'RestAuth.backends.memory_backend.MemoryGroupBackend'
-#PROPERTY_BACKEND = 'RestAuth.backends.memory_backend.MemoryPropertyBackend'
-#PROPERTY_BACKEND = 'RestAuth.backends.redis_backend.RedisPropertyBackend'
+USER_BACKEND = 'backends.django_backend.DjangoUserBackend'
+GROUP_BACKEND = 'backends.django_backend.DjangoGroupBackend'
+PROPERTY_BACKEND = 'backends.django_backend.DjangoPropertyBackend'
+#USER_BACKEND = 'backends.memory_backend.MemoryUserBackend'
+#GROUP_BACKEND = 'backends.memory_backend.MemoryGroupBackend'
+#PROPERTY_BACKEND = 'backends.memory_backend.MemoryPropertyBackend'
+#PROPERTY_BACKEND = 'backends.redis_backend.RedisPropertyBackend'
 
 LOG_HANDLER = 'logging.StreamHandler'
 LOG_HANDLER_KWARGS = {}

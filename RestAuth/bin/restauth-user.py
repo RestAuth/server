@@ -27,14 +27,14 @@ sys.path.append(os.getcwd())
 try:
     from django.utils import six
 
-    from RestAuth.Services.models import Service
-    from RestAuth.Users.cli.parsers import parser
-    from RestAuth.backends import user_backend
-    from RestAuth.backends import property_backend
-    from RestAuth.backends import group_backend
-    from RestAuth.common.errors import PasswordInvalid
-    from RestAuth.common.errors import PreconditionFailed
-    from RestAuth.common.errors import UserExists
+    from Services.models import Service
+    from Users.cli.parsers import parser
+    from backends import user_backend
+    from backends import property_backend
+    from backends import group_backend
+    from common.errors import PasswordInvalid
+    from common.errors import PreconditionFailed
+    from common.errors import UserExists
 except ImportError as e:
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
                      'sure RestAuth is in your PYTHONPATH.\n')

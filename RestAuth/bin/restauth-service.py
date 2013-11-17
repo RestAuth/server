@@ -27,8 +27,8 @@ try:
     from django.core.exceptions import ValidationError
     from django.db.utils import IntegrityError
 
-    from RestAuth.Services.models import Service
-    from RestAuth.Services.cli.parsers import parser
+    from Services.models import Service
+    from Services.cli.parsers import parser
 except ImportError as e:
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')

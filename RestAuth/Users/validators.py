@@ -22,8 +22,8 @@ import re
 from django.conf import settings
 from django.utils import six
 
-from RestAuth.common.errors import UsernameInvalid
-from RestAuth.common.utils import import_path
+from common.errors import UsernameInvalid
+from common.utils import import_path
 
 USERNAME_VALIDATORS = None
 USERNAME_ILLEGAL_CHARS = set()

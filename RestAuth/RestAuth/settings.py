@@ -41,7 +41,7 @@ LOG_LEVEL = 'ERROR'
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    'RestAuth.common.middleware.RestAuthMiddleware',
+    'common.middleware.RestAuthMiddleware',
 )
 
 CACHE_MIDDLEWARE_SECONDS = 300
@@ -56,25 +56,25 @@ INSTALLED_APPS = (
     'south',
 
     # our own apps:
-    'RestAuth.Services',
-    'RestAuth.Users',
-    'RestAuth.Groups',
-    'RestAuth.Test',
-    'RestAuth.common',
+    'Services',
+    'Users',
+    'Groups',
+    'Test',
+    'common',
 )
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.RemoteUserBackend',
-    'RestAuth.Services.backend.InternalAuthenticationBackend',
+    'Services.backend.InternalAuthenticationBackend',
 )
 
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    'RestAuth.common.hashers.Sha512Hasher',
-    'RestAuth.common.hashers.MediaWikiHasher',
-    'RestAuth.common.hashers.Apr1Hasher',
-    'RestAuth.common.hashers.Drupal7Hasher',
-    'RestAuth.common.hashers.PhpassHasher',
+    'common.hashers.Sha512Hasher',
+    'common.hashers.MediaWikiHasher',
+    'common.hashers.Apr1Hasher',
+    'common.hashers.Drupal7Hasher',
+    'common.hashers.PhpassHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
     'django.contrib.auth.hashers.BCryptPasswordHasher',
     'django.contrib.auth.hashers.SHA1PasswordHasher',
@@ -103,9 +103,9 @@ SECURE_CACHE = False
 SERVICE_PASSWORD_HASHER = 'default'
 
 # backends:
-USER_BACKEND = 'RestAuth.backends.django_backend.DjangoUserBackend'
-GROUP_BACKEND = 'RestAuth.backends.django_backend.DjangoGroupBackend'
-PROPERTY_BACKEND = 'RestAuth.backends.django_backend.DjangoPropertyBackend'
+USER_BACKEND = 'backends.django_backend.DjangoUserBackend'
+GROUP_BACKEND = 'backends.django_backend.DjangoGroupBackend'
+PROPERTY_BACKEND = 'backends.django_backend.DjangoPropertyBackend'
 
 try:
     from localsettings import *

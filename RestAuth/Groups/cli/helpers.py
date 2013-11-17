@@ -19,8 +19,8 @@ from itertools import groupby
 
 from django.utils import six
 
-from RestAuth.backends import group_backend
-from RestAuth.common.errors import GroupNotFound
+from backends import group_backend
+from common.errors import GroupNotFound
 
 
 def print_by_service(groups, indent=''):

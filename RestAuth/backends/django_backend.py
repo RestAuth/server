@@ -23,18 +23,18 @@ from django.db import transaction as dj_transaction
 from django.db.utils import IntegrityError
 from django.utils import six
 
-from RestAuth.Groups.models import Group
-from RestAuth.Users.models import Property
-from RestAuth.Users.models import ServiceUser as User
-from RestAuth.backends.base import GroupBackend
-from RestAuth.backends.base import PropertyBackend
-from RestAuth.backends.base import UserBackend
-from RestAuth.common.errors import GroupExists
-from RestAuth.common.errors import GroupNotFound
-from RestAuth.common.errors import PropertyExists
-from RestAuth.common.errors import PropertyNotFound
-from RestAuth.common.errors import UserExists
-from RestAuth.common.errors import UserNotFound
+from Groups.models import Group
+from Users.models import Property
+from Users.models import ServiceUser as User
+from backends.base import GroupBackend
+from backends.base import PropertyBackend
+from backends.base import UserBackend
+from common.errors import GroupExists
+from common.errors import GroupNotFound
+from common.errors import PropertyExists
+from common.errors import PropertyNotFound
+from common.errors import UserExists
+from common.errors import UserNotFound
 
 
 class DjangoUserBackend(UserBackend):

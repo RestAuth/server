@@ -472,10 +472,10 @@ setup(
     install_requires=requires,
     license="GNU General Public License (GPL) v3",
     packages=[
-        'RestAuth',
         'RestAuth.Groups',
         'RestAuth.Groups.cli',
         'RestAuth.Groups.migrations',
+        'RestAuth.RestAuth',
         'RestAuth.Services',
         'RestAuth.Services.cli',
         'RestAuth.Services.migrations',
@@ -490,7 +490,7 @@ setup(
     scripts=[
         'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
         'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
-        'manage.py',
+        'RestAuth/manage.py',
     ],
     data_files=[
         ('share/restauth', ['wsgi', 'RestAuth/fixtures', 'munin', ]),

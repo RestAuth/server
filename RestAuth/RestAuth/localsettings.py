@@ -120,12 +120,12 @@ ADMINS = (
 #   https://server.restauth.net/config/username-validation.html
 #
 VALIDATORS = (
-#    'RestAuth.Users.validators.DrupalValidator',
-#    'RestAuth.Users.validators.EmailValidator',
-#    'RestAuth.Users.validators.LinuxValidator',
-#    'RestAuth.Users.validators.MediaWikiValidator',
-#    'RestAuth.Users.validators.WindowsValidator',
-#    'RestAuth.Users.validators.XMPPValidator',
+#    'Users.validators.DrupalValidator',
+#    'Users.validators.EmailValidator',
+#    'Users.validators.LinuxValidator',
+#    'Users.validators.MediaWikiValidator',
+#    'Users.validators.WindowsValidator',
+#    'Users.validators.XMPPValidator',
 )
 
 # You can override the minimum and maximum username length. Note that this
@@ -148,9 +148,9 @@ VALIDATORS = (
 # and Apr1 (Apache .htpasswd files). The default is:
 #PASSWORD_HASHERS = (
 #    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-#    'RestAuth.common.hashers.Sha512Hasher',
-#    'RestAuth.common.hashers.MediaWikiHasher',
-#    'RestAuth.common.hashers.Apr1Hasher',
+#    'common.hashers.Sha512Hasher',
+#    'common.hashers.MediaWikiHasher',
+#    'common.hashers.Apr1Hasher',
 #    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
 #    'django.contrib.auth.hashers.BCryptPasswordHasher',
 #    'django.contrib.auth.hashers.SHA1PasswordHasher',
@@ -185,9 +185,9 @@ VALIDATORS = (
 # may depend on a specific user backend. Please see:
 #    https://server.restauth.net/developer/backends.html
 # for more information.
-#USER_BACKEND='RestAuth.backends.django_backend.DjangoUserBackend'
-#GROUP_BACKEND='RestAuth.backends.django_backend.DjangoGroupBackend'
-#PROPERTY_BACKEND='RestAuth.backends.django_backend.DjangoPropertyBackend'
+#USER_BACKEND='backends.django_backend.DjangoUserBackend'
+#GROUP_BACKEND='backends.django_backend.DjangoGroupBackend'
+#PROPERTY_BACKEND='backends.django_backend.DjangoPropertyBackend'
 
 ###############
 ### CACHING ###

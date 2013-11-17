@@ -13,7 +13,6 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
@@ -30,25 +29,25 @@ from django.utils import six
 # py2/py3 compat imports:
 from django.utils.six.moves import http_client
 
-from RestAuth.common.errors import PropertyNotFound
-from RestAuth.common.testdata import RestAuthTest
-from RestAuth.common.testdata import RestAuthTestBase
-from RestAuth.common.testdata import password1
-from RestAuth.common.testdata import password2
-from RestAuth.common.testdata import password3
-from RestAuth.common.testdata import property_backend
-from RestAuth.common.testdata import propkey1
-from RestAuth.common.testdata import propkey2
-from RestAuth.common.testdata import propkey3
-from RestAuth.common.testdata import propval1
-from RestAuth.common.testdata import propval2
-from RestAuth.common.testdata import propval3
-from RestAuth.common.testdata import propval4
-from RestAuth.common.testdata import propval5
-from RestAuth.common.testdata import user_backend
-from RestAuth.common.testdata import username1
-from RestAuth.common.testdata import username2
-from RestAuth.common.testdata import username3
+from common.errors import PropertyNotFound
+from common.testdata import RestAuthTest
+from common.testdata import RestAuthTestBase
+from common.testdata import password1
+from common.testdata import password2
+from common.testdata import password3
+from common.testdata import property_backend
+from common.testdata import propkey1
+from common.testdata import propkey2
+from common.testdata import propkey3
+from common.testdata import propval1
+from common.testdata import propval2
+from common.testdata import propval3
+from common.testdata import propval4
+from common.testdata import propval5
+from common.testdata import user_backend
+from common.testdata import username1
+from common.testdata import username2
+from common.testdata import username3
 
 
 class GetUsersTests(RestAuthTest):  # GET /users/
@@ -677,7 +676,7 @@ class HashTestMixin(RestAuthTestBase):
             self.assertTrue(check_password(password, generated))
 
     @override_settings(MIN_PASSWORD_LENGTH=1)
-    @skipUnless(settings.USER_BACKEND == 'RestAuth.backends.django_backend.DjangoUserBackend', '')
+    @skipUnless(settings.USER_BACKEND == 'backends.django_backend.DjangoUserBackend', '')
     def test_backend(self):
         # test password during creation:
         for password, data in six.iteritems(self.testdata):
@@ -704,9 +703,9 @@ class HashTestMixin(RestAuthTestBase):
             user_backend.remove(username=username1)
 
 
-@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.PhpassHasher',))
+@override_settings(PASSWORD_HASHERS=('common.hashers.PhpassHasher',))
 class PhpassTest(HashTestMixin, TestCase):
-    hashers = ('RestAuth.common.hashers.PhpassHasher',)
+    hashers = ('common.hashers.PhpassHasher',)
     algorithm = 'phpass'
 
     testdata = {
@@ -734,9 +733,9 @@ class PhpassTest(HashTestMixin, TestCase):
         return '%s$P$%s%s' % (self.algorithm, data['salt'], data['hash'])
 
 
-@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.Drupal7Hasher',))
+@override_settings(PASSWORD_HASHERS=('common.hashers.Drupal7Hasher',))
 class Drupal7Test(HashTestMixin, TestCase):
-    hashers = ('RestAuth.common.hashers.Drupal7Hasher',)
+    hashers = ('common.hashers.Drupal7Hasher',)
     algorithm = 'drupal7'
 
     testdata = {
@@ -782,9 +781,9 @@ class Drupal7Test(HashTestMixin, TestCase):
         return '%s$S$%s%s' % (self.algorithm, data['salt'], data['hash'])
 
 
-@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.Sha512Hasher',))
+@override_settings(PASSWORD_HASHERS=('common.hashers.Sha512Hasher',))
 class Sha512Test(HashTestMixin, TestCase):
-    hashers = ('RestAuth.common.hashers.Sha512Hasher',)
+    hashers = ('common.hashers.Sha512Hasher',)
     algorithm = 'sha512'
 
     testdata = {
@@ -802,9 +801,9 @@ class Sha512Test(HashTestMixin, TestCase):
 
 
 @override_settings(
-    PASSWORD_HASHERS=('RestAuth.common.hashers.MediaWikiHasher',))
+    PASSWORD_HASHERS=('common.hashers.MediaWikiHasher',))
 class MediaWikiTest(HashTestMixin, TestCase):
-    hashers = ('RestAuth.common.hashers.MediaWikiHasher',)
+    hashers = ('common.hashers.MediaWikiHasher',)
     algorithm = 'mediawiki'
 
     testdata = {
@@ -829,9 +828,9 @@ class MediaWikiTest(HashTestMixin, TestCase):
     }
 
 
-@override_settings(PASSWORD_HASHERS=('RestAuth.common.hashers.Apr1Hasher',))
+@override_settings(PASSWORD_HASHERS=('common.hashers.Apr1Hasher',))
 class Apr1Test(HashTestMixin, TestCase):
-    hashers = ('RestAuth.common.hashers.Apr1Hasher',)
+    hashers = ('common.hashers.Apr1Hasher',)
     algorithm = 'apr1'
 
     testdata = {

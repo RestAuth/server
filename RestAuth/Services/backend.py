@@ -21,7 +21,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils import six
 
-from RestAuth.Services.models import Service
+from Services.models import Service
 
 
 class InternalAuthenticationBackend:

@@ -18,9 +18,9 @@
 
 from argparse import ArgumentParser
 
-from RestAuth.common.cli.parsers import pwd_parser
-from RestAuth.common.cli.actions import ServiceAction
-from RestAuth.Services.cli.actions import PermissionParser
+from common.cli.parsers import pwd_parser
+from common.cli.actions import ServiceAction
+from Services.cli.actions import PermissionParser
 
 # reused positional arguments:
 service_arg_parser = ArgumentParser(add_help=False)

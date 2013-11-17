@@ -1,5 +1,6 @@
+#TODO: header
 from django.db import models
-from RestAuth.Groups.querysets import GroupQuerySet
+from Groups.querysets import GroupQuerySet
 
 
 class GroupManager(models.Manager):

@@ -30,18 +30,18 @@ from django.utils import six
 from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
 
-from RestAuth.Users.validators import validate_username
-from RestAuth.backends import property_backend
-from RestAuth.backends import user_backend
-from RestAuth.common.errors import PasswordInvalid
-from RestAuth.common.errors import UserNotFound
-from RestAuth.common.responses import HttpResponseCreated
-from RestAuth.common.responses import HttpResponseNoContent
-from RestAuth.common.responses import HttpRestAuthResponse
-from RestAuth.common.types import parse_dict
-from RestAuth.common.views import RestAuthResourceView
-from RestAuth.common.views import RestAuthSubResourceView
-from RestAuth.common.views import RestAuthView
+from Users.validators import validate_username
+from backends import property_backend
+from backends import user_backend
+from common.errors import PasswordInvalid
+from common.errors import UserNotFound
+from common.responses import HttpResponseCreated
+from common.responses import HttpResponseNoContent
+from common.responses import HttpRestAuthResponse
+from common.types import parse_dict
+from common.views import RestAuthResourceView
+from common.views import RestAuthSubResourceView
+from common.views import RestAuthView
 
 
 class UsersView(RestAuthView):

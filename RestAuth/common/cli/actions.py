@@ -28,14 +28,14 @@ from argparse import ArgumentError
 from django.db.utils import IntegrityError
 from django.utils import six
 
-from RestAuth.Services.models import Service
-from RestAuth.Services.models import ServiceUsernameNotValid
-from RestAuth.Services.models import check_service_username
-from RestAuth.backends import property_backend
-from RestAuth.backends import user_backend
-from RestAuth.common.errors import PreconditionFailed
-from RestAuth.common.errors import UserExists
-from RestAuth.common.errors import UserNotFound
+from Services.models import Service
+from Services.models import ServiceUsernameNotValid
+from Services.models import check_service_username
+from backends import property_backend
+from backends import user_backend
+from common.errors import PreconditionFailed
+from common.errors import UserExists
+from common.errors import UserNotFound
 
 
 PASSWORD_CHARS = string.digits + string.ascii_letters + string.punctuation

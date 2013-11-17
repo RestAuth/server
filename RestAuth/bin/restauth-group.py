@@ -26,13 +26,13 @@ sys.path.append(os.getcwd())
 try:
     from django.utils import six
 
-    from RestAuth.Groups.cli.parsers import parser
-    from RestAuth.Groups.cli.parsers import get_group
-    from RestAuth.Groups.cli.parsers import print_by_service
-    from RestAuth.backends import group_backend
-    from RestAuth.common.errors import GroupExists
-    from RestAuth.common.errors import GroupNotFound
-    from RestAuth.common.errors import UserNotFound
+    from Groups.cli.parsers import parser
+    from Groups.cli.parsers import get_group
+    from Groups.cli.parsers import print_by_service
+    from backends import group_backend
+    from common.errors import GroupExists
+    from common.errors import GroupNotFound
+    from common.errors import UserNotFound
 except ImportError as e:
     print(e)
     sys.stderr.write('Error: Cannot import RestAuth. '

@@ -39,15 +39,15 @@ try:
     from django.db import transaction
     from django.utils import six
 
-    from RestAuth.Services.models import Service
-    from RestAuth.Services.models import ServiceAddress
-    from RestAuth.backends import group_backend
-    from RestAuth.backends import property_backend
-    from RestAuth.backends import user_backend
-    from RestAuth.common.cli.parsers import parser
-    from RestAuth.common.errors import GroupExists
-    from RestAuth.common.errors import PropertyExists
-    from RestAuth.common.errors import UserExists
+    from Services.models import Service
+    from Services.models import ServiceAddress
+    from backends import group_backend
+    from backends import property_backend
+    from backends import user_backend
+    from common.cli.parsers import parser
+    from common.errors import GroupExists
+    from common.errors import PropertyExists
+    from common.errors import UserExists
 except ImportError as e:
     sys.stderr.write(
         'Error: Cannot import RestAuth. '

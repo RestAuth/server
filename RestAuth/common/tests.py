@@ -24,19 +24,19 @@ from django.utils.six.moves import http_client
 
 from RestAuthCommon import handlers
 
-from RestAuth.Services.models import Service
-from RestAuth.Users.validators import Validator
-from RestAuth.Users.validators import get_validators
-from RestAuth.Users.validators import load_username_validators
-from RestAuth.Users.validators import validate_username
-from RestAuth.backends.base import GroupInstance
-from RestAuth.backends.base import UserInstance
-from RestAuth.common.errors import UsernameInvalid
-from RestAuth.common.middleware import RestAuthMiddleware
-from RestAuth.common.testdata import RestAuthTest
-from RestAuth.common.testdata import user_backend
-from RestAuth.common.testdata import username1
-from RestAuth.common.utils import import_path
+from Services.models import Service
+from Users.validators import Validator
+from Users.validators import get_validators
+from Users.validators import load_username_validators
+from Users.validators import validate_username
+from backends.base import GroupInstance
+from backends.base import UserInstance
+from common.errors import UsernameInvalid
+from common.middleware import RestAuthMiddleware
+from common.testdata import RestAuthTest
+from common.testdata import user_backend
+from common.testdata import username1
+from common.utils import import_path
 
 
 class RestAuthMiddlewareTests(TestCase):
@@ -96,11 +96,11 @@ class ContentTypeTests(RestAuthTest):
         self.assertItemsEqual(user_backend.list(), [])
 
 validators = (
-    'RestAuth.Users.validators.EmailValidator',
-    'RestAuth.Users.validators.MediaWikiValidator',
-    'RestAuth.Users.validators.LinuxValidator',
-    'RestAuth.Users.validators.WindowsValidator',
-    'RestAuth.Users.validators.XMPPValidator',
+    'Users.validators.EmailValidator',
+    'Users.validators.MediaWikiValidator',
+    'Users.validators.LinuxValidator',
+    'Users.validators.WindowsValidator',
+    'Users.validators.XMPPValidator',
 )
 
 
@@ -136,14 +136,14 @@ class ValidatorTests(RestAuthTest):
 
     def test_loading(self):
         self.assert_validators((
-            'RestAuth.Users.validators.MediaWikiValidator',
+            'Users.validators.MediaWikiValidator',
         ))
 
         # substract 1 because one validator has no 'check' method:
         self.assert_validators((
-            'RestAuth.Users.validators.EmailValidator',
-            'RestAuth.Users.validators.MediaWikiValidator',
-            'RestAuth.Users.validators.XMPPValidator',  # no check method!
+            'Users.validators.EmailValidator',
+            'Users.validators.MediaWikiValidator',
+            'Users.validators.XMPPValidator',  # no check method!
         ), substract=1)
 
 
@@ -157,7 +157,7 @@ class ImportTests(RestAuthTest):
 
     def test_unkown_class(self):
         self.assertRaises(ImproperlyConfigured, import_path,
-                          'RestAuth.Users.validators.UnknownValidator')
+                          'Users.validators.UnknownValidator')
 
 
 class BaseInstancetests(RestAuthTest):

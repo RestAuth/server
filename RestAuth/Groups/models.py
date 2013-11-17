@@ -25,8 +25,8 @@ from django.utils.http import urlquote
 from RestAuthCommon import resource_validator
 from RestAuthCommon.error import PreconditionFailed
 
-from RestAuth.Users.models import ServiceUser as User
-from RestAuth.Groups.managers import GroupManager
+from Users.models import ServiceUser as User
+from Groups.managers import GroupManager
 
 group_permissions = (
     ('groups_for_user', 'List groups for a user'),

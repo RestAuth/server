@@ -11,10 +11,10 @@ from django.utils.six.moves import http_client
 
 import RestAuthCommon
 
-from RestAuth.common.testdata import RestAuthTest
-from RestAuth.Services.models import Service
-from RestAuth.Services.models import service_create
-from RestAuth.Services.models import ServiceUsernameNotValid
+from common.testdata import RestAuthTest
+from Services.models import Service
+from Services.models import service_create
+from Services.models import ServiceUsernameNotValid
 
 PATHS = [
     (['get', 'post'], '/users/'),

@@ -17,11 +17,9 @@
 
 from argparse import ArgumentParser
 
-from RestAuth.Groups.cli.actions import GroupnameAction
-from RestAuth.Groups.cli.helpers import get_group
-from RestAuth.Groups.cli.helpers import print_by_service
-from RestAuth.common.cli.actions import ServiceAction
-from RestAuth.common.cli.parsers import user_parser
+from Groups.cli.actions import GroupnameAction
+from common.cli.actions import ServiceAction
+from common.cli.parsers import user_parser
 
 
 service_opt_parser = ArgumentParser(add_help=False)
