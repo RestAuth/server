@@ -7,7 +7,7 @@ Requirements
 RestAuth has the following requirements:
 
 * `Python`_ 2.6.5 or later or Python 3.2 or later
-* `Django`_ 1.5 or later - RestAuth is written as a Django project
+* `Django`_ 1.6 or later - RestAuth is written as a Django project
 * Any database `supported by Django
   <https://docs.djangoproject.com/en/dev/ref/databases/>`_ that supports
   transactions
@@ -16,10 +16,6 @@ RestAuth has the following requirements:
 * The `argparse <http://docs.python.org/library/argparse.html>`_ module ships
   with Python 2.7 and is available for Python 2.6
 * `Django South`_ is used for handeling schema migrations.
-
-.. Note:: Although Django 1.4 still supports Python 2.5, RestAuth is only
-   compatible with Python 2.6.5 or later. Earlier 2.6-versions should also work
-   but are untested.
 
 Get source
 ----------
