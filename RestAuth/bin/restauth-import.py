@@ -21,6 +21,7 @@ import sys
 import json
 import random
 import string
+import traceback
 
 # Properties that may also be represented as a UNIX timestamp.
 # Otherwise the format must be "%Y-%m-%d %H:%M:%S"
@@ -33,7 +34,6 @@ if 'DJANGO_SETTINGS_MODULE' not in os.environ:
 sys.path.append(os.getcwd())
 
 try:
-    from django.db import transaction
     from django.utils import six
 
     from RestAuth.Services.models import Service
@@ -233,8 +233,9 @@ try:
 
 
 except Exception as e:
+    traceback.print_exc()
     print("An error occured, rolling back transaction:")
-    print("%s: %s" % (type(e), e))
+    print("%s: %s" % (type(e).__name__, e))
     rollback_transaction()
 else:
     commit_transaction()

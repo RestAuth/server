@@ -148,8 +148,7 @@ class DjangoUserBackend(UserBackend):
             raise UserNotFound(username)
 
     def init_transaction(self):  # pragma: no cover
-        dj_transaction.enter_transaction_management()
-        dj_transaction.managed(True)
+        dj_transaction.set_autocommit(False)
 
     def commit_transaction(self):  # pragma: no cover
         dj_transaction.commit()
