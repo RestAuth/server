@@ -217,7 +217,7 @@ class DjangoPropertyBackend(PropertyBackend):
                 dj_transaction.rollback()
                 dj_transaction.set_autocommit(True)
         elif transaction:
-            with dj_transaction.commit_on_success():
+            with dj_transaction.atomic():
                 prop, old_value = user.set_property(key, value)
                 return prop.key, old_value
         else:  # pragma: no cover
@@ -295,8 +295,7 @@ class DjangoGroupBackend(GroupBackend):
                 dj_transaction.rollback()
                 dj_transaction.set_autocommit(True)
         elif transaction:
-#TODO: deprecated API!
-            with dj_transaction.commit_on_success():
+            with dj_transaction.atomic():
                 try:
                     return Group.objects.create(name=name, service=service)
                 except IntegrityError:
