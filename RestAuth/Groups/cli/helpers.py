@@ -24,9 +24,12 @@ from common.errors import GroupNotFound
 
 
 def print_by_service(groups, indent=''):
-    by_service = groupby(groups, key=lambda g: g.service)
+    keyfunc = lambda g: g.service.username if g.service else ''
 
-    for service, groups in sorted(by_service, key=lambda t: t[0] if t[0] else ''):
+    sorted_groups = sorted(groups, key=keyfunc)  # sort by service
+    by_service = groupby(sorted_groups, key=keyfunc)  # group by service
+
+    for service, groups in by_service:
         names = sorted([group.name for group in groups])
         if not six.PY3:
             names = [name.encode('utf-8') for name in names]
