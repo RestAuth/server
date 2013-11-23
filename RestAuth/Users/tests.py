@@ -29,6 +29,8 @@ from django.utils import six
 # py2/py3 compat imports:
 from django.utils.six.moves import http_client
 
+from Users.validators import load_username_validators
+from common.errors import UserNotFound
 from common.errors import PropertyNotFound
 from common.testdata import RestAuthTest
 from common.testdata import RestAuthTestBase
@@ -48,6 +50,8 @@ from common.testdata import user_backend
 from common.testdata import username1
 from common.testdata import username2
 from common.testdata import username3
+
+restauth_user = getattr(__import__('bin.restauth-user'), 'restauth-user').main
 
 
 class GetUsersTests(RestAuthTest):  # GET /users/
@@ -900,3 +904,38 @@ class Apr1Test(HashTestMixin, TestCase):
 
     def setUp(self):
         super(Apr1Test, self).setUp()
+
+
+class CliTests(RestAuthTest):
+    def test_add_user(self):
+        restauth_user(['add', '--password', password1,
+                       username1 if six.PY3 else username1.encode('utf-8')])
+        self.assertItemsEqual(user_backend.list(), [username1])
+        self.assertTrue(user_backend.check_password(username1, password1))
+        self.assertFalse(user_backend.check_password(username1, password2))
+
+    def test_add_invalid_user(self):
+        # test an invalid resource (that is, with a slash)
+        username = 'foo/bar'
+        try:
+            restauth_user(['add', '--password', password1, username])
+            self.fail('restauth-user allows invalid characters')
+        except SystemExit as e:
+            self.assertEqual(e.code, 2)
+        self.assertItemsEqual(user_backend.list(), [])
+        self.assertRaises(UserNotFound, user_backend.check_password,
+                          username, password1)
+
+        # load a custom validator:
+        load_username_validators(('Users.validators.MediaWikiValidator', ))
+        username = 'foo>bar'
+        try:
+            restauth_user(['add', '--password', password1, username])
+            self.fail('restauth-user allows invalid characters')
+        except SystemExit as e:
+            self.assertEqual(e.code, 2)
+        self.assertItemsEqual(user_backend.list(), [])
+        self.assertRaises(UserNotFound, user_backend.check_password,
+                          username, password1)
+
+        load_username_validators()
