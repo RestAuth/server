@@ -41,69 +41,74 @@ except ImportError as e:
     sys.exit(1)
 
 
-# parse arguments
-args = parser.parse_args()
+def main(args=None):
+    # parse arguments
+    args = parser.parse_args(args=args)
 
-if args.action == 'add':
-    try:
-        password = args.get_password(args)
-        if args.password_generated:
-            print(args.pwd)
+    if args.action == 'add':
+        try:
+            password = args.get_password(args)
+            if args.password_generated:
+                print(args.pwd)
 
-        user_backend.set_password(args.user.username, password)
-    except PreconditionFailed as e:
-        print("Error: %s" % e)
-        sys.exit(1)
-elif args.action in ['ls', 'list']:
-    for username in sorted(user_backend.list()):
-        if six.PY3:
-            print(username)
+            user_backend.set_password(args.user.username, password)
+        except PreconditionFailed as e:
+            print("Error: %s" % e)
+            sys.exit(1)
+    elif args.action in ['ls', 'list']:
+        for username in sorted(user_backend.list()):
+            if six.PY3:
+                print(username)
+            else:
+                print(username.encode('utf-8'))
+    elif args.action == 'verify':
+        if not args.pwd:
+            args.pwd = getpass.getpass('password: ')
+        if user_backend.check_password(args.user.username, args.pwd):
+            print('Ok.')
         else:
-            print(username.encode('utf-8'))
-elif args.action == 'verify':
-    if not args.pwd:
-        args.pwd = getpass.getpass('password: ')
-    if user_backend.check_password(args.user.username, args.pwd):
-        print('Ok.')
-    else:
-        print('Failed.')
-        sys.exit(1)
-elif args.action == 'set-password':
-    try:
-        password = args.get_password(args)
-        if args.password_generated:
-            print(args.pwd)
+            print('Failed.')
+            sys.exit(1)
+    elif args.action == 'set-password':
+        try:
+            password = args.get_password(args)
+            if args.password_generated:
+                print(args.pwd)
 
-        user_backend.set_password(args.user.username, args.pwd)
-    except PasswordInvalid as e:
-        print("Error: %s" % e)
-        sys.exit(1)
-elif args.action == 'view':
-    props = property_backend.list(args.user)
+            user_backend.set_password(args.user.username, args.pwd)
+        except PasswordInvalid as e:
+            print("Error: %s" % e)
+            sys.exit(1)
+    elif args.action == 'view':
+        props = property_backend.list(args.user)
 
-    if 'date joined' in props:
-        print('Joined: %s' % props['date joined'])
+        if 'date joined' in props:
+            print('Joined: %s' % props['date joined'])
 
-    if 'last login' in props:
-        print('Last login: %s' % props['last login'])
+        if 'last login' in props:
+            print('Last login: %s' % props['last login'])
 
-    if args.service:
-        groups = group_backend.list(service=args.service, user=args.user)
-        print('Groups: %s' % ', '.join(sorted(groups)))
-    else:
-        print('Groups: ')
-        no_service_groups = group_backend.list(service=None, user=args.user)
-        if no_service_groups:
-            print('* no service: %s' % ', '.join(sorted(no_service_groups)))
+        if args.service:
+            groups = group_backend.list(service=args.service, user=args.user)
+            print('Groups: %s' % ', '.join(sorted(groups)))
+        else:
+            print('Groups: ')
+            no_service_groups = group_backend.list(service=None, user=args.user)
+            if no_service_groups:
+                print('* no service: %s' % ', '.join(sorted(no_service_groups)))
 
-        for service in Service.objects.all():
-            groups = group_backend.list(service=service, user=args.user)
-            if groups:
-                print('* %s: %s' % (service.username, ', '.join(sorted(groups))))
-elif args.action == 'rename':
-    try:
-        user_backend.rename(args.user.username, args.name)
-    except UserExists as e:
-        parser.error("%s: %s" % (args.name, e))
-elif args.action in ['delete', 'rm', 'remove']:
-    user_backend.remove(args.user.username)
+            for service in Service.objects.all():
+                groups = group_backend.list(service=service, user=args.user)
+                if groups:
+                    print('* %s: %s' % (service.username, ', '.join(sorted(groups))))
+    elif args.action == 'rename':
+        try:
+            user_backend.rename(args.user.username, args.name)
+        except UserExists as e:
+            parser.error("%s: %s" % (args.name, e))
+    elif args.action in ['delete', 'rm', 'remove']:
+        user_backend.remove(args.user.username)
+
+if __name__ == '__main__':
+    print('name', __name__)
+    main()
