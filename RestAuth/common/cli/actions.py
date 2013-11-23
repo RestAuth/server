@@ -28,9 +28,12 @@ from argparse import ArgumentError
 from django.db.utils import IntegrityError
 from django.utils import six
 
+from RestAuthCommon import resource_validator
+
 from Services.models import Service
 from Services.models import ServiceUsernameNotValid
 from Services.models import check_service_username
+from Users.validators import validate_username
 from backends import property_backend
 from backends import user_backend
 from common.errors import PreconditionFailed
@@ -72,7 +75,11 @@ class UsernameAction(Action):
             username = username.decode('utf-8')
 
         if namespace.create_user:
+            if not resource_validator(username):
+                raise ArgumentError(self, "Username contains invalid characters")
+
             try:
+                validate_username(username)
                 user = user_backend.create(username=username,
                                            property_backend=property_backend)
             except UserExists:
