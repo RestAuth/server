@@ -18,7 +18,6 @@
 from __future__ import unicode_literals  # unicode literals from python3
 
 import contextlib
-from StringIO import StringIO
 
 from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
@@ -28,6 +27,7 @@ from django.test import TestCase
 from django.test import TransactionTestCase
 from django.test.client import Client
 from django.test.utils import override_settings
+from django.utils.six import StringIO
 
 from RestAuthCommon import handlers
 
