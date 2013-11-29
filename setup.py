@@ -355,7 +355,6 @@ class coverage(Command):
             '*testdata.py',
             '*settings.py',
             '*migrations/*.py',
-            'RestAuth/*/cli/*',
             'RestAuth/common/decorators.py',
             'RestAuth/common/profile.py',
             'RestAuth/common/routers.py',
