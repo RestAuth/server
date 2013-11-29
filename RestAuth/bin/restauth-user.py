@@ -110,5 +110,4 @@ def main(args=None):
         user_backend.remove(args.user.username)
 
 if __name__ == '__main__':
-    print('name', __name__)
     main()
