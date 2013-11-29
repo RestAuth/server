@@ -919,6 +919,18 @@ class CliTests(RestAuthTest):
         self.assertTrue(user_backend.check_password(username1, password1))
         self.assertFalse(user_backend.check_password(username1, password2))
 
+        # create anotheruser with a generated password:
+        gen_password = None
+        with capture() as (stdout, stderr):
+            restauth_user(
+                ['add', '--gen-password',
+                 username2 if six.PY3 else username2.encode('utf-8')])
+            gen_password = stdout.getvalue().strip()
+            self.assertEqual(stderr.getvalue(), '')
+
+        self.assertItemsEqual(user_backend.list(), [username1, username2])
+        self.assertTrue(user_backend.check_password(username2, gen_password))
+
     def test_add_invalid_user(self):
         # test an invalid resource (that is, with a slash)
         username = 'foo/bar'
