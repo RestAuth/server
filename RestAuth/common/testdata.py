@@ -17,6 +17,9 @@
 
 from __future__ import unicode_literals  # unicode literals from python3
 
+import contextlib
+from StringIO import StringIO
+
 from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -172,3 +175,13 @@ class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
         different 2.6 versions."""
         self.assertEqual(set(actual), set(expected), msg)
         self.assertEqual(len(list(actual)), len(list(expected)))
+
+
+@contextlib.contextmanager
+def capture():
+    import sys
+    sys.stdout = StringIO()
+    sys.stderr = StringIO()
+    yield sys.stdout, sys.stderr
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
