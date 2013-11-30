@@ -32,7 +32,7 @@ try:
     from common.errors import GroupExists
     from common.errors import GroupNotFound
     from common.errors import UserNotFound
-except ImportError as e:
+except ImportError as e:  # pragma: no cover
     print(e)
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
@@ -54,9 +54,9 @@ elif args.action in ['list', 'ls']:
     else:
         groups = group_backend.list(service=None)
     for name in sorted(groups):
-        if six.PY3:
+        if six.PY3:  # pragma: py3
             print(name)
-        else:
+        else:  # pragma: py2
             print(name.encode('utf-8'))
 elif args.action == 'view':
     group = get_group(parser, args.group, args.service)

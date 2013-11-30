@@ -28,7 +28,7 @@ try:
 
     from Services.models import Service
     from Services.cli.parsers import parser
-except ImportError as e:
+except ImportError as e:  # pragma: no cover
     sys.stderr.write('Error: Cannot import RestAuth. '
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
