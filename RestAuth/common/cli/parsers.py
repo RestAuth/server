@@ -21,8 +21,14 @@ import sys
 from argparse import ArgumentParser
 
 from common.cli.actions import PasswordGeneratorAction
+from common.cli.actions import ServiceAction
 from common.cli.actions import UsernameAction
 from common.cli.helpers import get_password
+
+service_opt_parser = ArgumentParser(add_help=False)
+service_opt_parser.set_defaults(create_service=False)
+service_opt_parser.add_argument('--service', action=ServiceAction,
+                                help="Act as if %(prog)s was SERVICE.")
 
 user_parser = ArgumentParser(add_help=False)
 user_parser.set_defaults(create_user=False)

@@ -18,14 +18,9 @@
 from argparse import ArgumentParser
 
 from Groups.cli.actions import GroupnameAction
-from common.cli.actions import ServiceAction
+from Groups.cli.actions import ServiceAction
 from common.cli.parsers import user_parser
-
-
-service_opt_parser = ArgumentParser(add_help=False)
-service_opt_parser.set_defaults(create_service=False)
-service_opt_parser.add_argument('--service', action=ServiceAction,
-                                help="Act as if %(prog)s was SERVICE.")
+from common.cli.parsers import service_opt_parser
 
 group_arg_parser = ArgumentParser(add_help=False, parents=[service_opt_parser])
 group_arg_parser.add_argument('group', action=GroupnameAction,
