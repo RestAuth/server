@@ -909,7 +909,7 @@ class Apr1Test(HashTestMixin, TestCase):
 
 
 class CliTests(RestAuthTest, CliMixin):
-    def test_add_user(self):
+    def test_add(self):
         with capture() as (stdout, stderr):
             restauth_user(
                 ['add', '--password', password1,
@@ -932,7 +932,6 @@ class CliTests(RestAuthTest, CliMixin):
         self.assertItemsEqual(user_backend.list(), [username1, username2])
         self.assertTrue(user_backend.check_password(username2, gen_password))
 
-    def test_add_invalid_user(self):
         # test an invalid resource (that is, with a slash)
         username = 'foo/bar'
         with capture() as (stdout, stderr):
@@ -965,7 +964,7 @@ class CliTests(RestAuthTest, CliMixin):
 
         load_username_validators()
 
-    def test_list_user(self):
+    def test_list(self):
         with capture() as (stdout, stderr):
             restauth_user(['ls'])
             self.assertEqual(stdout.getvalue(), '')
