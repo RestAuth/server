@@ -36,6 +36,8 @@ from common.testdata import CliMixin
 from common.testdata import RestAuthTest
 from common.testdata import RestAuthTestBase
 from common.testdata import capture
+from common.testdata import groupname1
+from common.testdata import group_backend
 from common.testdata import password1
 from common.testdata import password2
 from common.testdata import password3
@@ -1065,6 +1067,7 @@ class CliTests(RestAuthTest, CliMixin):
         with capture() as (stdout, stderr):
             restauth_user(['view', frm])
             self.assertHasLine(stdout, '^Joined: ')
+            self.assertHasLine(stdout, '^No groups.$')
             self.assertEqual(stderr.getvalue(), '')
 
         property_backend.set(user, 'last login', 'foobar')
@@ -1072,6 +1075,7 @@ class CliTests(RestAuthTest, CliMixin):
             restauth_user(['view', frm])
             self.assertHasLine(stdout, '^Joined: ')
             self.assertHasLine(stdout, '^Last login: foobar')
+            self.assertHasLine(stdout, '^No groups.$')
             self.assertEqual(stderr.getvalue(), '')
 
         property_backend.remove(user, 'date joined')
@@ -1079,4 +1083,16 @@ class CliTests(RestAuthTest, CliMixin):
             restauth_user(['view', frm])
             self.assertHasNoLine(stdout, '^Joined: ')
             self.assertHasLine(stdout, '^Last login: foobar')
+            self.assertHasLine(stdout, '^No groups.$')
             self.assertEqual(stderr.getvalue(), '')
+
+        with capture() as (stdout, stderr):
+            restauth_user(['view', '--service', self.service.name, frm])
+            self.assertHasNoLine(stdout, '^Joined: ')
+            self.assertHasLine(stdout, '^Last login: foobar')
+            self.assertHasLine(stdout, '^No groups.$')
+            self.assertEqual(stderr.getvalue(), '')
+
+        # test with service:
+        group = group_backend.create(groupname1, self.service)
+        group_backend.add_user(group, user)
