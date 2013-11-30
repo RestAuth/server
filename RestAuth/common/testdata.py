@@ -184,7 +184,7 @@ class CliMixin(object):
         if isinstance(stream, StringIO):
             stream = stream.getvalue()
             if not six.PY3:  # pragma: py2
-                stream = stream.decode('utf-8')
+                stream = stream.encode('utf-8')
 
         for line in stream.splitlines():
             if re.search(pattern, line, flags=flags) is not None:
@@ -195,7 +195,7 @@ class CliMixin(object):
         if isinstance(stream, StringIO):
             stream = stream.getvalue()
             if not six.PY3:  # pragma: py2
-                stream = stream.decode('utf-8')
+                stream = stream.encode('utf-8')
 
         for line in stream.splitlines():
             if re.search(pattern, line, flags=flags) is not None:
