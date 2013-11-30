@@ -18,6 +18,7 @@
 from __future__ import unicode_literals  # unicode literals from python3
 
 import contextlib
+import re
 
 from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
@@ -179,11 +180,32 @@ class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
 
 
 class CliMixin(object):
+    def assertHasLine(self, stream, pattern, msg='', flags=0):
+        if isinstance(stream, StringIO):
+            stream = stream.getvalue()
+            if not six.PY3:  # pragma: py2
+                stream = stream.decode('utf-8')
+
+        for line in stream.splitlines():
+            if re.search(pattern, line, flags=flags) is not None:
+                return
+        raise AssertionError(stream)
+
+    def assertHasNoLine(self, stream, pattern, msg='', flags=0):
+        if isinstance(stream, StringIO):
+            stream = stream.getvalue()
+            if not six.PY3:  # pragma: py2
+                stream = stream.decode('utf-8')
+
+        for line in stream.splitlines():
+            if re.search(pattern, line, flags=flags) is not None:
+                raise AssertionError(msg)
+
     def decode(self, stdout, stderr):
         stdout, stderr = stdout.getvalue(), stderr.getvalue()
-        if six.PY3:
+        if six.PY3:  # pragma: py3
             return stdout, stderr
-        else:
+        else:  # pragma: py2
             return stdout.decode('utf-8'), stderr.decode('utf-8')
 
 
