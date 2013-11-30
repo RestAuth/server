@@ -20,8 +20,7 @@ import sys
 import getpass
 
 # Setup environment
-if 'DJANGO_SETTINGS_MODULE' not in os.environ:
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RestAuth.settings')
 sys.path.append(os.getcwd())
 
 try:
