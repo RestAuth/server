@@ -963,3 +963,23 @@ class CliTests(RestAuthTest):
                           username, password1)
 
         load_username_validators()
+
+    def test_list_user(self):
+        with capture() as (stdout, stderr):
+            restauth_user(['ls'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+
+        self.create_user(username1, password1)
+        with capture() as (stdout, stderr):
+            restauth_user(['ls'])
+            out = stdout.getvalue() if six.PY3 else stdout.getvalue().decode('utf-8')
+            self.assertItemsEqual(out.strip().split('\n'), [username1, ])
+            self.assertEqual(stderr.getvalue(), '')
+
+        self.create_user(username2, password2)
+        with capture() as (stdout, stderr):
+            restauth_user(['ls'])
+            out = stdout.getvalue() if six.PY3 else stdout.getvalue().decode('utf-8')
+            self.assertItemsEqual(out.strip().split('\n'), [username1, username2, ])
+            self.assertEqual(stderr.getvalue(), '')
