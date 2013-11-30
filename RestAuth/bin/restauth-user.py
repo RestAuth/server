@@ -31,7 +31,6 @@ try:
     from backends import user_backend
     from backends import property_backend
     from backends import group_backend
-    from common.errors import PasswordInvalid
     from common.errors import PreconditionFailed
     from common.errors import UserExists
 except ImportError as e:  # pragma: no cover
@@ -69,15 +68,11 @@ def main(args=None):
             print('Failed.')
             sys.exit(1)
     elif args.action == 'set-password':
-        try:
-            password = args.get_password(args)
-            if args.password_generated:
-                print(args.pwd)
+        password = args.get_password(args)
+        if args.password_generated:
+            print(args.pwd)
 
-            user_backend.set_password(args.user.username, args.pwd)
-        except PasswordInvalid as e:
-            print("Error: %s" % e)
-            sys.exit(1)
+        user_backend.set_password(args.user.username, args.pwd)
     elif args.action == 'view':
         props = property_backend.list(args.user)
 
