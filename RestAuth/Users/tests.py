@@ -932,6 +932,7 @@ class CliTests(RestAuthTest, CliMixin):
         self.assertItemsEqual(user_backend.list(), [username1, username2])
         self.assertTrue(user_backend.check_password(username2, gen_password))
 
+    def test_add_invalid(self):
         # test an invalid resource (that is, with a slash)
         username = 'foo/bar'
         with capture() as (stdout, stderr):
@@ -1014,3 +1015,46 @@ class CliTests(RestAuthTest, CliMixin):
                 stdout, stderr = self.decode(stdout, stderr)
                 self.assertEqual(stdout, '')
                 self.assertTrue(stderr.startswith('usage: '))
+
+    def test_verify(self):
+        self.create_user(username1, password1)
+        frm = username1 if six.PY3 else username1.encode('utf-8')
+        with capture() as (stdout, stderr):
+            restauth_user(['verify', '--password', password1, frm,])
+            self.assertEqual(stdout.getvalue(), 'Ok.\n')
+            self.assertEqual(stderr.getvalue(), '')
+
+        with capture() as (stdout, stderr):
+            try:
+                restauth_user(['verify', '--password', password2, frm,])
+            except SystemExit as e:
+                self.assertEqual(e.code, 1)
+                self.assertEqual(stdout.getvalue(), 'Failed.\n')
+                self.assertEqual(stderr.getvalue(), '')
+
+    def test_set_password(self):
+        self.create_user(username1, password1)
+        frm = username1 if six.PY3 else username1.encode('utf-8')
+        with capture() as (stdout, stderr):
+            restauth_user(['set-password', '--password', password2, frm])
+            self.assertFalse(user_backend.check_password(username1, password1))
+            self.assertTrue(user_backend.check_password(username1, password2))
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+
+        # test with generated password
+        with capture() as (stdout, stderr):
+            restauth_user(['set-password', '--gen-password', frm])
+            stdout, stderr = self.decode(stdout, stderr)
+            self.assertFalse(user_backend.check_password(username1, password1))
+            self.assertFalse(user_backend.check_password(username1, password2))
+            self.assertTrue(user_backend.check_password(username1,
+                                                        stdout.strip()))
+
+        # invalid password
+        with capture() as (stdout, stderr):
+            restauth_user(['set-password', '--password', 'a', frm])
+            self.assertFalse(user_backend.check_password(username1, password1))
+            self.assertFalse(user_backend.check_password(username1, password2))
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
