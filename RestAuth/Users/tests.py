@@ -16,6 +16,8 @@
 
 from __future__ import unicode_literals
 
+import re
+
 from django.utils.unittest import skipUnless
 
 from django.conf import settings
@@ -1086,6 +1088,7 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertHasLine(stdout, '^No groups.$')
             self.assertEqual(stderr.getvalue(), '')
 
+        # test with service:
         with capture() as (stdout, stderr):
             restauth_user(['view', '--service', self.service.name, frm])
             self.assertHasNoLine(stdout, '^Joined: ')
@@ -1093,6 +1096,18 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertHasLine(stdout, '^No groups.$')
             self.assertEqual(stderr.getvalue(), '')
 
-        # test with service:
+        # add group to service:
         group = group_backend.create(groupname1, self.service)
+        grp1 = groupname1 if six.PY3 else groupname1.encode('utf-8')
         group_backend.add_user(group, user)
+
+        with capture() as (stdout, stderr):
+            restauth_user(['view', '--service', self.service.name, frm])
+            self.assertHasNoLine(stdout, '^Joined: ')
+            self.assertHasLine(stdout, '^Last login: foobar')
+
+            # no %s expansion because of py2 encoding
+            pattern = str('^Groups: ') + grp1
+
+            self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+            self.assertEqual(stderr.getvalue(), '')
