@@ -31,7 +31,6 @@ try:
     from backends import user_backend
     from backends import property_backend
     from backends import group_backend
-    from common.errors import PreconditionFailed
     from common.errors import UserExists
 except ImportError as e:  # pragma: no cover
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
@@ -44,15 +43,11 @@ def main(args=None):
     args = parser.parse_args(args=args)
 
     if args.action == 'add':
-        try:
-            password = args.get_password(args)
-            if args.password_generated:
-                print(args.pwd)
+        password = args.get_password(args)
+        if args.password_generated:
+            print(args.pwd)
 
-            user_backend.set_password(args.user.username, password)
-        except PreconditionFailed as e:
-            print("Error: %s" % e)
-            sys.exit(1)
+        user_backend.set_password(args.user.username, password)
     elif args.action in ['ls', 'list']:
         for username in sorted(user_backend.list()):
             if six.PY3:  # pragma: py3
