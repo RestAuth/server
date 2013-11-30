@@ -59,6 +59,7 @@ if os.path.exists(common_path):
 
 from django.conf import settings
 from django.core.management import call_command
+from django.utils import six
 
 LATEST_RELEASE = '0.6.3'
 
@@ -383,13 +384,11 @@ class coverage(Command):
         cov.exclude('\t*self.fail\(.*\)')
         if not settings.SECURE_CACHE:
             cov.exclude('\t*if settings.SECURE_CACHE:')
-        if sys.version_info < (3, 0):
-            cov.exclude('\t*if IS_PYTHON3')
-            cov.exclude('\t*def _[a-zA-Z0-9_]*3\(')
-            cov.exclude('^if sys.version_info < \(3, 0\)')
+
+        if six.PY3:
+            cov.exclude('pragma: py2')  # exclude py2 code
         else:
-            cov.exclude('\t*if IS_PYTHON2')
-            cov.exclude('\t*def _[a-zA-Z0-9_]*2\(')
+            cov.exclude('pragma: py3')  # exclude py3 code
 
         cov.start()
 
