@@ -11,6 +11,7 @@ RestAuth 0.6.4 (XX XXX XXXX)
   * Fix listing of subgroups for "restauth-groups view".
   * Usernames of users created via "restauth-user add" are now subject to the
     same limitations as via the RestAuth interface.
+  * Fixed restauth-user view --service=...
 
 RestAuth 0.6.3 (30 May 2013)
 
