@@ -34,7 +34,7 @@ try:
     from common.errors import PasswordInvalid
     from common.errors import PreconditionFailed
     from common.errors import UserExists
-except ImportError as e:
+except ImportError as e:  # pragma: no cover
     sys.stderr.write('Error: Cannot import RestAuth. Please make '
                      'sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
@@ -56,11 +56,12 @@ def main(args=None):
             sys.exit(1)
     elif args.action in ['ls', 'list']:
         for username in sorted(user_backend.list()):
-            if not six.PY3:  # pragma: py2
-                username = username.encode('utf-8')
-            print(username)
+            if six.PY3:  # pragma: py3
+                print(username)
+            else:   # pragma: py2
+                print(username.encode('utf-8'))
     elif args.action == 'verify':
-        if not args.pwd:
+        if not args.pwd:  # pragma: no cover
             args.pwd = getpass.getpass('password: ')
         if user_backend.check_password(args.user.username, args.pwd):
             print('Ok.')
