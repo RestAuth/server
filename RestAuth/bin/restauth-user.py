@@ -56,10 +56,9 @@ def main(args=None):
             sys.exit(1)
     elif args.action in ['ls', 'list']:
         for username in sorted(user_backend.list()):
-            if six.PY3:
-                print(username)
-            else:
-                print(username.encode('utf-8'))
+            if not six.PY3:  # pragma: py2
+                username = username.encode('utf-8')
+            print(username)
     elif args.action == 'verify':
         if not args.pwd:
             args.pwd = getpass.getpass('password: ')
