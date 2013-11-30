@@ -27,6 +27,7 @@ from django.test import TestCase
 from django.test import TransactionTestCase
 from django.test.client import Client
 from django.test.utils import override_settings
+from django.utils import six
 from django.utils.six import StringIO
 
 from RestAuthCommon import handlers
@@ -175,6 +176,15 @@ class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
         different 2.6 versions."""
         self.assertEqual(set(actual), set(expected), msg)
         self.assertEqual(len(list(actual)), len(list(expected)))
+
+
+class CliMixin(object):
+    def decode(self, stdout, stderr):
+        stdout, stderr = stdout.getvalue(), stderr.getvalue()
+        if six.PY3:
+            return stdout, stderr
+        else:
+            return stdout.decode('utf-8'), stderr.decode('utf-8')
 
 
 @contextlib.contextmanager

@@ -32,6 +32,7 @@ from django.utils.six.moves import http_client
 from Users.validators import load_username_validators
 from common.errors import UserNotFound
 from common.errors import PropertyNotFound
+from common.testdata import CliMixin
 from common.testdata import RestAuthTest
 from common.testdata import RestAuthTestBase
 from common.testdata import capture
@@ -907,7 +908,7 @@ class Apr1Test(HashTestMixin, TestCase):
         super(Apr1Test, self).setUp()
 
 
-class CliTests(RestAuthTest):
+class CliTests(RestAuthTest, CliMixin):
     def test_add_user(self):
         with capture() as (stdout, stderr):
             restauth_user(
@@ -980,9 +981,10 @@ class CliTests(RestAuthTest):
         self.create_user(username2, password2)
         with capture() as (stdout, stderr):
             restauth_user(['ls'])
-            out = stdout.getvalue() if six.PY3 else stdout.getvalue().decode('utf-8')
-            self.assertItemsEqual(out.strip().split('\n'), [username1, username2, ])
-            self.assertEqual(stderr.getvalue(), '')
+            stdout, stderr = self.decode(stdout, stderr)
+            self.assertItemsEqual(stdout.strip().split('\n'),
+                                  [username1, username2, ])
+            self.assertEqual(stderr, '')
 
     def test_rename(self):
         self.create_user(username1, password1)
@@ -1010,6 +1012,6 @@ class CliTests(RestAuthTest):
                 self.fail('Renaming user to existing username succeeded.')
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
-                self.assertEqual(stdout.getvalue(), '')
-                stderr = stderr.getvalue() if six.PY3 else stderr.getvalue().decode('utf-8')
+                stdout, stderr = self.decode(stdout, stderr)
+                self.assertEqual(stdout, '')
                 self.assertTrue(stderr.startswith('usage: '))
