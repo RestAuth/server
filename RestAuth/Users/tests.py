@@ -983,3 +983,22 @@ class CliTests(RestAuthTest):
             out = stdout.getvalue() if six.PY3 else stdout.getvalue().decode('utf-8')
             self.assertItemsEqual(out.strip().split('\n'), [username1, username2, ])
             self.assertEqual(stderr.getvalue(), '')
+
+    def test_rename(self):
+        self.create_user(username1, password1)
+        with capture() as (stdout, stderr):
+            restauth_user([
+                'rename',
+                username1 if six.PY3 else username1.encode('utf-8'),
+                'newname'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+
+        with capture() as (stdout, stderr):
+            try:
+                restauth_user(['rename', 'foo', 'bar'])
+                self.fail('Renaming inexistent user succeeded.')
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertTrue(stderr.getvalue().startswith('usage: '))
