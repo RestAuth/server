@@ -1058,3 +1058,25 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertFalse(user_backend.check_password(username1, password2))
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
+
+    def test_view(self):
+        user = self.create_user(username1, password1)
+        frm = username1 if six.PY3 else username1.encode('utf-8')
+        with capture() as (stdout, stderr):
+            restauth_user(['view', frm])
+            self.assertHasLine(stdout, '^Joined: ')
+            self.assertEqual(stderr.getvalue(), '')
+
+        property_backend.set(user, 'last login', 'foobar')
+        with capture() as (stdout, stderr):
+            restauth_user(['view', frm])
+            self.assertHasLine(stdout, '^Joined: ')
+            self.assertHasLine(stdout, '^Last login: foobar')
+            self.assertEqual(stderr.getvalue(), '')
+
+        property_backend.remove(user, 'date joined')
+        with capture() as (stdout, stderr):
+            restauth_user(['view', frm])
+            self.assertHasNoLine(stdout, '^Joined: ')
+            self.assertHasLine(stdout, '^Last login: foobar')
+            self.assertEqual(stderr.getvalue(), '')
