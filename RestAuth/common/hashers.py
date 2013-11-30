@@ -43,10 +43,10 @@ class Sha512Hasher(BasePasswordHasher):
 
     algorithm = 'sha512'
 
-    def _hash2(self, payload):
+    def _hash2(self, payload):  # pragma: py2
         return hashlib.sha512(payload).hexdigest()
 
-    def _hash3(self, payload):
+    def _hash3(self, payload):  # pragma: py3
         return hashlib.sha512(bytes(payload, 'utf-8')).hexdigest()
 
     def encode(self, password, salt):
@@ -66,9 +66,9 @@ class Sha512Hasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    if six.PY3:
+    if six.PY3:  # pragma: py3
         _hash = _hash3
-    else:
+    else:  # pragma: py2
         _hash = _hash2
 
 
@@ -96,14 +96,14 @@ class MediaWikiHasher(BasePasswordHasher):
         else:
             return '%s$%s$%s' % (self.algorithm, salt, hash)
 
-    def _encode2(self, password, salt=None):
+    def _encode2(self, password, salt=None):  # pragma: py2
         if salt is None:
             return hashlib.md5(password).hexdigest()
         else:
             secret_hash = hashlib.md5(password).hexdigest()
             return hashlib.md5('%s-%s' % (salt, secret_hash)).hexdigest()
 
-    def _encode3(self, password, salt=None):
+    def _encode3(self, password, salt=None):  # pragma: py3
         password = bytes(password, 'utf-8')
 
         if salt is None or salt == '':
@@ -129,9 +129,9 @@ class MediaWikiHasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    if six.PY3:
+    if six.PY3:  # pragma: py3
         _encode = _encode3
-    else:
+    else:  # pragma: py2
         _encode = _encode2
 
 
@@ -162,13 +162,11 @@ class PhpassHasher(BasePasswordHasher):
     # http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_itoa64/7
     itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
-    # works in both python2 and python3
     def salt(self):
         count = self.itoa64[self.HASH_COUNT]
         salt = self._password_base64_encode(get_random_string(6), 6)
         return '%s%s' % (count, salt)
 
-    # works in both python2 and python3
     def _password_enforce_log2_boundaries(self, count_log2):
         """Implementation of _password_enforce_log2_boundaries
 
@@ -226,14 +224,14 @@ class PhpassHasher(BasePasswordHasher):
             output += self.itoa64[(value >> 18) & 0x3f]
         return output
 
-    def _compute_hash2(self, hashfunc, count, salt, password):
+    def _compute_hash2(self, hashfunc, count, salt, password):  # pragma: py2
         hash = hashfunc(salt + password).digest()
 
         for i in range(0, count):
             hash = hashfunc(hash + str(password)).digest()
         return hash
 
-    def _compute_hash3(self, hashfunc, count, salt, password):
+    def _compute_hash3(self, hashfunc, count, salt, password):  # pragma: py3
         salt = bytes(salt, 'utf-8')
         password = bytes(password, 'utf-8')
 
@@ -291,9 +289,9 @@ class PhpassHasher(BasePasswordHasher):
         encoded = self._password_crypt(hashlib.md5, password, settings)
         return '%s%s' % (self.algorithm, encoded)
 
-    if six.PY3:
+    if six.PY3:  # pragma: py3
         _compute_hash = _compute_hash3
-    else:
+    else:  # pragma: py2
         _compute_hash = _compute_hash2
 
 
@@ -369,19 +367,19 @@ class Apr1Hasher(BasePasswordHasher):
         values = [int(c, 16) for c in cs]
         return struct.pack(str('16B'), *values)
 
-    def _trans2(self, val):
+    def _trans2(self, val):  # pragma: py2
         frm = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
         to = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         trans = string.maketrans(frm, to)
         return base64.b64encode(val)[2:][::-1].translate(trans)
 
-    def _trans3(self, val):
+    def _trans3(self, val):  # pragma: py3
         frm = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
         to = b"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         trans = bytes.maketrans(frm, to)
         return base64.b64encode(val)[2:][::-1].translate(trans)
 
-    def _crypt3(self, plainpasswd, salt):
+    def _crypt3(self, plainpasswd, salt):  # pragma: py3
         text = bytes("%s$apr1$%s" % (plainpasswd, salt), 'utf-8')
 
         to_pack = "%s%s%s" % (plainpasswd, salt, plainpasswd)
@@ -440,7 +438,7 @@ class Apr1Hasher(BasePasswordHasher):
 
         return self._trans(tmp).decode('utf-8')
 
-    def _crypt2(self, plainpasswd, salt):
+    def _crypt2(self, plainpasswd, salt):  # pragma: py2
         """
         This function creates an md5 hash that is identical to one that would
         be created by :cmd:`htpasswd -m`.
@@ -503,9 +501,9 @@ class Apr1Hasher(BasePasswordHasher):
 
         return self._trans(tmp).encode('utf-8')
 
-    if six.PY3:
+    if six.PY3:  # pragma: py3
         _trans = _trans3
         _crypt = _crypt3
-    else:
+    else:  # pragma: py2
         _trans = _trans2
         _crypt = _crypt2
