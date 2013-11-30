@@ -97,7 +97,7 @@ def main(args=None):
                 if none_groups:
                     print('* no service: %s' % sorted(none_groups))
 
-                for service, groups in sorted(groups.items(), key=lambda (k, v): k):
+                for service, groups in sorted(groups.items(), key=lambda t: t[0]):
                     print('* %s: %s' % (service, ', '.join(sorted(groups))))
             else:
                 print('No groups.')
