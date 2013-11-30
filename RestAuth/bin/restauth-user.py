@@ -103,5 +103,5 @@ def main(args=None):
     elif args.action in ['delete', 'rm', 'remove']:
         user_backend.remove(args.user.username)
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main()
