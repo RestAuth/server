@@ -79,17 +79,28 @@ def main(args=None):
 
         if args.service:
             groups = group_backend.list(service=args.service, user=args.user)
-            print('Groups: %s' % ', '.join(sorted(groups)))
+            if groups:
+                print('Groups: %s' % ', '.join(sorted(groups)))
+            else:
+                print('No groups.')
         else:
-            print('Groups: ')
-            no_service_groups = group_backend.list(service=None, user=args.user)
-            if no_service_groups:
-                print('* no service: %s' % ', '.join(sorted(no_service_groups)))
+            groups = {}
+            none_groups = group_backend.list(service=None, user=args.user)
 
             for service in Service.objects.all():
-                groups = group_backend.list(service=service, user=args.user)
-                if groups:
-                    print('* %s: %s' % (service.username, ', '.join(sorted(groups))))
+                subgroups = group_backend.list(service=service, user=args.user)
+                if subgroups:
+                    groups[service.username] = subgroups
+
+            if groups or none_groups:
+                print('Groups: ')
+                if none_groups:
+                    print('* no service: %s' % sorted(none_groups))
+
+                for service, groups in sorted(groups.items(), key=lambda (k, v): k):
+                    print('* %s: %s' % (service, ', '.join(sorted(groups))))
+            else:
+                print('No groups.')
     elif args.action == 'rename':
         try:
             user_backend.rename(args.user.username, args.name)
