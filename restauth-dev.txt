@@ -1,0 +1,2 @@
+Sphinx>=1.2b3
+coverage>=3.7

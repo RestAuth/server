@@ -5,6 +5,7 @@ RestAuth 0.6.4 (XX XXX XXXX)
   * RestAuth now requires Django 1.6 or newer.
   * Migrate to app-layout from Django 1.5
   * Improve documentation in many small ways.
+  * Move development dependencies to requirements-dev.txt
 
   Command-line scripts:
   * Fix listing of subgroups for "restauth-groups view".
