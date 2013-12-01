@@ -54,8 +54,6 @@ except ImportError as e:  # pragma: no cover
     )
     sys.exit(1)
 
-
-
 def gen_password(length=30):
     punct_chars = [c for c in string.punctuation if c not in ['\'', '\\']]
     punctuation = ''.join(punct_chars)
