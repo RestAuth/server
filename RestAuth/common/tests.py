@@ -228,3 +228,63 @@ class RestAuthImportTests(RestAuthTest, CliMixin):
                 self.assertHasLine(
                     stderr,
                     '.*error: %s: Top-level data structure must be a dictionary.$' % path)
+
+        # services/users/groups not a dict
+        path = os.path.join(self.base, 'faulty3.json')
+        with capture() as (stdout, stderr):
+            try:
+                restauth_import([path])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(
+                    stderr,
+                    ".*error: 'services' does not appear to be a dictionary.")
+        path = os.path.join(self.base, 'faulty4.json')
+        with capture() as (stdout, stderr):
+            try:
+                restauth_import([path])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(
+                    stderr,
+                    ".*error: 'users' does not appear to be a dictionary.")
+        path = os.path.join(self.base, 'faulty5.json')
+        with capture() as (stdout, stderr):
+            try:
+                restauth_import([path])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(
+                    stderr,
+                    ".*error: 'groups' does not appear to be a dictionary.")
+
+    def test_empty(self):
+        for i in range(1, 6):
+            path = os.path.join(self.base, 'empty%s.json' % i)
+            with capture() as (stdout, stderr):
+                restauth_import([path])
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertEqual(stderr.getvalue(), '')
+
+    def test_services(self):
+        # already exists:
+        path = os.path.join(self.base, 'services1.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+            self.assertHasLine(stdout, '^Services:$')
+            self.assertHasLine(stdout, '^\* %s: Already exists.$' % self.service.username)
+            self.assertEqual(stderr.getvalue(), '')
+
+        service_name = 'new.example.com'
+
+        # raw password
+        path = os.path.join(self.base, 'services2.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+            self.assertHasLine(stdout, '^Services:$')
+            self.assertHasLine(stdout, '^\* %s: Set password from input data.$' % service_name)
+            self.assertEqual(stderr.getvalue(), '')
+            self.assertTrue(Service.objects.get(username=service_name).check_password('foobar'))

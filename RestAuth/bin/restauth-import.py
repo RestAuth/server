@@ -86,8 +86,14 @@ def save_services(services):
             if isinstance(pwd, six.string_types):
                 service.set_password(pwd)
             elif isinstance(pwd, dict):
-                format_tuple = (pwd['algorithm'], pwd['salt'], pwd['hash'])
-                service.password = '%s%s%s' % format_tuple
+                fields = [
+                    pwd['algorithm'],
+                ]
+                if 'iterations' in pwd:
+                    fields.append(pwd.get('iterations'))
+                fields += [pwd['salt'], pwd['hash'], ]
+
+                service.password = '$'.join(fields)
             print('* %s: Set password from input data.' % name)
         elif args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=32)
