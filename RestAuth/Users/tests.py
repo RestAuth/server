@@ -1099,11 +1099,9 @@ class CliTests(RestAuthTest, CliMixin):
 
         # add group to service:
         group = group_backend.create(groupname1, self.service)
-        group2 = group_backend.create(groupname2, None)
         grp1 = groupname1 if six.PY3 else groupname1.encode('utf-8')
         grp2 = groupname2 if six.PY3 else groupname2.encode('utf-8')
         group_backend.add_user(group, user)
-        group_backend.add_user(group2, user)
 
         with capture() as (stdout, stderr):
             restauth_user(['view', '--service', self.service.name, frm])
@@ -1123,6 +1121,22 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertHasLine(stdout, '^Groups:$')
 
             # no %s expansion because of py2 encoding
+            pattern = str('^\* %s: ' % self.service.username) + grp1
+            self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+
+            self.assertEqual(stderr.getvalue(), '')
+
+        # add "global" group with no service
+        group2 = group_backend.create(groupname2, None)
+        group_backend.add_user(group2, user)
+
+        with capture() as (stdout, stderr):
+            restauth_user(['view', frm])
+            self.assertHasNoLine(stdout, '^Joined: ')
+            self.assertHasLine(stdout, '^Last login: foobar')
+            self.assertHasLine(stdout, '^Groups:$')
+
+            # no %s expansion because of py2 encoding
             pattern = str('^\* no service:.*') + grp2
             self.assertHasLine(stdout, pattern, flags=re.UNICODE)
 
@@ -1131,3 +1145,13 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertHasLine(stdout, pattern, flags=re.UNICODE)
 
             self.assertEqual(stderr.getvalue(), '')
+
+    def test_rm(self):
+        self.create_user(username1, password1)
+        frm = username1 if six.PY3 else username1.encode('utf-8')
+        with capture() as (stdout, stderr):
+            restauth_user(['rm', frm])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(user_backend.list(), [])
+
