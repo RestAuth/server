@@ -151,11 +151,16 @@ def save_users(users, args, parser):
         # handle all other preferences
         for key, value in six.iteritems(data.get('properties', {})):
             if key in TIMESTAMP_PROPS:
-                if value.isinstance(key, (int, float)):
+                if isinstance(value, (int, float)):
                     value = datetime.fromtimestamp(value)
                 else:  # parse time, to ensure correct format
                     value = datetime.strptime(value, TIMESTAMP_FORMAT)
                 value = datetime.strftime(value, TIMESTAMP_FORMAT)
+
+                # if the user was created, remove the 'date joined' prop, if we
+                # find it in the passed properties
+                if key == 'date joined' and created:
+                    property_backend.remove(user, key)
 
             properties[user][key] = value
     return properties
