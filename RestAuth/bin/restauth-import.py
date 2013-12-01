@@ -207,7 +207,11 @@ def save_groups(groups):
 def main(args=None):
     args = parser.parse_args(args=args)
 
-    data = json.load(args.file)
+    try:
+        data = json.load(args.file)
+    except ValueError as e:
+        parser.error("%s: %s" % (args.file.name, e))
+
     if not isinstance(data, dict):
         parser.error("%s: No valid file." % args.file)
 
