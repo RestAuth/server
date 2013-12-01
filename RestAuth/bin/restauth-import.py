@@ -70,7 +70,7 @@ def rollback_transaction():
     property_backend.rollback_transaction()
 
 
-def save_services(services, args):
+def save_services(services, args, parser):
     if services:
         print('Services:')
     for name, data in six.iteritems(services):
@@ -107,7 +107,7 @@ def save_services(services, args):
                     address=host)[0]
                 service.hosts.add(address)
 
-def save_users(users, args):
+def save_users(users, args, parser):
     properties = defaultdict(dict)
     if users:
         print('Users:')
@@ -155,7 +155,7 @@ def save_users(users, args):
             properties[user][key] = value
     return properties
 
-def save_properties(properties, args):
+def save_properties(properties, args, parser):
     for user, props in six.iteritems(properties):
         if args.overwrite_properties:
             property_backend.set_multiple(user, props)
@@ -168,7 +168,7 @@ def save_properties(properties, args):
                           (user.username, key))
                     continue
 
-def save_groups(groups, args):
+def save_groups(groups, args, parser):
     if groups:
         print("Groups:")
 
@@ -240,18 +240,18 @@ def main(args=None):
             #######################
             ### Import services ###
             #######################
-            save_services(services, args)
+            save_services(services, args, parser)
 
             ####################
             ### import users ###
             ####################
-            props = save_users(users, args)
-            save_properties(props, args)
+            props = save_users(users, args, parser)
+            save_properties(props, args, parser)
 
             #####################
             ### import groups ###
             #####################
-            save_groups(groups, args)
+            save_groups(groups, args, parser)
 
     except Exception as e:
         traceback.print_exc()
