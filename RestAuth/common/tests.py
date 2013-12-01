@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 from django.core.exceptions import ImproperlyConfigured
 from django.test.client import Client
 from django.test.client import RequestFactory
@@ -34,9 +36,13 @@ from backends.base import UserInstance
 from common.errors import UsernameInvalid
 from common.middleware import RestAuthMiddleware
 from common.testdata import RestAuthTest
+from common.testdata import CliMixin
+from common.testdata import capture
 from common.testdata import user_backend
 from common.testdata import username1
 from common.utils import import_path
+
+restauth_import = getattr(__import__('bin.restauth-import'), 'restauth-import').main
 
 
 class RestAuthMiddlewareTests(TestCase):
@@ -178,3 +184,47 @@ class BasicTests(RestAuthTest):
         c = Client()
         response = c.get('/')
         self.assertEqual(response.status_code, 200)
+
+
+class RestAuthImportTests(RestAuthTest, CliMixin):
+    base = os.path.join(os.path.dirname(__file__), 'testdata')
+
+    def test_basic(self):
+        with capture() as (stdout, stderr):
+            try:
+                restauth_import(['-h'])
+                self.fail('-h does not exit')
+            except SystemExit as e:
+                self.assertEqual(e.code, 0)
+
+    def test_faulty(self):
+        path = os.path.join(self.base, 'file-not-found.json')
+        with capture() as (stdout, stderr):
+            try:
+                restauth_import([path])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+
+        # invalid json data
+        path = os.path.join(self.base, 'faulty1.json')
+        with capture() as (stdout, stderr):
+            try:
+                restauth_import([path])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(
+                    stderr,
+                    '.*error: %s: No JSON object could be decoded$' % path)
+
+        # top-level not a dict:
+        path = os.path.join(self.base, 'faulty2.json')
+        with capture() as (stdout, stderr):
+            try:
+                restauth_import([path])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(
+                    stderr,
+                    '.*error: %s: Top-level data structure must be a dictionary.$' % path)
