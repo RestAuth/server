@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 import os
 import sys
 import json
@@ -94,18 +96,21 @@ def save_services(services, args, parser):
                 fields += [pwd['salt'], pwd['hash'], ]
 
                 service.password = '$'.join(fields)
+            else:
+                raise TypeError("'password' is neither string nor dictionary.")
             print('* %s: Set password from input data.' % name)
         elif args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=32)
             service.set_password(raw_passwd)
             print('* %s: Generated password: %s' % (name, raw_passwd))
+        else:
+            print('* %s: Added service with no password.')
         service.save()
 
-        if 'hosts' in data:
-            for host in data['hosts']:
-                address = ServiceAddress.objects.get_or_create(
-                    address=host)[0]
-                service.hosts.add(address)
+        for host in data.get('hosts', []):
+            address = ServiceAddress.objects.get_or_create(
+                address=host)[0]
+            service.hosts.add(address)
 
 def save_users(users, args, parser):
     properties = defaultdict(dict)
@@ -254,9 +259,8 @@ def main(args=None):
             save_groups(groups, args, parser)
 
     except Exception as e:
-        traceback.print_exc()
-        print("An error occured, rolling back transaction:")
-        print("%s: %s" % (type(e).__name__, e))
+        print("An error occured, rolling back transaction:", file=sys.stderr)
+        print("%s: %s" % (type(e).__name__, e), file=sys.stderr)
         rollback_transaction()
     else:
         commit_transaction()
