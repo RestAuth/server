@@ -96,6 +96,6 @@ class UsernameAction(Action):
 
 class PasswordGeneratorAction(Action):
     def __call__(self, parser, namespace, values, option_string):
-        passwd = ''.join(random.choice(PASSWORD_CHARS) for x in range(30))
+        passwd = Service.objects.make_random_password(length=16)
         setattr(namespace, 'password_generated', True)
         setattr(namespace, self.dest, passwd)
