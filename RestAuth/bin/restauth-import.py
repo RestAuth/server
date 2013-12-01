@@ -70,7 +70,7 @@ def rollback_transaction():
     property_backend.rollback_transaction()
 
 
-def save_services(services):
+def save_services(services, args):
     if services:
         print('Services:')
     for name, data in six.iteritems(services):
@@ -107,7 +107,7 @@ def save_services(services):
                     address=host)[0]
                 service.hosts.add(address)
 
-def save_users(users):
+def save_users(users, args):
     properties = defaultdict(dict)
     if users:
         print('Users:')
@@ -138,7 +138,7 @@ def save_users(users):
                     print("* %s: Setting hash is not supported, skipping." %
                           username)
         elif created and args.gen_passwords:
-            raw_passwd = Services.objects.make_random_password(length=16)
+            raw_passwd = Service.objects.make_random_password(length=16)
             user_backend.set_password(username=username,
                                       password=raw_passwd)
             print('* %s: Generated password: %s' % (username, raw_passwd))
@@ -155,7 +155,7 @@ def save_users(users):
             properties[user][key] = value
     return properties
 
-def save_properties(properties):
+def save_properties(properties, args):
     for user, props in six.iteritems(properties):
         if args.overwrite_properties:
             property_backend.set_multiple(user, props)
@@ -168,7 +168,7 @@ def save_properties(properties):
                           (user.username, key))
                     continue
 
-def save_groups(groups):
+def save_groups(groups, args):
     if groups:
         print("Groups:")
 
@@ -240,18 +240,18 @@ def main(args=None):
             #######################
             ### Import services ###
             #######################
-            save_services(services)
+            save_services(services, args)
 
             ####################
             ### import users ###
             ####################
-            props = save_users(users)
-            save_properties(props)
+            props = save_users(users, args)
+            save_properties(props, args)
 
             #####################
             ### import groups ###
             #####################
-            save_groups(groups)
+            save_groups(groups, args)
 
     except Exception as e:
         traceback.print_exc()
