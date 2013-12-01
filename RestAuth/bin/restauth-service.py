@@ -33,59 +33,63 @@ except ImportError as e:  # pragma: no cover
                      'Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
-args = parser.parse_args()
+def main(args=None):
+    args = parser.parse_args(args=args)
 
-if args.action == 'add':
-    password = args.get_password(args)
-    if args.password_generated:
-        print(args.pwd)
+    if args.action == 'add':
+        password = args.get_password(args)
+        if args.password_generated:
+            print(args.pwd)
 
-    args.service.set_password(password)
-    args.service.save()
-elif args.action == 'rename':
-    args.service.username = args.name
-    try:
+        args.service.set_password(password)
         args.service.save()
-    except IntegrityError:
-        parser.error("%s: Service already exists." % args.name)
-elif args.action == 'rm':
-    args.service.delete()
-elif args.action == 'ls':
-    for service in Service.objects.all().order_by('username'):
-        hosts = [host.address for host in service.hosts.all()]
-        print('%s: %s' % (service.name, ', '.join(hosts)))
-elif args.action == 'view':
-    print(args.service.name)
-    print('Last used: %s' % (args.service.last_login))
-    hosts = [str(host.address) for host in args.service.hosts.all()]
-    print('Hosts: %s' % (', '.join(hosts)))
-    perms = [p.codename for p in args.service.user_permissions.all()]
-    print('Permissions: %s' % (', '.join(perms)))
-elif args.action == 'set-hosts':
-    try:
-        args.service.set_hosts(*args.hosts)
-    except ValidationError as e:
-        print(e.messages[0])
-        sys.exit(1)
-elif args.action == 'add-hosts':
-    try:
-        args.service.add_hosts(*args.hosts)
-    except ValidationError as e:
-        print(e.messages[0])
-        sys.exit(1)
-elif args.action == 'rm-hosts':
-    args.service.del_hosts(*args.hosts)
-elif args.action == 'set-password':
-    password = args.get_password(args)
-    if args.password_generated:
-        print(args.pwd)
+    elif args.action == 'rename':
+        args.service.username = args.name
+        try:
+            args.service.save()
+        except IntegrityError:
+            parser.error("%s: Service already exists." % args.name)
+    elif args.action == 'rm':
+        args.service.delete()
+    elif args.action == 'ls':
+        for service in Service.objects.all().order_by('username'):
+            hosts = [host.address for host in service.hosts.all()]
+            print('%s: %s' % (service.name, ', '.join(hosts)))
+    elif args.action == 'view':
+        print(args.service.name)
+        print('Last used: %s' % (args.service.last_login))
+        hosts = [str(host.address) for host in args.service.hosts.all()]
+        print('Hosts: %s' % (', '.join(hosts)))
+        perms = [p.codename for p in args.service.user_permissions.all()]
+        print('Permissions: %s' % (', '.join(perms)))
+    elif args.action == 'set-hosts':
+        try:
+            args.service.set_hosts(*args.hosts)
+        except ValidationError as e:
+            print(e.messages[0])
+            sys.exit(1)
+    elif args.action == 'add-hosts':
+        try:
+            args.service.add_hosts(*args.hosts)
+        except ValidationError as e:
+            print(e.messages[0])
+            sys.exit(1)
+    elif args.action == 'rm-hosts':
+        args.service.del_hosts(*args.hosts)
+    elif args.action == 'set-password':
+        password = args.get_password(args)
+        if args.password_generated:
+            print(args.pwd)
 
-    args.service.set_password(password)
-    args.service.save()
-elif args.action == 'set-permissions':
-    args.service.user_permissions.clear()
-    args.service.user_permissions.add(*args.permissions)
-elif args.action == 'add-permissions':
-    args.service.user_permissions.add(*args.permissions)
-elif args.action == 'rm-permissions':
-    args.service.user_permissions.remove(*args.permissions)
+        args.service.set_password(password)
+        args.service.save()
+    elif args.action == 'set-permissions':
+        args.service.user_permissions.clear()
+        args.service.user_permissions.add(*args.permissions)
+    elif args.action == 'add-permissions':
+        args.service.user_permissions.add(*args.permissions)
+    elif args.action == 'rm-permissions':
+        args.service.user_permissions.remove(*args.permissions)
+
+if __name__ == '__main__':  # pragma: no cover
+    main()

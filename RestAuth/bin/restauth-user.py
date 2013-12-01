@@ -106,7 +106,7 @@ def main(args=None):
             user_backend.rename(args.user.username, args.name)
         except UserExists as e:
             parser.error("%s: %s" % (args.name, e))
-    elif args.action in ['delete', 'rm', 'remove']:
+    elif args.action in ['delete', 'rm', 'remove']:  # pragma: no branch
         user_backend.remove(args.user.username)
 
 if __name__ == '__main__':  # pragma: no cover

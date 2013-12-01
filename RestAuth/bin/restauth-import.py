@@ -54,23 +54,6 @@ except ImportError as e:  # pragma: no cover
     )
     sys.exit(1)
 
-args = parser.parse_args()
-
-data = json.load(args.file)
-if not isinstance(data, dict):
-    parser.error("%s: No valid file." % args.file)
-
-services = data.pop('services', {})
-users = data.pop('users', {})
-groups = data.pop('groups', {})
-
-# test some data structures and fail early if data doesn't look right.
-if not isinstance(services, dict):
-    parser.error("'services' does not appear to be a dictionary.")
-if not isinstance(users, dict):
-    parser.error("'users' does not appear to be a dictionary.")
-if not isinstance(groups, dict):
-    parser.error("'groups' does not appear to be a dictionary.")
 
 
 def gen_password(length=30):
@@ -232,30 +215,51 @@ def save_groups(groups):
             subgroup = group_backend.get(name=name, service=service)
             group_backend.add_subgroup(group=group, subgroup=subgroup)
 
-try:
-    init_transaction()
+def main(args=None):
+    args = parser.parse_args(args=args)
 
-    with transaction.atomic():
-        #######################
-        ### Import services ###
-        #######################
-        save_services(services)
+    data = json.load(args.file)
+    if not isinstance(data, dict):
+        parser.error("%s: No valid file." % args.file)
 
-        ####################
-        ### import users ###
-        ####################
-        props = save_users(users)
-        save_properties(props)
+    services = data.pop('services', {})
+    users = data.pop('users', {})
+    groups = data.pop('groups', {})
 
-        #####################
-        ### import groups ###
-        #####################
-        save_groups(groups)
+    # test some data structures and fail early if data doesn't look right.
+    if not isinstance(services, dict):
+        parser.error("'services' does not appear to be a dictionary.")
+    if not isinstance(users, dict):
+        parser.error("'users' does not appear to be a dictionary.")
+    if not isinstance(groups, dict):
+        parser.error("'groups' does not appear to be a dictionary.")
+    try:
+        init_transaction()
 
-except Exception as e:
-    traceback.print_exc()
-    print("An error occured, rolling back transaction:")
-    print("%s: %s" % (type(e).__name__, e))
-    rollback_transaction()
-else:
-    commit_transaction()
+        with transaction.atomic():
+            #######################
+            ### Import services ###
+            #######################
+            save_services(services)
+
+            ####################
+            ### import users ###
+            ####################
+            props = save_users(users)
+            save_properties(props)
+
+            #####################
+            ### import groups ###
+            #####################
+            save_groups(groups)
+
+    except Exception as e:
+        traceback.print_exc()
+        print("An error occured, rolling back transaction:")
+        print("%s: %s" % (type(e).__name__, e))
+        rollback_transaction()
+    else:
+        commit_transaction()
+
+if __name__ == '__main__':  # pragma: no cover
+    main()

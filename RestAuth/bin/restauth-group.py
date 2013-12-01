@@ -39,84 +39,88 @@ except ImportError as e:  # pragma: no cover
     sys.exit(1)
 
 
-# parse arguments
-args = parser.parse_args()
+def main(args=None):
+    # parse arguments
+    args = parser.parse_args(args=args)
 
-# Actions that do not act on an existing group:
-if args.action == 'add':
-    try:
-        group_backend.create(name=args.group, service=args.service)
-    except GroupExists:
-        parser.error('Group already exists.')
-elif args.action in ['list', 'ls']:
-    if args.service:
-        groups = group_backend.list(service=args.service)
-    else:
-        groups = group_backend.list(service=None)
-    for name in sorted(groups):
-        if six.PY3:  # pragma: py3
-            print(name)
-        else:  # pragma: py2
-            print(name.encode('utf-8'))
-elif args.action == 'view':
-    group = get_group(parser, args.group, args.service)
+    # Actions that do not act on an existing group:
+    if args.action == 'add':
+        try:
+            group_backend.create(name=args.group, service=args.service)
+        except GroupExists:
+            parser.error('Group already exists.')
+    elif args.action in ['list', 'ls']:
+        if args.service:
+            groups = group_backend.list(service=args.service)
+        else:
+            groups = group_backend.list(service=None)
+        for name in sorted(groups):
+            if six.PY3:  # pragma: py3
+                print(name)
+            else:  # pragma: py2
+                print(name.encode('utf-8'))
+    elif args.action == 'view':
+        group = get_group(parser, args.group, args.service)
 
-    explicit_users = sorted(group_backend.members(group, depth=0))
-    effective_users = sorted(group_backend.members(group))
-    parent_groups = sorted(group_backend.parents(group))
-    sub_groups = sorted(group_backend.subgroups(group, filter=False))
+        explicit_users = sorted(group_backend.members(group, depth=0))
+        effective_users = sorted(group_backend.members(group))
+        parent_groups = sorted(group_backend.parents(group))
+        sub_groups = sorted(group_backend.subgroups(group, filter=False))
 
-    if explicit_users:
-        print('* Explicit members: %s' % ', '.join(explicit_users))
-    else:
-        print('* No explicit members')
-    if effective_users:
-        print('* Effective members: %s' % ', '.join(effective_users))
-    else:
-        print('* No effective members')
-    if parent_groups:
-        print('* Parent groups:')
-        print_by_service(parent_groups, '    ')
-    else:
-        print('* No parent groups')
-    if sub_groups:
-        print('* Subgroups:')
-        print_by_service(sub_groups, '    ')
-    else:
-        print('* No subgroups')
-elif args.action == 'set-service':
-    group = get_group(parser, args.group, args.service)
-    group_backend.set_service(group, args.new_service)
-elif args.action == 'add-user':
-    group = get_group(parser, args.group, args.service)
-    group_backend.add_user(group, args.user)
-elif args.action == 'add-group':
-    group = get_group(parser, args.group, args.service)
-    subgroup = get_group(parser, args.subgroup, args.sub_service)
+        if explicit_users:
+            print('* Explicit members: %s' % ', '.join(explicit_users))
+        else:
+            print('* No explicit members')
+        if effective_users:
+            print('* Effective members: %s' % ', '.join(effective_users))
+        else:
+            print('* No effective members')
+        if parent_groups:
+            print('* Parent groups:')
+            print_by_service(parent_groups, '    ')
+        else:
+            print('* No parent groups')
+        if sub_groups:
+            print('* Subgroups:')
+            print_by_service(sub_groups, '    ')
+        else:
+            print('* No subgroups')
+    elif args.action == 'set-service':
+        group = get_group(parser, args.group, args.service)
+        group_backend.set_service(group, args.new_service)
+    elif args.action == 'add-user':
+        group = get_group(parser, args.group, args.service)
+        group_backend.add_user(group, args.user)
+    elif args.action == 'add-group':
+        group = get_group(parser, args.group, args.service)
+        subgroup = get_group(parser, args.subgroup, args.sub_service)
 
-    group_backend.add_subgroup(group, subgroup)
-elif args.action in ['delete', 'del', 'rm']:
-    group = get_group(parser, args.group, args.service)
-    group_backend.remove(group)
-elif args.action in ['remove-user', 'rm-user', 'del-user']:
-    group = get_group(parser, args.group, args.service)
-    try:
-        group_backend.rm_user(group, args.user)
-    except UserNotFound:
-        parser.error('User "%s" not member of group %s.' %
-                     (args.user.username, group.name))
-elif args.action == 'rename':
-    group = get_group(parser, args.group, args.service)
-    try:
-        group_backend.rename(group, args.name)
-    except GroupExists as e:
-        parser.error("%s: %s" % (args.name, e))
-elif args.action in ['remove-group', 'rm-group', 'del-group']:
-    group = get_group(parser, args.group, args.service)
-    subgroup = get_group(parser, args.subgroup, args.sub_service)
+        group_backend.add_subgroup(group, subgroup)
+    elif args.action in ['delete', 'del', 'rm']:
+        group = get_group(parser, args.group, args.service)
+        group_backend.remove(group)
+    elif args.action in ['remove-user', 'rm-user', 'del-user']:
+        group = get_group(parser, args.group, args.service)
+        try:
+            group_backend.rm_user(group, args.user)
+        except UserNotFound:
+            parser.error('User "%s" not member of group %s.' %
+                         (args.user.username, group.name))
+    elif args.action == 'rename':
+        group = get_group(parser, args.group, args.service)
+        try:
+            group_backend.rename(group, args.name)
+        except GroupExists as e:
+            parser.error("%s: %s" % (args.name, e))
+    elif args.action in ['remove-group', 'rm-group', 'del-group']:
+        group = get_group(parser, args.group, args.service)
+        subgroup = get_group(parser, args.subgroup, args.sub_service)
 
-    try:
-        group_backend.rm_subgroup(group, subgroup)
-    except GroupNotFound:
-        parser.error('Group "%s" is not a subgroup of "%s".' %
-                     (subgroup.name, group.name))
+        try:
+            group_backend.rm_subgroup(group, subgroup)
+        except GroupNotFound:
+            parser.error('Group "%s" is not a subgroup of "%s".' %
+                         (subgroup.name, group.name))
+
+if __name__ == '__main__':  # pragma: no cover
+    main()
