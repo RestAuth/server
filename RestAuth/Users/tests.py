@@ -31,7 +31,9 @@ from django.utils import six
 # py2/py3 compat imports:
 from django.utils.six.moves import http_client
 
+from Users.cli.parsers import parser
 from Users.validators import load_username_validators
+from common.cli.helpers import format_man_usage
 from common.errors import UserNotFound
 from common.errors import PropertyNotFound
 from common.testdata import CliMixin
@@ -1155,3 +1157,5 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
         self.assertEqual(user_backend.list(), [])
 
+    def test_man(self):  # test man-page generation
+        format_man_usage(parser)
