@@ -31,7 +31,7 @@ def print_by_service(groups, indent=''):
 
     for service, groups in by_service:
         names = sorted([group.name for group in groups])
-        if not six.PY3:
+        if not six.PY3:  # pragma: py2
             names = [name.encode('utf-8') for name in names]
 
         if not service:

@@ -98,9 +98,9 @@ def validate_username(username):
     # force ascii if necessary
     if USERNAME_FORCE_ASCII:
         try:
-            if six.PY3:
+            if six.PY3:  # pragma: py3
                 bytes(username, 'ascii')
-            else:
+            else:  # pragma: py2
                 username.decode('ascii')
         except (UnicodeDecodeError, UnicodeEncodeError):
             raise UsernameInvalid(
