@@ -27,13 +27,16 @@ from django.contrib.auth.hashers import make_password
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import six
+from django.utils.six import StringIO
 
 # py2/py3 compat imports:
 from django.utils.six.moves import http_client
 
 from Users.cli.parsers import parser
 from Users.validators import load_username_validators
-from common.cli.helpers import format_man_usage
+from common.cli.helpers import write_commands
+from common.cli.helpers import write_usage
+from common.cli.helpers import write_parameters
 from common.errors import UserNotFound
 from common.errors import PropertyNotFound
 from common.testdata import CliMixin
@@ -1158,4 +1161,12 @@ class CliTests(RestAuthTest, CliMixin):
         self.assertEqual(user_backend.list(), [])
 
     def test_man(self):  # test man-page generation
-        format_man_usage(parser)
+        output = StringIO()
+        write_parameters(output, parser, 'restauth-user')
+
+        output = StringIO()
+        write_commands(output, parser, 'restauth-user')
+
+        output = StringIO()
+        write_usage(output, parser, 'restauth-user')
+        self.assertTrue(output.getvalue().startswith('.. parsed-literal:: '))
