@@ -39,6 +39,7 @@ from common.testdata import RestAuthTest
 from common.testdata import RestAuthTestBase
 from common.testdata import capture
 from common.testdata import groupname1
+from common.testdata import groupname2
 from common.testdata import group_backend
 from common.testdata import password1
 from common.testdata import password2
@@ -1098,8 +1099,11 @@ class CliTests(RestAuthTest, CliMixin):
 
         # add group to service:
         group = group_backend.create(groupname1, self.service)
+        group2 = group_backend.create(groupname2, None)
         grp1 = groupname1 if six.PY3 else groupname1.encode('utf-8')
+        grp2 = groupname2 if six.PY3 else groupname2.encode('utf-8')
         group_backend.add_user(group, user)
+        group_backend.add_user(group2, user)
 
         with capture() as (stdout, stderr):
             restauth_user(['view', '--service', self.service.name, frm])
@@ -1110,4 +1114,20 @@ class CliTests(RestAuthTest, CliMixin):
             pattern = str('^Groups: ') + grp1
 
             self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+            self.assertEqual(stderr.getvalue(), '')
+
+        with capture() as (stdout, stderr):
+            restauth_user(['view', frm])
+            self.assertHasNoLine(stdout, '^Joined: ')
+            self.assertHasLine(stdout, '^Last login: foobar')
+            self.assertHasLine(stdout, '^Groups:$')
+
+            # no %s expansion because of py2 encoding
+            pattern = str('^\* no service:.*') + grp2
+            self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+
+            # no %s expansion because of py2 encoding
+            pattern = str('^\* %s: ' % self.service.username) + grp1
+            self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+
             self.assertEqual(stderr.getvalue(), '')
