@@ -142,8 +142,6 @@ def save_users(users):
             user_backend.set_password(username=username,
                                       password=raw_passwd)
             print('* %s: Generated password: %s' % (username, raw_passwd))
-        else:
-            print('* %s: User already exists.' % username)
 
         # handle all other preferences
         for key, value in six.iteritems(data.get('properties', {})):
