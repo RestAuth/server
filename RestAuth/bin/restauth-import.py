@@ -18,8 +18,6 @@
 import os
 import sys
 import json
-import random
-import string
 import traceback
 
 from collections import defaultdict
@@ -53,13 +51,6 @@ except ImportError as e:  # pragma: no cover
         'Please make sure RestAuth is in your PYTHONPATH.\n'
     )
     sys.exit(1)
-
-def gen_password(length=30):
-    punct_chars = [c for c in string.punctuation if c not in ['\'', '\\']]
-    punctuation = ''.join(punct_chars)
-    chars = string.letters + string.digits + punctuation
-    return ''.join(random.choice(chars) for x in range(length))
-
 
 def init_transaction():
     user_backend.init_transaction()
@@ -99,7 +90,7 @@ def save_services(services):
                 service.password = '%s%s%s' % format_tuple
             print('* %s: Set password from input data.' % name)
         elif args.gen_passwords:
-            raw_passwd = gen_password(30)
+            raw_passwd = Service.objects.make_random_password(length=32)
             service.set_password(raw_passwd)
             print('* %s: Generated password: %s' % (name, raw_passwd))
         service.save()
@@ -141,7 +132,7 @@ def save_users(users):
                     print("* %s: Setting hash is not supported, skipping." %
                           username)
         elif created and args.gen_passwords:
-            raw_passwd = gen_password(30)
+            raw_passwd = Services.objects.make_random_password(length=16)
             user_backend.set_password(username=username,
                                       password=raw_passwd)
             print('* %s: Generated password: %s' % (username, raw_passwd))
