@@ -83,4 +83,6 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    'file', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+    'file', nargs='?', type=argparse.FileType('r'), default=sys.stdin,
+    help="Input file, defaults to standard input."
+)
