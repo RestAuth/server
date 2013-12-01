@@ -104,7 +104,7 @@ def save_services(services, args, parser):
             service.set_password(raw_passwd)
             print('* %s: Generated password: %s' % (name, raw_passwd))
         else:
-            print('* %s: Added service with no password.')
+            print('* %s: Added service with no password.' % name)
         service.save()
 
         for host in data.get('hosts', []):
@@ -151,7 +151,7 @@ def save_users(users, args, parser):
         # handle all other preferences
         for key, value in six.iteritems(data.get('properties', {})):
             if key in TIMESTAMP_PROPS:
-                if value.__class__ in [int, float]:
+                if value.isinstance(key, (int, float)):
                     value = datetime.fromtimestamp(value)
                 else:  # parse time, to ensure correct format
                     value = datetime.strptime(value, TIMESTAMP_FORMAT)
