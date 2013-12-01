@@ -93,9 +93,9 @@ def main(args=None):
                     groups[service.username] = subgroups
 
             if groups or none_groups:
-                print('Groups: ')
+                print('Groups:')
                 if none_groups:
-                    print('* no service: %s' % sorted(none_groups))
+                    print('* no service: %s' % ', '.join(sorted(none_groups)))
 
                 for service, groups in sorted(groups.items(), key=lambda t: t[0]):
                     print('* %s: %s' % (service, ', '.join(sorted(groups))))
