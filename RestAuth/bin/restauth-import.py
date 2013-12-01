@@ -213,7 +213,9 @@ def main(args=None):
         parser.error("%s: %s" % (args.file.name, e))
 
     if not isinstance(data, dict):
-        parser.error("%s: No valid file." % args.file.name)
+        parser.error(
+            "%s: Top-level data structure must be a dictionary."
+            % args.file.name)
 
     services = data.pop('services', {})
     users = data.pop('users', {})
@@ -226,6 +228,7 @@ def main(args=None):
         parser.error("'users' does not appear to be a dictionary.")
     if not isinstance(groups, dict):
         parser.error("'groups' does not appear to be a dictionary.")
+
     try:
         init_transaction()
 
