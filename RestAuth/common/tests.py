@@ -16,10 +16,13 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 
+from django.contrib.auth.hashers import load_hashers
 from django.core.exceptions import ImproperlyConfigured
 from django.test.client import Client
 from django.test.client import RequestFactory
+from django.test.utils import override_settings
 from django.utils.unittest import TestCase
 
 from django.utils.six.moves import http_client
@@ -288,3 +291,51 @@ class RestAuthImportTests(RestAuthTest, CliMixin):
             self.assertHasLine(stdout, '^\* %s: Set password from input data.$' % service_name)
             self.assertEqual(stderr.getvalue(), '')
             self.assertTrue(Service.objects.get(username=service_name).check_password('foobar'))
+
+    def test_service_hashes(self):
+        PASSWORD_HASHERS = (
+            'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+            'django.contrib.auth.hashers.MD5PasswordHasher',
+            'common.hashers.Apr1Hasher',
+            'common.hashers.PhpassHasher',
+        )
+        # test various passwords:
+        path = os.path.join(self.base, 'services3.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+
+            self.assertEqual(stderr.getvalue(), '')
+            self.assertHasLine(stdout, '^Services:$')
+            self.assertHasLine(
+                stdout, '^\* new1.example.com: Set password from input data.$')
+            self.assertHasLine(
+                stdout, '^\* new2.example.com: Set password from input data.$')
+            self.assertHasLine(
+                stdout, '^\* new3.example.com: Set password from input data.$')
+
+        with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
+            load_hashers()
+            self.assertTrue(Service.objects.get(
+                username='new1.example.com').check_password('12345678'))
+            self.assertTrue(Service.objects.get(
+                username='new2.example.com').check_password('foobar'))
+            self.assertTrue(Service.objects.get(
+                username='new3.example.com').check_password('foobar'))
+        load_hashers()
+
+    def test_generate_hashes(self):
+        path = os.path.join(self.base, 'services4.json')
+        with capture() as (stdout, stderr):
+            try:
+                restauth_import(['--gen-passwords', path])
+            except SystemExit as e:
+                self.fail(stderr.getvalue())
+
+            self.assertEqual(stderr.getvalue(), '')
+            self.assertHasLine(stdout, '^Services:$')
+            self.assertHasLine(
+                stdout, '^\* new.example.com: Generated password: .*$')
+            match = re.search('Generated password: (.*)', stdout.getvalue())
+            password = match.groups()[0]
+            Service.objects.get(username='new.example.com').check_password(
+                password)

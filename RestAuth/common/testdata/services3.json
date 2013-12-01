@@ -1,0 +1,26 @@
+{
+    "services": {
+        "new2.example.com": {
+            "password": {
+                "salt": "ilSj3Uel", 
+                "hash": "XD2jiMfDOvzldmLpJl9SO.", 
+                "algorithm": "apr1"
+            }
+        }, 
+        "new1.example.com": {
+            "password": {
+                "hash": "BqXel7ZCN22KlBpQogL5PJC52hHuD91", 
+                "salt": "P", 
+                "algorithm": "phpass"
+            }
+        },
+        "new3.example.com": {
+            "password": {
+                "hash": "2frgVHaSUSK5Ytmhg8OTBDAMix5SbYz0zJqUFvzpS3w=", 
+                "salt": "lQaIiIrGVKL2", 
+                "iterations": "12000", 
+                "algorithm": "pbkdf2_sha256"
+             }
+        } 
+    }
+}
