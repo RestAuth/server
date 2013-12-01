@@ -213,7 +213,7 @@ def main(args=None):
         parser.error("%s: %s" % (args.file.name, e))
 
     if not isinstance(data, dict):
-        parser.error("%s: No valid file." % args.file)
+        parser.error("%s: No valid file." % args.file.name)
 
     services = data.pop('services', {})
     users = data.pop('users', {})
