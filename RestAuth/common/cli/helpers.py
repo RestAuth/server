@@ -212,8 +212,7 @@ def split_opts_and_args(parser, format_dict={}, skip_help=False):
     return opts, args
 
 
-def write_parameters(parser, path, cmd):
-    f = open(path, 'w')
+def write_parameters(f, parser, cmd):
     format_dict = {'prog': parser.prog}
     opts, args = split_opts_and_args(parser, format_dict)
 
@@ -230,11 +229,10 @@ def write_parameters(parser, path, cmd):
         format_dict.pop('default', None)
 
 
-def write_commands(parser, path, cmd):
+def write_commands(f, parser, cmd):
     if not parser._subparsers:
         return
 
-    f = open(path, 'w')
     commands = sorted(parser._subparsers._actions[1].choices)
     format_dict = {'prog': parser.prog}
     for sub_cmd in commands:
@@ -274,13 +272,9 @@ def write_commands(parser, path, cmd):
             f.write('      %s\n' % (' '.join(arg.help.split())))
             f.write('      \n')
 
-    f.close()
 
-
-def write_usage(parser, path, cmd=None):
-    f = open(path, 'w')
+def write_usage(f, parser, cmd=None):
     usage = parser.format_usage().replace('usage: ', '')
     usage = usage.replace("\n", '')
     usage = re.sub('\s{2,}', ' ', usage)
     f.write('.. parsed-literal:: %s' % usage)
-    f.close()

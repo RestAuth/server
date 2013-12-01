@@ -211,7 +211,9 @@ class build_doc_meta(Command):
                 filename = 'doc/gen/%s-%s.rst' % (name, suffix)
                 if self.should_generate(parser.__file__, filename):
                     func = getattr(helpers, 'write_%s' % suffix)
-                    func(parser.parser, filename, name)
+
+                    with open(filename, 'w') as f:
+                        func(f, parser.parser, name)
 
         # generate permissions:
         self.write_perm_table('users', user_permissions)

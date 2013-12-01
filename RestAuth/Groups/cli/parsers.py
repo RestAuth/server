@@ -18,7 +18,7 @@
 from argparse import ArgumentParser
 
 from Groups.cli.actions import GroupnameAction
-from Groups.cli.actions import ServiceAction
+from common.cli.actions import ServiceAction
 from common.cli.parsers import user_parser
 from common.cli.parsers import service_opt_parser
 
