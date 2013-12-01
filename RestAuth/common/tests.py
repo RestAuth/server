@@ -41,8 +41,14 @@ from common.middleware import RestAuthMiddleware
 from common.testdata import RestAuthTest
 from common.testdata import CliMixin
 from common.testdata import capture
+from common.testdata import property_backend
 from common.testdata import user_backend
+from common.testdata import propkey1
+from common.testdata import propkey2
+from common.testdata import propval1
+from common.testdata import propval2
 from common.testdata import username1
+from common.testdata import username2
 from common.utils import import_path
 
 restauth_import = getattr(__import__('bin.restauth-import'), 'restauth-import').main
@@ -213,6 +219,7 @@ class RestAuthImportTests(RestAuthTest, CliMixin):
         with capture() as (stdout, stderr):
             try:
                 restauth_import([path])
+                self.fail('No exception thrown.')
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
@@ -225,6 +232,7 @@ class RestAuthImportTests(RestAuthTest, CliMixin):
         with capture() as (stdout, stderr):
             try:
                 restauth_import([path])
+                self.fail('No exception thrown.')
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
@@ -237,6 +245,7 @@ class RestAuthImportTests(RestAuthTest, CliMixin):
         with capture() as (stdout, stderr):
             try:
                 restauth_import([path])
+                self.fail('No exception thrown.')
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
@@ -247,22 +256,31 @@ class RestAuthImportTests(RestAuthTest, CliMixin):
         with capture() as (stdout, stderr):
             try:
                 restauth_import([path])
+                self.fail('No exception thrown.')
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertHasLine(
                     stderr,
                     ".*error: 'users' does not appear to be a dictionary.")
+
         path = os.path.join(self.base, 'faulty5.json')
         with capture() as (stdout, stderr):
             try:
                 restauth_import([path])
+                self.fail('No exception thrown.')
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertHasLine(
                     stderr,
                     ".*error: 'groups' does not appear to be a dictionary.")
+
+        path = os.path.join(self.base, 'faulty6.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+            self.assertEqual("""An error occured, rolling back transaction:
+TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_empty(self):
         for i in range(1, 6):
@@ -323,13 +341,10 @@ class RestAuthImportTests(RestAuthTest, CliMixin):
                 username='new3.example.com').check_password('foobar'))
         load_hashers()
 
-    def test_generate_hashes(self):
+    def test_generate_service_hashes(self):
         path = os.path.join(self.base, 'services4.json')
         with capture() as (stdout, stderr):
-            try:
-                restauth_import(['--gen-passwords', path])
-            except SystemExit as e:
-                self.fail(stderr.getvalue())
+            restauth_import(['--gen-passwords', path])
 
             self.assertEqual(stderr.getvalue(), '')
             self.assertHasLine(stdout, '^Services:$')
@@ -339,3 +354,32 @@ class RestAuthImportTests(RestAuthTest, CliMixin):
             password = match.groups()[0]
             Service.objects.get(username='new.example.com').check_password(
                 password)
+
+    def test_set_hosts(self):
+        path = os.path.join(self.base, 'services5.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+
+            self.assertEqual(stderr.getvalue(), '')
+            self.assertHasLine(stdout, '^Services:$')
+            self.assertHasLine(
+                stdout, '^\* new.example.com: Added service with no password.$')
+            service = Service.objects.get(username='new.example.com')
+            hosts = service.hosts.values_list('address', flat=True)
+            self.assertItemsEqual(hosts, ['127.0.0.1', '::1'])
+
+    def test_users(self):
+        path = os.path.join(self.base, 'users1.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+            self.assertItemsEqual(user_backend.list(), [username1, username2])
+            user = user_backend.get(username2)
+            props = {
+                propkey1: propval1,
+                propkey2: propval2,
+                # timestamps of when we wrote this test:
+                u'date joined': u'2013-12-01 19:27:50',
+                u'last login': u'2013-12-01 19:27:44',
+            }
+
+            self.assertEqual(property_backend.list(user), props)
