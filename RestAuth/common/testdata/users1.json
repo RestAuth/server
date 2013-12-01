@@ -1,0 +1,14 @@
+{
+    "users": {
+        "mati2 \u6112": {
+            "password": "password \u6121", 
+            "properties": {
+                "propkey2 \u6142": "propval2 \u6152", 
+                "propkey1 \u6141": "propval1 \u6151", 
+                "date joined": 1385922470.483657, 
+                "last login": "2013-12-01 19:27:44"
+            }
+        }, 
+        "mati1 \u6111": {}
+    }
+}
