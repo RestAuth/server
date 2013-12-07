@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
+# vim: tw=99:
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
+# see <http://www.gnu.org/licenses/>.
+
+from __future__ import unicode_literals
 
 import os
 import re
@@ -47,6 +48,7 @@ from common.testdata import propkey1
 from common.testdata import propkey2
 from common.testdata import propval1
 from common.testdata import propval2
+from common.testdata import propval3
 from common.testdata import username1
 from common.testdata import username2
 from common.utils import import_path
@@ -317,6 +319,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             'common.hashers.Apr1Hasher',
             'common.hashers.PhpassHasher',
         )
+
         # test various passwords:
         path = os.path.join(self.base, 'services3.json')
         with capture() as (stdout, stderr):
@@ -324,12 +327,9 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
             self.assertEqual(stderr.getvalue(), '')
             self.assertHasLine(stdout, '^Services:$')
-            self.assertHasLine(
-                stdout, '^\* new1.example.com: Set password from input data.$')
-            self.assertHasLine(
-                stdout, '^\* new2.example.com: Set password from input data.$')
-            self.assertHasLine(
-                stdout, '^\* new3.example.com: Set password from input data.$')
+            self.assertHasLine(stdout, '^\* new1.example.com: Set password from input data.$')
+            self.assertHasLine(stdout, '^\* new2.example.com: Set password from input data.$')
+            self.assertHasLine(stdout, '^\* new3.example.com: Set password from input data.$')
 
         with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
             load_hashers()
@@ -348,12 +348,10 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
             self.assertEqual(stderr.getvalue(), '')
             self.assertHasLine(stdout, '^Services:$')
-            self.assertHasLine(
-                stdout, '^\* new.example.com: Generated password: .*$')
+            self.assertHasLine(stdout, '^\* new.example.com: Generated password: .*$')
             match = re.search('Generated password: (.*)', stdout.getvalue())
             password = match.groups()[0]
-            Service.objects.get(username='new.example.com').check_password(
-                password)
+            Service.objects.get(username='new.example.com').check_password(password)
 
     def test_set_hosts(self):
         path = os.path.join(self.base, 'services5.json')
@@ -362,16 +360,18 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
             self.assertEqual(stderr.getvalue(), '')
             self.assertHasLine(stdout, '^Services:$')
-            self.assertHasLine(
-                stdout, '^\* new.example.com: Added service with no password.$')
+            self.assertHasLine(stdout, '^\* new.example.com: Added service with no password.$')
             service = Service.objects.get(username='new.example.com')
             hosts = service.hosts.values_list('address', flat=True)
             self.assertItemsEqual(hosts, ['127.0.0.1', '::1'])
 
-    def test_users(self):
+    def test_users(self, overwrite=False):
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):
-            restauth_import([path])
+            cmd = [path]
+            if overwrite:
+                cmd = ['--overwrite-properties', path]
+            restauth_import(cmd)
             self.assertItemsEqual(user_backend.list(), [username1, username2])
             user = user_backend.get(username2)
             props = {
@@ -383,3 +383,34 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             }
 
             self.assertEqual(property_backend.list(user), props)
+
+    def test_users_overwrite_properties(self):
+        self.test_users(overwrite=True)
+
+    def test_existing_properties(self):
+        user = user_backend.create(username2, property_backend=property_backend)
+        property_backend.create(user, propkey1, propval3)
+
+        path = os.path.join(self.base, 'users1.json')
+        with capture() as (stdout, stderr):
+            cmd = [path]
+            restauth_import(cmd)
+            self.assertItemsEqual(user_backend.list(), [username1, username2])
+            user = user_backend.get(username2)
+
+            pattern = '^%s: Property "%s" already exists\.$' % (username2, propkey1)
+            self.assertHasLine(stdout, pattern)
+            self.assertHasLine(stdout, '^%s: Property "date joined" already exists\.$' % username2)
+
+            expected_props = {
+                propkey1: propval3,  # propva1 is in json-file - we don't overwrite!
+                propkey2: propval2,
+                u'last login': u'2013-12-01 19:27:44',  # date from json file
+            }
+
+            props = property_backend.list(user)
+            # delete 'date joined' prop because it was created by the user_backend and
+            # restauth-import doesn't overwrite in this invocation:
+            del props['date joined']
+
+            self.assertEqual(props, expected_props)
