@@ -15,6 +15,7 @@
 
 from __future__ import unicode_literals
 
+from django.utils import six
 from django.utils.six.moves import http_client
 
 from Services.models import Service
@@ -34,6 +35,8 @@ from common.testdata import password2
 from common.testdata import password3
 from common.testdata import password4
 from common.testdata import password5
+from common.testdata import property_backend
+from common.testdata import user_backend
 from common.testdata import username1
 from common.testdata import username2
 from common.testdata import username3
@@ -800,13 +803,14 @@ class RemoveSubGroupTests(GroupUserTests):
 class CliTests(RestAuthTest, CliMixin):
     def test_add(self):
         with capture() as (stdout, stderr):
-            cli(['add', groupname1])
+            cli(['add', groupname1 if six.PY3 else groupname1.encode('utf-8')])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
         self.assertTrue(group_backend.exists(groupname1))
 
         with capture() as (stdout, stderr):
-            cli(['add', '--service=%s' % self.service.username, groupname2])
+            cli(['add', '--service=%s' % self.service.username, groupname2 if six.PY3 else
+                 groupname2.encode('utf-8')])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
         self.assertTrue(group_backend.exists(groupname2, service=self.service))
@@ -817,7 +821,7 @@ class CliTests(RestAuthTest, CliMixin):
 
         with capture() as (stdout, stderr):
             try:
-                cli(['add', groupname1])
+                cli(['add', groupname1 if six.PY3 else groupname1.encode('utf-8')])
                 self.fail('Adding an already existing group does not throw an error.')
             except SystemExit as e:
                 self.assertEqual(stdout.getvalue(), '')
@@ -825,7 +829,8 @@ class CliTests(RestAuthTest, CliMixin):
 
         with capture() as (stdout, stderr):
             try:
-                cli(['add', '--service=%s' % self.service.username, groupname2])
+                cli(['add', '--service=%s' % self.service.username, groupname2 if six.PY3 else
+                     groupname2.encode('utf-8')])
                 self.fail('Adding an already existing group does not throw an error.')
             except SystemExit as e:
                 self.assertEqual(stdout.getvalue(), '')
@@ -846,3 +851,149 @@ class CliTests(RestAuthTest, CliMixin):
             cli(['ls', '--service=%s' % self.service.username])
             self.assertEqual(stdout.getvalue(), '%s\n%s\n' % (groupname3, groupname4))
             self.assertEqual(stderr.getvalue(), '')
+
+    def test_view(self):
+        user1 = user_backend.create(username1, property_backend=property_backend)
+        user2 = user_backend.create(username2, property_backend=property_backend)
+        user3 = user_backend.create(username3, property_backend=property_backend)
+        group1 = group_backend.create(groupname1)
+        group2 = group_backend.create(groupname2)
+        group3 = group_backend.create(groupname3)
+        group4 = group_backend.create(groupname4, service=self.service)
+        group5 = group_backend.create(groupname5, service=self.service)
+
+        with capture() as (stdout, stderr):
+            cli(['view', groupname1 if six.PY3 else groupname1.encode('utf-8')])
+            self.assertEqual(stderr.getvalue(), '')
+            self.assertEqual(stdout.getvalue(), """* No explicit members
+* No effective members
+* No parent groups
+* No subgroups
+""")
+
+        # add a few members, and subgroups:
+        group_backend.add_user(group1, user1)
+        group_backend.add_user(group1, user2)
+        group_backend.add_user(group4, user3)
+        group_backend.add_subgroup(group1, group2)
+        group_backend.add_subgroup(group1, group4)
+        group_backend.add_subgroup(group5, group4)
+
+        # view a top-group:
+        with capture() as (stdout, stderr):
+            cli(['view', groupname1 if six.PY3 else groupname1.encode('utf-8')])
+            self.assertEqual(stderr.getvalue(), '')
+            userlist = ', '.join(sorted([username1, username2]))
+            self.assertEqual(stdout.getvalue(), """* Explicit members: %s
+* Effective members: %s
+* No parent groups
+* Subgroups:
+    <no service>: %s
+    %s: %s
+""" % (userlist, userlist, groupname2, self.service.name, groupname4))
+
+        # view a sub-group
+        with capture() as (stdout, stderr):
+            cli(['view', '--service=%s' % self.service.username,
+                 groupname4 if six.PY3 else groupname4.encode('utf-8')])
+            self.assertEqual(stderr.getvalue(), '')
+            explicit = ', '.join(sorted([username3, ]))
+            effective = ', '.join(sorted([username1, username2, username3]))
+            self.assertEqual(stdout.getvalue(), """* Explicit members: %s
+* Effective members: %s
+* Parent groups:
+    <no service>: %s
+    %s: %s
+* No subgroups
+""" % (explicit, effective, groupname1, self.service.username, groupname5))
+
+    def test_set_service(self):
+        group_backend.create(groupname1)
+
+        with capture() as (stdout, stderr):
+            cli(['set-service', groupname1 if six.PY3 else groupname1.encode('utf-8'),
+                 self.service.username])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.list(service=self.service), [groupname1])
+
+        with capture() as (stdout, stderr):
+            cli(['set-service', '--service=%s' % self.service.username,
+                 groupname1 if six.PY3 else groupname1.encode('utf-8')])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.list(service=None), [groupname1])
+
+        with capture() as (stdout, stderr):  # test a non-existing group
+            try:
+                cli(['set-service', '--service=%s' % self.service.username,
+                     groupname1 if six.PY3 else groupname1.encode('utf-8')])
+            except SystemExit as e:
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'error: %s at service %s: Group does not exist\.$' %
+                                   (groupname1, self.service.username))
+        self.assertEqual(group_backend.list(service=None), [groupname1])
+
+    def test_add_user(self):
+        user1 = user_backend.create(username1, property_backend=property_backend)
+        user2 = user_backend.create(username2, property_backend=property_backend)
+        group1 = group_backend.create(groupname1)
+        group2 = group_backend.create(groupname2, service=self.service)
+
+        with capture() as (stdout, stderr):
+            cli(['add-user',
+                 groupname1 if six.PY3 else groupname1.encode('utf-8'),
+                 username1 if six.PY3 else username1.encode('utf-8'),
+            ])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.members(group1), [username1])
+
+        with capture() as (stdout, stderr):
+            cli(['add-user', '--service=%s' % self.service.username,
+                 groupname2 if six.PY3 else groupname2.encode('utf-8'),
+                 username2 if six.PY3 else username2.encode('utf-8'),
+            ])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.members(group2), [username2])
+
+    def test_add_group_neither(self):  # neither group is in any service
+        group1 = group_backend.create(groupname1)
+        group2 = group_backend.create(groupname2)
+
+        with capture() as (stdout, stderr):
+            cli(['add-group',
+                 groupname1 if six.PY3 else groupname1.encode('utf-8'),
+                 groupname2 if six.PY3 else groupname2.encode('utf-8'),
+            ])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.subgroups(group1), [groupname2])
+
+    def test_add_group_both(self):  # bout groups are in service
+        group1 = group_backend.create(groupname1, service=self.service)
+        group2 = group_backend.create(groupname2, service=self.service)
+
+        with capture() as (stdout, stderr):
+            cli(['add-group',
+                 '--service=%s' % self.service.username,
+                 '--sub-service=%s' % self.service.username,
+                 groupname1 if six.PY3 else groupname1.encode('utf-8'),
+                 groupname2 if six.PY3 else groupname2.encode('utf-8'),
+            ])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.subgroups(group1), [groupname2])
+
+    def test_rename(self):
+        pass
+
+    def test_rm(self):
+        pass
+
+    def test_rm_user(self):
+        pass
+
+    def test_rm_group(self):
+        pass
