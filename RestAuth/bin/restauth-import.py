@@ -135,7 +135,7 @@ def save_users(users, args, parser):
                     print('* %s: Hash of type "%s" is not supported, skipping.' %
                           (username, pwd['algorithm']))
             else:
-                raise TypeError("password is of type %s" % type(pwd))
+                raise TypeError("password is of type %s" % type(pwd).__name__)
         elif created and args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=16)
             user_backend.set_password(username=username, password=raw_passwd)
@@ -191,7 +191,7 @@ def save_groups(groups, args, parser):
                 print("* %s: Already exists, adding memberships." % name)
                 group = group_backend.get(service=service, name=name)
 
-        for username in data['users']:
+        for username in data.get('users', []):
             user = user_backend.get(username=username)
             group_backend.add_user(group=group, user=user)
 
@@ -251,7 +251,7 @@ def main(args=None):
             #####################
             ### import groups ###
             #####################
-            save_groups(groups, args, parser)
+            save_groups(groups, args, parser)  # pragma: no branch
 
     except Exception as e:
         print("An error occured, rolling back transaction:", file=sys.stderr)

@@ -1,0 +1,28 @@
+{
+    "groups": {
+        "group2 \u6132": {
+            "users": [
+                "mati1 \u6111", 
+                "mati2 \u6112"
+            ], 
+            "service": "vowi", 
+            "subgroups": [
+                {
+                    "name": "group3 \u6133", 
+                    "service": "vowi"
+                }, 
+                {
+                    "name": "group4 \u6134"
+                }
+            ]
+        }, 
+        "group4 \u6134": {}, 
+        "group1 \u6131": {}, 
+        "group3 \u6133": {
+            "users": [
+                "mati3 \u6113"
+            ], 
+            "service": "vowi"
+        }
+    }
+}

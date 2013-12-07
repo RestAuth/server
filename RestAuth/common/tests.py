@@ -41,19 +41,31 @@ from common.middleware import RestAuthMiddleware
 from common.testdata import RestAuthTest
 from common.testdata import CliMixin
 from common.testdata import capture
+from common.testdata import group_backend
+from common.testdata import groupname1
+from common.testdata import groupname2
+from common.testdata import groupname3
+from common.testdata import groupname4
 from common.testdata import property_backend
-from common.testdata import user_backend
 from common.testdata import propkey1
 from common.testdata import propkey2
 from common.testdata import propval1
 from common.testdata import propval2
 from common.testdata import propval3
+from common.testdata import user_backend
 from common.testdata import username1
 from common.testdata import username2
 from common.testdata import username3
+from common.testdata import username4
 from common.utils import import_path
 
 restauth_import = getattr(__import__('bin.restauth-import'), 'restauth-import').main
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'common.hashers.Apr1Hasher',
+    'common.hashers.PhpassHasher',
+)
 
 
 class RestAuthMiddlewareTests(TestCase):
@@ -313,13 +325,6 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertTrue(Service.objects.get(username=service_name).check_password('foobar'))
 
     def test_service_hashes(self):
-        PASSWORD_HASHERS = (
-            'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-            'django.contrib.auth.hashers.MD5PasswordHasher',
-            'common.hashers.Apr1Hasher',
-            'common.hashers.PhpassHasher',
-        )
-
         # test various passwords:
         path = os.path.join(self.base, 'services3.json')
         with capture() as (stdout, stderr):
@@ -367,11 +372,13 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_users(self, overwrite=False):
         path = os.path.join(self.base, 'users1.json')
-        with capture() as (stdout, stderr):
+        with capture() as (stdout, stderr), override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
             cmd = [path]
             if overwrite:
                 cmd = ['--overwrite-properties', path]
             restauth_import(cmd)
+            self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
+            self.assertTrue(user_backend.check_password(username3, 'foobar'))
             self.assertItemsEqual(user_backend.list(), [username1, username2, username3])
             user = user_backend.get(username2)
             props = {
@@ -401,7 +408,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         with capture() as (stdout, stderr):
             restauth_import([path])
             self.assertHasLine(
-                stdout, '^\* %s: Setting hash is not supported, skipping\.$' % username1)
+                stdout, '^\* %s: Hash of type "unknown" is not supported, skipping\.$' % username1)
 
     def test_existing_properties(self):
         user = user_backend.create(username2, property_backend=property_backend)
@@ -439,3 +446,104 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertHasLine(output, '^\* %s: Generated password: .*' % username1)
             password = re.search('Generated password: (.*)', output).groups()[0]
         self.assertTrue(user_backend.check_password(username1, password))
+
+    def test_wrong_password_type(self):
+        path = os.path.join(self.base, 'users4.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+            self.assertEqual(stdout.getvalue(), 'Users:\n')
+            self.assertHasLine(stderr, '^TypeError: password is of type list$')
+
+    def test_groups(self):
+        user1 = user_backend.create(username1, property_backend=property_backend)
+        user2 = user_backend.create(username2, property_backend=property_backend)
+        user3 = user_backend.create(username3, property_backend=property_backend)
+
+        path = os.path.join(self.base, 'groups1.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+            self.assertHasLine(stdout, '^Groups:$')
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname1)
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname2)
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
+
+        # get groups from backend
+        group1 = group_backend.get(groupname1)
+        group2 = group_backend.get(groupname2, service=self.service)
+        group3 = group_backend.get(groupname3, service=self.service)
+        group4 = group_backend.get(groupname4)
+
+        # test memberships
+        self.assertEqual(group_backend.list(group1), [])
+        self.assertItemsEqual(group_backend.members(group2), [username1, username2])
+        self.assertItemsEqual(group_backend.members(group3), [username1, username2, username3])
+        self.assertItemsEqual(group_backend.members(group4), [username1, username2])
+
+    def test_existing_groups(self):
+        user1 = user_backend.create(username1, property_backend=property_backend)
+        user2 = user_backend.create(username2, property_backend=property_backend)
+        user3 = user_backend.create(username3, property_backend=property_backend)
+        user4 = user_backend.create(username4, property_backend=property_backend)  # new user
+
+        # this group already exists and has some memberships
+        group2 = group_backend.create(groupname2, service=self.service)
+        group_backend.add_user(group2, user1)
+        group_backend.add_user(group2, user4)
+
+        path = os.path.join(self.base, 'groups1.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+            self.assertHasLine(stdout, '^Groups:$')
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname1)
+            self.assertHasLine(stdout, '^\* %s: Already exists, adding memberships\.$' % groupname2)
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
+
+        # get groups from backend
+        group1 = group_backend.get(groupname1)
+        group3 = group_backend.get(groupname3, service=self.service)
+        group4 = group_backend.get(groupname4)
+
+        # test memberships
+        self.assertEqual(group_backend.list(group1), [])
+        self.assertItemsEqual(group_backend.members(group2), [username1, username2, username4])
+        self.assertItemsEqual(group_backend.members(group3), [username1, username2, username3,
+                                                              username4])
+        self.assertItemsEqual(group_backend.members(group4), [username1, username2, username4])
+
+    def test_skip_existing_groups(self):
+        # same test-setup as above, only we skip existing groups
+        user1 = user_backend.create(username1, property_backend=property_backend)
+        user2 = user_backend.create(username2, property_backend=property_backend)
+        user3 = user_backend.create(username3, property_backend=property_backend)
+        user4 = user_backend.create(username4, property_backend=property_backend)  # new user
+
+        # this group already exists and has some memberships
+        group2 = group_backend.create(groupname2, service=self.service)
+        group_backend.add_user(group2, user1)
+        group_backend.add_user(group2, user4)
+
+        path = os.path.join(self.base, 'groups1.json')
+        with capture() as (stdout, stderr):
+            try:
+                restauth_import(['--skip-existing-groups', path])
+            except SystemExit:
+                self.fail(stderr.getvalue())
+            self.assertHasLine(stdout, '^Groups:$')
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname1)
+            self.assertHasLine(stdout, '^\* %s: Already exists, skipping\.$' % groupname2)
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
+            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
+
+        # get groups from backend
+        group1 = group_backend.get(groupname1)
+        group3 = group_backend.get(groupname3, service=self.service)
+        group4 = group_backend.get(groupname4)
+
+        # test memberships
+        self.assertEqual(group_backend.list(group1), [])
+        self.assertItemsEqual(group_backend.members(group2), [username1, username4])
+        # group3 now is not a subgroup, because group2 already existed and we skipped its data
+        self.assertEqual(group_backend.members(group3), [username3])
+        self.assertEqual(group_backend.members(group4), [])
