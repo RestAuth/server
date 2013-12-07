@@ -6,6 +6,7 @@ RestAuth 0.6.4 (XX XXX XXXX)
   * Migrate to app-layout from Django 1.5
   * Improve documentation in many small ways.
   * Move development dependencies to requirements-dev.txt
+  * Code now (partially) uses a line-width of 99 characters.
 
   Command-line scripts:
   * Fix listing of subgroups for "restauth-groups view".
