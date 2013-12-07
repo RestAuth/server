@@ -2,18 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not,
+# see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
@@ -25,17 +23,17 @@ sys.path.append(os.getcwd())
 try:
     from django.utils import six
 
+    from Groups.cli.helpers import get_group
+    from Groups.cli.helpers import print_by_service
     from Groups.cli.parsers import parser
-    from Groups.cli.parsers import get_group
-    from Groups.cli.parsers import print_by_service
     from backends import group_backend
     from common.errors import GroupExists
     from common.errors import GroupNotFound
     from common.errors import UserNotFound
 except ImportError as e:  # pragma: no cover
-    print(e)
-    sys.stderr.write('Error: Cannot import RestAuth. '
-                     'Please make sure RestAuth is in your PYTHONPATH.\n')
+    print('ImportError: %s' % e)
+    sys.stderr.write(
+        'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
 
