@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from itertools import groupby
+from __future__ import unicode_literals
 
-from django.utils import six
+from itertools import groupby
 
 from backends import group_backend
 from common.errors import GroupNotFound
@@ -31,8 +31,6 @@ def print_by_service(groups, indent=''):
 
     for service, groups in by_service:
         names = sorted([group.name for group in groups])
-        if not six.PY3:  # pragma: py2
-            names = [name.encode('utf-8') for name in names]
 
         if not service:
             service = '<no service>'
