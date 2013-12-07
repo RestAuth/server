@@ -101,8 +101,7 @@ def main(args=None):
         try:
             group_backend.rm_user(group, args.user)
         except UserNotFound:
-            parser.error('User "%s" not member of group %s.' %
-                         (args.user.username, group.name))
+            parser.error('User "%s" not member of group %s.' % (args.user.username, group.name))
     elif args.action == 'rename':
         group = get_group(parser, args.group, args.service)
         try:
@@ -116,8 +115,7 @@ def main(args=None):
         try:
             group_backend.rm_subgroup(group, subgroup)
         except GroupNotFound:
-            parser.error('Group "%s" is not a subgroup of "%s".' %
-                         (subgroup.name, group.name))
+            parser.error('Group "%s" is not a subgroup of "%s".' % (subgroup.name, group.name))
 
 if __name__ == '__main__':  # pragma: no cover
     main()
