@@ -19,7 +19,9 @@ from django.utils.six.moves import http_client
 
 from Services.models import Service
 from Services.models import service_create
+from common.testdata import CliMixin
 from common.testdata import RestAuthTest
+from common.testdata import capture
 from common.testdata import group_backend
 from common.testdata import groupname1
 from common.testdata import groupname2
@@ -37,6 +39,8 @@ from common.testdata import username2
 from common.testdata import username3
 from common.testdata import username4
 from common.testdata import username5
+
+cli = getattr(__import__('bin.restauth-group'), 'restauth-group').main
 
 
 class GroupTests(RestAuthTest):
@@ -791,3 +795,54 @@ class RemoveSubGroupTests(GroupUserTests):
                               [self.group1])
         self.assertItemsEqual(group_backend.parents(self.get_grp(groupname5, self.fsinf)),
                               [self.group1])
+
+
+class CliTests(RestAuthTest, CliMixin):
+    def test_add(self):
+        with capture() as (stdout, stderr):
+            cli(['add', groupname1])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertTrue(group_backend.exists(groupname1))
+
+        with capture() as (stdout, stderr):
+            cli(['add', '--service=%s' % self.service.username, groupname2])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertTrue(group_backend.exists(groupname2, service=self.service))
+
+    def test_add_exists(self):
+        group_backend.create(groupname1)
+        group_backend.create(groupname2, service=self.service)
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['add', groupname1])
+                self.fail('Adding an already existing group does not throw an error.')
+            except SystemExit as e:
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'Group already exists\.')
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['add', '--service=%s' % self.service.username, groupname2])
+                self.fail('Adding an already existing group does not throw an error.')
+            except SystemExit as e:
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'Group already exists\.')
+
+    def test_ls(self):
+        group_backend.create(groupname1)
+        group_backend.create(groupname2)
+        group_backend.create(groupname3, service=self.service)
+        group_backend.create(groupname4, service=self.service)
+
+        with capture() as (stdout, stderr):
+            cli(['ls'])
+            self.assertEqual(stdout.getvalue(), '%s\n%s\n' % (groupname1, groupname2))
+            self.assertEqual(stderr.getvalue(), '')
+
+        with capture() as (stdout, stderr):
+            cli(['ls', '--service=%s' % self.service.username])
+            self.assertEqual(stdout.getvalue(), '%s\n%s\n' % (groupname3, groupname4))
+            self.assertEqual(stderr.getvalue(), '')
