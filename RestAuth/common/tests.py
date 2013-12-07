@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# vim: tw=99:
 #
 # This file is part of RestAuth (https://restauth.net).
 #
