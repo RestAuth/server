@@ -2,25 +2,22 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not,
+# see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import os
 import sys
 import json
-import traceback
 
 from collections import defaultdict
 from datetime import datetime
@@ -49,9 +46,7 @@ try:
     from common.errors import UserExists
 except ImportError as e:  # pragma: no cover
     sys.stderr.write(
-        'Error: Cannot import RestAuth. '
-        'Please make sure RestAuth is in your PYTHONPATH.\n'
-    )
+        'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
 def init_transaction():
@@ -88,9 +83,7 @@ def save_services(services, args, parser):
             if isinstance(pwd, six.string_types):
                 service.set_password(pwd)
             elif isinstance(pwd, dict):
-                fields = [
-                    pwd['algorithm'],
-                ]
+                fields = [pwd['algorithm'], ]
                 if 'iterations' in pwd:
                     fields.append(pwd.get('iterations'))
                 fields += [pwd['salt'], pwd['hash'], ]
@@ -108,8 +101,7 @@ def save_services(services, args, parser):
         service.save()
 
         for host in data.get('hosts', []):
-            address = ServiceAddress.objects.get_or_create(
-                address=host)[0]
+            address = ServiceAddress.objects.get_or_create(address=host)[0]
             service.hosts.add(address)
 
 def save_users(users, args, parser):
@@ -140,12 +132,10 @@ def save_users(users, args, parser):
                     user_backend.set_password_hash(username=username, **pwd)
                     print('* %s: Set hash from input data.' % username)
                 except NotImplementedError:
-                    print("* %s: Setting hash is not supported, skipping." %
-                          username)
+                    print("* %s: Setting hash is not supported, skipping." % username)
         elif created and args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=16)
-            user_backend.set_password(username=username,
-                                      password=raw_passwd)
+            user_backend.set_password(username=username, password=raw_passwd)
             print('* %s: Generated password: %s' % (username, raw_passwd))
 
         # handle all other preferences
@@ -174,8 +164,7 @@ def save_properties(properties, args, parser):
                 try:
                     property_backend.create(user=user, key=key, value=value)
                 except PropertyExists:
-                    print('%s: Property "%s" already exists.' %
-                          (user.username, key))
+                    print('%s: Property "%s" already exists.' % (user.username, key))
                     continue
 
 def save_groups(groups, args, parser):
@@ -227,9 +216,7 @@ def main(args=None):
         parser.error("%s: %s" % (args.file.name, e))
 
     if not isinstance(data, dict):
-        parser.error(
-            "%s: Top-level data structure must be a dictionary."
-            % args.file.name)
+        parser.error("%s: Top-level data structure must be a dictionary." % args.file.name)
 
     services = data.pop('services', {})
     users = data.pop('users', {})
