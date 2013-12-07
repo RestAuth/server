@@ -4,7 +4,7 @@
 
 0.6.4:
 
-* None.
+* The transaction=False parameter in the backend interface seems to be unused.
 
 Future:
 
