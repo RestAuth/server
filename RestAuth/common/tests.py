@@ -50,6 +50,7 @@ from common.testdata import propval2
 from common.testdata import propval3
 from common.testdata import username1
 from common.testdata import username2
+from common.testdata import username3
 from common.utils import import_path
 
 restauth_import = getattr(__import__('bin.restauth-import'), 'restauth-import').main
@@ -371,7 +372,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             if overwrite:
                 cmd = ['--overwrite-properties', path]
             restauth_import(cmd)
-            self.assertItemsEqual(user_backend.list(), [username1, username2])
+            self.assertItemsEqual(user_backend.list(), [username1, username2, username3])
             user = user_backend.get(username2)
             props = {
                 propkey1: propval1,
@@ -386,15 +387,31 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
     def test_users_overwrite_properties(self):
         self.test_users(overwrite=True)
 
+    def test_skip_existing_users(self):
+        user = user_backend.create(username2, property_backend=property_backend,
+                                   properties={propkey1: propval3, })
+
+        path = os.path.join(self.base, 'users1.json')
+        with capture() as (stdout, stderr):
+            restauth_import(['--skip-existing-users', path])
+        self.assertProperties(user, {propkey1: propval3, })
+
+    def test_unknown_hash_algorithm(self):
+        path = os.path.join(self.base, 'users2.json')
+        with capture() as (stdout, stderr):
+            restauth_import([path])
+            self.assertHasLine(
+                stdout, '^\* %s: Setting hash is not supported, skipping\.$' % username1)
+
     def test_existing_properties(self):
         user = user_backend.create(username2, property_backend=property_backend)
-        property_backend.create(user, propkey1, propval3)
+        property_backend.create(user, propkey1, propval3)  # propval1 is in json file
 
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):
             cmd = [path]
             restauth_import(cmd)
-            self.assertItemsEqual(user_backend.list(), [username1, username2])
+            self.assertItemsEqual(user_backend.list(), [username1, username2, username3])
             user = user_backend.get(username2)
 
             pattern = '^%s: Property "%s" already exists\.$' % (username2, propkey1)
@@ -413,3 +430,12 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             del props['date joined']
 
             self.assertEqual(props, expected_props)
+
+    def test_gen_passwords(self):
+        path = os.path.join(self.base, 'users3.json')
+        with capture() as (stdout, stderr):
+            restauth_import(['--gen-passwords', path])
+            output = stdout.getvalue()
+            self.assertHasLine(output, '^\* %s: Generated password: .*' % username1)
+            password = re.search('Generated password: (.*)', output).groups()[0]
+        self.assertTrue(user_backend.check_password(username1, password))
