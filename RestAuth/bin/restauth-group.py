@@ -31,7 +31,6 @@ try:
     from common.errors import GroupNotFound
     from common.errors import UserNotFound
 except ImportError as e:  # pragma: no cover
-    print('ImportError: %s' % e)
     sys.stderr.write(
         'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
