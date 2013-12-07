@@ -134,6 +134,8 @@ def save_users(users, args, parser):
                 except NotImplementedError:
                     print('* %s: Hash of type "%s" is not supported, skipping.' %
                           (username, pwd['algorithm']))
+            else:
+                raise TypeError("password is of type %s" % type(pwd))
         elif created and args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=16)
             user_backend.set_password(username=username, password=raw_passwd)
