@@ -2,20 +2,18 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
+# see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals  # unicode literals from python3
+from __future__ import unicode_literals
 
 import contextlib
 import re
@@ -41,39 +39,39 @@ from backends import group_backend
 from backends import property_backend
 from backends import user_backend
 
-username1 = "mati1 \u6111"
-username2 = "mati2 \u6112"
-username3 = "mati3 \u6113"
-username4 = "mati4 \u6114"
-username5 = "mati5 \u6115"
+username1 = "mati1 愑"  # \u6111
+username2 = "mati2 愒"  # \u6112
+username3 = "mati3 愓"  # \u6113
+username4 = "mati4 愔"  # \u6114"
+username5 = "mati5 愕"  # \u6115"
 
-password1 = "password \u6121"
-password2 = "password \u6122"
-password3 = "password \u6123"
-password4 = "password \u6124"
-password5 = "password \u6125"
+password1 = "password1 愡"  # \u6121"
+password2 = "password2 愢"  # \u6122"
+password3 = "password3 愣"  # \u6123"
+password4 = "password4 愤"  # \u6124"
+password5 = "password5 愥"  # \u6125"
 
-groupname1 = "group1 \u6131"
-groupname2 = "group2 \u6132"
-groupname3 = "group3 \u6133"
-groupname4 = "group4 \u6134"
-groupname5 = "group5 \u6135"
-groupname6 = "group6 \u6136"
-groupname7 = "group7 \u6137"
-groupname8 = "group8 \u6138"
-groupname9 = "group9 \u6139"
+groupname1 = "group1 愱"  # \u6131
+groupname2 = "group2 愲"  # \u6132"
+groupname3 = "group3 愳"  # \u6133"
+groupname4 = "group4 愴"  # \u6134"
+groupname5 = "group5 愵"  # \u6135"
+groupname6 = "group6 愶"  # \u6136"
+groupname7 = "group7 愷"  # \u6137"
+groupname8 = "group8 愸"  # \u6138"
+groupname9 = "group9 愹"  # \u6139"
 
-propkey1 = "propkey1 \u6141"
-propkey2 = "propkey2 \u6142"
-propkey3 = "propkey3 \u6143"
-propkey4 = "propkey4 \u6144"
-propkey5 = "propkey5 \u6145"
+propkey1 = "propkey1 慁"  # \u6141
+propkey2 = "propkey2 慂"  # \u6142"
+propkey3 = "propkey3 慃"  # \u6143"
+propkey4 = "propkey4 慄"  # \u6144"
+propkey5 = "propkey5 慅"  # \u6145"
 
-propval1 = "propval1 \u6151"
-propval2 = "propval2 \u6152"
-propval3 = "propval3 \u6153"
-propval4 = "propval4 \u6154"
-propval5 = "propval5 \u6155"
+propval1 = "propval1 慑"  # \u6151"
+propval2 = "propval2 慒"  # \u6152"
+propval3 = "propval3 慓"  # \u6153"
+propval4 = "propval4 慔"  # \u6154"
+propval5 = "propval5 慕"  # \u6155"
 
 PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
 
@@ -135,7 +133,7 @@ class RestAuthTestBase(object):
 
     def create_user(self, username, password=None):
         return user_backend.create(username=username, password=password,
-                                  property_backend=property_backend)
+                                   property_backend=property_backend)
 
     def create_group(self, service, groupname):
         return group_backend.create(name=groupname, service=service)
@@ -183,19 +181,16 @@ class CliMixin(object):
     def assertHasLine(self, stream, pattern, msg='', flags=0):
         if isinstance(stream, StringIO):
             stream = stream.getvalue()
-            if not six.PY3:  # pragma: py2
-                stream = stream.encode('utf-8')
 
         for line in stream.splitlines():
             if re.search(pattern, line, flags=flags) is not None:
                 return
+
         raise AssertionError(stream)
 
     def assertHasNoLine(self, stream, pattern, msg='', flags=0):
         if isinstance(stream, StringIO):
             stream = stream.getvalue()
-            if not six.PY3:  # pragma: py2
-                stream = stream.encode('utf-8')
 
         for line in stream.splitlines():
             if re.search(pattern, line, flags=flags) is not None:
