@@ -7,12 +7,15 @@ RestAuth 0.6.4 (XX XXX XXXX)
   * Improve documentation in many small ways.
   * Move development dependencies to requirements-dev.txt
   * Code now (partially) uses a line-width of 99 characters.
+  * django backend now verifies its an actually valid hasher.
 
   Command-line scripts:
   * Fix listing of subgroups for "restauth-groups view".
   * Usernames of users created via "restauth-user add" are now subject to the
     same limitations as via the RestAuth interface.
   * Fixed restauth-user view --service=...
+  * restauth-import now correctly sets the 'date joined' property for users
+    it created.
 
 RestAuth 0.6.3 (30 May 2013)
 
