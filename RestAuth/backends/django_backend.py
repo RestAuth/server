@@ -153,15 +153,15 @@ class DjangoUserBackend(UserBackend):
         else:
             raise UserNotFound(username)
 
-    def init_transaction(self):  # pragma: no cover
+    def init_transaction(self):
         # already handled by Djangos transaction management
         pass
 
-    def commit_transaction(self):  # pragma: no cover
+    def commit_transaction(self):
         # already handled by Djangos transaction management
         pass
 
-    def rollback_transaction(self):  # pragma: no cover
+    def rollback_transaction(self):
         # already handled by Djangos transaction management
         pass
 
@@ -256,15 +256,15 @@ class DjangoPropertyBackend(PropertyBackend):
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def init_transaction(self):  # pragma: no cover
+    def init_transaction(self):
         # already handled by Djangos transaction management
         pass
 
-    def commit_transaction(self):  # pragma: no cover
+    def commit_transaction(self):
         # already handled by Djangos transaction management
         pass
 
-    def rollback_transaction(self):  # pragma: no cover
+    def rollback_transaction(self):
         # already handled by Djangos transaction management
         pass
 
@@ -371,14 +371,14 @@ class DjangoGroupBackend(GroupBackend):
     def parents(self, group):
         return group.parent_groups.all()
 
-    def init_transaction(self):  # pragma: no cover
+    def init_transaction(self):
         # already handled by Djangos transaction management
         pass
 
-    def commit_transaction(self):  # pragma: no cover
+    def commit_transaction(self):
         # already handled by Djangos transaction management
         pass
 
-    def rollback_transaction(self):  # pragma: no cover
+    def rollback_transaction(self):
         # already handled by Djangos transaction management
         pass
