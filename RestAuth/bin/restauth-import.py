@@ -132,7 +132,8 @@ def save_users(users, args, parser):
                     user_backend.set_password_hash(username=username, **pwd)
                     print('* %s: Set hash from input data.' % username)
                 except NotImplementedError:
-                    print("* %s: Setting hash is not supported, skipping." % username)
+                    print('* %s: Hash of type "%s" is not supported, skipping.' %
+                          (username, pwd['algorithm']))
         elif created and args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=16)
             user_backend.set_password(username=username, password=raw_passwd)
