@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License along with RestAuth. If not,
 # see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 import os
 import sys
 
@@ -47,15 +49,10 @@ def main(args=None):
         except GroupExists:
             parser.error('Group already exists.')
     elif args.action in ['list', 'ls']:
-        if args.service:
-            groups = group_backend.list(service=args.service)
-        else:
-            groups = group_backend.list(service=None)
+        groups = group_backend.list(service=args.service)
+
         for name in sorted(groups):
-            if six.PY3:  # pragma: py3
-                print(name)
-            else:  # pragma: py2
-                print(name.encode('utf-8'))
+            print(name)
     elif args.action == 'view':
         group = get_group(parser, args.group, args.service)
 
