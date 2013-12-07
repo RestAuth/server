@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-# vim: tw=99:
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
+# see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
@@ -98,7 +96,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         return user_backend.list()
 
     def test_add_user(self):
-        resp = self.post('/users/', {'user': username1, 'password': password1})
+        resp = self.post('/users/', {'user': username1, 'password': password1, })
 
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
@@ -107,7 +105,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertProperties(user, {})
 
     def test_add_two_users(self):
-        resp = self.post('/users/', {'user': username1, 'password': password1})
+        resp = self.post('/users/', {'user': username1, 'password': password1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
         self.assertPassword(username1, password1)
@@ -115,7 +113,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         user1 = user_backend.get(username1)
         self.assertProperties(user1, {})
 
-        resp = self.post('/users/', {'user': username2, 'password': password2})
+        resp = self.post('/users/', {'user': username2, 'password': password2, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1, username2])
         user2 = user_backend.get(username2)
@@ -128,7 +126,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
 
     def test_add_user_twice(self):
         self.assertEqual(self.get_usernames(), [])
-        resp = self.post('/users/', {'user': username1, 'password': password1})
+        resp = self.post('/users/', {'user': username1, 'password': password1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
         user = user_backend.get(username1)
@@ -138,7 +136,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertFalsePassword(username1, password2)
 
         # add again:
-        resp = self.post('/users/', {'user': username1, 'password': password2})
+        resp = self.post('/users/', {'user': username1, 'password': password2, })
         self.assertEqual(resp.status_code, http_client.CONFLICT)
         self.assertEqual(self.get_usernames(), [username1])
 
@@ -147,7 +145,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertFalsePassword(username1, password2)
 
     def test_add_user_no_pass(self):
-        resp = self.post('/users/', {'user': username1})
+        resp = self.post('/users/', {'user': username1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
         self.assertFalsePassword(username1, '')
@@ -156,7 +154,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertFalsePassword(username1, password2)
         self.assertProperties(user_backend.get(username1), {})
 
-        resp = self.post('/users/', {'user': username2, 'password': ''})
+        resp = self.post('/users/', {'user': username2, 'password': '', })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1, username2])
         user = user_backend.get(username2)
@@ -166,10 +164,9 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertFalsePassword(username2, password2)
         self.assertProperties(user, {})
 
-        resp = self.post('/users/', {'user': username3, 'password': None})
+        resp = self.post('/users/', {'user': username3, 'password': None, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertItemsEqual(
-            self.get_usernames(), [username1, username2, username3])
+        self.assertItemsEqual(self.get_usernames(), [username1, username2, username3])
         user = user_backend.get(username3)
         self.assertFalsePassword(username3, '')
         self.assertFalsePassword(username3, None)
@@ -178,26 +175,24 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertProperties(user, {})
 
     def test_add_user_with_property(self):
-        resp = self.post('/users/', {'user': username1, 'properties': {
-            propkey1: propval1
-        }})
+        resp = self.post('/users/', {'user': username1, 'properties': {propkey1: propval1, }, })
 
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
 
         user = user_backend.get(username1)
-        self.assertProperties(user, {propkey1: propval1})
+        self.assertProperties(user, {propkey1: propval1, })
 
     def test_add_user_with_properties(self):
-        props = {propkey1: propval1, propkey2: propval2}
-        resp = self.post('/users/', {'user': username1, 'properties': props})
+        props = {propkey1: propval1, propkey2: propval2, }
+        resp = self.post('/users/', {'user': username1, 'properties': props, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertProperties(user_backend.get(username1), props)
 
     def test_bad_requests(self):
         self.assertEqual(self.get_usernames(), [])
 
-        resp = self.post('/users/', {'password': 'foobar'})
+        resp = self.post('/users/', {'password': 'foobar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertEqual(self.get_usernames(), [])
 
@@ -205,26 +200,23 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertEqual(self.get_usernames(), [])
 
-        resp = self.post('/users/', {
-            'userasdf': username1, 'passwordasdf': 'foobar'
-        })
+        resp = self.post('/users/', {'userasdf': username1, 'passwordasdf': 'foobar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertEqual(self.get_usernames(), [])
 
     def test_add_invalid_username(self):
         username = 'foo/bar'
-        resp = self.post('/users/', {'user': username, 'password': password1})
+        resp = self.post('/users/', {'user': username, 'password': password1, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(self.get_usernames(), [])
 
         username = 'foo:bar'
-        resp = self.post('/users/', {'user': username, 'password': password1})
+        resp = self.post('/users/', {'user': username, 'password': password1, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(self.get_usernames(), [])
 
     def test_add_user_with_long_username(self):
-        username = 'abc' * 200
-        resp = self.post('/users/', {'user': username})
+        resp = self.post('/users/', {'user': 'abc' * 200, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(self.get_usernames(), [])
 
@@ -253,58 +245,57 @@ class UserExistsTests(UserTests):  # GET /users/<user>/
 
 class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
     def test_user_doesnt_exist(self):
-        resp = self.post('/users/%s/' % username3, {'password': 'foobar'})
+        resp = self.post('/users/%s/' % username3, {'password': 'foobar', })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
     def test_verify_password(self):
-        resp = self.post('/users/%s/' % username1, {'password': password1})
+        resp = self.post('/users/%s/' % username1, {'password': password1, })
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
-        resp = self.post('/users/%s/' % username2, {'password': password2})
+        resp = self.post('/users/%s/' % username2, {'password': password2, })
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_verify_wrong_password(self):
-        resp = self.post('/users/%s/' % username1, {'password': 'wrong'})
+        resp = self.post('/users/%s/' % username1, {'password': 'wrong', })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
-        resp = self.post('/users/%s/' % username2, {'password': 'wrong'})
+        resp = self.post('/users/%s/' % username2, {'password': 'wrong', })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
     def test_verify_disabled_password(self):
-        user3 = self.create_user(username3, None)
+        self.create_user(username3, None)
 
-        resp = self.post('/users/%s/' % username3, {'password': 'wrong'})
+        resp = self.post('/users/%s/' % username3, {'password': 'wrong', })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
-        resp = self.post('/users/%s/' % username3, {'password': ''})
+        resp = self.post('/users/%s/' % username3, {'password': '', })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
-        resp = self.post('/users/%s/' % username3, {'password': None})
+        resp = self.post('/users/%s/' % username3, {'password': None, })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
 
     def test_bad_requests(self):
         resp = self.post('/users/%s/' % username1, {})
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
 
-        resp = self.post('/users/%s/' % username1, {'foo': 'bar'})
+        resp = self.post('/users/%s/' % username1, {'foo': 'bar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
 
-        resp = self.post('/users/%s/' % username1,
-                         {'password': 'foobar', 'foo': 'bar'})
+        resp = self.post('/users/%s/' % username1, {'password': 'foobar', 'foo': 'bar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
 
 
 class ChangePasswordsTest(UserTests):  # PUT /users/<user>/
     def test_user_doesnt_exist(self):
-        resp = self.put('/users/%s/' % username3, {'password': password3})
+        resp = self.put('/users/%s/' % username3, {'password': password3, })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
     def test_change_password(self):
-        resp = self.put('/users/%s/' % username1, {'password': password3})
+        resp = self.put('/users/%s/' % username1, {'password': password3, })
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertFalsePassword(username1, password1)
         self.assertFalsePassword(username1, password2)
@@ -322,25 +313,24 @@ class ChangePasswordsTest(UserTests):  # PUT /users/<user>/
         self.assertFalsePassword(username1, '')
         self.assertFalsePassword(username1, None)
 
-        resp = self.put('/users/%s/' % username1, {'password': ''})
+        resp = self.put('/users/%s/' % username1, {'password': '', })
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertFalsePassword(username1, password1)
         self.assertFalsePassword(username1, '')
         self.assertFalsePassword(username1, None)
 
-        resp = self.put('/users/%s/' % username1, {'password': None})
+        resp = self.put('/users/%s/' % username1, {'password': None, })
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertFalsePassword(username1, password1)
         self.assertFalsePassword(username1, '')
         self.assertFalsePassword(username1, None)
 
     def test_bad_requests(self):
-        resp = self.put('/users/%s/' % username1, {'foo': password2})
+        resp = self.put('/users/%s/' % username1, {'foo': password2, })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertPassword(username1, password1)
 
-        resp = self.put('/users/%s/' % username1,
-                        {'password': password3, 'foo': 'bar'})
+        resp = self.put('/users/%s/' % username1, {'password': password3, 'foo': 'bar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertPassword(username1, password1)
 
@@ -400,7 +390,7 @@ class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
 
         resp = self.get('/users/%s/props/' % username1)
         self.assertEqual(resp.status_code, http_client.OK)
-        self.assertDictEqual(self.parse(resp, 'dict'), {propkey1: propval1})
+        self.assertDictEqual(self.parse(resp, 'dict'), {propkey1: propval1, })
 
         resp = self.get('/users/%s/props/' % username2)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -412,8 +402,7 @@ class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
 
         resp = self.get('/users/%s/props/' % username1)
         self.assertEqual(resp.status_code, http_client.OK)
-        self.assertDictEqual(self.parse(resp, 'dict'),
-                             {propkey1: propval1, propkey2: propval2})
+        self.assertDictEqual(self.parse(resp, 'dict'), {propkey1: propval1, propkey2: propval2, })
 
         resp = self.get('/users/%s/props/' % username2)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -426,61 +415,51 @@ class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
 
         resp = self.get('/users/%s/props/' % username1)
         self.assertEqual(resp.status_code, http_client.OK)
-        self.assertDictEqual(self.parse(resp, 'dict'),
-                             {propkey1: propval1, propkey2: propval2})
+        self.assertDictEqual(self.parse(resp, 'dict'), {propkey1: propval1, propkey2: propval2, })
 
         resp = self.get('/users/%s/props/' % username2)
         self.assertEqual(resp.status_code, http_client.OK)
-        self.assertDictEqual(self.parse(resp, 'dict'), {propkey3: propval3})
+        self.assertDictEqual(self.parse(resp, 'dict'), {propkey3: propval3, })
 
 
 class CreatePropertyTests(PropertyTests):  # POST /users/<user>/props/
     def test_user_doesnt_exist(self):
-        resp = self.post('/users/%s/props/' % username3,
-                         {'prop': propkey1, 'value': propval1})
+        resp = self.post('/users/%s/props/' % username3, {'prop': propkey1, 'value': propval1, })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
     def test_create_property(self):
-        resp = self.post('/users/%s/props/' % username1,
-                         {'prop': propkey1, 'value': propval1})
+        resp = self.post('/users/%s/props/' % username1, {'prop': propkey1, 'value': propval1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
 
-        self.assertProperties(self.user1, {propkey1: propval1})
+        self.assertProperties(self.user1, {propkey1: propval1, })
         self.assertProperties(self.user2, {})
 
         # we create a second property
-        resp = self.post('/users/%s/props/' % username1,
-                         {'prop': propkey2, 'value': propval2})
+        resp = self.post('/users/%s/props/' % username1, {'prop': propkey2, 'value': propval2, })
         self.assertEqual(resp.status_code, http_client.CREATED)
 
-        self.assertProperties(self.user1,
-                             {propkey1: propval1, propkey2: propval2})
+        self.assertProperties(self.user1, {propkey1: propval1, propkey2: propval2, })
         self.assertProperties(self.user2, {})
 
         # and a property for second user:
-        resp = self.post('/users/%s/props/' % username2,
-                         {'prop': propkey3, 'value': propval3})
+        resp = self.post('/users/%s/props/' % username2, {'prop': propkey3, 'value': propval3, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertProperties(self.user1,
-                             {propkey1: propval1, propkey2: propval2})
-        self.assertProperties(self.user2, {propkey3: propval3})
+        self.assertProperties(self.user1, {propkey1: propval1, propkey2: propval2, })
+        self.assertProperties(self.user2, {propkey3: propval3, })
 
     def test_create_existing_property(self):
-        resp = self.post('/users/%s/props/' % username1,
-                         {'prop': propkey1, 'value': propval1})
+        resp = self.post('/users/%s/props/' % username1, {'prop': propkey1, 'value': propval1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
 
-        resp = self.post('/users/%s/props/' % username1,
-                         {'prop': propkey1, 'value': propval2})
+        resp = self.post('/users/%s/props/' % username1, {'prop': propkey1, 'value': propval2, })
         self.assertEqual(resp.status_code, http_client.CONFLICT)
 
-        self.assertProperties(self.user1, {propkey1: propval1})
+        self.assertProperties(self.user1, {propkey1: propval1, })
         self.assertProperties(self.user2, {})
 
     def test_create_invalid_property(self):
-        resp = self.post('/users/%s/props/' % username1,
-                         {'prop': "foo:bar", 'value': propval2})
+        resp = self.post('/users/%s/props/' % username1, {'prop': "foo:bar", 'value': propval2, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertProperties(self.user1, {})
 
@@ -490,13 +469,13 @@ class CreatePropertyTests(PropertyTests):  # POST /users/<user>/props/
         self.assertProperties(self.user1, {})
         self.assertProperties(self.user2, {})
 
-        resp = self.post('/users/%s/props/' % username2, {'foo': 'bar'})
+        resp = self.post('/users/%s/props/' % username2, {'foo': 'bar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertProperties(self.user1, {})
         self.assertProperties(self.user2, {})
 
         resp = self.post('/users/%s/props/' % username2, {
-            'foo': 'bar', 'prop': propkey3, 'value': propval3
+            'foo': 'bar', 'prop': propkey3, 'value': propval3,
         })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertProperties(self.user1, {})
@@ -505,65 +484,73 @@ class CreatePropertyTests(PropertyTests):  # POST /users/<user>/props/
 
 class SetMultiplePropertiesTests(PropertyTests):
     def test_user_doesnt_exist(self):
-        resp = self.put('/users/%s/props/' % username3,
-                        {propkey1: propval1, propkey2: propval2})
+        resp = self.put('/users/%s/props/' % username3, {propkey1: propval1, propkey2: propval2, })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
     def test_no_property(self):
-        resp = self.put('/users/%s/props/' % username1, {})
+        self.put('/users/%s/props/' % username1, {})
         self.assertProperties(self.user1, {})
 
     def test_create_one_property(self):
-        testdict = {propkey1: propval1}
+        testdict = {propkey1: propval1, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_create_two_properties(self):
-        testdict = {propkey1: propval1, propkey2: propval2}
+        testdict = {propkey1: propval1, propkey2: propval2, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_create_three_properties(self):
-        testdict = {propkey1: propval1, propkey2: propval2, propkey3: propval3}
+        testdict = {propkey1: propval1, propkey2: propval2, propkey3: propval3, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_set_one_property(self):
-        testdict = {propkey1: propval1}
+        testdict = {propkey1: propval1, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
 
-        testdict = {propkey1: propval2}
+        testdict = {propkey1: propval2, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_set_two_properties(self):
-        testdict = {propkey1: propval1, propkey2: propval2}
+        testdict = {propkey1: propval1, propkey2: propval2, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
 
-        testdict = {propkey1: propval3, propkey2: propval4}
+        testdict = {propkey1: propval3, propkey2: propval4, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_set_three_properties(self):
-        testdict = {propkey1: propval1, propkey2: propval2, propkey3: propval3}
+        testdict = {propkey1: propval1, propkey2: propval2, propkey3: propval3, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
-        testdict = {propkey1: propval2, propkey2: propval5, propkey3: propval4}
+        testdict = {propkey1: propval2, propkey2: propval5, propkey3: propval4, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_mix_set_and_create(self):
-        testdict = {propkey1: propval1}
+        testdict = {propkey1: propval1, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
-        testdict = {propkey1: propval1, propkey2: propval2}
+        testdict = {propkey1: propval1, propkey2: propval2, }
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
 
 class GetPropertyTests(PropertyTests):  # GET /users/<user>/props/<prop>/
@@ -592,31 +579,25 @@ class GetPropertyTests(PropertyTests):  # GET /users/<user>/props/<prop>/
 
 class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
     def test_user_doesnt_exist(self):
-        resp = self.put(
-            '/users/%s/props/%s/' % (username3, propkey1), {'value': propval1})
+        resp = self.put('/users/%s/props/%s/' % (username3, propkey1), {'value': propval1, })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
-    def test_set_new_property(self):
-        # set a property
-        resp = self.put(
-            '/users/%s/props/%s/' % (username1, propkey1), {'value': propval1})
+    def test_set_new_property(self):  # set a property
+        resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(property_backend.get(self.user1, propkey1), propval1)
-        self.assertRaises(PropertyNotFound,
-                          property_backend.get, self.user2, propkey1)
+        self.assertRaises(PropertyNotFound, property_backend.get, self.user2, propkey1)
 
     def test_set_existing_property(self):
         property_backend.create(user=self.user1, key=propkey1, value=propval1)
 
         # set a property again and assert that it returns the old value:
-        resp = self.put(
-            '/users/%s/props/%s/' % (username1, propkey1), {'value': propval2})
+        resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval2, })
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertEqual(self.parse(resp, 'str'), propval1)
         self.assertEqual(property_backend.get(self.user1, propkey1), propval2)
-        self.assertRaises(PropertyNotFound,
-                          property_backend.get, self.user2, propkey1)
+        self.assertRaises(PropertyNotFound, property_backend.get, self.user2, propkey1)
 
     def test_bad_request(self):
         # do some bad request tests:
@@ -624,13 +605,12 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertProperties(self.user1, {})
 
-        resp = self.put('/users/%s/props/%s/' % (username1, propkey1),
-                        {'foo': 'bar'})
+        resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'foo': 'bar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertProperties(self.user1, {})
 
         resp = self.put('/users/%s/props/%s/' % (username1, propkey1),
-                        {'value': propkey3, 'foo': 'bar'})
+                        {'value': propkey3, 'foo': 'bar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertProperties(self.user1, {})
 
@@ -652,7 +632,7 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
 
         resp = self.delete('/users/%s/props/%s/' % (username1, propkey1),)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-        self.assertProperties(self.user1, {propkey2: propval2})
+        self.assertProperties(self.user1, {propkey2: propval2, })
 
     def test_cross_user(self):
         # two users have properties with the same key, we verify that deleting
@@ -663,7 +643,7 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
         resp = self.delete('/users/%s/props/%s/' % (username1, propkey1),)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertProperties(self.user1, {})
-        self.assertProperties(self.user2, {propkey1: propval1})
+        self.assertProperties(self.user2, {propkey1: propval1, })
 
 
 class HashTestMixin(RestAuthTestBase):
@@ -683,8 +663,7 @@ class HashTestMixin(RestAuthTestBase):
     @override_settings(MIN_PASSWORD_LENGTH=1)
     def test_testdata(self):
         for password, data in six.iteritems(self.testdata):
-            generated = make_password(password, data['salt'],
-                                      hasher=self.algorithm)
+            generated = make_password(password, data['salt'], hasher=self.algorithm)
             self.assertTrue(generated.startswith('%s$' % self.algorithm))
             self.assertEqual(generated, self.generate(data))
 
@@ -697,8 +676,7 @@ class HashTestMixin(RestAuthTestBase):
     def test_backend(self):
         # test password during creation:
         for password, data in six.iteritems(self.testdata):
-            user = user_backend.create(username=username1,
-                                       password=password,
+            user = user_backend.create(username=username1, password=password,
                                        property_backend=property_backend)
             self.assertTrue(user.password.startswith('%s$' % self.algorithm))
             self.assertTrue(user_backend.check_password(username1, password))
@@ -707,8 +685,7 @@ class HashTestMixin(RestAuthTestBase):
 
         # test password for set_password:
         for password, data in six.iteritems(self.testdata):
-            user = user_backend.create(username=username1,
-                                       property_backend=property_backend)
+            user = user_backend.create(username=username1, property_backend=property_backend)
             user_backend.set_password(username=username1, password=password)
             self.assertTrue(user_backend.check_password(username1, password))
             self.assertTrue(user_backend.check_password(username1, password))
@@ -734,16 +711,11 @@ class PhpassTest(HashTestMixin, TestCase):
         '123456': {'salt': 'Bc9fhNMWG', 'hash': 'FRLOT7ZpY6TAYoSf.bIdD0'},
         '1234567': {'salt': 'BlT2XNtZD', 'hash': 'pirchpCqdGmbWRenYNpzE.'},
         '12345678': {'salt': 'BqXel7ZCN', 'hash': '22KlBpQogL5PJC52hHuD91'},
-        'if9prH3F5Y57': {'salt': 'Bv5IkQCrO',
-                         'hash': '7LFot6oQrkBy/ToD1kLvt.'},
-        '1YqgPVFITEyt': {'salt': 'BKhwIDVD/',
-                         'hash': 'BfqOTbzU1HsuBbSvZdENs.'},
-        'Ji67AxtXzhKK': {'salt': 'BK0P5khBm',
-                         'hash': 's9.dRMDutvTii5E.gT.Ji1'},
-        'riyBxGIL18vf': {'salt': 'BOkvZdLFu',
-                         'hash': 'YEkYAaxG0g/mUladF0dNO/'},
-        'WvhQMorIXqUX': {'salt': 'BoDae5Q0Y',
-                         'hash': 'fXvarDorOTb.fj44OqbOc1'},
+        'if9prH3F5Y57': {'salt': 'Bv5IkQCrO', 'hash': '7LFot6oQrkBy/ToD1kLvt.'},
+        '1YqgPVFITEyt': {'salt': 'BKhwIDVD/', 'hash': 'BfqOTbzU1HsuBbSvZdENs.'},
+        'Ji67AxtXzhKK': {'salt': 'BK0P5khBm', 'hash': 's9.dRMDutvTii5E.gT.Ji1'},
+        'riyBxGIL18vf': {'salt': 'BOkvZdLFu', 'hash': 'YEkYAaxG0g/mUladF0dNO/'},
+        'WvhQMorIXqUX': {'salt': 'BoDae5Q0Y', 'hash': 'fXvarDorOTb.fj44OqbOc1'},
     }
 
     def generate(self, data):
@@ -756,41 +728,28 @@ class Drupal7Test(HashTestMixin, TestCase):
     algorithm = 'drupal7'
 
     testdata = {
-        '1': {'salt': 'DtfbJVKBh',
-              'hash': 'lHmYDIMN7WChUUvEhATGnflurtH7c46/4I9Mocpi.0O'},
-        '12': {'salt': 'D/Ke05Og0',
-               'hash': 'fQ0NFG7OzsgIoxuZ2bjHvLr4MjoLq3nHVkleR/qTDd5'},
-        '123': {'salt': 'Dl0ruon0i',
-                'hash': 'SMu2oThzN.pbFPdtD5Sh67WHN92WU/tx9rJgZyel/LT'},
-        '1234': {'salt': 'DvL6XrqV1',
-                 'hash': '6VBeRqFZlu0kdVlCXaF4LbSfTbQkpQ5QY1bc3wDNiZq'},
-        '12345': {'salt': 'DDcFBLTez',
-                  'hash': 'B1zxDDL5TK5v7iVqlP0H4H8gv1CbGTbAAtwyO//e1Rg'},
-        '123456': {'salt': 'DoxC.Busk',
-                   'hash': 'MRu2HSdCh29u0ZTJhETlEaxyH/JUIvtQ7oD2Rkxnl3c'},
-        '1234567': {'salt': 'DE/joQlAl',
-                    'hash': 'd8eZk/MB65Wb7Mzihm2M/WEfAYthl2aPTjSSBLJ/wX5'},
-        '12345678': {'salt': 'D/YGN6xK5',
-                     'hash': '0wPvroaZq4QLT.vLCbt0JGMAPSCYxcN6BO4uSxjRrux'},
-        's8zm3mPH88mY': {
-            'salt': 'DzGBWhU4E',
-            'hash': 'QifJeFvwTPvJvc03yvOrI1PebgOj9GCAZvoKMtRVmuZ',
+        '1': {'salt': 'DtfbJVKBh', 'hash': 'lHmYDIMN7WChUUvEhATGnflurtH7c46/4I9Mocpi.0O'},
+        '12': {'salt': 'D/Ke05Og0', 'hash': 'fQ0NFG7OzsgIoxuZ2bjHvLr4MjoLq3nHVkleR/qTDd5'},
+        '123': {'salt': 'Dl0ruon0i', 'hash': 'SMu2oThzN.pbFPdtD5Sh67WHN92WU/tx9rJgZyel/LT'},
+        '1234': {'salt': 'DvL6XrqV1', 'hash': '6VBeRqFZlu0kdVlCXaF4LbSfTbQkpQ5QY1bc3wDNiZq'},
+        '12345': {'salt': 'DDcFBLTez', 'hash': 'B1zxDDL5TK5v7iVqlP0H4H8gv1CbGTbAAtwyO//e1Rg'},
+        '123456': {'salt': 'DoxC.Busk', 'hash': 'MRu2HSdCh29u0ZTJhETlEaxyH/JUIvtQ7oD2Rkxnl3c'},
+        '1234567': {'salt': 'DE/joQlAl', 'hash': 'd8eZk/MB65Wb7Mzihm2M/WEfAYthl2aPTjSSBLJ/wX5'},
+        '12345678': {'salt': 'D/YGN6xK5', 'hash': '0wPvroaZq4QLT.vLCbt0JGMAPSCYxcN6BO4uSxjRrux'},
+        's8zm3mPH88mY': {'salt': 'DzGBWhU4E',
+                         'hash': 'QifJeFvwTPvJvc03yvOrI1PebgOj9GCAZvoKMtRVmuZ',
         },
-        'dfi31ps18XaR': {
-            'salt': 'DHFKOWOc.',
-            'hash': '2pgOGy5s59k1WzhTiMUcHrdPlIzFnbuEK7m54j2zrkT',
+        'dfi31ps18XaR': {'salt': 'DHFKOWOc.',
+                         'hash': '2pgOGy5s59k1WzhTiMUcHrdPlIzFnbuEK7m54j2zrkT',
         },
-        'izfqISu3hVrx': {
-            'salt': 'Dnspf7cF3',
-            'hash': '.Pk793BzmyMtonIlWJp3Vh8Zix0wMCV.j.KCAGamoz0',
+        'izfqISu3hVrx': {'salt': 'Dnspf7cF3',
+                         'hash': '.Pk793BzmyMtonIlWJp3Vh8Zix0wMCV.j.KCAGamoz0',
         },
-        'rGUo7cpMTv1f': {
-            'salt': 'Dcm.rOynf',
-            'hash': 'SWVgqarUIk9Vemk/txNQbaPaWJqTPR4gcSrHMor4o8K',
+        'rGUo7cpMTv1f': {'salt': 'Dcm.rOynf',
+                         'hash': 'SWVgqarUIk9Vemk/txNQbaPaWJqTPR4gcSrHMor4o8K',
         },
-        'qJreivhrj04Y': {
-            'salt': 'DorDKO73p',
-            'hash': 'PICBMd2BgWbowvDk3y7L159JaYmjvSV/hyQJnHGmgak',
+        'qJreivhrj04Y': {'salt': 'DorDKO73p',
+                         'hash': 'PICBMd2BgWbowvDk3y7L159JaYmjvSV/hyQJnHGmgak',
         },
     }
 
@@ -817,31 +776,21 @@ class Sha512Test(HashTestMixin, TestCase):
     }
 
 
-@override_settings(
-    PASSWORD_HASHERS=('common.hashers.MediaWikiHasher',))
+@override_settings(PASSWORD_HASHERS=('common.hashers.MediaWikiHasher',))
 class MediaWikiTest(HashTestMixin, TestCase):
     hashers = ('common.hashers.MediaWikiHasher',)
     algorithm = 'mediawiki'
 
     testdata = {
-        "0": {"salt": "4891a58e",
-              "hash": "222ecf008e098295058d0c9a77e19d16"},
-        "012": {"salt": "7bb9c41a",
-                "hash": "f72fbb4126a0002d88cb4afc62980d49"},
-        "0123": {"salt": "e4121fde",
-                 "hash": "2de7c06ecfee2468cc0f6cf345632d29"},
-        "01234": {"salt": "99739c15",
-                  "hash": "5c1ddaa0fa981ac651c6bac72f640e44"},
-        "012345": {"salt": "9650ce2d",
-                   "hash": "2ad8888099fe7ce36d84c1046638f261"},
-        "0123456": {"salt": "d0027595",
-                    "hash": "49a25052a0690e607c1f7d103c2b51b9"},
-        "01234567": {"salt": "eec0c833",
-                     "hash": "971a19cefb858a481e7b0e36137774da"},
-        "012345678": {"salt": "fb74cdba",
-                      "hash": "9e562f64b90a6445de607f30dc745c7d"},
-        "0123456789": {"salt": "02828b87",
-                       "hash": "555f6f62e646afc840b1995d0467ef06"},
+        "0": {"salt": "4891a58e", "hash": "222ecf008e098295058d0c9a77e19d16"},
+        "012": {"salt": "7bb9c41a", "hash": "f72fbb4126a0002d88cb4afc62980d49"},
+        "0123": {"salt": "e4121fde", "hash": "2de7c06ecfee2468cc0f6cf345632d29"},
+        "01234": {"salt": "99739c15", "hash": "5c1ddaa0fa981ac651c6bac72f640e44"},
+        "012345": {"salt": "9650ce2d", "hash": "2ad8888099fe7ce36d84c1046638f261"},
+        "0123456": {"salt": "d0027595", "hash": "49a25052a0690e607c1f7d103c2b51b9"},
+        "01234567": {"salt": "eec0c833", "hash": "971a19cefb858a481e7b0e36137774da"},
+        "012345678": {"salt": "fb74cdba", "hash": "9e562f64b90a6445de607f30dc745c7d"},
+        "0123456789": {"salt": "02828b87", "hash": "555f6f62e646afc840b1995d0467ef06"},
     }
 
 
@@ -863,46 +812,26 @@ class Apr1Test(HashTestMixin, TestCase):
         "foobar0123": {"hash": "K1k6x/RVk92AmiWnAFdEj.", "salt": "pMAaLcxe"},
         "foobar01234": {"hash": "PAtaCCc4kqruXb0NLoRTg0", "salt": "sAEmwZJG"},
         "foobar012345": {"hash": "I9pT1Vx.CMEO6wqelEAOP0", "salt": "aQ.R.N4o"},
-        "foobar0123456": {
-            "hash": "G4zjuqUYGU6nFSxPFyO4x0", "salt": "HvbXrlI/"},
-        "foobar01234567": {
-            "hash": "cVAXAQ42OPeHSC3SNSOHS/", "salt": "TDF/0tAf"},
-        "foobar012345678": {
-            "hash": "HASHq302/S19PI.RLbb400", "salt": "zaKZEcLq"},
-        "foobar0123456789": {
-            "hash": "TzOmxdrHqe0HfwxIPXlU10", "salt": "NjALUYrK"},
-        "foobar01234567890": {
-            "hash": "aQ127rgKtHR098iUEgW.F1", "salt": "SJJuaEKa"},
-        "foobar012345678901": {
-            "hash": "TLkfRBIjGqjL4clR0873c1", "salt": "hDJaX1Sa"},
-        "foobar0123456789012": {
-            "hash": "1OIrHIzF.HOQ72wbcFWzU0", "salt": "HlBLH.DU"},
-        "foobar01234567890123": {
-            "hash": "hnBripG.5yMPXE4FJg7Np0", "salt": "snk9PtYt"},
-        "foobar012345678901234": {
-            "hash": "zbRB1BrZmWaFKJMqKyTum0", "salt": "NyCJRWye"},
-        "foobar0123456789012345": {
-            "hash": "UugUUu7D7pABxWg2p2ovc1", "salt": "c3tj3eYu"},
-        "foobar01234567890123456": {
-            "hash": "8iXmJONIozEPLup/2KgQp/", "salt": "tecrND8A"},
-        "foobar012345678901234567": {
-            "hash": "fx2Tly.fIvybOKAbtUWMN/", "salt": "JpSOF7qJ"},
-        "foobar0123456789012345678": {
-            "hash": "fGBumUrVrJ40UB/Q2K1lI.", "salt": "fS58gR6t"},
-        "foobar01234567890123456789": {
-            "hash": "bEsAOMdUIs1GNh5LLjlP1.", "salt": "PLG28sJA"},
-        "foobar012345678901234567890": {
-            "hash": "CmoV8ccWcCEzBV01Pq496/", "salt": "MM49C.Vs"},
-        "foobar0123456789012345678901": {
-            "hash": "2tGWA3NHFeGAEmSXZhYnR/", "salt": "9n8nToVo"},
-        "foobar01234567890123456789012": {
-            "hash": "1cyFn3QVsTQf5RID7O6wC.", "salt": "88x7/ARO"},
-        "foobar012345678901234567890123": {
-            "hash": "ADOeE2pC3SIrRPpj1wdJs/", "salt": "r/oMeWiA"},
-        "foobar0123456789012345678901234": {
-            "hash": "O6pOM0l0DEfJipuhQLk1u/", "salt": "hViGYCEr"},
-        "foobar01234567890123456789012345": {
-            "hash": "WcPoFDPY2hMpalN2bZibX.", "salt": "2QBHE4/Q"},
+        "foobar0123456": {"hash": "G4zjuqUYGU6nFSxPFyO4x0", "salt": "HvbXrlI/"},
+        "foobar01234567": {"hash": "cVAXAQ42OPeHSC3SNSOHS/", "salt": "TDF/0tAf"},
+        "foobar012345678": {"hash": "HASHq302/S19PI.RLbb400", "salt": "zaKZEcLq"},
+        "foobar0123456789": {"hash": "TzOmxdrHqe0HfwxIPXlU10", "salt": "NjALUYrK"},
+        "foobar01234567890": {"hash": "aQ127rgKtHR098iUEgW.F1", "salt": "SJJuaEKa"},
+        "foobar012345678901": {"hash": "TLkfRBIjGqjL4clR0873c1", "salt": "hDJaX1Sa"},
+        "foobar0123456789012": {"hash": "1OIrHIzF.HOQ72wbcFWzU0", "salt": "HlBLH.DU"},
+        "foobar01234567890123": {"hash": "hnBripG.5yMPXE4FJg7Np0", "salt": "snk9PtYt"},
+        "foobar012345678901234": {"hash": "zbRB1BrZmWaFKJMqKyTum0", "salt": "NyCJRWye"},
+        "foobar0123456789012345": {"hash": "UugUUu7D7pABxWg2p2ovc1", "salt": "c3tj3eYu"},
+        "foobar01234567890123456": {"hash": "8iXmJONIozEPLup/2KgQp/", "salt": "tecrND8A"},
+        "foobar012345678901234567": {"hash": "fx2Tly.fIvybOKAbtUWMN/", "salt": "JpSOF7qJ"},
+        "foobar0123456789012345678": {"hash": "fGBumUrVrJ40UB/Q2K1lI.", "salt": "fS58gR6t"},
+        "foobar01234567890123456789": {"hash": "bEsAOMdUIs1GNh5LLjlP1.", "salt": "PLG28sJA"},
+        "foobar012345678901234567890": {"hash": "CmoV8ccWcCEzBV01Pq496/", "salt": "MM49C.Vs"},
+        "foobar0123456789012345678901": {"hash": "2tGWA3NHFeGAEmSXZhYnR/", "salt": "9n8nToVo"},
+        "foobar01234567890123456789012": {"hash": "1cyFn3QVsTQf5RID7O6wC.", "salt": "88x7/ARO"},
+        "foobar012345678901234567890123": {"hash": "ADOeE2pC3SIrRPpj1wdJs/", "salt": "r/oMeWiA"},
+        "foobar0123456789012345678901234": {"hash": "O6pOM0l0DEfJipuhQLk1u/", "salt": "hViGYCEr"},
+        "foobar01234567890123456789012345": {"hash": "WcPoFDPY2hMpalN2bZibX.", "salt": "2QBHE4/Q"},
         "foobar012345678901234567890123456": {
             "hash": "BHCTbYz7NZZK4HAFuHLzG.", "salt": "knaM/8D4"},
         "foobar0123456789012345678901234567": {
@@ -922,9 +851,8 @@ class Apr1Test(HashTestMixin, TestCase):
 class CliTests(RestAuthTest, CliMixin):
     def test_add(self):
         with capture() as (stdout, stderr):
-            restauth_user(
-                ['add', '--password', password1,
-                 username1 if six.PY3 else username1.encode('utf-8')])
+            restauth_user(['add', '--password', password1,
+                           username1 if six.PY3 else username1.encode('utf-8')])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
         self.assertItemsEqual(user_backend.list(), [username1])
@@ -934,9 +862,8 @@ class CliTests(RestAuthTest, CliMixin):
         # create anotheruser with a generated password:
         gen_password = None
         with capture() as (stdout, stderr):
-            restauth_user(
-                ['add', '--gen-password',
-                 username2 if six.PY3 else username2.encode('utf-8')])
+            restauth_user(['add', '--gen-password',
+                           username2 if six.PY3 else username2.encode('utf-8')])
             gen_password = stdout.getvalue().strip()
             self.assertEqual(stderr.getvalue(), '')
 
@@ -956,8 +883,7 @@ class CliTests(RestAuthTest, CliMixin):
                 self.assertTrue(stderr.getvalue().startswith('usage: '))
 
         self.assertItemsEqual(user_backend.list(), [])
-        self.assertRaises(UserNotFound, user_backend.check_password,
-                          username, password1)
+        self.assertRaises(UserNotFound, user_backend.check_password, username, password1)
 
         # load a custom validator:
         load_username_validators(('Users.validators.MediaWikiValidator', ))
@@ -971,8 +897,7 @@ class CliTests(RestAuthTest, CliMixin):
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertTrue(stderr.getvalue().startswith('usage: '))
         self.assertItemsEqual(user_backend.list(), [])
-        self.assertRaises(UserNotFound, user_backend.check_password,
-                          username, password1)
+        self.assertRaises(UserNotFound, user_backend.check_password, username, password1)
 
         load_username_validators()
 
@@ -993,8 +918,7 @@ class CliTests(RestAuthTest, CliMixin):
         with capture() as (stdout, stderr):
             restauth_user(['ls'])
             stdout, stderr = self.decode(stdout, stderr)
-            self.assertItemsEqual(stdout.strip().split('\n'),
-                                  [username1, username2, ])
+            self.assertItemsEqual(stdout.strip().split('\n'), [username1, username2, ])
             self.assertEqual(stderr, '')
 
     def test_rename(self):
@@ -1059,8 +983,7 @@ class CliTests(RestAuthTest, CliMixin):
             stdout, stderr = self.decode(stdout, stderr)
             self.assertFalse(user_backend.check_password(username1, password1))
             self.assertFalse(user_backend.check_password(username1, password2))
-            self.assertTrue(user_backend.check_password(username1,
-                                                        stdout.strip()))
+            self.assertTrue(user_backend.check_password(username1, stdout.strip()))
 
         # invalid password
         with capture() as (stdout, stderr):
@@ -1105,8 +1028,6 @@ class CliTests(RestAuthTest, CliMixin):
 
         # add group to service:
         group = group_backend.create(groupname1, self.service)
-        grp1 = groupname1 if six.PY3 else groupname1.encode('utf-8')
-        grp2 = groupname2 if six.PY3 else groupname2.encode('utf-8')
         group_backend.add_user(group, user)
 
         with capture() as (stdout, stderr):
@@ -1115,7 +1036,7 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertHasLine(stdout, '^Last login: foobar')
 
             # no %s expansion because of py2 encoding
-            pattern = str('^Groups: ') + grp1
+            pattern = '^Groups: %s' % groupname1
 
             self.assertHasLine(stdout, pattern, flags=re.UNICODE)
             self.assertEqual(stderr.getvalue(), '')
@@ -1127,7 +1048,7 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertHasLine(stdout, '^Groups:$')
 
             # no %s expansion because of py2 encoding
-            pattern = str('^\* %s: ' % self.service.username) + grp1
+            pattern = '^\* %s: %s' % (self.service.username, groupname1)
             self.assertHasLine(stdout, pattern, flags=re.UNICODE)
 
             self.assertEqual(stderr.getvalue(), '')
@@ -1143,11 +1064,11 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertHasLine(stdout, '^Groups:$')
 
             # no %s expansion because of py2 encoding
-            pattern = str('^\* no service:.*') + grp2
+            pattern = '^\* no service: %s' % groupname2
             self.assertHasLine(stdout, pattern, flags=re.UNICODE)
 
             # no %s expansion because of py2 encoding
-            pattern = str('^\* %s: ' % self.service.username) + grp1
+            pattern = '^\* %s: %s' % (self.service.username, groupname1)
             self.assertHasLine(stdout, pattern, flags=re.UNICODE)
 
             self.assertEqual(stderr.getvalue(), '')
