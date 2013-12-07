@@ -22,6 +22,7 @@ from datetime import datetime
 from django.db import transaction as dj_transaction
 from django.db.utils import IntegrityError
 from django.utils import six
+from django.contrib.auth.hashers import get_hasher
 
 from Groups.models import Group
 from Users.models import Property
@@ -128,8 +129,13 @@ class DjangoUserBackend(UserBackend):
         user.save()
 
     def set_password_hash(self, username, algorithm, hash, salt=None,
-                          **kwargs):  # pragma: no cover
+                          **kwargs):
         user = self._get_user(username, 'password')
+        try:
+            hasher = get_hasher(algorithm)
+        except ValueError as e:
+            raise NotImplementedError(str(e))
+
         parameters = [algorithm]
         if kwargs:
             parameters += six.itervalues(kwargs)
