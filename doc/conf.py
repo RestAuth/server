@@ -345,4 +345,5 @@ rst_prolog += """
 .. _RestAuthCommon: https://common.restauth.net
 .. _Python: http://www.python.org
 .. _mimeparse: https://code.google.com/p/mimeparse/
+.. _DATABASES: https://docs.djangoproject.com/en/dev/ref/databases/
 """
