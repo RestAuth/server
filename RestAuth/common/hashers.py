@@ -145,6 +145,16 @@ class ModularCryptHasher(PasslibHasher):
         return getattr(self._load_library(), self.handler).encrypt(password, salt=salt)[1:]
 
 
+class PrefixedHasher(PasslibHasher):
+    def verify(self, password, encoded):
+        _algo, hash = encoded.split('$', 1)
+        return getattr(self._load_library(), self.handler).verify(password, hash)
+
+    def encode(self, password, salt):
+        encoded = getattr(self._load_library(), self.handler).encrypt(password, hash)
+        return '%s$%s' % (self.algorithm, encoded)
+
+
 class PhpassHasher(PasslibHasher):
     """Hasher that understands hashes as created by `phpass
     <http://www.openwall.com/phpass/>`_, the "portable PHP password hashing
@@ -241,3 +251,9 @@ class Apr1Hasher(ModularCryptHasher):
     """
     algorithm = 'apr1'
     handler = "apr_md5_crypt"
+
+
+class LdapMd5Hasher(PrefixedHasher):
+    """LDAP unsalted md5 hash."""
+    algorithm = 'ldap_md5'
+    handler = 'ldap_md5'
