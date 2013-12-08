@@ -20,6 +20,7 @@ from django.utils.six.moves import http_client
 
 from Services.models import Service
 from Services.models import service_create
+from common.compat import encode_str as _e
 from common.testdata import CliMixin
 from common.testdata import RestAuthTest
 from common.testdata import capture
@@ -833,6 +834,7 @@ class CliTests(RestAuthTest, CliMixin):
                      groupname2.encode('utf-8')])
                 self.fail('Adding an already existing group does not throw an error.')
             except SystemExit as e:
+                self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertHasLine(stderr, 'Group already exists\.')
 
@@ -929,6 +931,7 @@ class CliTests(RestAuthTest, CliMixin):
                 cli(['set-service', '--service=%s' % self.service.username,
                      groupname1 if six.PY3 else groupname1.encode('utf-8')])
             except SystemExit as e:
+                self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertHasLine(stderr, 'error: %s at service %s: Group does not exist\.$' %
                                    (groupname1, self.service.username))
@@ -976,24 +979,68 @@ class CliTests(RestAuthTest, CliMixin):
         group2 = group_backend.create(groupname2, service=self.service)
 
         with capture() as (stdout, stderr):
-            cli(['add-group',
-                 '--service=%s' % self.service.username,
-                 '--sub-service=%s' % self.service.username,
-                 groupname1 if six.PY3 else groupname1.encode('utf-8'),
-                 groupname2 if six.PY3 else groupname2.encode('utf-8'),
-            ])
+            cli(['add-group', '--service=%s' % self.service.username,
+                 '--sub-service=%s' % self.service.username, _e(groupname1), _e(groupname2)])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
         self.assertEqual(group_backend.subgroups(group1), [groupname2])
 
     def test_rename(self):
-        pass
+        group_backend.create(groupname1)
+        group_backend.create(groupname3)
+        group_backend.create(groupname1, service=self.service)
+
+        with capture() as (stdout, stderr):
+            cli(['rename', _e(groupname1), _e(groupname2)])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.list(service=None), [groupname2, groupname3])
+
+        with capture() as (stdout, stderr):
+            cli(['rename', '--service=%s' % self.service.username, _e(groupname1), _e(groupname2)])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.list(service=self.service), [groupname2])
+
+        # test a failed rename
+        with capture() as (stdout, stderr):
+            try:
+                cli(['rename', _e(groupname3), _e(groupname2)])  # groupname2 already exists
+                self.fail("Rename doesn't fail")
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'error: %s: Group already exists\.$' % groupname2)
+        self.assertEqual(group_backend.list(service=None), [groupname2, groupname3])
 
     def test_rm(self):
-        pass
+        group_backend.create(groupname1)
+        with capture() as (stdout, stderr):
+            cli(['rm', _e(groupname1)])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.list(service=None), [])
 
     def test_rm_user(self):
-        pass
+        group = group_backend.create(groupname1)
+        user = user_backend.create(username1, property_backend=property_backend)
+        group_backend.add_user(group, user)
+        self.assertEqual(group_backend.members(group), [username1])
+
+        with capture() as (stdout, stderr):
+            cli(['rm-user', _e(groupname1), _e(username1)])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.members(group), [])
 
     def test_rm_group(self):
-        pass
+        group1 = group_backend.create(groupname1)
+        group2 = group_backend.create(groupname2)
+        group_backend.add_subgroup(group1, group2)
+        self.assertEqual(group_backend.subgroups(group1), [groupname2])
+
+        with capture() as (stdout, stderr):
+            cli(['rm-group', _e(groupname1), _e(groupname2)])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.subgroups(group1), [])
