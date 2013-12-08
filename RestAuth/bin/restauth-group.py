@@ -23,8 +23,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RestAuth.settings')
 sys.path.append(os.getcwd())
 
 try:
-    from django.utils import six
-
     from Groups.cli.helpers import get_group
     from Groups.cli.helpers import print_by_service
     from Groups.cli.parsers import parser
