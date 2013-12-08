@@ -8,14 +8,26 @@ RestAuth has the following requirements:
 
 * `Python`_ 2.6.5 or later or Python 3.2 or later
 * `Django`_ 1.6 or later - RestAuth is written as a Django project
-* Any database `supported by Django
-  <https://docs.djangoproject.com/en/dev/ref/databases/>`_ that supports
-  transactions
+* Any database supported by Django, that supports transactions, see the
+  `DATABASES`_ setting.
 * `RestAuthCommon`_ 0.6.2 or later
 * `mimeparse`_ 0.1.4 or later
 * The `argparse <http://docs.python.org/library/argparse.html>`_ module ships
   with Python 2.7 and is available for Python 2.6
 * `Django South`_ is used for handeling schema migrations.
+
+Additionally, various optional features require additional libraries:
+
+* `MySQL-python`_ if you use MySQL as a :setting:`DATABASES` backend.
+* `redis`_ and `hiredis`_ if you want to use the
+  :py:class:`~backends.redis_backend.RedisPropertyBackend`.
+* `passlib`_ if you want to use most of the :doc:`custom password hashers
+  </config/custom-hashes>`.
+
+.. _MySQL-python: https://pypi.python.org/pypi/MySQL-python
+.. _redis: https://pypi.python.org/pypi/redis
+.. _hiredis: https://pypi.python.org/pypi/hiredis
+.. _passlib: https://pypi.python.org/pypi/passlib
 
 Get source
 ----------
