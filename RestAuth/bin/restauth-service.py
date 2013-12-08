@@ -2,18 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
+# see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
@@ -24,13 +22,14 @@ sys.path.append(os.getcwd())
 
 try:
     from django.core.exceptions import ValidationError
+    from django.db import transaction
     from django.db.utils import IntegrityError
 
     from Services.models import Service
     from Services.cli.parsers import parser
 except ImportError as e:  # pragma: no cover
-    sys.stderr.write('Error: Cannot import RestAuth. '
-                     'Please make sure RestAuth is in your PYTHONPATH.\n')
+    sys.stderr.write(
+        'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
 def main(args=None):
@@ -45,23 +44,21 @@ def main(args=None):
         args.service.save()
     elif args.action == 'rename':
         args.service.username = args.name
-        try:
-            args.service.save()
-        except IntegrityError:
-            parser.error("%s: Service already exists." % args.name)
+        with transaction.atomic():
+            try:
+                args.service.save()
+            except IntegrityError:
+                parser.error("%s: Service already exists." % args.name)
     elif args.action == 'rm':
         args.service.delete()
     elif args.action == 'ls':
         for service in Service.objects.all().order_by('username'):
-            hosts = [host.address for host in service.hosts.all()]
-            print('%s: %s' % (service.name, ', '.join(hosts)))
+            print('%s: %s' % (service.name, ', '.join(service.addresses)))
     elif args.action == 'view':
         print(args.service.name)
         print('Last used: %s' % (args.service.last_login))
-        hosts = [str(host.address) for host in args.service.hosts.all()]
-        print('Hosts: %s' % (', '.join(hosts)))
-        perms = [p.codename for p in args.service.user_permissions.all()]
-        print('Permissions: %s' % (', '.join(perms)))
+        print('Hosts: %s' % (', '.join(args.service.addresses)))
+        print('Permissions: %s' % (', '.join(args.service.permissions)))
     elif args.action == 'set-hosts':
         try:
             args.service.set_hosts(*args.hosts)
