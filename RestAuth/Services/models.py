@@ -148,6 +148,13 @@ class Service(User):
                 pass
         self.hosts.remove(*hosts)
 
+    @property
+    def addresses(self):
+        return self.hosts.values_list('address', flat=True).order_by('address')
+
+    @property
+    def permissions(self):
+        return self.user_permissions.values_list('codename', flat=True).order_by('codename')
 
 class ServiceAddress(models.Model):
     address = models.GenericIPAddressField(unique=True)
