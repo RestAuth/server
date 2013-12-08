@@ -1033,6 +1033,17 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
         self.assertEqual(group_backend.members(group), [])
 
+        with capture() as (stdout, stderr):
+            try:
+                cli(['rm-user', _e(groupname1), _e(username1)])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(
+                    stderr,
+                    'error: User "%s" not member of group "%s"\.$' % (username1, groupname1))
+        self.assertEqual(group_backend.members(group), [])
+
     def test_rm_group(self):
         group1 = group_backend.create(groupname1)
         group2 = group_backend.create(groupname2)
@@ -1043,4 +1054,15 @@ class CliTests(RestAuthTest, CliMixin):
             cli(['rm-group', _e(groupname1), _e(groupname2)])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
+        self.assertEqual(group_backend.subgroups(group1), [])
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['rm-group', _e(groupname1), _e(groupname2)])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(
+                    stderr,
+                    'error: Group "%s" is not a subgroup of "%s"\.$' % (groupname2, groupname1))
         self.assertEqual(group_backend.subgroups(group1), [])
