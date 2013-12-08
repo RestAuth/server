@@ -132,6 +132,18 @@ class PasslibHasher(BasePasswordHasher):
     """Base class for all passlib-based hashers."""
     library = "passlib.hash"
 
+    def salt(self):
+        """Just return None, passlib handles salt-generation."""
+        return None
+
+
+class ModularCryptHasher(PasslibHasher):
+    def verify(self, password, encoded):
+        return getattr(self._load_library(), self.handler).verify(password, '$%s' % encoded)
+
+    def encode(self, password, salt=None):
+        return getattr(self._load_library(), self.handler).encrypt(password, salt=salt)[1:]
+
 
 class PhpassHasher(PasslibHasher):
     """Hasher that understands hashes as created by `phpass
@@ -155,9 +167,6 @@ class PhpassHasher(PasslibHasher):
 
     def __init__(self):
         self.mod = self._load_library().phpass
-
-    def salt(self):  # don't generate a salt, let passlib do it
-        return None
 
     def encode(self, password, salt, rounds=None):
         if salt and len(salt) == 9:
@@ -224,19 +233,11 @@ class Drupal7Hasher(PhpassHasher):
         return constant_time_compare(generated, encoded)
 
 
-class Apr1Hasher(PasslibHasher):
+class Apr1Hasher(ModularCryptHasher):
     """
     Returns hashes using a modified md5 algorithm used by the Apache webserver
     to store passwords. Hashes generated using this function are identical to
     the ones generated with ``htpasswd -m``.
     """
     algorithm = 'apr1'
-
-    def salt(self):
-        return None
-
-    def verify(self, password, encoded):
-        return self._load_library().apr_md5_crypt.verify(password, '$%s' % encoded)
-
-    def encode(self, password, salt=None):
-        return self._load_library().apr_md5_crypt.encrypt(password, salt=salt)[1:]
+    handler = "apr_md5_crypt"
