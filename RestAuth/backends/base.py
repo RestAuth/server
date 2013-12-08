@@ -35,6 +35,9 @@ class UserInstance(object):
         self.id = id
         self.username = username
 
+    def __lt__(self, other):  # pragma: py3
+        return self.username < other.username
+
 
 class GroupInstance(object):
     """Class representing a group.
@@ -52,6 +55,9 @@ class GroupInstance(object):
         self.id = id
         self.name = name
         self.service = service
+
+    def __lt__(self, other):  # pragma: py3
+        return self.username < other.username
 
 
 class RestAuthBackend(object):  # pragma: no cover
