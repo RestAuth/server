@@ -21,8 +21,10 @@ from django.utils import six
 
 
 def encode_str(s):
+    """Encode a string so its safe to pass to tests of cli-scripts."""
     return s if six.PY3 else s.encode('utf-8')
 
 
 def decode_str(s):
+    """Decode a string so its safe to output in cli-scripts."""
     return s if six.PY3 else s.decode('utf-8')
