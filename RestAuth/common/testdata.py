@@ -212,3 +212,8 @@ def capture():
     yield sys.stdout, sys.stderr
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
+
+
+def str_encode(s):
+    """Encode a string so its safe to pass to tests of cli-scripts."""
+    return s if six.PY3 else s.encode('utf-8')
