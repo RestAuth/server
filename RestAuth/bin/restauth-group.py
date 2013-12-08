@@ -104,7 +104,7 @@ def main(args=None):
             group_backend.rename(group, args.name)
         except GroupExists as e:
             parser.error("%s: %s" % (_d(args.name), e))
-    elif args.action in ['remove-group', 'rm-group', 'del-group']:
+    elif args.action in ['remove-group', 'rm-group', 'del-group']:  # pragma: no branch
         group = get_group(parser, args.group, args.service)
         subgroup = get_group(parser, args.subgroup, args.sub_service)
 
