@@ -55,7 +55,6 @@ def main(args=None):
         for service in Service.objects.all().order_by('username'):
             print('%s: %s' % (service.name, ', '.join(service.addresses)))
     elif args.action == 'view':
-        print(args.service.name)
         print('Last used: %s' % (args.service.last_login))
         print('Hosts: %s' % (', '.join(args.service.addresses)))
         print('Permissions: %s' % (', '.join(args.service.permissions)))
