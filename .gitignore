@@ -1,6 +1,5 @@
-*.pyc
-*.pyo
-*.swp
+*.py[co]
+*.sw[po]
 *.sqlite3
 build/
 RestAuth/djangosettings.py
