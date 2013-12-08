@@ -39,6 +39,12 @@ from backends import group_backend
 from backends import property_backend
 from backends import user_backend
 
+servicename1 = 'auth.example.com'
+servicename2 = 'auth.example.net'
+servicename3 = 'auth.example.org'
+servicename4 = 'new.example.com'
+servicename5 = 'old.example.com'
+
 username1 = "mati1 愑"  # \u6111
 username2 = "mati2 愒"  # \u6112
 username3 = "mati3 愓"  # \u6113
