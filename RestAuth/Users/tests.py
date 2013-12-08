@@ -21,6 +21,7 @@ from django.utils.unittest import skipUnless
 
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import get_hasher
 from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.hashers import make_password
 from django.test import TestCase
@@ -846,6 +847,39 @@ class Apr1Test(HashTestMixin, TestCase):
 
     def setUp(self):
         super(Apr1Test, self).setUp()
+
+
+class PasslibTest(object):
+    passwords = ['abc', 'def', 'foobar', 'adfsdfasdf']
+
+    def setUp(self):
+        self.hasher = get_hasher(self.algorithm)
+
+    def test_basic(self):
+        for password in self.passwords:
+            generated = make_password(password, hasher=self.hasher)
+            self.assertTrue(generated.startswith('%s$' % self.hasher.algorithm))
+            self.assertTrue(check_password(password, generated))
+
+
+@override_settings(PASSWORD_HASHERS=('common.hashers.LdapMd5Hasher',))
+class LdapMd5Test(PasslibTest, TestCase):
+    algorithm = 'ldap_md5'
+
+
+@override_settings(PASSWORD_HASHERS=('common.hashers.LdapSha1Hasher',))
+class LdapSha1Test(PasslibTest, TestCase):
+    algorithm = 'ldap_sha1'
+
+
+@override_settings(PASSWORD_HASHERS=('common.hashers.LdapSaltedMd5Hasher',))
+class LdapSaltedMd5Test(PasslibTest, TestCase):
+    algorithm = 'ldap_salted_md5'
+
+
+@override_settings(PASSWORD_HASHERS=('common.hashers.LdapSaltedSha1Hasher',))
+class LdapSaltedSha1Test(PasslibTest, TestCase):
+    algorithm = 'ldap_salted_sha1'
 
 
 class CliTests(RestAuthTest, CliMixin):

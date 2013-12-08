@@ -151,7 +151,7 @@ class PrefixedHasher(PasslibHasher):
         return getattr(self._load_library(), self.handler).verify(password, hash)
 
     def encode(self, password, salt):
-        encoded = getattr(self._load_library(), self.handler).encrypt(password, hash)
+        encoded = getattr(self._load_library(), self.handler).encrypt(password)
         return '%s$%s' % (self.algorithm, encoded)
 
 
@@ -257,3 +257,18 @@ class LdapMd5Hasher(PrefixedHasher):
     """LDAP unsalted md5 hash."""
     algorithm = 'ldap_md5'
     handler = 'ldap_md5'
+
+class LdapSha1Hasher(PrefixedHasher):
+    """LDAP unsalted sha1 hash."""
+    algorithm = 'ldap_sha1'
+    handler = 'ldap_sha1'
+
+class LdapSaltedMd5Hasher(PrefixedHasher):
+    """LDAP unsalted md5 hash."""
+    algorithm = 'ldap_salted_md5'
+    handler = 'ldap_salted_md5'
+
+class LdapSaltedSha1Hasher(PrefixedHasher):
+    """LDAP unsalted sha1 hash."""
+    algorithm = 'ldap_salted_sha1'
+    handler = 'ldap_salted_sha1'
