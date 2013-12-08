@@ -27,6 +27,7 @@ try:
     from Groups.cli.helpers import print_by_service
     from Groups.cli.parsers import parser
     from backends import group_backend
+    from common.compat import decode_str as _d
     from common.errors import GroupExists
     from common.errors import GroupNotFound
     from common.errors import UserNotFound
@@ -102,7 +103,7 @@ def main(args=None):
         try:
             group_backend.rename(group, args.name)
         except GroupExists as e:
-            parser.error("%s: %s" % (args.name, e))
+            parser.error("%s: %s" % (_d(args.name), e))
     elif args.action in ['remove-group', 'rm-group', 'del-group']:
         group = get_group(parser, args.group, args.service)
         subgroup = get_group(parser, args.subgroup, args.sub_service)
