@@ -95,6 +95,9 @@ class Group(models.Model):
                 raise IntegrityError("columns name, service_id are not unique")
         super(Group, self).save(*args, **kwargs)
 
+    def __lt__(self, other):  # pragma: py3
+        return self.name < other.name
+
     def __unicode__(self):  # pragma: no cover
         if self.service:
             return "%s/%s" % (self.name, self.service.username)
