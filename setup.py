@@ -363,6 +363,7 @@ class coverage(Command):
             'RestAuth/common/routers.py',
             'RestAuth/manage.py',
             'RestAuth/RestAuth/wsgi.py',
+            'RestAuth/*/tests.py',
         ]
 
         # compute backend files to exclude:
