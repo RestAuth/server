@@ -17,11 +17,7 @@
 
 from __future__ import unicode_literals
 
-import base64
 import hashlib
-import math
-import string
-import struct
 
 from django.contrib.auth.hashers import BasePasswordHasher
 from django.contrib.auth.hashers import mask_hash
@@ -29,9 +25,6 @@ from django.utils import six
 from django.utils.crypto import constant_time_compare
 from django.utils.crypto import get_random_string
 from django.utils.datastructures import SortedDict
-
-# py2/py3 compat imports
-from django.utils.six.moves import xrange as range
 
 
 class Sha512Hasher(BasePasswordHasher):
@@ -135,7 +128,12 @@ class MediaWikiHasher(BasePasswordHasher):
         _encode = _encode2
 
 
-class PhpassHasher(BasePasswordHasher):
+class PasslibHasher(BasePasswordHasher):
+    """Base class for all passlib-based hashers."""
+    library = "passlib.hash"
+
+
+class PhpassHasher(PasslibHasher):
     """Hasher that understands hashes as created by `phpass
     <http://www.openwall.com/phpass/>`_, the "portable PHP password hashing
     framework". This system is most prominently used by `WordPress
@@ -151,148 +149,25 @@ class PhpassHasher(BasePasswordHasher):
 
     algorithm = 'phpass'
 
-    # some constants by PHPass
-    MIN_HASH_COUNT = 7
-    MAX_HASH_COUNT = 30
-
-    HASH_LENGTH = 55
-    HASH_COUNT = 15
-
     # output of _password_itoa64
     # http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_itoa64/7
     itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
-    def salt(self):
-        count = self.itoa64[self.HASH_COUNT]
-        salt = self._password_base64_encode(get_random_string(6), 6)
-        return '%s%s' % (count, salt)
+    def __init__(self):
+        self.mod = self._load_library().phpass
 
-    def _password_enforce_log2_boundaries(self, count_log2):
-        """Implementation of _password_enforce_log2_boundaries
+    def salt(self):  # don't generate a salt, let passlib do it
+        return None
 
-        .. seealso:: http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_enforce_log2_boundaries/7
-        """
-        if count_log2 < self.MIN_HASH_COUNT:
-            return self.MIN_HASH_COUNT
-        elif count_log2 > self.MAX_HASH_COUNT:
-            return self.MAX_HASH_COUNT
-        else:
-            return count_log2
-
-    def _password_base64_encode(self, input, count):
-        """Implementation of _password_base64_encode.
-
-        Equivalent to the ``encode64`` function in phpass.
-
-        .. seealso:: http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_base64_encode/7
-
-        :param input: string to encode
-        :type  input: str
-        :return:      The encoded string
-        :rtype:       str
-        """
-        output = ''
-        i = 0
-
-        while i < count:
-            # NOTE: We use these weird indizes for python 3 compatability:
-            # in python2:  'foo'[0]   --> 'f'
-            # in python3:  'foo'[0]   --> 'f'
-            #             b'foo'[0]   --> 102  <-- this breaks ord()
-            #             b'foo'[0:1] --> 'f'
-            value = ord(input[i:i + 1])
-            i += 1
-
-            output += self.itoa64[value & 0x3f]
-            if (i < count):
-                value |= ord(input[i:i + 1]) << 8
-
-            output += self.itoa64[(value >> 6) & 0x3f]
-
-            if (i >= count):
-                break
-            i += 1
-
-            if i < count:
-                value |= ord(input[i:i + 1]) << 16
-
-            output += self.itoa64[(value >> 12) & 0x3f]
-            if (i >= count):
-                break
-            i += 1
-
-            output += self.itoa64[(value >> 18) & 0x3f]
-        return output
-
-    def _compute_hash2(self, hashfunc, count, salt, password):  # pragma: py2
-        hash = hashfunc(salt + password).digest()
-
-        for i in range(0, count):
-            hash = hashfunc(hash + str(password)).digest()
-        return hash
-
-    def _compute_hash3(self, hashfunc, count, salt, password):  # pragma: py3
-        salt = bytes(salt, 'utf-8')
-        password = bytes(password, 'utf-8')
-
-        hash = hashfunc(salt + password).digest()
-        for i in range(0, count):
-            hash = hashfunc(hash + password).digest()
-        return hash
-
-    def _password_crypt(self, hashfunc, password, setting):
-        setting = setting[:12]
-
-        if setting[0] != '$' or setting[2] != '$':
-            return False
-
-        count_log2 = self.itoa64.index(setting[3])
-        # Hashes may be imported from elsewhere, so we allow != HASH_COUNT
-        if count_log2 < self.MIN_HASH_COUNT or count_log2 > self.MAX_HASH_COUNT:
-            return False
-
-        salt = setting[4:12]
-        # Hashes must have an 8 character salt.
-        if len(salt) != 8:
-            return False
-
-        # Convert the base 2 logarithm into an integer.
-        count = 1 << count_log2
-
-        # We rely on the hash() function being available in PHP 5.2+.
-        hash = self._compute_hash(hashfunc, count, salt, password)
-
-        length = len(hash)
-
-        output = '%s%s' % (setting, self._password_base64_encode(hash, length))
-        expected = 12 + math.ceil((8 * length) / 6.0)
-        if len(output) == expected:
-            return output[0:self.HASH_LENGTH]
-        else:
-            return False
+    def encode(self, password, salt, rounds=None):
+        if salt and len(salt) == 9:
+            rounds = self.itoa64.index(salt[0])
+            salt = salt[1:]
+        return '%s%s' % (self.algorithm, self.mod.encrypt(password, salt=salt, rounds=rounds))
 
     def verify(self, password, encoded):
-        enc_hash = encoded[6:]
-
-        if enc_hash.startswith('$H$') or enc_hash.startswith('$P$'):
-            recoded = self._password_crypt(hashlib.md5, password, enc_hash)
-        else:
-            return False
-
-        if recoded is False:
-            return recoded
-        else:
-            return constant_time_compare(enc_hash, recoded)
-
-    def encode(self, password, salt):
-        settings = '$P$%s' % salt
-        encoded = self._password_crypt(hashlib.md5, password, settings)
-        return '%s%s' % (self.algorithm, encoded)
-
-    if six.PY3:  # pragma: py3
-        _compute_hash = _compute_hash3
-    else:  # pragma: py2
-        _compute_hash = _compute_hash2
+        algorithm, hash = encoded.split('$', 1)
+        return self.mod.verify(password, '$%s' % hash)
 
 
 class Drupal7Hasher(PhpassHasher):
@@ -307,203 +182,61 @@ class Drupal7Hasher(PhpassHasher):
 
     This class is only a slightly modified version of the
     :py:class:`~PhpassHasher`. This class uses Sha512 and hashes start with
-    ``$S$`` instead of ``$P$``. Like Drupal7, it does support reading normal
-    ``$P$`` hashes as well.
-    """
+    ``$S$`` instead of ``$P$``.
 
+    .. TODO:: Drupal7 supports normal phpass hashes as well, so this module should to.
+    """
     algorithm = 'drupal7'
 
+    def __init__(self):  # load hashers loads without constructors
+        passlib = self._load_library()
+        from passlib.utils import h64
+        from passlib.utils.compat import unicode
+
+        class Drupal7Handler(passlib.phpass):
+            default_ident = "$S$"
+            ident_values = ["$S$", ]
+            ident_aliases = {'S': '$S$', }
+            default_rounds = 15
+
+            def _calc_checksum(self, secret):
+                # FIXME: can't find definitive policy on how phpass handles non-ascii.
+                if isinstance(secret, unicode):
+                    secret = secret.encode("utf-8")
+                real_rounds = 1<<self.rounds
+                result = hashlib.sha512(self.salt.encode("ascii") + secret).digest()
+                r = 0
+                while r < real_rounds:
+                    result = hashlib.sha512(result + secret).digest()
+                    r += 1
+                return h64.encode_bytes(result).decode("ascii")
+        self.mod = Drupal7Handler
+
+    def encode(self, password, salt, rounds=None):
+        return super(Drupal7Hasher, self).encode(password, salt, rounds=rounds)[:62]
+
     def verify(self, password, encoded):
-        enc_hash = encoded[7:]
+        algorithm, hash = encoded.split('$', 1)
+        rounds = self.itoa64.index(hash[2])
+        salt = hash[3:11]
+        generated = self.encode(password, salt=salt, rounds=rounds)
 
-        if enc_hash.startswith('$S$'):
-            recoded = self._password_crypt(hashlib.sha512, password, enc_hash)
-        elif enc_hash.startswith('$H$') or enc_hash.startswith('$P$'):
-            recoded = self._password_crypt(hashlib.md5, password, enc_hash)
-        else:
-            return False
-
-        if recoded is False:
-            return recoded
-        else:
-            return constant_time_compare(enc_hash, recoded)
-
-    def encode(self, password, salt):
-        settings = '$S$%s' % salt
-        encoded = self._password_crypt(hashlib.sha512, password, settings)
-        return '%s%s' % (self.algorithm, encoded)
+        return constant_time_compare(generated, encoded)
 
 
-class Apr1Hasher(BasePasswordHasher):
+class Apr1Hasher(PasslibHasher):
     """
     Returns hashes using a modified md5 algorithm used by the Apache webserver
     to store passwords. Hashes generated using this function are identical to
     the ones generated with ``htpasswd -m``.
     """
-
     algorithm = 'apr1'
 
+    def salt(self):
+        return None
+
     def verify(self, password, encoded):
-        algorithm, salt, hash = encoded.split('$', 3)
-        newhash = self._crypt(password, salt)
-        return constant_time_compare(hash, newhash)
+        return self._load_library().apr_md5_crypt.verify(password, '$%s' % encoded)
 
-    def encode(self, password, salt):
-        hash = self._crypt(password, salt)
-        return '%s$%s$%s' % (self.algorithm, salt, hash)
-
-    def safe_summary(self, encoded):  # pragma: no cover
-        algorithm, salt, hash = encoded.split('$', 3)
-        assert algorithm == self.algorithm
-        return SortedDict([
-            ('algorithm', algorithm),
-            ('salt', mask_hash(salt)),
-            ('hash', mask_hash(hash)),
-        ])
-
-    def _pack(self, val):
-        md5 = hashlib.md5(val).hexdigest()
-        cs = [md5[i:i + 2] for i in range(0, len(md5), 2)]
-        values = [int(c, 16) for c in cs]
-        return struct.pack(str('16B'), *values)
-
-    def _trans2(self, val):  # pragma: py2
-        frm = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-        to = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-        trans = string.maketrans(frm, to)
-        return base64.b64encode(val)[2:][::-1].translate(trans)
-
-    def _trans3(self, val):  # pragma: py3
-        frm = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-        to = b"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-        trans = bytes.maketrans(frm, to)
-        return base64.b64encode(val)[2:][::-1].translate(trans)
-
-    def _crypt3(self, plainpasswd, salt):  # pragma: py3
-        text = bytes("%s$apr1$%s" % (plainpasswd, salt), 'utf-8')
-
-        to_pack = "%s%s%s" % (plainpasswd, salt, plainpasswd)
-        bin = self._pack(bytes(to_pack, 'utf-8'))
-
-        # first loop
-        i = len(plainpasswd)
-        while i > 0:
-            text += bin[0:min(16, i)]
-            i -= 16
-
-        # second loop
-        i = len(plainpasswd)
-        while i > 0:
-            if i & 1:
-                text += bytes(chr(0), 'utf-8')
-            else:
-                text += bytes(plainpasswd[0], 'utf-8')
-
-            # shift bits by one (/2 rounded down)
-            i >>= 1
-
-        # 1000er loop
-        bin = self._pack(text)
-        for i in range(0, 1000):
-            if i & 1:
-                new = bytes(plainpasswd, 'utf-8')
-            else:
-                new = bin
-
-            if i % 3:
-                new += bytes(salt, 'utf-8')
-            if i % 7:
-                new += bytes(plainpasswd, 'utf-8')
-
-            if i & 1:
-                new += bin
-            else:
-                new += bytes(plainpasswd, 'utf-8')
-
-            bin = self._pack(new)
-
-        tmp = b''
-        for i in range(0, 5):
-            k = i + 6
-            j = i + 12
-            if j == 16:
-                j = 5
-
-            tmp = "%s%s%s%s" % (chr(bin[i]), chr(bin[k]), chr(bin[j]),
-                                tmp.decode('iso-8859-1'))
-            tmp = bytes(tmp, 'iso-8859-1')
-        tmp = "%s%s%s%s" % (chr(0), chr(0), chr(bin[11]),
-                            tmp.decode('iso-8859-1'))
-        tmp = bytes(tmp, 'iso-8859-1')
-
-        return self._trans(tmp).decode('utf-8')
-
-    def _crypt2(self, plainpasswd, salt):  # pragma: py2
-        """
-        This function creates an md5 hash that is identical to one that would
-        be created by :cmd:`htpasswd -m`.
-
-        Algorithm shamelessly copied from here:
-            http://www.php.net/manual/de/function.crypt.php#73619
-        """
-        plainpasswd = str(plainpasswd)
-        salt = str(salt)  # unicode in Django 1.5, must be str
-        text = str("%s$apr1$%s" % (plainpasswd, salt))
-        bin = self._pack("%s%s%s" % (plainpasswd, salt, plainpasswd))
-
-        # first loop
-        i = len(plainpasswd)
-        while i > 0:
-            text += bin[0:min(16, i)]
-            i -= 16
-
-        # second loop
-        i = len(plainpasswd)
-        while i > 0:
-            if i & 1:
-                text += chr(0)
-            else:
-                text += plainpasswd[0]
-
-            # shift bits by one (/2 rounded down)
-            i >>= 1
-
-        # 1000er loop
-        bin = self._pack(text)
-        for i in range(0, 1000):
-            if i & 1:
-                new = plainpasswd
-            else:
-                new = bin
-
-            if i % 3:
-                new += salt
-            if i % 7:
-                new += plainpasswd
-
-            if i & 1:
-                new += bin
-            else:
-                new += plainpasswd
-
-            bin = self._pack(new)
-
-        tmp = ''
-        for i in range(0, 5):
-            k = i + 6
-            j = i + 12
-            if j == 16:
-                j = 5
-
-            tmp = bin[i] + bin[k] +  bin[j] + str(tmp)
-
-        tmp = str("%s%s%s%s") % (chr(0), chr(0), bin[11], tmp)
-
-        return self._trans(tmp).encode('utf-8')
-
-    if six.PY3:  # pragma: py3
-        _trans = _trans3
-        _crypt = _crypt3
-    else:  # pragma: py2
-        _trans = _trans2
-        _crypt = _crypt2
+    def encode(self, password, salt=None):
+        return self._load_library().apr_md5_crypt.encrypt(password, salt=salt)[1:]
