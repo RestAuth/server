@@ -1,3 +1,20 @@
+# -*- coding: utf-8 -*-
+#
+# This file is part of RestAuth (https://restauth.net).
+#
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
+# see <http://www.gnu.org/licenses/>.
+
+from __future__ import unicode_literals
+
 from base64 import b64encode
 
 from django.contrib.auth.models import Permission
@@ -11,10 +28,12 @@ from django.utils.six.moves import http_client
 
 import RestAuthCommon
 
-from common.testdata import RestAuthTest
 from Services.models import Service
-from Services.models import service_create
 from Services.models import ServiceUsernameNotValid
+from Services.models import service_create
+from common.testdata import CliMixin
+from common.testdata import RestAuthTest
+from common.testdata import capture
 
 PATHS = [
     (['get', 'post'], '/users/'),
@@ -28,7 +47,7 @@ PATHS = [
     (['get', 'post'], '/groups/group/groups/'),
     (['delete'], '/groups/group/groups/group/'),
 ]
-
+cli = getattr(__import__('bin.restauth-service'), 'restauth-service').main
 
 @override_settings(LOGGING_CONFIG=None)
 class BasicAuthTests(RestAuthTest):  # GET /users/
@@ -213,3 +232,7 @@ class ServiceHostTests(TestCase):
             self.fail()
         except ServiceUsernameNotValid:
             self.assertItemsEqual(Service.objects.all(), [self.service])
+
+
+class CliTests(RestAuthTest, CliMixin):
+    pass
