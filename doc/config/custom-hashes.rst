@@ -23,7 +23,8 @@ RestAuth supports all hashers shipping with Django. RestAuth also already
 implements a few other hashers.
 
 .. automodule:: common.hashers
-   :members: Apr1Hasher, Drupal7Hasher, MediaWikiHasher, PhpassHasher, Sha512Hasher
+   :members:
+   :exclude-members: PasslibHasher
 
 .. _own-hash-functions:
 
