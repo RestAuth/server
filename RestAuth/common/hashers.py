@@ -145,16 +145,6 @@ class ModularCryptHasher(PasslibHasher):
         return getattr(self._load_library(), self.handler).encrypt(password, salt=salt)[1:]
 
 
-class PrefixedHasher(PasslibHasher):
-    def verify(self, password, encoded):
-        _algo, hash = encoded.split('$', 1)
-        return getattr(self._load_library(), self.handler).verify(password, hash)
-
-    def encode(self, password, salt):
-        encoded = getattr(self._load_library(), self.handler).encrypt(password)
-        return '%s$%s' % (self.algorithm, encoded)
-
-
 class PhpassHasher(PasslibHasher):
     """Hasher that understands hashes as created by `phpass
     <http://www.openwall.com/phpass/>`_, the "portable PHP password hashing
@@ -241,90 +231,3 @@ class Drupal7Hasher(PhpassHasher):
         generated = self.encode(password, salt=salt, rounds=rounds)
 
         return constant_time_compare(generated, encoded)
-
-
-class Md5Crypt(PrefixedHasher):
-    """Hasher for the FreeBSD MD5 Crypt algorithm.
-
-    Hashes have to be prefixed with ``md5_crypt$`` before being imported.
-
-    .. seealso:: http://pythonhosted.org/passlib/lib/passlib.hash.md5_crypt.html
-    """
-    algorithm = 'md5_crypt'
-    handler = 'md5_crypt'
-
-
-class Sha1Crypt(PrefixedHasher):
-    """Hasher for the SHA1-Crypt algorithm.
-
-    Hashes have to be prefixed with ``sha1_crypt$`` before being imported.
-
-    .. seealso:: http://pythonhosted.org/passlib/lib/passlib.hash.sha1_crypt.html
-    """
-    algorithm = 'sha1_crypt'
-    handler = 'sha1_crypt'
-
-
-class Sha256Crypt(PrefixedHasher):
-    """Hasher for the SHA256-Crypt algorithm.
-
-    Hashes have to be prefixed with ``sha256_crypt$`` before being imported.
-
-    .. seealso:: http://pythonhosted.org/passlib/lib/passlib.hash.sha256_crypt.html
-    """
-    algorithm = 'sha256_crypt'
-    handler = 'sha256_crypt'
-
-
-class Sha512Crypt(PrefixedHasher):
-    """Hasher for the SHA512-Crypt algorithm.
-
-    Hashes have to be prefixed with ``sha512_crypt$`` before being imported.
-
-    .. seealso:: http://pythonhosted.org/passlib/lib/passlib.hash.sha512_crypt.html
-    """
-    algorithm = 'sha512_crypt'
-    handler = 'sha512_crypt'
-
-
-class SunMd5Crypt(PrefixedHasher):
-    """FreeBSD MD5 Crypt hasher.
-
-    Hashes have to be prefixed with ``md5_crypt$`` before being imported.
-
-    .. seealso:: http://pythonhosted.org/passlib/lib/passlib.hash.md5_crypt.html
-    """
-    algorithm = 'sun_md5_crypt'
-    handler = 'sun_md5_crypt'
-
-
-class Apr1Hasher(ModularCryptHasher):
-    """Returns hashes using a modified md5 algorithm used by the Apache webserver to store
-    passwords. Hashes generated using this function are identical to the ones generated with
-    ``htpasswd -m``."""
-    algorithm = 'apr1'
-    handler = "apr_md5_crypt"
-
-
-class LdapMd5Hasher(PrefixedHasher):
-    """LDAP unsalted md5 hash."""
-    algorithm = 'ldap_md5'
-    handler = 'ldap_md5'
-
-class LdapSha1Hasher(PrefixedHasher):
-    """LDAP unsalted sha1 hash."""
-    algorithm = 'ldap_sha1'
-    handler = 'ldap_sha1'
-
-class LdapSaltedMd5Hasher(PrefixedHasher):
-    """LDAP unsalted md5 hash."""
-    algorithm = 'ldap_salted_md5'
-    handler = 'ldap_salted_md5'
-
-class LdapSaltedSha1Hasher(PrefixedHasher):
-    """LDAP unsalted sha1 hash."""
-    algorithm = 'ldap_salted_sha1'
-    handler = 'ldap_salted_sha1'
-
-
-

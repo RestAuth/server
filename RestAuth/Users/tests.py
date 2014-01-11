@@ -698,31 +698,6 @@ class HashTestMixin(RestAuthTestBase):
             user_backend.remove(username=username1)
 
 
-@override_settings(PASSWORD_HASHERS=('common.hashers.PhpassHasher',))
-class PhpassTest(HashTestMixin, TestCase):
-    hashers = ('common.hashers.PhpassHasher',)
-    algorithm = 'phpass'
-
-    testdata = {
-        '1': {'salt': 'BRKt3c7uu', 'hash': 'L2aesAJo1CQjoxGzyPdWr1'},
-        '12': {'salt': 'BmM42e2cS', 'hash': '91zgpkpgP89xe3OeAIpT40'},
-        '123': {'salt': 'BP58lS6kJ', 'hash': '916dAnpf26hPCQI0whXsO1'},
-        '1234': {'salt': 'BpAYOjl1P', 'hash': '9fPA4pIKjt/q66QpFrsDW1'},
-        '12345': {'salt': 'BmuukKnan', 'hash': 'h1XwbmUT6PkxpEr/9pOI00'},
-        '123456': {'salt': 'Bc9fhNMWG', 'hash': 'FRLOT7ZpY6TAYoSf.bIdD0'},
-        '1234567': {'salt': 'BlT2XNtZD', 'hash': 'pirchpCqdGmbWRenYNpzE.'},
-        '12345678': {'salt': 'BqXel7ZCN', 'hash': '22KlBpQogL5PJC52hHuD91'},
-        'if9prH3F5Y57': {'salt': 'Bv5IkQCrO', 'hash': '7LFot6oQrkBy/ToD1kLvt.'},
-        '1YqgPVFITEyt': {'salt': 'BKhwIDVD/', 'hash': 'BfqOTbzU1HsuBbSvZdENs.'},
-        'Ji67AxtXzhKK': {'salt': 'BK0P5khBm', 'hash': 's9.dRMDutvTii5E.gT.Ji1'},
-        'riyBxGIL18vf': {'salt': 'BOkvZdLFu', 'hash': 'YEkYAaxG0g/mUladF0dNO/'},
-        'WvhQMorIXqUX': {'salt': 'BoDae5Q0Y', 'hash': 'fXvarDorOTb.fj44OqbOc1'},
-    }
-
-    def generate(self, data):
-        return '%s$P$%s%s' % (self.algorithm, data['salt'], data['hash'])
-
-
 @override_settings(PASSWORD_HASHERS=('common.hashers.Drupal7Hasher',))
 class Drupal7Test(HashTestMixin, TestCase):
     hashers = ('common.hashers.Drupal7Hasher',)
@@ -793,93 +768,6 @@ class MediaWikiTest(HashTestMixin, TestCase):
         "012345678": {"salt": "fb74cdba", "hash": "9e562f64b90a6445de607f30dc745c7d"},
         "0123456789": {"salt": "02828b87", "hash": "555f6f62e646afc840b1995d0467ef06"},
     }
-
-
-@override_settings(PASSWORD_HASHERS=('common.hashers.Apr1Hasher',))
-class Apr1Test(HashTestMixin, TestCase):
-    hashers = ('common.hashers.Apr1Hasher',)
-    algorithm = 'apr1'
-
-    testdata = {
-        "f": {"hash": "wencZ6WkOMvuOANC/A8LZ0", "salt": "nErdosRy"},
-        "fo": {"hash": "Vyc4Thuvc/YAbWYb1nVI70", "salt": "1aigqzQz"},
-        "foo": {"hash": "cXr93EItT.sxzwewzWX4p.", "salt": "c.aI4ooC"},
-        "foob": {"hash": "jN4YoWkxbtBI8D8d/Xoo3.", "salt": "wcPr1Vxv"},
-        "fooba": {"hash": "Tn2C7XgOdv6v45XbC8TNn/", "salt": "nQp8UKRJ"},
-        "foobar": {"hash": "XD2jiMfDOvzldmLpJl9SO.", "salt": "ilSj3Uel"},
-        "foobar0": {"hash": "94YS3btM0C/5CiUvCOW.s/", "salt": "hrTvU.wk"},
-        "foobar01": {"hash": "4Pqs5OTqXx3IGF3pm7QLv1", "salt": "EytZabM0"},
-        "foobar012": {"hash": "eLFTYKqrZaXlLoUY6CziS/", "salt": "EkOE4ywR"},
-        "foobar0123": {"hash": "K1k6x/RVk92AmiWnAFdEj.", "salt": "pMAaLcxe"},
-        "foobar01234": {"hash": "PAtaCCc4kqruXb0NLoRTg0", "salt": "sAEmwZJG"},
-        "foobar012345": {"hash": "I9pT1Vx.CMEO6wqelEAOP0", "salt": "aQ.R.N4o"},
-        "foobar0123456": {"hash": "G4zjuqUYGU6nFSxPFyO4x0", "salt": "HvbXrlI/"},
-        "foobar01234567": {"hash": "cVAXAQ42OPeHSC3SNSOHS/", "salt": "TDF/0tAf"},
-        "foobar012345678": {"hash": "HASHq302/S19PI.RLbb400", "salt": "zaKZEcLq"},
-        "foobar0123456789": {"hash": "TzOmxdrHqe0HfwxIPXlU10", "salt": "NjALUYrK"},
-        "foobar01234567890": {"hash": "aQ127rgKtHR098iUEgW.F1", "salt": "SJJuaEKa"},
-        "foobar012345678901": {"hash": "TLkfRBIjGqjL4clR0873c1", "salt": "hDJaX1Sa"},
-        "foobar0123456789012": {"hash": "1OIrHIzF.HOQ72wbcFWzU0", "salt": "HlBLH.DU"},
-        "foobar01234567890123": {"hash": "hnBripG.5yMPXE4FJg7Np0", "salt": "snk9PtYt"},
-        "foobar012345678901234": {"hash": "zbRB1BrZmWaFKJMqKyTum0", "salt": "NyCJRWye"},
-        "foobar0123456789012345": {"hash": "UugUUu7D7pABxWg2p2ovc1", "salt": "c3tj3eYu"},
-        "foobar01234567890123456": {"hash": "8iXmJONIozEPLup/2KgQp/", "salt": "tecrND8A"},
-        "foobar012345678901234567": {"hash": "fx2Tly.fIvybOKAbtUWMN/", "salt": "JpSOF7qJ"},
-        "foobar0123456789012345678": {"hash": "fGBumUrVrJ40UB/Q2K1lI.", "salt": "fS58gR6t"},
-        "foobar01234567890123456789": {"hash": "bEsAOMdUIs1GNh5LLjlP1.", "salt": "PLG28sJA"},
-        "foobar012345678901234567890": {"hash": "CmoV8ccWcCEzBV01Pq496/", "salt": "MM49C.Vs"},
-        "foobar0123456789012345678901": {"hash": "2tGWA3NHFeGAEmSXZhYnR/", "salt": "9n8nToVo"},
-        "foobar01234567890123456789012": {"hash": "1cyFn3QVsTQf5RID7O6wC.", "salt": "88x7/ARO"},
-        "foobar012345678901234567890123": {"hash": "ADOeE2pC3SIrRPpj1wdJs/", "salt": "r/oMeWiA"},
-        "foobar0123456789012345678901234": {"hash": "O6pOM0l0DEfJipuhQLk1u/", "salt": "hViGYCEr"},
-        "foobar01234567890123456789012345": {"hash": "WcPoFDPY2hMpalN2bZibX.", "salt": "2QBHE4/Q"},
-        "foobar012345678901234567890123456": {
-            "hash": "BHCTbYz7NZZK4HAFuHLzG.", "salt": "knaM/8D4"},
-        "foobar0123456789012345678901234567": {
-            "hash": "QyzsGHXVFAEu1aO9rkphD0", "salt": "gfdWhcS7"},
-        "foobar01234567890123456789012345678": {
-            "hash": "Frfmzydl8OC7RrMbkTUY21", "salt": "v8oc0omI"},
-        "foobar012345678901234567890123456789": {
-            "hash": "ZvOpfsrYFSUgUwtVsCUBR0", "salt": "GAAPD33a"},
-        "foobar0123456789012345678901234567890": {
-            "hash": "D2ISHi8yEIL/0MzNWiDis.", "salt": "3Glrt6Oh"},
-    }
-
-    def setUp(self):
-        super(Apr1Test, self).setUp()
-
-
-class PasslibTest(object):
-    passwords = ['abc', 'def', 'foobar', 'adfsdfasdf']
-
-    def setUp(self):
-        self.hasher = get_hasher(self.algorithm)
-
-    def test_basic(self):
-        for password in self.passwords:
-            generated = make_password(password, hasher=self.hasher)
-            self.assertTrue(generated.startswith('%s$' % self.hasher.algorithm))
-            self.assertTrue(check_password(password, generated))
-
-
-@override_settings(PASSWORD_HASHERS=('common.hashers.LdapMd5Hasher',))
-class LdapMd5Test(PasslibTest, TestCase):
-    algorithm = 'ldap_md5'
-
-
-@override_settings(PASSWORD_HASHERS=('common.hashers.LdapSha1Hasher',))
-class LdapSha1Test(PasslibTest, TestCase):
-    algorithm = 'ldap_sha1'
-
-
-@override_settings(PASSWORD_HASHERS=('common.hashers.LdapSaltedMd5Hasher',))
-class LdapSaltedMd5Test(PasslibTest, TestCase):
-    algorithm = 'ldap_salted_md5'
-
-
-@override_settings(PASSWORD_HASHERS=('common.hashers.LdapSaltedSha1Hasher',))
-class LdapSaltedSha1Test(PasslibTest, TestCase):
-    algorithm = 'ldap_salted_sha1'
 
 
 class CliTests(RestAuthTest, CliMixin):

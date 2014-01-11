@@ -63,8 +63,8 @@ restauth_import = getattr(__import__('bin.restauth-import'), 'restauth-import').
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     'django.contrib.auth.hashers.MD5PasswordHasher',
-    'common.hashers.Apr1Hasher',
-    'common.hashers.PhpassHasher',
+    'hashers_passlib.apr_md5_crypt',
+    'hashers_passlib.phpass',
 )
 
 
