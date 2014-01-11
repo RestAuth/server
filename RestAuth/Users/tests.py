@@ -698,7 +698,8 @@ class HashTestMixin(RestAuthTestBase):
             user_backend.remove(username=username1)
 
 
-@override_settings(PASSWORD_HASHERS=('common.hashers.Drupal7Hasher',))
+@override_settings(PASSWORD_HASHERS=('common.hashers.Drupal7Hasher',
+                                     'django.contrib.auth.hashers.MD5PasswordHasher',))
 class Drupal7Test(HashTestMixin, TestCase):
     hashers = ('common.hashers.Drupal7Hasher',)
     algorithm = 'drupal7'
