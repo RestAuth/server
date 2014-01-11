@@ -4,3 +4,4 @@ RestAuthCommon>=0.6.2
 South<2.0
 python-mimeparse>=0.1.4
 wsgiref>=0.1.2
+django-hashers-passlib>=0.1
