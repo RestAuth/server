@@ -475,7 +475,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         group4 = group_backend.get(groupname4)
 
         # test memberships
-        self.assertEqual(group_backend.list(group1), [])
+        self.assertItemsEqual(group_backend.members(group1), [])
         self.assertItemsEqual(group_backend.members(group2), [username1, username2])
         self.assertItemsEqual(group_backend.members(group3), [username1, username2, username3])
         self.assertItemsEqual(group_backend.members(group4), [username1, username2])
@@ -506,7 +506,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         group4 = group_backend.get(groupname4)
 
         # test memberships
-        self.assertEqual(group_backend.list(group1), [])
+        self.assertItemsEqual(group_backend.members(group1), [])
         self.assertItemsEqual(group_backend.members(group2), [username1, username2, username4])
         self.assertItemsEqual(group_backend.members(group3), [username1, username2, username3,
                                                               username4])
@@ -542,7 +542,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         group4 = group_backend.get(groupname4)
 
         # test memberships
-        self.assertEqual(group_backend.list(group1), [])
+        self.assertItemsEqual(group_backend.members(group1), [])
         self.assertItemsEqual(group_backend.members(group2), [username1, username4])
         # group3 now is not a subgroup, because group2 already existed and we skipped its data
         self.assertEqual(group_backend.members(group3), [username3])
