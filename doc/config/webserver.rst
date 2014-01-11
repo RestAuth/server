@@ -20,7 +20,7 @@ If you want to run RestAuth as a `mod_wsgi <https://code.google.com/p/modwsgi/>`
 :doc:`installed from source <../install/from-source>`, the script is included in the :file:`wsgi`
 directory. If you installed via our :doc:`APT repositories <../install/debian-ubuntu>` on
 Debian/Ubuntu, the file can be found at :file:`/usr/share/restauth/wsgi.py`. You can also
-fetch it `directly from git <https://git.fsinf.at/restauth/server/blobs/raw/master/RestAuth/RestAuth/wsgi.py>`_.
+fetch it `directly from git <https://raw2.github.com/RestAuth/server/master/RestAuth/RestAuth/wsgi.py>`_.
 
 Configuring Apache is very simple, only the basic WSGI configuration directives are needed:
 
@@ -115,7 +115,7 @@ setting up RestAuth with MySQL and memcached, from the start::
    restauth@host:~$ mkdir run log
 
    # Clone source:
-   restauth@host:~$ git clone https://git.fsinf.at/restauth/server.git
+   restauth@host:~$ git clone https://github.com/RestAuth/server.git
    restauth@host:~$ cd server/
 
    # Create virtualenv, install dependencies:

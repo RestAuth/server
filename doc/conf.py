@@ -338,12 +338,37 @@ rst_prolog += ".. |bin-restauth-user-doc| replace:: :doc:`/restauth-user`\n"
 rst_prolog += ".. |bin-restauth-group-doc| replace:: :doc:`/restauth-group`\n"
 rst_prolog += ".. |bin-restauth-import-doc| replace:: :doc:`/restauth-import`\n"
 
+LINKS = {
+    # restauth links:
+    'chat': 'xmpp:rest@conference.jabber.at',
+    'git': 'https://github.com/RestAuth/server.git',
+    'git-web': 'https://github.com/RestAuth/server',
+    'issue-tracker': 'https://github.com/RestAuth/server/issues',
+    'issue-tracker-new': 'https://github.com/RestAuth/server/issues/new',
+    'download-releases': 'https://server.restauth.net/download',
+
+    # other RestAuth projects
+    'RestAuthCommon': 'https://common.restauth.net',
+
+    # external projects:
+    'Django South': 'http://south.aeracode.org',
+    'Django': 'https://www.djangoproject.com',
+    'MySQL-python': 'https://pypi.python.org/pypi/MySQL-python',
+    'PyPI': 'http://pypi.python.org/',
+    'Python': 'http://www.python.org',
+    'argparse': 'http://docs.python.org/library/argparse.html',
+    'django-hashers-passlib': 'https://pypi.python.org/pypi/django-hashers-passlib',
+    'hiredis': 'https://pypi.python.org/pypi/hiredis',
+    'mimeparse': 'https://code.google.com/p/mimeparse/',
+    'passlib': 'https://pypi.python.org/pypi/passlib',
+    'redis': 'https://pypi.python.org/pypi/redis',
+}
+
 # some common link labels:
-rst_prolog += """
-.. _Django South: http://south.aeracode.org/
-.. _Django: https://www.djangoproject.com
-.. _RestAuthCommon: https://common.restauth.net
-.. _Python: http://www.python.org
-.. _mimeparse: https://code.google.com/p/mimeparse/
+rst_epilog = """
 .. _DATABASES: https://docs.djangoproject.com/en/dev/ref/databases/
 """
+
+for key, url in LINKS.items():
+    rst_epilog += ".. _%s: %s\n" % (key, url)
+    rst_epilog += ".. |%s| replace:: %s\n" % (key, url)

@@ -1,5 +1,6 @@
 RestAuth 0.6.4 (XX XXX XXXX)
 
+  * This project now lives on GitHub: https://github.com/RestAuth/server
   * Fix tests in some python2.6 versions.
   * More consistently lowercase input and output names of users and groups.
   * RestAuth now requires Django 1.6 or newer.

@@ -12,8 +12,7 @@ RestAuth has the following requirements:
   `DATABASES`_ setting.
 * `RestAuthCommon`_ 0.6.2 or later
 * `mimeparse`_ 0.1.4 or later
-* The `argparse <http://docs.python.org/library/argparse.html>`_ module ships
-  with Python 2.7 and is available for Python 2.6
+* The `argparse`_ module ships with Python 2.7 and is available for Python 2.6
 * `Django South`_ is used for handeling schema migrations.
 
 Additionally, various optional features require additional libraries:
@@ -25,33 +24,22 @@ Additionally, various optional features require additional libraries:
 * `django-hashers-passlib`_ (>= 0.1) and `passlib`_ (>= 0.6.2) if you want to
   use most of the :doc:`custom password hashers </config/custom-hashes>`.
 
-.. _MySQL-python: https://pypi.python.org/pypi/MySQL-python
-.. _redis: https://pypi.python.org/pypi/redis
-.. _hiredis: https://pypi.python.org/pypi/hiredis
-.. _django-hashers-passlib: https://pypi.python.org/pypi/django-hashers-passlib
-.. _passlib: https://pypi.python.org/pypi/passlib
-
 Get source
 ----------
 
 From git
 ++++++++
 
-This project is developed on `git.fsinf.at <https://git.fsinf.at/>`_. You can
-view the source code at `git.fsinf.at/restauth/server
-<https://git.fsinf.at/restauth/server>`_. To clone the repository to a directory
-named "RestAuth", simply do:
+This project is developed `on GitHub <git_>`_. To clone the repository into the
+:file:`RestAuth` directory, simply do:
 
 .. code-block:: bash
 
-   git clone http://git.fsinf.at/restauth/server.git RestAuth
-
-.. NOTE:: A mirror of this git-repository is available
-   `on github <https://github.com/matigit/restauth>`_.
+   git clone https://github.com/RestAuth/server.git RestAuth
 
 Older versions are marked as tags. You can view available tags with
 :command:`git tag -l`. You can use any of those versions with :command:`git
-checkout`, for example :command:`git checkout 1.0`.  To move back to the newest
+checkout`, for example :command:`git checkout 0.6.3`.  To move back to the newest
 version, use :command:`git checkout master`.
 
 If you ever want to update the source code, just use:
@@ -59,7 +47,7 @@ If you ever want to update the source code, just use:
 .. code-block:: bash
 
    python setup.py clean
-   git pull
+   git pull origin master
 
 ... and do the same as if you where
 :ref:`doing a new installation <install_from-source_installation>`.
@@ -67,9 +55,8 @@ If you ever want to update the source code, just use:
 Official releases
 +++++++++++++++++
 
-You can download official releases of RestAuth `here
-<https://server.restauth.net/download>`_. The latest release is version
-|restauth-latest-release|.
+You can download official releases of RestAuth `here <download-releases_>`_. The
+latest release is version |restauth-latest-release|.
 
 .. _install_from-source_installation:
 
@@ -77,7 +64,7 @@ Installation
 ------------
 
 Installation itself is very easy. Just go to the directory where your source is
-located ("RestAuth" in the above example) and run:
+located (:file:`RestAuth` in the above example) and run:
 
 .. code-block:: bash
 
