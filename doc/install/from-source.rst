@@ -20,13 +20,15 @@ Additionally, various optional features require additional libraries:
 
 * `MySQL-python`_ if you use MySQL as a :setting:`DATABASES` backend.
 * `redis`_ and `hiredis`_ if you want to use the
-  :py:class:`~backends.redis_backend.RedisPropertyBackend`.
-* `passlib`_ if you want to use most of the :doc:`custom password hashers
-  </config/custom-hashes>`.
+  :py:class:`~backends.redis_backend.RedisPropertyBackend` or use a Redis
+  instance as a cache backend.
+* `django-hashers-passlib`_ (>= 0.1) and `passlib`_ (>= 0.6.2) if you want to
+  use most of the :doc:`custom password hashers </config/custom-hashes>`.
 
 .. _MySQL-python: https://pypi.python.org/pypi/MySQL-python
 .. _redis: https://pypi.python.org/pypi/redis
 .. _hiredis: https://pypi.python.org/pypi/hiredis
+.. _django-hashers-passlib: https://pypi.python.org/pypi/django-hashers-passlib
 .. _passlib: https://pypi.python.org/pypi/passlib
 
 Get source
