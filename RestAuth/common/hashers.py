@@ -20,11 +20,33 @@ from __future__ import unicode_literals
 import hashlib
 
 from django.contrib.auth.hashers import BasePasswordHasher
+from django.contrib.auth.hashers import identify_hasher
 from django.contrib.auth.hashers import mask_hash
 from django.utils import six
 from django.utils.crypto import constant_time_compare
 from django.utils.crypto import get_random_string
 from django.utils.datastructures import SortedDict
+
+
+def import_hash(algorithm, hash):
+    """Import a hash as given by the RestAuth import data format.
+
+    Raises ValueError if the hasher cannot be identified.
+    """
+    if algorithm == 'django':
+        return hash
+
+    try:
+        import hashers_passlib
+        hasher = getattr(hashers_passlib, str(algorithm))()
+    except AttributeError:
+        try:
+            from hashers_passlib import converters
+            hasher = getattr(hashers_passlib, str(converters))()
+        except AttributeError:
+            hasher = identify_hasher(algorithm)  # try to get from Django
+
+    return hasher.from_orig(hash)
 
 
 class Sha512Hasher(BasePasswordHasher):

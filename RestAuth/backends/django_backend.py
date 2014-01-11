@@ -30,6 +30,7 @@ from Users.models import ServiceUser as User
 from backends.base import GroupBackend
 from backends.base import PropertyBackend
 from backends.base import UserBackend
+from common.hashers import import_hash
 from common.errors import GroupExists
 from common.errors import GroupNotFound
 from common.errors import PropertyExists
@@ -128,22 +129,10 @@ class DjangoUserBackend(UserBackend):
 
         user.save()
 
-    def set_password_hash(self, username, algorithm, hash, salt=None,
-                          **kwargs):
+    def set_password_hash(self, username, algorithm, hash):
         user = self._get_user(username, 'password')
-        try:
-            hasher = get_hasher(algorithm)
-        except ValueError as e:
-            raise NotImplementedError(str(e))
 
-        parameters = [algorithm]
-        if kwargs:
-            parameters += six.itervalues(kwargs)
-        if salt is not None:
-            parameters.append(salt)
-        parameters.append(hash)
-
-        user.password = '$'.join(parameters)
+        user.password = import_hash(algorithm=algorithm, hash=hash)
         user.save()
 
     def remove(self, username):

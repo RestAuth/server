@@ -2,10 +2,8 @@
     "users": {
         "mati1 \u6111": {
             "password": {
-                "salt": "lQaIiIrGVKL2", 
-                "hash": "2frgVHaSUSK5Ytmhg8OTBDAMix5SbYz0zJqUFvzpS3w=", 
-                "algorithm": "unknown", 
-                "iterations": "12000"
+                "hash": "$unknown$12000$lQaIiIrGVKL2$2frgVHaSUSK5Ytmhg8OTBDAMix5SbYz0zJqUFvzpS3w=", 
+                "algorithm": "unknown"
             }
         }
     }

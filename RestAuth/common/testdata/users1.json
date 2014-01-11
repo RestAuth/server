@@ -2,10 +2,8 @@
     "users": {
         "mati3 \u6113": {
             "password": {
-                "salt": "lQaIiIrGVKL2", 
-                "hash": "2frgVHaSUSK5Ytmhg8OTBDAMix5SbYz0zJqUFvzpS3w=", 
-                "algorithm": "pbkdf2_sha256", 
-                "iterations": "12000"
+                "hash": "$pbkdf2_sha256$12000$lQaIiIrGVKL2$2frgVHaSUSK5Ytmhg8OTBDAMix5SbYz0zJqUFvzpS3w=", 
+                "algorithm": "pbkdf2_sha256"
             }
         }, 
         "mati1 \u6111": {}, 

@@ -44,10 +44,14 @@ represents the name of the service and the corresponding value is again a
 dictionary describing the service. The file format supports two key/value pairs
 here:
 
-* **password** is either a string representing the cleartext password or a
-  dictionary with three key/value pairs: **algorithm**, **salt** and **hash**.
-  In the latter case, this must of course be something that is supported by your
-  Django installation.
+* `password` is either a string representing the cleartext password or a
+  dictionary with the following keys:
+
+  * ``algorithm``: The hash algorithm used for hashing this password. RestAuth
+    understands any hash provided by :pypi:`django-hashers-passlib` and the
+    special value ``django`` for hashes stored in a django application, which
+    will be stored verbatim.
+  * ``hash``: The hash as stored by the original application.
 
   If the service already exists, passwords won't be overwritten unless you give
   the **-**\ **-overwrite-passwords** parameter.
@@ -73,13 +77,12 @@ Example::
             },
             "example.net": {
                 "password": {
-                    "salt": "saltfrominput",
-                    "hash": "hashfrominput",
-                    "algorithm": "md5"
+                    "hash": "$apr1$fd7YiwYk$P.jfn.Q64kh6cpmTpAxy30",
+                    "algorithm": "apr_md5_crypt"
                 }
             },
             "example.com": {
-                "password": "anotherrawpassword",
+                "password": "plaintext-password",
                 "hosts": [
                     "127.0.0.1",
                     "::1"
@@ -91,7 +94,8 @@ Example::
 In this example, only *example.com* is actually usable (from localhost). The
 other services may still be usable if the service already exists. In the case of
 *example.org*, for example, the two named hostnames would be added to an
-existing service with the same name.
+existing service with the same name. The ``example.net`` service provides a
+password as hashed by Apaches :cmd:`htpasswd` utility.
 
 .. _import-format-users:
 
@@ -135,9 +139,8 @@ Example::
             },
             "full example": {
                 "password": {
-                    "salt": "randomstring",
-                    "hash": "secrethash",
-                    "algorithm": "md5"
+                    "hash": "$apr1$fd7YiwYk$P.jfn.Q64kh6cpmTpAxy30",
+                    "algorithm": "apr_md5_crypt"
                 },
                 "properties": {
                     "email": "mati@fsinf.at",
@@ -210,9 +213,8 @@ This is a full example of a file that can be used by |bin-restauth-import-doc|::
             },
             "example.net": {
                 "password": {
-                    "salt": "saltfrominput",
-                    "hash": "hashfrominput",
-                    "algorithm": "md5"
+                    "hash": "$apr1$fd7YiwYk$P.jfn.Q64kh6cpmTpAxy30",
+                    "algorithm": "apr_md5_crypt"
                 }
             },
             "example.com": {
@@ -235,9 +237,8 @@ This is a full example of a file that can be used by |bin-restauth-import-doc|::
             },
             "mati": {
                 "password": {
-                    "salt": "randomstring",
-                    "hash": "secrethash",
-                    "algorithm": "md5"
+                    "hash": "$apr1$fd7YiwYk$P.jfn.Q64kh6cpmTpAxy30",
+                    "algorithm": "apr_md5_crypt"
                 },
                 "properties": {
                     "email": "mati@fsinf.at",

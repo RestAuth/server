@@ -41,6 +41,7 @@ try:
     from backends import property_backend
     from backends import user_backend
     from common.cli.parsers import parser
+    from common.hashers import import_hash
     from common.errors import GroupExists
     from common.errors import PropertyExists
     from common.errors import UserExists
@@ -48,6 +49,7 @@ except ImportError as e:  # pragma: no cover
     sys.stderr.write(
         'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
+
 
 def init_transaction():
     user_backend.init_transaction()
@@ -83,12 +85,7 @@ def save_services(services, args, parser):
             if isinstance(pwd, six.string_types):
                 service.set_password(pwd)
             elif isinstance(pwd, dict):
-                fields = [pwd['algorithm'], ]
-                if 'iterations' in pwd:
-                    fields.append(pwd.get('iterations'))
-                fields += [pwd['salt'], pwd['hash'], ]
-
-                service.password = '$'.join(fields)
+                service.password = import_hash(**pwd)
             else:
                 raise TypeError("'password' is neither string nor dictionary.")
             print('* %s: Set password from input data.' % name)
@@ -103,6 +100,7 @@ def save_services(services, args, parser):
         for host in data.get('hosts', []):
             address = ServiceAddress.objects.get_or_create(address=host)[0]
             service.hosts.add(address)
+
 
 def save_users(users, args, parser):
     properties = defaultdict(dict)
@@ -131,7 +129,7 @@ def save_users(users, args, parser):
                 try:
                     user_backend.set_password_hash(username=username, **pwd)
                     print('* %s: Set hash from input data.' % username)
-                except NotImplementedError:
+                except ValueError:
                     print('* %s: Hash of type "%s" is not supported, skipping.' %
                           (username, pwd['algorithm']))
             else:
