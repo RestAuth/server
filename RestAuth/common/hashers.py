@@ -172,21 +172,8 @@ class PhpassHasher(PasslibHasher):
     # http://api.drupal.org/api/drupal/includes%21password.inc/function/_password_itoa64/7
     itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
-    def __init__(self):
-        self.mod = self._load_library().phpass
 
-    def encode(self, password, salt, rounds=None):
-        if salt and len(salt) == 9:
-            rounds = self.itoa64.index(salt[0])
-            salt = salt[1:]
-        return '%s%s' % (self.algorithm, self.mod.encrypt(password, salt=salt, rounds=rounds))
-
-    def verify(self, password, encoded):
-        algorithm, hash = encoded.split('$', 1)
-        return self.mod.verify(password, '$%s' % hash)
-
-
-class Drupal7Hasher(PhpassHasher):
+class Drupal7Hasher(PasslibHasher):
     """Hasher that understands hashes as created by Drupal7.
 
     If you want to import hashes created by Drupal7, just prefix them
@@ -214,27 +201,21 @@ class Drupal7Hasher(PhpassHasher):
             ident_values = ["$S$", ]
             ident_aliases = {'S': '$S$', }
             default_rounds = 15
+            min_salt_chars = max_salt_chars = 8
 
             def _calc_checksum(self, secret):
                 # FIXME: can't find definitive policy on how phpass handles non-ascii.
                 if isinstance(secret, unicode):
                     secret = secret.encode("utf-8")
                 real_rounds = 1<<self.rounds
-                result = hashlib.sha512(self.salt.encode("ascii") + secret).digest()
+                result = hashlib.sha512(self.salt + secret).digest()
                 r = 0
                 while r < real_rounds:
                     result = hashlib.sha512(result + secret).digest()
                     r += 1
-                return h64.encode_bytes(result).decode("ascii")
-        self.mod = Drupal7Handler
+                return unicode(h64.encode_bytes(result))[:55-12]
+        self._hasher = Drupal7Handler
 
-    def encode(self, password, salt, rounds=None):
-        return super(Drupal7Hasher, self).encode(password, salt, rounds=rounds)[:62]
-
-    def verify(self, password, encoded):
-        algorithm, hash = encoded.split('$', 1)
-        rounds = self.itoa64.index(hash[2])
-        salt = hash[3:11]
-        generated = self.encode(password, salt=salt, rounds=rounds)
-
-        return constant_time_compare(generated, encoded)
+    @property
+    def hasher(self):
+        return self._hasher
