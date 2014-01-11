@@ -29,7 +29,8 @@ sys.path.insert( 0, 'RestAuth' )
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath',
-              'sphinx.ext.ifconfig', 'sphinx.ext.viewcode', 'extensions.example']
+              'sphinx.ext.ifconfig', 'sphinx.ext.viewcode', 'extensions.example', 'sphinx.ext.extlinks',
+             ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -359,7 +360,6 @@ LINKS = {
     'argparse': 'http://docs.python.org/library/argparse.html',
     'django-hashers-passlib': 'https://pypi.python.org/pypi/django-hashers-passlib',
     'hiredis': 'https://pypi.python.org/pypi/hiredis',
-    'mimeparse': 'https://code.google.com/p/mimeparse/',
     'passlib': 'https://pypi.python.org/pypi/passlib',
     'redis': 'https://pypi.python.org/pypi/redis',
 }
@@ -372,3 +372,8 @@ rst_epilog = """
 for key, url in LINKS.items():
     rst_epilog += ".. _%s: %s\n" % (key, url)
     rst_epilog += ".. |%s| replace:: %s\n" % (key, url)
+
+# external links:
+extlinks = {
+    'pypi': ('https://pypi.python.org/pypi/%s', ''),
+}

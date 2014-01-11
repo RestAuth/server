@@ -25,8 +25,8 @@ To use a database router (you can either :ref:`write your own <config-db-replica
 .. NOTE:: Routers shipping with RestAuth are not intended to be used together with other routers.
    If you require a more complex database routing schema you can either:
 
-   * `File a feature request <https://redmine.fsinf.at/projects/restauth-server/issues/new>`_ if you
-     think this is a common scheme that will be used by others, or
+   * `File a feature request <issue-tracker-new_>`_ if you think this is a
+     common scheme that will be used by others, or
    * implement it yourself
 
 .. _config-db-replication-write:
