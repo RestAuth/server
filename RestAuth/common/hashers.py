@@ -144,6 +144,12 @@ class MediaWikiHasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
+    def from_orig(self, encrypted):
+        pass
+
+    def to_orig(self, encrypted):
+        pass
+
     if six.PY3:  # pragma: py3
         _encode = _encode3
     else:  # pragma: py2
@@ -157,14 +163,6 @@ class PasslibHasher(BasePasswordHasher):
     def salt(self):
         """Just return None, passlib handles salt-generation."""
         return None
-
-
-class ModularCryptHasher(PasslibHasher):
-    def verify(self, password, encoded):
-        return getattr(self._load_library(), self.handler).verify(password, '$%s' % encoded)
-
-    def encode(self, password, salt=None):
-        return getattr(self._load_library(), self.handler).encrypt(password, salt=salt)[1:]
 
 
 class PhpassHasher(PasslibHasher):
@@ -253,3 +251,9 @@ class Drupal7Hasher(PhpassHasher):
         generated = self.encode(password, salt=salt, rounds=rounds)
 
         return constant_time_compare(generated, encoded)
+
+    def from_orig(self, encrypted):
+        pass
+
+    def to_orig(self, encrypted):
+        pass
