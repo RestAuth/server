@@ -27,6 +27,8 @@ from django.utils.crypto import constant_time_compare
 from django.utils.crypto import get_random_string
 from django.utils.datastructures import SortedDict
 
+from hashers_passlib import PasslibHasher
+
 
 def import_hash(algorithm, hash):
     """Import a hash as given by the RestAuth import data format.
@@ -144,25 +146,10 @@ class MediaWikiHasher(BasePasswordHasher):
             ('hash', mask_hash(hash)),
         ])
 
-    def from_orig(self, encrypted):
-        pass
-
-    def to_orig(self, encrypted):
-        pass
-
     if six.PY3:  # pragma: py3
         _encode = _encode3
     else:  # pragma: py2
         _encode = _encode2
-
-
-class PasslibHasher(BasePasswordHasher):
-    """Base class for all passlib-based hashers."""
-    library = "passlib.hash"
-
-    def salt(self):
-        """Just return None, passlib handles salt-generation."""
-        return None
 
 
 class PhpassHasher(PasslibHasher):
@@ -251,9 +238,3 @@ class Drupal7Hasher(PhpassHasher):
         generated = self.encode(password, salt=salt, rounds=rounds)
 
         return constant_time_compare(generated, encoded)
-
-    def from_orig(self, encrypted):
-        pass
-
-    def to_orig(self, encrypted):
-        pass
