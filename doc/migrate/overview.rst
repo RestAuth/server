@@ -19,7 +19,7 @@ with the crypt, md5 and sha1 algorithms as well plain-text passwords. Please try
 .. code-block:: bash
 
    python htpasswd-export.py --help
-   
+
 ... for usage information.
 
 Linux systems
@@ -36,7 +36,7 @@ Please try:
 .. code-block:: bash
 
    python linux-export.py --help
-   
+
 ... for usage information.
 
 .. NOTE:: The script does not touch the hashes found in either ``/etc/passwd`` or ``/etc/shadow``
@@ -62,4 +62,4 @@ Migration repository
 ====================
 
 You can find a git-repository that collects various migration scripts at
-`git.fsinf.at/restauth/migration <http://git.fsinf.at/restauth/migration>`_.
+`git.fsinf.at/restauth/migration <https://git.fsinf.at/restauth/migration>`_.
