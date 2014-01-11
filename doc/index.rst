@@ -32,11 +32,6 @@ supported systems).
 RestAuth is Free Software, licensed unter the `GNU General Public License,
 version 3 <http://www.gnu.org/licenses/gpl.html>`_.
 
-
-.. Contents:
-   .. toctree::
-      :maxdepth: 1
-
 .. _index_installation:
 
 Installation
