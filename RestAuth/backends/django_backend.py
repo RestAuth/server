@@ -19,10 +19,12 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+from django.contrib.auth.models import User as BaseUser
 from django.db import transaction as dj_transaction
 from django.db.utils import IntegrityError
 from django.utils import six
 
+from Services.models import Service
 from Groups.models import Group
 from Users.models import Property
 from Users.models import ServiceUser as User
@@ -269,12 +271,18 @@ class DjangoGroupBackend(GroupBackend):
     """
 
     def get(self, name, service=None):
+        assert isinstance(name, six.string_types)
+        assert isinstance(service, BaseUser) or service is None
+
         try:
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
             raise GroupNotFound(name)
 
-    def list(self, service, user=None):
+    def list(self, service=None, user=None):
+        assert isinstance(service, BaseUser) or service is None
+        assert isinstance(user, User) or user is None
+
         if user is None:
             groups = Group.objects.filter(service=service)
         else:
@@ -282,6 +290,9 @@ class DjangoGroupBackend(GroupBackend):
         return list(groups.only('id').values_list('name', flat=True))
 
     def create(self, name, service=None, dry=False, transaction=True):
+        assert isinstance(service, BaseUser) or service is None
+        assert isinstance(name, six.string_types)
+
         if dry:
             dj_transaction.set_autocommit(False)
 
@@ -305,6 +316,9 @@ class DjangoGroupBackend(GroupBackend):
                 raise GroupExists('Group "%s" already exists' % name)
 
     def rename(self, group, name):
+        assert isinstance(group, Group)
+        assert isinstance(name, six.string_types)
+
         try:
             group.name = name
             group.save()
@@ -312,34 +326,56 @@ class DjangoGroupBackend(GroupBackend):
             raise GroupExists("Group already exists.")
 
     def set_service(self, group, service=None):
+        assert isinstance(group, Group)
+        assert isinstance(service, BaseUser) or service is None, type(service)
+
         group.service = service
         group.save()
 
     def exists(self, name, service=None):
+        assert isinstance(service, BaseUser) or service is None
+        assert isinstance(name, six.string_types)
+
         return Group.objects.filter(name=name, service=service).exists()
 
     def add_user(self, group, user):
+        assert isinstance(group, Group)
+        assert isinstance(user, User)
+
         group.users.add(user)
 
     def members(self, group, depth=None):
+        assert isinstance(group, Group)
+
         qs = group.get_members(depth=depth)
         return list(qs.values_list('username', flat=True))
 
     def is_member(self, group, user):
+        assert isinstance(group, Group)
+        assert isinstance(user, User)
+
         if group.is_member(user):
             return True
         return False
 
     def rm_user(self, group, user):
+        assert isinstance(group, Group)
+        assert isinstance(user, User)
+
         if group.is_member(user):
             group.users.remove(user)
         else:
             raise UserNotFound(user)  # 404 Not Found
 
     def add_subgroup(self, group, subgroup):
+        assert isinstance(group, Group)
+        assert isinstance(subgroup, Group)
+
         group.groups.add(subgroup)
 
     def subgroups(self, group, filter=True):
+        assert isinstance(group, Group)
+
         if filter:
             qs = group.groups.filter(service=group.service)
             return list(qs.values_list('name', flat=True))
@@ -347,6 +383,9 @@ class DjangoGroupBackend(GroupBackend):
             return group.groups.all()
 
     def rm_subgroup(self, group, subgroup):
+        assert isinstance(group, Group)
+        assert isinstance(subgroup, Group)
+
         qs = group.groups.filter(name=subgroup.name, service=subgroup.service)
         if not qs.exists():
             raise GroupNotFound(subgroup.name)
@@ -354,9 +393,11 @@ class DjangoGroupBackend(GroupBackend):
         group.groups.remove(subgroup)
 
     def remove(self, group):
+        assert isinstance(group, Group)
         group.delete()
 
     def parents(self, group):
+        assert isinstance(group, Group)
         return group.parent_groups.all()
 
     def init_transaction(self):
