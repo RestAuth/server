@@ -22,7 +22,6 @@ from datetime import datetime
 from django.db import transaction as dj_transaction
 from django.db.utils import IntegrityError
 from django.utils import six
-from django.contrib.auth.hashers import get_hasher
 
 from Groups.models import Group
 from Users.models import Property
