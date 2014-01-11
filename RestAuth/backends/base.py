@@ -239,21 +239,22 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_password_hash(self, algorithm, hash, salt=None, **kwargs):
+    def set_password_hash(self, algorithm, hash):
         """Set a users password hash.
 
-        This method is called by |bin-restauth-import| if users with a
-        password hash should be imported. The most common implementation is to
-        join each given field with a '$'.
+        This method is called by |bin-restauth-import| if users with a password hash should be
+        imported.
+
+        If you can store password hashes as an arbitrary string and then use Djangos password
+        hashing framework for verifying those hashes, you can import the hash like this::
+
+            from common.hashers import import_hash
+            django_hash = import_hash(algorithm, hash)
 
         :param algorithm: The algorithm used for creating the hash.
         :type  algorithm: str
         :param      hash: The hash created by the algorithm.
         :type       hash: str
-        :param      salt: The salt used to create the hash, if any. If None, do
-                          not add a field to be joined, only add this field if
-                          salt is a string (empty or non-empty).
-        :type       salt: str
         """
         raise NotImplementedError
 
