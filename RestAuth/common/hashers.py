@@ -208,12 +208,12 @@ class Drupal7Hasher(PasslibHasher):
                 if isinstance(secret, unicode):
                     secret = secret.encode("utf-8")
                 real_rounds = 1<<self.rounds
-                result = hashlib.sha512(self.salt + secret).digest()
+                result = hashlib.sha512(self.salt.encode('ascii') + secret).digest()
                 r = 0
                 while r < real_rounds:
                     result = hashlib.sha512(result + secret).digest()
                     r += 1
-                return unicode(h64.encode_bytes(result))[:55-12]
+                return h64.encode_bytes(result)[:55-12].decode('ascii')
         self._hasher = Drupal7Handler
 
     @property
