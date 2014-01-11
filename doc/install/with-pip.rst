@@ -10,3 +10,5 @@ easy to install this library using :command:`pip` and virtualenv:
    cd RestAuth
    source bin/activate
    pip install RestAuth
+
+.. include:: /includes/next-steps.rst
