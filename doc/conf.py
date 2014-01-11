@@ -284,7 +284,6 @@ elif tags.has('bogus-platform'):
         substitutions[key] = 'REPLACED-%s-REPLACED' % key
 
 rst_epilog = ""
-rst_prolog = ""
 
 for key, value in substitutions.items():
     rst_epilog += ".. |%s| replace:: %s\n" % (key, value)
