@@ -32,6 +32,7 @@ except ImportError as e:  # pragma: no cover
         'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
 
+
 def main(args=None):
     args = parser.parse_args(args=args)
 
