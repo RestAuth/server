@@ -24,16 +24,13 @@ PREFERRED_HANDLER = None
 SUPPORTED_HANDLERS = None
 
 
-def load_handlers(content_handlers=None):
+def load_handlers():
     global HANDLERS
     global PREFERRED_HANDLER
     global SUPPORTED_HANDLERS
 
-    if content_handlers is None:
-        content_handlers = settings.CONTENT_HANDLERS
-
     handlers = []
-    for backend in content_handlers:
+    for backend in settings.CONTENT_HANDLERS:
         try:
             mod_path, cls_name = backend.rsplit('.', 1)
             mod = importlib.import_module(mod_path)
