@@ -188,6 +188,12 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertProperties(user_backend.get(username1), props)
 
+    def test_add_user_with_invalid_properties(self):
+        props = {'foo/bar': propval1, }
+        resp = self.post('/users/', {'user': username1, 'properties': props, })
+        self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
+        self.assertEqual(self.get_usernames(), [])
+
     def test_bad_requests(self):
         self.assertEqual(self.get_usernames(), [])
 
@@ -317,6 +323,12 @@ class ChangePasswordsTest(UserTests):  # PUT /users/<user>/
         self.assertFalsePassword(username2, password1)
         self.assertPassword(username2, password2)
         self.assertFalsePassword(username2, password3)
+
+    def test_change_password_too_short(self):
+        resp = self.put('/users/%s/' % username1, {'password': 'a', })
+        self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
+        self.assertPassword(username1, password1)
+        self.assertFalsePassword(username1, 'a')
 
     def test_disable_password(self):
         resp = self.put('/users/%s/' % username1, {})
@@ -560,6 +572,11 @@ class SetMultiplePropertiesTests(PropertyTests):
         resp = self.put('/users/%s/props/' % username1, testdict)
         self.assertProperties(self.user1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+
+    def test_set_invalid_properties(self):
+        resp = self.put('/users/%s/props/' % username1, {'foo/bar': propval1, })
+        self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
+        self.assertProperties(self.user1, {})
 
 
 class GetPropertyTests(PropertyTests):  # GET /users/<user>/props/<prop>/
