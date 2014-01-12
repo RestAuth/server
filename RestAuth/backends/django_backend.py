@@ -2,18 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
+# see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
@@ -24,7 +22,6 @@ from django.db import transaction as dj_transaction
 from django.db.utils import IntegrityError
 from django.utils import six
 
-from Services.models import Service
 from Groups.models import Group
 from Users.models import Property
 from Users.models import ServiceUser as User
@@ -43,11 +40,11 @@ from common.errors import UserNotFound
 class DjangoUserBackend(UserBackend):
     """Use the standard Django ORM to store user data.
 
-    This backend should be ready-to use as soon as you have :doc:`configured
-    your database </config/database>`.
+    This backend should be ready-to use as soon as you have :doc:`configured your database
+    </config/database>`.
 
-    All settings used by this backend are documented in the :doc:`settings
-    reference </config/all-config-values>`.
+    All settings used by this backend are documented in the :doc:`settings reference
+    </config/all-config-values>`.
     """
 
     def _get_user(self, username, *fields):
@@ -86,8 +83,7 @@ class DjangoUserBackend(UserBackend):
             stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             properties['date joined'] = stamp
 
-        property_backend.set_multiple(user, properties, dry=dry,
-                                      transaction=transaction)
+        property_backend.set_multiple(user, properties, dry=dry, transaction=transaction)
         return user
 
     def create(self, username, password=None, properties=None, property_backend=None, dry=False,
