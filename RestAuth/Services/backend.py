@@ -46,7 +46,7 @@ class InternalAuthenticationBackend:
            any accidental pass-through to other parts of the authentication.
         """
         method, data = header.split()
-        if method.lower() != 'basic':  # pragma: no cover
+        if method.lower() != 'basic':
             return None  # we only support basic authentication
 
         qs = Service.objects.only('username', 'password')
