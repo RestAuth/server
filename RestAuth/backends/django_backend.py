@@ -225,16 +225,8 @@ class DjangoPropertyBackend(PropertyBackend):
             raise PropertyNotFound(key)
 
     def set(self, user, key, value, dry=False, transaction=True):
-        if dry:
-            dj_transaction.set_autocommit(False)
-
-            try:
-                prop, old_value = user.set_property(key, value)
-                return prop.key, old_value
-            finally:
-                dj_transaction.rollback()
-                dj_transaction.set_autocommit(True)
-        elif transaction:
+        # we do not need the dry parameter if its not set by set_multiple.
+        if transaction:
             with dj_transaction.atomic():
                 prop, old_value = user.set_property(key, value)
                 return prop.key, old_value
