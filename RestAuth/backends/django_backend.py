@@ -51,19 +51,26 @@ class DjangoUserBackend(UserBackend):
     """
 
     def _get_user(self, username, *fields):
+        assert isinstance(username, six.string_types)
+
         try:
             return User.objects.only(*fields).get(username=username)
         except User.DoesNotExist:
             raise UserNotFound(username)
 
     def get(self, username):
+        assert isinstance(username, six.string_types)
         return self._get_user(username, 'id', 'username')
 
     def list(self):
         return list(User.objects.values_list('username', flat=True))
 
-    def _create(self, username, password=None, properties=None,
-                property_backend=None, dry=False, transaction=True):
+    def _create(self, username, password=None, properties=None, property_backend=None, dry=False,
+                transaction=True):
+        assert isinstance(username, six.string_types)
+        assert isinstance(password, six.string_types) or password is None
+        assert isinstance(properties, dict) or properties is None
+
         try:
             user = User(username=username)
             if password is not None and password != '':
@@ -83,29 +90,33 @@ class DjangoUserBackend(UserBackend):
                                       transaction=transaction)
         return user
 
-    def create(self, username, password=None, properties=None,
-               property_backend=None, dry=False, transaction=True):
+    def create(self, username, password=None, properties=None, property_backend=None, dry=False,
+               transaction=True):
+        assert isinstance(username, six.string_types)
+        assert isinstance(password, six.string_types) or password is None
+        assert isinstance(properties, dict) or properties is None
+
         if dry:
             dj_transaction.set_autocommit(False)
 
             try:
-                return self._create(username, password, properties,
-                                    property_backend, dry=dry,
+                return self._create(username, password, properties, property_backend, dry=dry,
                                     transaction=transaction)
             finally:
                 dj_transaction.rollback()
                 dj_transaction.set_autocommit(True)
         elif transaction:
             with dj_transaction.atomic():
-                return self._create(username, password, properties,
-                                    property_backend, dry=dry,
+                return self._create(username, password, properties, property_backend, dry=dry,
                                     transaction=transaction)
         else:  # pragma: no cover
-            return self._create(username, password, properties,
-                                property_backend, dry=dry,
+            return self._create(username, password, properties, property_backend, dry=dry,
                                 transaction=transaction)
 
     def rename(self, username, name):
+        assert isinstance(username, six.string_types)
+        assert isinstance(name, six.string_types)
+
         user = self._get_user(username)
 
         user.username = name
@@ -115,13 +126,20 @@ class DjangoUserBackend(UserBackend):
             raise UserExists("User already exists.")
 
     def exists(self, username):
+        assert isinstance(username, six.string_types)
         return User.objects.filter(username=username).exists()
 
     def check_password(self, username, password):
+        assert isinstance(username, six.string_types)
+        assert isinstance(password, six.string_types)
+
         user = self._get_user(username, 'password')
         return user.check_password(password)
 
     def set_password(self, username, password=None):
+        assert isinstance(username, six.string_types)
+        assert isinstance(password, six.string_types) or password is None
+
         user = self._get_user(username, 'id')
         if password is not None and password != '':
             user.set_password(password)
@@ -131,12 +149,18 @@ class DjangoUserBackend(UserBackend):
         user.save()
 
     def set_password_hash(self, username, algorithm, hash):
+        assert isinstance(username, six.string_types)
+        assert isinstance(algorithm, six.string_types)
+        assert isinstance(hash, six.string_types)
+
         user = self._get_user(username, 'password')
 
         user.password = import_hash(algorithm=algorithm, hash=hash)
         user.save()
 
     def remove(self, username):
+        assert isinstance(username, six.string_types)
+
         qs = User.objects.filter(username=username)
         if qs.exists():
             qs.delete()
