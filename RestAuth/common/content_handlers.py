@@ -47,7 +47,8 @@ def load_handlers():
 
 
 def get_handler(mimetype=None):
-    if PREFERRED_HANDLER is None or HANDLERS is None:
+    if PREFERRED_HANDLER is None or HANDLERS is None:  # pragma: no cover
+        # just a safety guard, get_supported() below is alwasy called first.
         load_handlers()
 
     if mimetype is None:
