@@ -150,7 +150,6 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
         self.assertFalsePassword(username1, '')
-        self.assertFalsePassword(username1, None)
         self.assertFalsePassword(username1, password1)
         self.assertFalsePassword(username1, password2)
         self.assertProperties(user_backend.get(username1), {})
@@ -160,7 +159,6 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEqual(self.get_usernames(), [username1, username2])
         user = user_backend.get(username2)
         self.assertFalsePassword(username2, '')
-        self.assertFalsePassword(username2, None)
         self.assertFalsePassword(username2, password1)
         self.assertFalsePassword(username2, password2)
         self.assertProperties(user, {})
@@ -170,7 +168,6 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertItemsEqual(self.get_usernames(), [username1, username2, username3])
         user = user_backend.get(username3)
         self.assertFalsePassword(username3, '')
-        self.assertFalsePassword(username3, None)
         self.assertFalsePassword(username3, password1)
         self.assertFalsePassword(username3, password2)
         self.assertProperties(user, {})
@@ -312,19 +309,16 @@ class ChangePasswordsTest(UserTests):  # PUT /users/<user>/
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertFalsePassword(username1, password1)
         self.assertFalsePassword(username1, '')
-        self.assertFalsePassword(username1, None)
 
         resp = self.put('/users/%s/' % username1, {'password': '', })
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertFalsePassword(username1, password1)
         self.assertFalsePassword(username1, '')
-        self.assertFalsePassword(username1, None)
 
         resp = self.put('/users/%s/' % username1, {'password': None, })
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertFalsePassword(username1, password1)
         self.assertFalsePassword(username1, '')
-        self.assertFalsePassword(username1, None)
 
     def test_bad_requests(self):
         resp = self.put('/users/%s/' % username1, {'foo': password2, })
