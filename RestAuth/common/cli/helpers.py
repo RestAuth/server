@@ -71,7 +71,7 @@ def _format_args(action, default_metavar, format=True):
         if format:
             result = '[*%s*]' % get_metavar(1)
         else:
-            result = '[*%s*]' % get_metavar(1)
+            result = '[%s]' % get_metavar(1)
     elif action.nargs == ZERO_OR_MORE:
         if format:
             result = '[*%s* [*%s* ...]]' % get_metavar(2)
