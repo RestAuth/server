@@ -85,7 +85,7 @@ def main(args=None):
         args.service.user_permissions.add(*args.permissions)
     elif args.action == 'add-permissions':
         args.service.user_permissions.add(*args.permissions)
-    elif args.action == 'rm-permissions':  # pragma: no-branch
+    elif args.action == 'rm-permissions':  # pragma: no branch
         args.service.user_permissions.remove(*args.permissions)
 
 if __name__ == '__main__':  # pragma: no cover
