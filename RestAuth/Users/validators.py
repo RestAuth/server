@@ -200,7 +200,7 @@ class MediaWikiValidator(Validator):
     ])
 
     def check(self, name):
-        if len(name.encode('utf-8')) > 255:  # pragma: no cover
+        if len(name.encode('utf-8')) > 255:
             # Page titles only up to 255 bytes:
             raise UsernameInvalid("Username must not be longer than 255 characters")
 
@@ -295,12 +295,11 @@ class DrupalValidator(Validator):
         if name[-1] == ' ':
             raise UsernameInvalid("Username cannot end with a space")
         if '  ' in name:
-            raise UsernameInvalid(
-                'Username cannot contain multiple spaces in a row')
+            raise UsernameInvalid('Username cannot contain multiple spaces in a row')
 
-        if re.match('[^\u0080-\u00F7 a-z0-9@_.\'-]', name, re.IGNORECASE):
+        if re.search('[^\u0080-\u00F7 a-z0-9@_.\'-]', name, re.IGNORECASE):
             raise UsernameInvalid("Username contains an illegal character")
-        if re.match('[%s%s%s%s%s%s%s%s%s]' % (
+        if re.search('[%s%s%s%s%s%s%s%s%s]' % (
                 # \x{80}-\x{A0}     // Non-printable ISO-8859-1 + NBSP
                 '\u0080-\u00A0',
                 # \x{AD}            // Soft-hyphen
@@ -319,7 +318,7 @@ class DrupalValidator(Validator):
                 '\uFFF9-\uFFFD',
                 # \x{0}-\x{1F}]  // NULL byte and control characters
                 '\u0000-\u001f'),
-                name, re.UNICODE):
+                name, re.UNICODE):  # pragma: no cover
             raise UsernameInvalid("Username contains an illegal character")
 
         # we do not enforce a maximum length, since this is configurable in
