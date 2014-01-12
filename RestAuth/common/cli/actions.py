@@ -71,7 +71,7 @@ class ServiceAction(Action):
 class UsernameAction(Action):
     def __call__(self, parser, namespace, value, option_string):
         username = value.lower()
-        if not six.PY3:  # pragma: py2
+        if not six.PY3:  # pragma: no branch, pragma: py2
             username = username.decode('utf-8')
 
         if namespace.create_user:
