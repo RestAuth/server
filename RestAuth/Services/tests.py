@@ -21,6 +21,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.auth import authenticate
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.test import TestCase
 from django.test.client import Client
@@ -33,6 +34,8 @@ import RestAuthCommon
 from Services.models import Service
 from Services.models import ServiceUsernameNotValid
 from Services.models import service_create
+from Services.models import get_service_hasher
+from Services.models import load_service_hasher
 from common.testdata import CliMixin
 from common.testdata import RestAuthTest
 from common.testdata import password1
@@ -303,6 +306,29 @@ class AuthBackendTests(RestAuthTest):
             self.test_wrong_host()
             self.test_wrong_method()
             self.test_wrong_format()
+
+
+class ServiceHasherTests(RestAuthTest):
+    def test_default(self):
+        hasher = 'hashers_passlib.phpass'
+
+        with self.settings(SERVICE_PASSWORD_HASHER='default', PASSWORD_HASHERS=(hasher, )):
+            load_service_hasher()
+            hasher = get_service_hasher()
+            self.assertEqual(hasher.algorithm, 'phpass')
+
+    def test_wrong_hasher(self):
+        with self.settings(SERVICE_PASSWORD_HASHER='foobar.blahugo'):
+            self.assertRaises(ImproperlyConfigured, load_service_hasher)
+
+    def test_unknown(self):
+        hasher = 'foobar.phpass'
+
+        with self.settings(SERVICE_PASSWORD_HASHER=hasher, PASSWORD_HASHERS=(hasher, )):
+            self.assertRaises(ImproperlyConfigured, load_service_hasher)
+
+    def tearDown(self):
+        load_service_hasher()
 
 
 class CliTests(RestAuthTest, CliMixin):
