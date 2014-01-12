@@ -33,6 +33,7 @@ from Services.models import ServiceUsernameNotValid
 from Services.models import service_create
 from common.testdata import CliMixin
 from common.testdata import RestAuthTest
+from common.testdata import password1
 from common.testdata import servicename1
 from common.testdata import servicename2
 from common.testdata import servicename3
@@ -306,19 +307,91 @@ Permissions: %s
             self.assertEqual(stderr.getvalue(), '')
 
     def test_set_hosts(self):
-        pass
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['set-hosts', servicename5, '127.0.0.1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1'])
+
+        # test if second set overwrites the first host
+        with capture() as (stdout, stderr):
+            cli(['set-hosts', servicename5, '::1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['::1'])
+
+    def test_set_hosts_error(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['set-hosts', servicename5, 'wrong hostname'])
+                self.fail("wrong hostname doesn't exit")
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'error: Enter a valid IPv4 or IPv6 address.$')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), [])
 
     def test_add_hosts(self):
-        pass
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['add-hosts', servicename5, '127.0.0.1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1'])
+
+        # test if second add doesn't overwrite the first host
+        with capture() as (stdout, stderr):
+            cli(['add-hosts', servicename5, '::1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1', '::1'])
+
+    def test_add_hosts_error(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['add-hosts', servicename5, 'wrong hostname'])
+                self.fail("wrong hostname doesn't exit")
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'error: Enter a valid IPv4 or IPv6 address.$')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), [])
 
     def test_rm_hosts(self):
-        pass
+        s = Service.objects.create(username=servicename5)
+        s.add_hosts('127.0.0.1')
+
+        with capture() as (stdout, stderr):
+            cli(['rm-hosts', servicename5, '127.0.0.1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), [])
 
     def test_set_password(self):
-        pass
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['set-password', servicename5, '--password', password1])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertTrue(Service.objects.get(username=s.name).check_password(password1))
 
     def test_set_password_generated(self):
-        pass
+        # generate password:
+        with capture() as (stdout, stderr):
+            cli(['set-password', servicename5, '--gen-password'])
+            gen_password = stdout.getvalue().strip()
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=s.name)
+        self.assertFalse(s.check_password(password1))
+        self.assertTrue(s.check_password(gen_password))
 
     def test_set_permissions(self):
         pass
