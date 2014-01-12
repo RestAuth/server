@@ -112,7 +112,8 @@ def validate_username(username):
 
 
 def get_validators():
-    if USERNAME_VALIDATORS is None:
+    if USERNAME_VALIDATORS is None:  # pragma: no cover
+        # saveguard, load_username_validators() is always called first.
         load_username_validators()
 
     return USERNAME_VALIDATORS

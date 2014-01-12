@@ -108,13 +108,13 @@ class MediaWikiHasher(BasePasswordHasher):
 
     def encode(self, password, salt=None):
         hash = self._encode(password, salt=salt)
-        if salt is None:
+        if salt is None:  # pragma: no cover
             return '%s$$%s' % (self.algorithm, hash)
         else:
             return '%s$%s$%s' % (self.algorithm, salt, hash)
 
     def _encode2(self, password, salt=None):  # pragma: py2
-        if salt is None:
+        if salt is None:  # pragma: no cover
             return hashlib.md5(password).hexdigest()
         else:
             secret_hash = hashlib.md5(password).hexdigest()
@@ -123,7 +123,7 @@ class MediaWikiHasher(BasePasswordHasher):
     def _encode3(self, password, salt=None):  # pragma: py3
         password = bytes(password, 'utf-8')
 
-        if salt is None or salt == '':
+        if salt is None or salt == '':  # pragma: no cover
             return hashlib.md5(password).hexdigest()
         else:
             secret_hash = hashlib.md5(password).hexdigest()
@@ -132,7 +132,7 @@ class MediaWikiHasher(BasePasswordHasher):
 
     def verify(self, password, encoded):
         algorithm, salt, hash = encoded.split('$', 3)
-        if len(salt) == 0:
+        if len(salt) == 0:  # pragma: no cover
             return constant_time_compare(encoded, self.encode(password, None))
         else:
             return constant_time_compare(encoded, self.encode(password, salt))
@@ -205,9 +205,9 @@ class Drupal7Hasher(PasslibHasher):
 
             def _calc_checksum(self, secret):
                 # FIXME: can't find definitive policy on how phpass handles non-ascii.
-                if isinstance(secret, unicode):
+                if isinstance(secret, unicode):  # pragma: no branch
                     secret = secret.encode("utf-8")
-                real_rounds = 1<<self.rounds
+                real_rounds = 1 << self.rounds
                 result = hashlib.sha512(self.salt.encode('ascii') + secret).digest()
                 r = 0
                 while r < real_rounds:
