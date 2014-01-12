@@ -384,7 +384,8 @@ Permissions: %s
         self.assertTrue(Service.objects.get(username=s.name).check_password(password1))
 
     def test_set_password_generated(self):
-        # generate password:
+        s = Service.objects.create(username=servicename5)
+
         with capture() as (stdout, stderr):
             cli(['set-password', servicename5, '--gen-password'])
             gen_password = stdout.getvalue().strip()
