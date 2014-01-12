@@ -88,7 +88,7 @@ class Service(User):
         return self.username
 
     @name.setter
-    def name(self, value):
+    def name(self, value):  # pragma: no cover
         self.username = value
 
     def set_password(self, raw_password):
