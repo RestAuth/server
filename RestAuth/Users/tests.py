@@ -40,6 +40,7 @@ from common.cli.helpers import write_parameters
 from common.errors import UserNotFound
 from common.errors import PropertyNotFound
 from common.testdata import CliMixin
+from common.testdata import PASSWORD_HASHERS
 from common.testdata import RestAuthTest
 from common.testdata import RestAuthTestBase
 from common.testdata import capture
@@ -262,6 +263,19 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         resp = self.post('/users/%s/' % username2, {'password': 'wrong', })
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
+
+    @skipUnless(settings.USER_BACKEND == 'backends.django_backend.DjangoUserBackend', '')
+    def test_update_password_hash(self):
+        """Test if checking the password with an old hash automatically updates the hash."""
+
+        hashers = ('django.contrib.auth.hashers.PBKDF2PasswordHasher', PASSWORD_HASHERS[0], )
+
+        with self.settings(PASSWORD_HASHERS=hashers):
+            load_hashers()
+            resp = self.post('/users/%s/' % username1, {'password': password1, })
+            self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+            u = user_backend.get(username=username1)
+            self.assertTrue(u.password.startswith('pbkdf2_sha256$'))
 
     def test_verify_disabled_password(self):
         self.create_user(username3, None)
