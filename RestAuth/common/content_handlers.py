@@ -37,7 +37,7 @@ def load_handlers():
             raise ImproperlyConfigured("Handler not found: %s" % backend)
 
         handler = handler_cls()
-        if not getattr(handler, 'mime'):
+        if not getattr(handler, 'mime'):  # pragma: no cover
             raise ImproperlyConfigured("Handler doesn't specify a MIME type: %s" % backend)
         handlers.append(handler)
 
