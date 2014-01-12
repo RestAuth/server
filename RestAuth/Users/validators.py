@@ -235,7 +235,6 @@ class LinuxValidator(Validator):
     FORCE_ASCII = True
     ALLOW_WHITESPACE = False
 
-    @  classmethod
     def check(cls, name):
         if name.startswith('-'):
             raise UsernameInvalid(
