@@ -63,13 +63,6 @@ class Group(models.Model):
         unique_together = ('name', 'service')
         permissions = group_permissions
 
-    def __init__(self, *args, **kwargs):
-        models.Model.__init__(self, *args, **kwargs)
-
-        if self.name and not resource_validator(self.name):
-            raise PreconditionFailed(
-                "Name of group contains invalid characters")
-
     def get_members(self, depth=None):
         expr = models.Q(group=self)
         if depth is None:
