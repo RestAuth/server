@@ -17,17 +17,18 @@ from __future__ import unicode_literals
 
 import re
 
-from django.utils.unittest import skipUnless
+from datetime import datetime
+
 
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.hashers import get_hasher
 from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.hashers import make_password
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import six
 from django.utils.six import StringIO
+from django.utils.unittest import skipUnless
 
 # py2/py3 compat imports:
 from django.utils.six.moves import http_client
@@ -187,6 +188,13 @@ class AddUserTests(RestAuthTest):  # POST /users/
         resp = self.post('/users/', {'user': username1, 'properties': props, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertProperties(user_backend.get(username1), props)
+
+    def test_add_user_with_date_joined(self):
+        props = {propkey1: propval1, 'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        resp = self.post('/users/', {'user': username1, 'properties': props, })
+        self.assertEqual(resp.status_code, http_client.CREATED)
+        user = user_backend.get(username1)
+        self.assertEqual(property_backend.list(user), props)
 
     def test_add_user_with_invalid_properties(self):
         props = {'foo/bar': propval1, }
