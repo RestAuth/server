@@ -204,6 +204,33 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertItemsEqual(self.parse(resp, 'list'), [groupname1, groupname3])
 
 
+class CreateGroupTests(GroupTests):  # POST /groups/
+    def test_create_group(self):
+        resp = self.post('/groups/', {'group': groupname1})
+        self.assertEqual(resp.status_code, http_client.CREATED)
+        self.assertItemsEqual(group_backend.list(self.vowi), [groupname1])
+
+    def test_create_existing_group(self):
+        self.create_group(self.vowi, groupname1)
+
+        resp = self.post('/groups/', {'group': groupname1})
+        self.assertEqual(resp.status_code, http_client.CONFLICT)
+        self.assertItemsEqual(group_backend.list(self.vowi), [groupname1])
+
+    def test_service_isolation(self):
+        self.create_group(self.fsinf, groupname1)
+
+        resp = self.post('/groups/', {'group': groupname1})
+        self.assertEqual(resp.status_code, http_client.CREATED)
+        self.assertItemsEqual(group_backend.list(self.vowi), [groupname1])
+        self.assertItemsEqual(group_backend.list(self.fsinf), [groupname1])
+
+    def test_invalid_resource(self):
+        resp = self.post('/groups/', {'group': 'foo/bar'})
+        self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
+        self.assertItemsEqual(group_backend.list(self.vowi), [])
+
+
 class VerifyGroupExistanceTests(GroupTests):  # GET /groups/<group>/
     def test_does_not_exist(self):
         resp = self.get('/groups/%s/' % groupname1)
