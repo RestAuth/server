@@ -155,6 +155,40 @@ class ValidatorTests(RestAuthTest):
     def test_no_whitespace(self):
         self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
 
+    def test_non_ascii_whitespace(self):
+        load_username_validators(('Users.validators.XMPPValidator', ))
+        self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
+        validate_username('foobar')
+
+    def test_email_check(self):
+        load_username_validators(('Users.validators.EmailValidator', ))
+        self.assertRaises(UsernameInvalid, validate_username, 'x' * 65)  # more then 64 chars
+        validate_username('foobar')
+
+    def test_mediawiki_check(self):
+        load_username_validators(('Users.validators.MediaWikiValidator', ))
+        with self.settings(MAX_USERNAME_LENGTH=500):
+            self.assertRaises(UsernameInvalid, validate_username, 'x' * 256)
+        validate_username('foobar')
+
+    def test_linux_check(self):
+        load_username_validators(('Users.validators.LinuxValidator', ))
+        validate_username('foobar')
+
+        self.assertRaises(UsernameInvalid, validate_username, 'x' * 33)
+        self.assertRaises(UsernameInvalid, validate_username, '-foobar')
+
+        with self.settings(RELAXED_LINUX_CHECKS=False):
+            self.assertRaises(UsernameInvalid, validate_username, 'foo%bar')
+
+    def test_drupal_check(self):
+        load_username_validators(('Users.validators.DrupalValidator', ))
+        self.assertRaises(UsernameInvalid, validate_username, ' foobar')
+        self.assertRaises(UsernameInvalid, validate_username, 'foobar ')
+        self.assertRaises(UsernameInvalid, validate_username, 'foo  bar')
+        self.assertRaises(UsernameInvalid, validate_username, 'foo&bar')
+        validate_username('foobar')
+
     def assert_validators(self, validators, substract=0):
         load_username_validators(validators)
 
