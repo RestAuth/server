@@ -18,7 +18,7 @@
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from django.db import models
-from django.utils.http import urlquote
+
 
 user_permissions = (
     ('users_list', 'List all users'),
@@ -45,10 +45,6 @@ class ServiceUser(models.Model):
 
     class Meta:
         permissions = user_permissions
-
-    def __init__(self, *args, **kwargs):
-        super(ServiceUser, self).__init__(*args, **kwargs)
-        self.orig_username = self.username
 
     def set_password(self, raw_password):
         """Set the password to the given value."""
