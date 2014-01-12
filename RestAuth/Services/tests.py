@@ -18,8 +18,10 @@ from __future__ import unicode_literals
 from base64 import b64encode
 
 from django.contrib.auth.models import Permission
+from django.contrib.auth import authenticate
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.db import transaction
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
@@ -34,6 +36,7 @@ from Services.models import service_create
 from common.testdata import CliMixin
 from common.testdata import RestAuthTest
 from common.testdata import password1
+from common.testdata import password2
 from common.testdata import servicename1
 from common.testdata import servicename2
 from common.testdata import servicename3
@@ -240,6 +243,65 @@ class ServiceHostTests(TestCase):
             self.assertItemsEqual(Service.objects.all(), [self.service])
 
 
+class AuthBackendTests(RestAuthTest):
+    def setUp(self):
+        self.service = Service.objects.create(username=servicename1)
+        self.service.add_hosts('::1')
+        self.service.set_password('nopass')
+        self.service.save()
+
+    def auth(self, service, password, host='::1', method='Basic'):
+        encoded = b64encode('%s:%s' % (service.name, password))
+        header = '%s %s' % (method, encoded)
+        return authenticate(header=header, host=host)
+
+    def test_auth(self):
+        self.assertTrue(self.auth(self.service, 'nopass'))
+        self.assertTrue(self.auth(self.service, 'nopass'))
+        self.assertTrue(self.auth(self.service, 'falsepass') is None)
+        self.assertTrue(self.auth(self.service, 'falsepass') is None)
+
+    def test_wrong_service(self):
+        class bogus_cls:
+            name = servicename2
+        self.assertTrue(self.auth(bogus_cls, 'nopass', '::1') is None)
+        self.assertTrue(self.auth(bogus_cls, 'nopass', '::1') is None)
+
+    def test_wrong_pass(self):
+        self.assertTrue(self.auth(self.service, 'falsepass') is None)
+        self.assertTrue(self.auth(self.service, 'falsepass') is None)
+
+    def test_wrong_host(self):
+        self.assertTrue(self.auth(self.service, 'nopass', '::2') is None)
+        self.assertTrue(self.auth(self.service, 'nopass', '::2') is None)
+
+    def test_wrong_method(self):
+        self.assertTrue(self.auth(self.service, 'nopass', method='foobar') is None)
+        self.assertTrue(self.auth(self.service, 'nopass', method='foobar') is None)
+
+    def test_wrong_format(self):
+        password = 'nopass'
+        host = '::1'
+
+        encoded = b64encode('%s%s' % (self.service.name, password))
+        header = '%s %s' % ('Basic', encoded)
+        self.assertTrue(authenticate(header=header, host=host) is None)
+
+        encoded = b64encode('%s%s' % (self.service.name, password)) + 'fppbasdf'
+        header = '%s %s' % ('Basic', encoded)
+        self.assertTrue(authenticate(header=header, host=host) is None)
+
+
+    def test_no_cache(self):
+        with self.settings(SECURE_CACHE=False):
+            self.test_auth()
+            self.test_wrong_service()
+            self.test_wrong_pass()
+            self.test_wrong_host()
+            self.test_wrong_method()
+            self.test_wrong_format()
+
+
 class CliTests(RestAuthTest, CliMixin):
     def test_add(self):
         with capture() as (stdout, stderr):
@@ -247,6 +309,36 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
         self.assertTrue(Service.objects.get(username=servicename4).check_password('foobar'))
+
+    def test_add_existing(self):
+        s = Service.objects.create(username=servicename3)
+        s.set_password(password1)
+        s.save()
+
+        with capture() as (stdout, stderr), transaction.atomic():
+            try:
+                cli(['add', '--password=%s' % password2, servicename3])
+                self.fail("Adding an existing service should be an error.")
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'Service already exists.$')
+
+        self.assertTrue(Service.objects.get(username=servicename3).check_password(password1))
+
+    def test_add_invalid(self):
+        servicename = 'foo:bar'
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['add', '--password=%s' % password2, servicename])
+                self.fail("Adding an existing service should be an error.")
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'Service name must not contain a \':\'$')
+
+        self.assertFalse(Service.objects.filter(username=servicename).exists())
 
     def test_add_gen_password(self):
         with capture() as (stdout, stderr):
@@ -266,6 +358,17 @@ class CliTests(RestAuthTest, CliMixin):
         self.assertTrue(Service.objects.filter(username=servicename4).exists())
         self.assertFalse(Service.objects.filter(username=servicename5).exists())
 
+    def test_rename_service_not_existing(self):
+        with capture() as (stdout, stderr):
+            try:
+                cli(['rename', servicename5, servicename4])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'Service does not exist\.$')
+        self.assertFalse(Service.objects.filter(username=servicename4).exists())
+        self.assertFalse(Service.objects.filter(username=servicename5).exists())
+
     def test_rename_exists(self):
         Service.objects.create(username=servicename4)
         Service.objects.create(username=servicename5)
@@ -275,6 +378,7 @@ class CliTests(RestAuthTest, CliMixin):
                 cli(['rename', servicename5, servicename4])
                 self.fail('Rename does not fail.')
             except SystemExit as e:
+                self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertHasLine(stderr, 'error: %s: Service already exists\.$' % servicename4)
         self.assertTrue(Service.objects.filter(username=servicename4).exists())
