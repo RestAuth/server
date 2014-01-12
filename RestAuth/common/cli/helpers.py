@@ -21,16 +21,15 @@ import re
 
 
 def get_password(args):
-    if args.pwd:
-        return args.pwd
-
-    password = getpass.getpass('password: ')
-    confirm = getpass.getpass('confirm: ')
-    if password != confirm:
-        print("Passwords do not match, please try again.")
-        setattr(args, 'pwd', get_password(args))
-    else:
-        setattr(args, 'pwd', password)
+    if not args.pwd: # pragma: no cover
+        # Note: We cannot really test cli-code that reads from stdin.
+        password = getpass.getpass('password: ')
+        confirm = getpass.getpass('confirm: ')
+        if password != confirm:
+            print("Passwords do not match, please try again.")
+            setattr(args, 'pwd', get_password(args))
+        else:
+            setattr(args, 'pwd', password)
     return args.pwd
 
 
