@@ -818,6 +818,18 @@ class CliTests(RestAuthTest, CliMixin):
         self.assertItemsEqual(user_backend.list(), [username1, username2])
         self.assertTrue(user_backend.check_password(username2, gen_password))
 
+    def test_add_exists(self):
+        self.create_user(username1, password1)
+
+        with capture() as (stdout, stderr):
+            try:
+                restauth_user(['add', '--password', password2,
+                               username1 if six.PY3 else username1.encode('utf-8')])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'User already exists\.$')
+
     def test_add_invalid(self):
         # test an invalid resource (that is, with a slash)
         username = 'foo/bar'
