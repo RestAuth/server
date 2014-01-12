@@ -251,7 +251,8 @@ class AuthBackendTests(RestAuthTest):
         self.service.save()
 
     def auth(self, service, password, host='::1', method='Basic'):
-        encoded = b64encode('%s:%s' % (service.name, password))
+        raw = '%s:%s' % (service.name, password)
+        encoded = b64encode(raw.encode()).decode()
         header = '%s %s' % (method, encoded)
         return authenticate(header=header, host=host)
 
@@ -283,11 +284,13 @@ class AuthBackendTests(RestAuthTest):
         password = 'nopass'
         host = '::1'
 
-        encoded = b64encode('%s%s' % (self.service.name, password))
+        raw = '%s%s' % (self.service.name, password)
+        encoded = b64encode(raw.encode()).decode()
         header = '%s %s' % ('Basic', encoded)
         self.assertTrue(authenticate(header=header, host=host) is None)
 
-        encoded = b64encode('%s%s' % (self.service.name, password)) + 'fppbasdf'
+        raw = '%s%s' % (self.service.name, password)
+        encoded = b64encode(raw.encode()).decode() + 'fppbasdf'
         header = '%s %s' % ('Basic', encoded)
         self.assertTrue(authenticate(header=header, host=host) is None)
 
