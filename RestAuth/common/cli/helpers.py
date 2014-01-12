@@ -39,14 +39,14 @@ def get_password(args):
 def _metavar_formatter(action, default_metavar):
     if action.metavar is not None:
         result = action.metavar
-    elif action.choices is not None:
+    elif action.choices is not None:  # pragma: no cover
         choice_strs = [str(choice) for choice in action.choices]
         result = '{%s}' % ','.join(choice_strs)
     else:
         result = default_metavar
 
     def format(tuple_size):
-        if isinstance(result, tuple):
+        if isinstance(result, tuple):  # pragma: no cover
             return result
         else:
             return (result,) * tuple_size
@@ -66,24 +66,24 @@ def _format_args(action, default_metavar, format=True):
             result = '*%s*' % get_metavar(1)
         else:
             result = '%s' % get_metavar(1)
-    elif action.nargs == OPTIONAL:
+    elif action.nargs == OPTIONAL:  # pragma: no cover
         if format:
             result = '[*%s*]' % get_metavar(1)
         else:
             result = '[%s]' % get_metavar(1)
-    elif action.nargs == ZERO_OR_MORE:
+    elif action.nargs == ZERO_OR_MORE:  # pragma: no cover
         if format:
             result = '[*%s* [*%s* ...]]' % get_metavar(2)
         else:
             result = '[%s [%s ...]]' % get_metavar(2)
-    elif action.nargs == ONE_OR_MORE:
+    elif action.nargs == ONE_OR_MORE:  # pragma: no cover
         if format:
             result = '*%s* [*%s* ...]' % get_metavar(2)
         else:
             result = '%s [%s ...]' % get_metavar(2)
-    elif action.nargs == REMAINDER:
+    elif action.nargs == REMAINDER:  # pragma: no cover
         result = '...'
-    elif action.nargs == PARSER:
+    elif action.nargs == PARSER:  # pragma: no cover
         result = '%s ...' % get_metavar(1)
     else:
         formats = ['%s' for _ in range(action.nargs)]
@@ -124,17 +124,17 @@ def format_man_usage(parser):
     for group in parser._mutually_exclusive_groups:
         try:
             start = actions.index(group._group_actions[0])
-        except ValueError:
+        except ValueError:  # pragma: no cover
             continue
         else:
             end = start + len(group._group_actions)
-            if actions[start:end] == group._group_actions:
+            if actions[start:end] == group._group_actions:  # pragma: no branch
                 for action in group._group_actions:
                     group_actions.add(action)
-                if not group.required:
+                if not group.required:  # pragma: no branch
                     inserts[start] = '['
                     inserts[end] = ']'
-                else:
+                else:  # pragma: no cover
                     inserts[start] = '('
                     inserts[end] = ')'
                 for i in range(start + 1, end):
@@ -142,7 +142,7 @@ def format_man_usage(parser):
 
     parts = []
     for i, action in enumerate(opts + args):
-        if action.help is argparse.SUPPRESS:
+        if action.help is argparse.SUPPRESS:  # pragma: no cover
             parts.append(None)
             if inserts.get(i) == '|':
                 inserts.pop(i)
@@ -152,7 +152,7 @@ def format_man_usage(parser):
             part = _format_args(action, action.dest)
 
             # if it's in a group, strip the outer []
-            if action in group_actions:
+            if action in group_actions:  # pragma: no cover
                 if part[0] == '[' and part[-1] == ']':
                     part = part[1:-1]
 
@@ -215,11 +215,11 @@ def write_parameters(f, parser, cmd):
     format_dict = {'prog': parser.prog}
     opts, args = split_opts_and_args(parser, format_dict)
 
-    if opts:
+    if opts:  # pragma: no branch
         f.write('.. program:: %s\n\n' % (cmd))
 
     for action in opts:
-        if action.default is not None:
+        if action.default is not None:  # pragma: no branch
             format_dict['default'] = action.default
         f.write('.. option:: %s\n' % (format_action(action, False)))
         f.write('   \n')
@@ -229,7 +229,7 @@ def write_parameters(f, parser, cmd):
 
 
 def write_commands(f, parser, cmd):
-    if not parser._subparsers:
+    if not parser._subparsers:  # pragma: no cover
         return
 
     commands = sorted(parser._subparsers._actions[1].choices)
