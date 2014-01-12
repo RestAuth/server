@@ -395,10 +395,58 @@ Permissions: %s
         self.assertTrue(s.check_password(gen_password))
 
     def test_set_permissions(self):
-        pass
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['set-permissions', servicename5, 'users_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.users_list'))
+
+        with capture() as (stdout, stderr):
+            cli(['set-permissions', servicename5, 'props_list', 'groups_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.props_list'))
+        self.assertTrue(s.has_perm('Groups.groups_list'))
+        self.assertFalse(s.has_perm('Users.users_list'))
 
     def test_add_permissions(self):
-        pass
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['add-permissions', servicename5, 'users_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.users_list'))
+
+        with capture() as (stdout, stderr):
+            cli(['add-permissions', servicename5, 'props_list', 'groups_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.props_list'))
+        self.assertTrue(s.has_perm('Groups.groups_list'))
+        self.assertTrue(s.has_perm('Users.users_list'))
 
     def test_rm_permissions(self):
-        pass
+        s = Service.objects.create(username=servicename5)
+        with capture() as (stdout, stderr):
+            cli(['set-permissions', servicename5, 'props_list', 'groups_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.props_list'))
+        self.assertTrue(s.has_perm('Groups.groups_list'))
+
+        # remove perm again
+        with capture() as (stdout, stderr):
+            cli(['rm-permissions', servicename5, 'props_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertFalse(s.has_perm('Users.props_list'))
+        self.assertTrue(s.has_perm('Groups.groups_list'))
