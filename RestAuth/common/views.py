@@ -17,6 +17,8 @@
 This module implements common baseclasses used in other RestAuth views..
 """
 
+from __future__ import unicode_literals
+
 from django.views.generic.base import View
 
 from common.types import assert_format
