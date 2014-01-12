@@ -226,13 +226,11 @@ class LinuxValidator(Validator):
     ALLOW_WHITESPACE = False
 
     def check(cls, name):
-        print(name)
         if name.startswith('-'):
             raise UsernameInvalid('%s: Username must not start with a dash ("-")' % name)
         if len(name) > 32:
             raise UsernameInvalid('%s: Username must not be longer than 32 characters' % name)
 
-        print(settings.RELAXED_LINUX_CHECKS, re.match('[a-z_ ][a-z0-9_-]*[$]?', name))
         regex = '[a-z_ ][a-z0-9_-]*[$]?$'
         if not settings.RELAXED_LINUX_CHECKS and not re.match(regex, name):
             raise UsernameInvalid('%s: Username must match regex "%s"' % (name, regex))
