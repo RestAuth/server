@@ -36,6 +36,8 @@ from Users.validators import load_username_validators
 from Users.validators import validate_username
 from backends.base import GroupInstance
 from backends.base import UserInstance
+from common.content_handlers import get_handler
+from common.content_handlers import load_handlers
 from common.errors import UsernameInvalid
 from common.middleware import RestAuthMiddleware
 from common.testdata import RestAuthTest
@@ -123,6 +125,21 @@ class ContentTypeTests(RestAuthTest):
         resp = self.c.post('/users/', content, **self.extra)
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertItemsEqual(user_backend.list(), [])
+
+class ContentHandlerTests(RestAuthTest):
+    def test_load_handlers(self):
+        with self.settings(CONTENT_HANDLERS=('foo.bar', )):
+            self.assertRaises(ImproperlyConfigured, load_handlers)
+
+        with self.settings(CONTENT_HANDLERS=('foobar', )):
+            self.assertRaises(ImproperlyConfigured, load_handlers)
+
+    def test_get_handler(self):
+        handler = get_handler()
+        self.assertTrue(isinstance(handler, handlers.ContentHandler))
+
+    def test_get_wrong_handler(self):
+        self.assertRaises(ValueError, get_handler, 'foo/bar')
 
 validators = (
     'Users.validators.EmailValidator',
