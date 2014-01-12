@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License along with RestAuth.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 import os
 import sys
 
@@ -63,14 +65,12 @@ def main(args=None):
         try:
             args.service.set_hosts(*args.hosts)
         except ValidationError as e:
-            print(e.messages[0])
-            sys.exit(1)
+            parser.error(e.messages[0])
     elif args.action == 'add-hosts':
         try:
             args.service.add_hosts(*args.hosts)
         except ValidationError as e:
-            print(e.messages[0])
-            sys.exit(1)
+            parser.error(e.messages[0])
     elif args.action == 'rm-hosts':
         args.service.del_hosts(*args.hosts)
     elif args.action == 'set-password':
@@ -85,7 +85,7 @@ def main(args=None):
         args.service.user_permissions.add(*args.permissions)
     elif args.action == 'add-permissions':
         args.service.user_permissions.add(*args.permissions)
-    elif args.action == 'rm-permissions':
+    elif args.action == 'rm-permissions':  # pragma: no-branch
         args.service.user_permissions.remove(*args.permissions)
 
 if __name__ == '__main__':  # pragma: no cover
