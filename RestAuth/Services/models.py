@@ -45,7 +45,6 @@ def load_service_hasher():
         mod = importlib.import_module(mod_path)
         hasher_cls = getattr(mod, cls_name)
     except (AttributeError, ImportError, ValueError) as e:
-        print(e)
         raise ImproperlyConfigured("hasher not found: %s" % backend)
     SERVICE_HASHER = hasher_cls()
 
