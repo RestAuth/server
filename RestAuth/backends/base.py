@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 from django.utils import importlib
 
 
@@ -33,13 +35,16 @@ class UserInstance(object):
         self.id = id
         self.username = username
 
+    def __lt__(self, other):  # pragma: py3
+        return self.username < other.username
+
 
 class GroupInstance(object):
     """Class representing a group.
 
     Instances of this class should provide the ``name``, ``id`` and ``service``
     properties. For the ``name`` and ``id`` properties, the same semantics as
-    for :py:class:`~RestAuth.backends.base.UserInstance` apply.
+    for :py:class:`~backends.base.UserInstance` apply.
 
     The ``service`` property is a service as configured by
     |bin-restauth-service|. Its name is (confusingly!) available as its
@@ -50,6 +55,9 @@ class GroupInstance(object):
         self.id = id
         self.name = name
         self.service = service
+
+    def __lt__(self, other):  # pragma: py3
+        return self.username < other.username
 
 
 class RestAuthBackend(object):  # pragma: no cover
@@ -65,7 +73,7 @@ class RestAuthBackend(object):  # pragma: no cover
 
     Example::
 
-        from RestAuth.backends.base import UserBackend
+        from backends.base import UserBackend
 
         class MyCustomBackend(UserBackend):
             library = 'redis'
@@ -115,7 +123,7 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :return: A user object providing at least the properties of the
             UserInstance class.
         :rtype: :py:class:`~.UserInstance`
-        :raise: :py:class:`~RestAuth.common.errors.UserNotFound` if the user
+        :raise: :py:class:`~common.errors.UserNotFound` if the user
             doesn't exist.
         """
         raise NotImplementedError
@@ -173,7 +181,7 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :return: A user object providing at least the properties of the
             UserInstance class.
         :rtype: :py:class:`~.UserInstance`
-        :raise: :py:class:`~RestAuth.common.errors.UserExists` if the user
+        :raise: :py:class:`~common.errors.UserExists` if the user
             already exist.
         """
         raise NotImplementedError
@@ -187,9 +195,9 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :type  username: str
         :param     name: The new username.
         :type      name: str
-        :raise: :py:class:`~RestAuth.common.errors.UserNotFound` if the user
+        :raise: :py:class:`~common.errors.UserNotFound` if the user
             doesn't exist.
-        :raise: :py:class:`~RestAuth.common.errors.UserExists` if the user
+        :raise: :py:class:`~common.errors.UserExists` if the user
             already exist.
         """
         raise NotImplementedError
@@ -213,7 +221,7 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :type  password: str
         :return: True if the password is correct, False otherwise.
         :rtype: boolean
-        :raise: :py:class:`~RestAuth.common.errors.UserNotFound` if the user
+        :raise: :py:class:`~common.errors.UserNotFound` if the user
             doesn't exist.
         """
         raise NotImplementedError
@@ -226,26 +234,27 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :param password: The new password. If None or empty, the user should
             get an unusable password.
         :type  password: str
-        :raise: :py:class:`~RestAuth.common.errors.UserNotFound` if the user
+        :raise: :py:class:`~common.errors.UserNotFound` if the user
             doesn't exist.
         """
         raise NotImplementedError
 
-    def set_password_hash(self, algorithm, hash, salt=None, **kwargs):
+    def set_password_hash(self, algorithm, hash):
         """Set a users password hash.
 
-        This method is called by |bin-restauth-import| if users with a
-        password hash should be imported. The most common implementation is to
-        join each given field with a '$'.
+        This method is called by |bin-restauth-import| if users with a password hash should be
+        imported.
+
+        If you can store password hashes as an arbitrary string and then use Djangos password
+        hashing framework for verifying those hashes, you can import the hash like this::
+
+            from common.hashers import import_hash
+            django_hash = import_hash(algorithm, hash)
 
         :param algorithm: The algorithm used for creating the hash.
         :type  algorithm: str
         :param      hash: The hash created by the algorithm.
         :type       hash: str
-        :param      salt: The salt used to create the hash, if any. If None, do
-                          not add a field to be joined, only add this field if
-                          salt is a string (empty or non-empty).
-        :type       salt: str
         """
         raise NotImplementedError
 
@@ -254,7 +263,7 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
 
         :param username: The username.
         :type  username: str
-        :raise: :py:class:`~RestAuth.common.errors.UserNotFound` if the user
+        :raise: :py:class:`~common.errors.UserNotFound` if the user
             doesn't exist.
         """
         raise NotImplementedError
@@ -321,7 +330,7 @@ class PropertyBackend(RestAuthBackend):  # pragma: no cover
         """Create a new user property.
 
         This method should return
-        :py:class:`~RestAuth.common.errors.PropertyExists` if a property with
+        :py:class:`~common.errors.PropertyExists` if a property with
         the given key already exists.
 
         The ``dry`` parameter tells you if you should actually create the
@@ -345,7 +354,7 @@ class PropertyBackend(RestAuthBackend):  # pragma: no cover
         :type  transaction: boolean
         :return: A tuple of key/value as they are stored in the database.
         :rtype: tuple
-        :raise: :py:class:`~RestAuth.common.errors.PropertyExists` if the
+        :raise: :py:class:`~common.errors.PropertyExists` if the
             property already exists.
         """
         raise NotImplementedError
@@ -359,7 +368,7 @@ class PropertyBackend(RestAuthBackend):  # pragma: no cover
         :type   key: str
         :return: The value of the property.
         :rtype: str
-        :raise: :py:class:`RestAuth.common.errors.PropertyNotFound` if the
+        :raise: :py:class:`common.errors.PropertyNotFound` if the
             property doesn't exist.
         """
         raise NotImplementedError
@@ -423,7 +432,7 @@ class PropertyBackend(RestAuthBackend):  # pragma: no cover
         :type  user: :py:class:`~.UserInstance`
         :param key: The key identifying the property.
         :type  key: str
-        :raise: :py:class:`RestAuth.common.errors.PropertyNotFound` if the
+        :raise: :py:class:`common.errors.PropertyNotFound` if the
             property doesn't exist.
         """
         raise NotImplementedError
@@ -491,11 +500,11 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type     name: str
         :param service: The service of the named group. If None, the group
             should not belong to any service.
-        :type  service: :py:class:`~RestAuth.Services.models.Service` or None
+        :type  service: :py:class:`~Services.models.Service` or None
         :return: A group object providing at least the properties of the
             GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
-        :raises: :py:class:`RestAuth.common.errors.GroupNotFound` if the named
+        :raises: :py:class:`common.errors.GroupNotFound` if the named
             group does not exist.
         """
         raise NotImplementedError
@@ -525,7 +534,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type     name: str
         :param service: The service of the named group. If None, the group
             should not belong to any service.
-        :type  service: :py:class:`~RestAuth.Services.models.Service` or None
+        :type  service: :py:class:`~Services.models.Service` or None
         :param     dry: Wether or not to actually create the group.
         :type      dry: boolean
         :param transaction: If False, execute statements outside any
@@ -536,7 +545,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the
             GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
-        :raises: :py:class:`RestAuth.common.errors.GroupExists` if the group
+        :raises: :py:class:`common.errors.GroupExists` if the group
             already exists.
         """
         raise NotImplementedError
@@ -550,7 +559,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type    group: :py:class:`.GroupInstance`
         :param    name: The new groupname.
         :type     name: str
-        :raise: :py:class:`~RestAuth.common.errors.GroupExists` if the group
+        :raise: :py:class:`~common.errors.GroupExists` if the group
             already exist.
         """
         raise NotImplementedError
@@ -563,7 +572,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :param   group: A group as provided by :py:meth:`.GroupBackend.get`.
         :type    group: :py:class:`.GroupInstance`
         :param service: The new service of the group.
-        :type  service: :py:class:`~RestAuth.Services.models.Service` or None
+        :type  service: :py:class:`~Services.models.Service` or None
         """
         raise NotImplementedError
 
@@ -573,7 +582,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :param    name: The name of the group.
         :type     name: str
         :param service: The service of the group to query.
-        :type  service: :py:class:`~RestAuth.Services.models.Service` or None
+        :type  service: :py:class:`~Services.models.Service` or None
         :return: True if the group exists, False otherwise.
         :rtype: boolean
         """
@@ -621,7 +630,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type  group: :py:class:`.GroupInstance`
         :param  user: A user as returned by :py:meth:`.UserBackend.get`.
         :type   user: :py:class:`.UserInstance`
-        :raises: :py:class:`RestAuth.common.errors.UserNotFound` if the user
+        :raises: :py:class:`common.errors.UserNotFound` if the user
             is not a member of the group.
         """
         raise NotImplementedError
@@ -666,7 +675,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type  group: :py:class:`.GroupInstance`
         :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
         :type  subgroup: :py:class:`.GroupInstance`
-        :raises: :py:class:`RestAuth.common.errors.GroupNotFound` if the
+        :raises: :py:class:`common.errors.GroupNotFound` if the
             named subgroup is not actually a subgroup of group.
         """
         raise NotImplementedError

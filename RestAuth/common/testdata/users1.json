@@ -1,0 +1,20 @@
+{
+    "users": {
+        "mati3 \u6113": {
+            "password": {
+                "hash": "$pbkdf2_sha256$12000$lQaIiIrGVKL2$2frgVHaSUSK5Ytmhg8OTBDAMix5SbYz0zJqUFvzpS3w=", 
+                "algorithm": "pbkdf2_sha256"
+            }
+        }, 
+        "mati1 \u6111": {}, 
+        "mati2 \u6112": {
+            "password": "password \u6121", 
+            "properties": {
+                "propkey2 \u6142": "propval2 \u6152", 
+                "date joined": 1385922470.483657, 
+                "propkey1 \u6141": "propval1 \u6151", 
+                "last login": "2013-12-01 19:27:44"
+            }
+        }
+    }
+}

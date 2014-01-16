@@ -17,10 +17,9 @@
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse as HttpResponseBase
-from django.http import HttpResponseNotFound
 
-from RestAuth.common.types import get_response_type
-from RestAuth.common.content_handlers import get_handler
+from common.types import get_response_type
+from common.content_handlers import get_handler
 
 
 class HttpRestAuthResponse(HttpResponseBase):

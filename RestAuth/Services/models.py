@@ -2,18 +2,18 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
+# see <http://www.gnu.org/licenses/>.
+
+from __future__ import unicode_literals
 
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
@@ -35,15 +35,13 @@ def load_service_hasher():
     if backend == 'default':
         backend = settings.PASSWORD_HASHERS[0]
     elif backend not in settings.PASSWORD_HASHERS:
-        raise ImproperlyConfigured(
-            "SERVICE_PASSWORD_HASHER not in PASSWORD_HASHERS")
+        raise ImproperlyConfigured("SERVICE_PASSWORD_HASHER not in PASSWORD_HASHERS")
 
     try:
         mod_path, cls_name = backend.rsplit('.', 1)
         mod = importlib.import_module(mod_path)
         hasher_cls = getattr(mod, cls_name)
     except (AttributeError, ImportError, ValueError) as e:
-        print(e)
         raise ImproperlyConfigured("hasher not found: %s" % backend)
     SERVICE_HASHER = hasher_cls()
 
@@ -90,18 +88,13 @@ class Service(User):
         return self.username
 
     @name.setter
-    def name(self, value):
+    def name(self, value):  # pragma: no cover
         self.username = value
 
     def set_password(self, raw_password):
-        self.password = make_password(
-            raw_password, hasher=get_service_hasher())
+        self.password = make_password(raw_password, hasher=get_service_hasher())
 
     def check_password(self, raw_password):
-        """
-        Returns a boolean of whether the raw_password was correct. Handles
-        hashing formats behind the scenes.
-        """
         def setter(raw_password):
             self.set_password(raw_password)
             self.save()
@@ -148,6 +141,13 @@ class Service(User):
                 pass
         self.hosts.remove(*hosts)
 
+    @property
+    def addresses(self):
+        return self.hosts.values_list('address', flat=True).order_by('address')
+
+    @property
+    def permissions(self):
+        return self.user_permissions.values_list('codename', flat=True).order_by('codename')
 
 class ServiceAddress(models.Model):
     address = models.GenericIPAddressField(unique=True)

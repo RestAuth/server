@@ -17,9 +17,9 @@
 
 from django.conf import settings
 
-from RestAuth.backends.base import PropertyBackend
-from RestAuth.common.errors import PropertyExists
-from RestAuth.common.errors import PropertyNotFound
+from backends.base import PropertyBackend
+from common.errors import PropertyExists
+from common.errors import PropertyNotFound
 
 
 class RedisPropertyBackend(PropertyBackend):

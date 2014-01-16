@@ -18,14 +18,14 @@
 from django.conf.urls import patterns
 from django.conf.urls import url
 
-from RestAuth.Services.decorator import login_required
-from RestAuth.Users.views import UserHandlerView
-from RestAuth.Users.views import UserPropHandler
-from RestAuth.Users.views import UserPropsIndex
-from RestAuth.Users.views import UsersView
+from Services.decorator import login_required
+from Users.views import UserHandlerView
+from Users.views import UserPropHandler
+from Users.views import UserPropsIndex
+from Users.views import UsersView
 
 urlpatterns = patterns(
-    'RestAuth.Users.views',
+    'Users.views',
 
     url(r'^$', login_required(realm='/users/')(UsersView.as_view()),
         name="users",

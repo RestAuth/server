@@ -7,19 +7,22 @@ Requirements
 RestAuth has the following requirements:
 
 * `Python`_ 2.6.5 or later or Python 3.2 or later
-* `Django`_ 1.4.2 or later - RestAuth is written as a Django project
-* Any database `supported by Django
-  <https://docs.djangoproject.com/en/dev/ref/databases/>`_ that supports
-  transactions
+* `Django`_ 1.6 or later - RestAuth is written as a Django project
+* Any database supported by Django, that supports transactions, see the
+  `DATABASES`_ setting.
 * `RestAuthCommon`_ 0.6.2 or later
-* `mimeparse`_ 0.1.4 or later
-* The `argparse <http://docs.python.org/library/argparse.html>`_ module ships
-  with Python 2.7 and is available for Python 2.6
+* :pypi:`mimeparse` 0.1.4 or later
+* The `argparse`_ module ships with Python 2.7 and is available for Python 2.6
 * `Django South`_ is used for handeling schema migrations.
 
-.. Note:: Although Django 1.4 still supports Python 2.5, RestAuth is only
-   compatible with Python 2.6.5 or later. Earlier 2.6-versions should also work
-   but are untested.
+Additionally, various optional features require additional libraries:
+
+* :pypi:`MySQL-python` if you use MySQL as a :setting:`DATABASES` backend.
+* :pypi:`redis` and :pypi:`hiredis` if you want to use the
+  :py:class:`~backends.redis_backend.RedisPropertyBackend` or use a Redis
+  instance as a cache backend.
+* :pypi:`django-hashers-passlib` (>= 0.1) and :pypi:`passlib` (>= 0.6.2) if you want to
+  use most of the :doc:`custom password hashers </config/custom-hashes>`.
 
 Get source
 ----------
@@ -27,21 +30,16 @@ Get source
 From git
 ++++++++
 
-This project is developed on `git.fsinf.at <https://git.fsinf.at/>`_. You can
-view the source code at `git.fsinf.at/restauth/server
-<https://git.fsinf.at/restauth/server>`_. To clone the repository to a directory
-named "RestAuth", simply do:
+This project is developed `on GitHub <git_>`_. To clone the repository into the
+:file:`RestAuth` directory, simply do:
 
 .. code-block:: bash
 
-   git clone http://git.fsinf.at/restauth/server.git RestAuth
-
-.. NOTE:: A mirror of this git-repository is available
-   `on github <https://github.com/matigit/restauth>`_.
+   git clone https://github.com/RestAuth/server.git RestAuth
 
 Older versions are marked as tags. You can view available tags with
 :command:`git tag -l`. You can use any of those versions with :command:`git
-checkout`, for example :command:`git checkout 1.0`.  To move back to the newest
+checkout`, for example :command:`git checkout 0.6.3`.  To move back to the newest
 version, use :command:`git checkout master`.
 
 If you ever want to update the source code, just use:
@@ -49,7 +47,7 @@ If you ever want to update the source code, just use:
 .. code-block:: bash
 
    python setup.py clean
-   git pull
+   git pull origin master
 
 ... and do the same as if you where
 :ref:`doing a new installation <install_from-source_installation>`.
@@ -57,9 +55,8 @@ If you ever want to update the source code, just use:
 Official releases
 +++++++++++++++++
 
-You can download official releases of RestAuth `here
-<https://server.restauth.net/download>`_. The latest release is version
-|restauth-latest-release|.
+You can download official releases of RestAuth `here <download-releases_>`_. The
+latest release is version |restauth-latest-release|.
 
 .. _install_from-source_installation:
 
@@ -67,7 +64,7 @@ Installation
 ------------
 
 Installation itself is very easy. Just go to the directory where your source is
-located ("RestAuth" in the above example) and run:
+located (:file:`RestAuth` in the above example) and run:
 
 .. code-block:: bash
 
@@ -77,13 +74,7 @@ located ("RestAuth" in the above example) and run:
 Once you have installed RestAuth, you can go on :doc:`configuring your webserver
 <../config/webserver>` and :doc:`configuring RestAuth <../config/restauth>`.
 
-Next steps
-----------
-Now that you have installed RestAuth, you still need to
-
-#. :doc:`configure your webserver <../config/webserver>`
-#. :doc:`setup your database <../config/database>`
-#. :doc:`configure RestAuth <../config/restauth>`
+.. include:: /includes/next-steps.rst
 
 Run tests
 ---------
@@ -129,6 +120,7 @@ To update the source code, just run:
 
    python setup.py clean
    git pull
+   python setup.py install
 
 After you updated the source, don't forget to :ref:`update your database schema
 <update-database>` and :ref:`check for new settings <update-settings>`.

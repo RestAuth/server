@@ -1,6 +1,28 @@
 RestAuth 0.6.4 (XX XXX XXXX)
 
+  * This project now lives on GitHub: https://github.com/RestAuth/server
+  * The restauth import data format now just has a raw 'hash' key which
+    contains a raw hash as stored by the application (plus the "hash"
+	key identifying the type of hash).
+  * The backend interface function set_password_hash now only understands the
+    "algorithm" and "hash" keyword arguments, where "hash" is the raw
+	password hash.
   * Fix tests in some python2.6 versions.
+  * More consistently lowercase input and output names of users and groups.
+  * RestAuth now requires Django 1.6 or newer.
+  * Migrate to app-layout from Django 1.5
+  * Improve documentation in many small ways.
+  * Move development dependencies to requirements-dev.txt
+  * Code now (partially) uses a line-width of 99 characters.
+  * django backend now verifies its an actually valid hasher.
+
+  Command-line scripts:
+  * Fix listing of subgroups for "restauth-groups view".
+  * Usernames of users created via "restauth-user add" are now subject to the
+    same limitations as via the RestAuth interface.
+  * Fixed restauth-user view --service=...
+  * restauth-import now correctly sets the 'date joined' property for users
+    it created.
 
 RestAuth 0.6.3 (30 May 2013)
 

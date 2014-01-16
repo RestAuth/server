@@ -1,0 +1,22 @@
+{
+    "services": {
+        "new2.example.com": {
+            "password": {
+                "hash": "$apr1$ilSj3Uel$XD2jiMfDOvzldmLpJl9SO.", 
+                "algorithm": "apr_md5_crypt"
+            }
+        }, 
+        "new1.example.com": {
+            "password": {
+                "hash": "$P$BqXel7ZCN22KlBpQogL5PJC52hHuD91", 
+                "algorithm": "phpass"
+            }
+        },
+        "new3.example.com": {
+            "password": {
+                "hash": "$pbkdf2_sha256$12000$lQaIiIrGVKL2$2frgVHaSUSK5Ytmhg8OTBDAMix5SbYz0zJqUFvzpS3w=",
+                "algorithm": "pbkdf2_sha256"
+             }
+        } 
+    }
+}

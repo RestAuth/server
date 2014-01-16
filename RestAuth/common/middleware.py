@@ -23,14 +23,14 @@ import logging
 import traceback
 
 from django.http import HttpResponse
-from django.http import HttpResponseServerError
 
 from RestAuthCommon.error import RestAuthException
 
-from RestAuth.common.errors import GroupNotFound
-from RestAuth.common.errors import PropertyNotFound
-from RestAuth.common.errors import UserNotFound
+from common.errors import GroupNotFound
+from common.errors import PropertyNotFound
+from common.errors import UserNotFound
 
+log = logging.getLogger(__name__)
 CONTENT_TYPE_METHODS = set(['POST', 'PUT'])
 
 
@@ -46,7 +46,7 @@ class RestAuthMiddleware:
                 )
 
         if 'HTTP_ACCEPT' not in request.META:  # pragma: no cover
-            logging.warning('Accept header is recommended in all requests.')
+            log.warning('Accept header is recommended in all requests.')
 
     def process_exception(self, request, ex):
         """Handle RestAuth related exceptions."""
@@ -68,6 +68,4 @@ class RestAuthMiddleware:
         elif isinstance(ex, RestAuthException):
             return HttpResponse(' '.join(ex.args), status=ex.response_code)
         else:  # pragma: no cover
-            logging.critical(traceback.format_exc())
-            return HttpResponseServerError(
-                "Internal Server Error. Please see server log for details.\n")
+            log.critical(traceback.format_exc())

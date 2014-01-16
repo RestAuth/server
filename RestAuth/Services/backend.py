@@ -21,18 +21,18 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils import six
 
-from RestAuth.Services.models import Service
+from Services.models import Service
 
 
 class InternalAuthenticationBackend:
     supports_anonymous_user = False
     supports_object_permissions = False
 
-    def _decode3(self, data):
+    def _decode3(self, data):  # pragma: py3
         data = base64.b64decode(data)
         return data.decode('utf-8').split(':', 1)
 
-    def _decode2(self, data):
+    def _decode2(self, data):  # pragma: py2
         data = base64.b64decode(data)
         return data.split(':', 1)
 
@@ -42,11 +42,11 @@ class InternalAuthenticationBackend:
         authentication and a host. This method takes care of decoding
         the header.
 
-        .. NOTE:: We return none as soon as any check fails in order to avoid
+        .. NOTE:: We return None as soon as any check fails in order to avoid
            any accidental pass-through to other parts of the authentication.
         """
         method, data = header.split()
-        if method.lower() != 'basic':  # pragma: no cover
+        if method.lower() != 'basic':
             return None  # we only support basic authentication
 
         qs = Service.objects.only('username', 'password')
@@ -107,7 +107,7 @@ class InternalAuthenticationBackend:
         """
         return Service.objects.get(id=user_id)
 
-    if six.PY3:
+    if six.PY3:  # pragma: py3
         _decode = _decode3
-    else:
+    else:  # pragma: py2
         _decode = _decode2

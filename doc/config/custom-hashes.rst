@@ -22,8 +22,9 @@ Available hash functions
 RestAuth supports all hashers shipping with Django. RestAuth also already
 implements a few other hashers.
 
-.. automodule:: RestAuth.common.hashers
-   :members: Apr1Hasher, Drupal7Hasher, MediaWikiHasher, PhpassHasher, Sha512Hasher
+.. automodule:: common.hashers
+   :members:
+   :exclude-members: PasslibHasher
 
 .. _own-hash-functions:
 
@@ -53,4 +54,4 @@ Example
 =======
 
 For examples on how to implement your own hashers, please look at the source
-code of the very simple :py:class:`RestAuth.common.hashers.Sha512Hasher`.
+code of the very simple :py:class:`common.hashers.Sha512Hasher`.

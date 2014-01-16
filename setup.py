@@ -38,7 +38,8 @@ except ImportError:
     from setuptools.command.install import install as _install
 
 requires = [
-    'Django>=1.5.1',
+    'Django>=1.6',
+    'South>=0.8.3',
     'RestAuthCommon>=0.6.2',
     'python-mimeparse>=0.1.4',
 ]
@@ -58,6 +59,7 @@ if os.path.exists(common_path):
 
 from django.conf import settings
 from django.core.management import call_command
+from django.utils import six
 
 LATEST_RELEASE = '0.6.3'
 
@@ -155,6 +157,7 @@ class clean(_clean):
 
 
 class version(Command):
+    description = "Output version of this software."
     user_options = []
 
     def initialize_options(self):
@@ -178,13 +181,14 @@ class build_doc_meta(Command):
         Command.__init__(self, *args, **kwargs)
 
         # import here so coverage results are not tainted:
-        from RestAuth.Users.models import user_permissions, prop_permissions
-        from RestAuth.Groups.models import group_permissions
-        from RestAuth.common.cli import helpers
-        from RestAuth.Services.cli import parsers as service_parser
-        from RestAuth.Users.cli import parsers as user_parser
-        from RestAuth.Groups.cli import parsers as group_parser
-        from RestAuth.common.cli import parsers as import_parser
+        from Users.models import user_permissions
+        from Users.models import prop_permissions
+        from Groups.models import group_permissions
+        from common.cli import helpers
+        from Services.cli import parsers as service_parser
+        from Users.cli import parsers as user_parser
+        from Groups.cli import parsers as group_parser
+        from common.cli import parsers as import_parser
 
         # generate files for cli-scripts:
         service_parser.parser.prog = '|bin-restauth-service|'
@@ -207,7 +211,9 @@ class build_doc_meta(Command):
                 filename = 'doc/gen/%s-%s.rst' % (name, suffix)
                 if self.should_generate(parser.__file__, filename):
                     func = getattr(helpers, 'write_%s' % suffix)
-                    func(parser.parser, filename, name)
+
+                    with open(filename, 'w') as f:
+                        func(f, parser.parser, name)
 
         # generate permissions:
         self.write_perm_table('users', user_permissions)
@@ -352,10 +358,12 @@ class coverage(Command):
             '*testdata.py',
             '*settings.py',
             '*migrations/*.py',
-            'RestAuth/*/cli/*',
             'RestAuth/common/decorators.py',
             'RestAuth/common/profile.py',
             'RestAuth/common/routers.py',
+            'RestAuth/manage.py',
+            'RestAuth/RestAuth/wsgi.py',
+            'RestAuth/*/tests.py',
         ]
 
         # compute backend files to exclude:
@@ -379,13 +387,11 @@ class coverage(Command):
         cov.exclude('\t*self.fail\(.*\)')
         if not settings.SECURE_CACHE:
             cov.exclude('\t*if settings.SECURE_CACHE:')
-        if sys.version_info < (3, 0):
-            cov.exclude('\t*if IS_PYTHON3')
-            cov.exclude('\t*def _[a-zA-Z0-9_]*3\(')
-            cov.exclude('^if sys.version_info < \(3, 0\)')
+
+        if six.PY3:
+            cov.exclude('pragma: py2')  # exclude py2 code
         else:
-            cov.exclude('\t*if IS_PYTHON2')
-            cov.exclude('\t*def _[a-zA-Z0-9_]*2\(')
+            cov.exclude('pragma: py3')  # exclude py3 code
 
         cov.start()
 
@@ -470,10 +476,10 @@ setup(
     install_requires=requires,
     license="GNU General Public License (GPL) v3",
     packages=[
-        'RestAuth',
         'RestAuth.Groups',
         'RestAuth.Groups.cli',
         'RestAuth.Groups.migrations',
+        'RestAuth.RestAuth',
         'RestAuth.Services',
         'RestAuth.Services.cli',
         'RestAuth.Services.migrations',
@@ -488,7 +494,7 @@ setup(
     scripts=[
         'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
         'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
-        'manage.py',
+        'RestAuth/manage.py',
     ],
     data_files=[
         ('share/restauth', ['wsgi', 'RestAuth/fixtures', 'munin', ]),

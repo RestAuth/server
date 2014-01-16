@@ -32,7 +32,7 @@ def check_password(environ, user, password):
             return False
 
         # verify service
-        from RestAuth.Services.models import Service
+        from Services.models import Service
         try:
             serv = Service.objects.get( username=user )
             if serv.verify( password, host ):

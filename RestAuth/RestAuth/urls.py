@@ -22,7 +22,7 @@ from django.conf.urls import url
 urlpatterns = patterns(
     '',
     url(r'^/?$', 'RestAuth.views.index'),
-    url(r'^users/',  include('RestAuth.Users.urls')),
-    url(r'^groups/', include('RestAuth.Groups.urls')),
-    url(r'^test/', include('RestAuth.Test.urls')),
+    url(r'^users/',  include('Users.urls')),
+    url(r'^groups/', include('Groups.urls')),
+    url(r'^test/', include('Test.urls')),
 )

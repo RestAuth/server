@@ -26,7 +26,7 @@
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
 # It is highly recommended to set DEBUG = False in any production environment.
-DEBUG = False
+DEBUG = True
 SITE_ID = 1
 USE_I18N = False
 ROOT_URLCONF = 'RestAuth.urls'
@@ -41,7 +41,7 @@ LOG_LEVEL = 'ERROR'
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    'RestAuth.common.middleware.RestAuthMiddleware',
+    'common.middleware.RestAuthMiddleware',
 )
 
 CACHE_MIDDLEWARE_SECONDS = 300
@@ -56,25 +56,23 @@ INSTALLED_APPS = (
     'south',
 
     # our own apps:
-    'RestAuth.Services',
-    'RestAuth.Users',
-    'RestAuth.Groups',
-    'RestAuth.Test',
-    'RestAuth.common',
+    'Services',
+    'Users',
+    'Groups',
+    'Test',
+    'common',
 )
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.RemoteUserBackend',
-    'RestAuth.Services.backend.InternalAuthenticationBackend',
+    'Services.backend.InternalAuthenticationBackend',
 )
 
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    'RestAuth.common.hashers.Sha512Hasher',
-    'RestAuth.common.hashers.MediaWikiHasher',
-    'RestAuth.common.hashers.Apr1Hasher',
-    'RestAuth.common.hashers.Drupal7Hasher',
-    'RestAuth.common.hashers.PhpassHasher',
+    'common.hashers.Sha512Hasher',
+    'common.hashers.MediaWikiHasher',
+    'common.hashers.Drupal7Hasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
     'django.contrib.auth.hashers.BCryptPasswordHasher',
     'django.contrib.auth.hashers.SHA1PasswordHasher',
@@ -103,9 +101,9 @@ SECURE_CACHE = False
 SERVICE_PASSWORD_HASHER = 'default'
 
 # backends:
-USER_BACKEND = 'RestAuth.backends.django_backend.DjangoUserBackend'
-GROUP_BACKEND = 'RestAuth.backends.django_backend.DjangoGroupBackend'
-PROPERTY_BACKEND = 'RestAuth.backends.django_backend.DjangoPropertyBackend'
+USER_BACKEND = 'backends.django_backend.DjangoUserBackend'
+GROUP_BACKEND = 'backends.django_backend.DjangoGroupBackend'
+PROPERTY_BACKEND = 'backends.django_backend.DjangoPropertyBackend'
 
 try:
     from localsettings import *
@@ -121,39 +119,39 @@ if not LOGGING:
         'disable_existing_loggers': False,
         'formatters': {
             'general': {
-                'format': '%(levelname)s %(message)s'
+                'format': '%(levelname)s %(message)s',
             },
             'base': {
-                'format': '%(levelname)s %(service)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(message)s',
             },
             'resource': {
-                'format': '%(levelname)s %(service)s: %(name)s: %(message)s'
+                'format': '%(levelname)s %(service)s: %(name)s: %(message)s',
             },
             'subresource': {
                 'format': '%(levelname)s %(service)s: %(name)s: %(subname)s: '
-                          '%(message)s'
+                          '%(message)s',
             },
         },
         'handlers': {
             'general': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'general'
+                'formatter': 'general',
             },
             'base': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'base'
+                'formatter': 'base',
             },
             'resource': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'resource'
+                'formatter': 'resource',
             },
             'subresource': {
                 'level': LOG_LEVEL,
                 'class': LOG_HANDLER,
-                'formatter': 'subresource'
+                'formatter': 'subresource',
             },
         },
         'loggers': {
@@ -220,3 +218,5 @@ if not LOGGING:
             handler.update(LOG_HANDLER_KWARGS)
 
 SOUTH_TESTS_MIGRATE = False
+
+SECRET_KEY='foobar'

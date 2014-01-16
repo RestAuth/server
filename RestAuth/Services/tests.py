@@ -1,8 +1,28 @@
+# -*- coding: utf-8 -*-
+#
+# This file is part of RestAuth (https://restauth.net).
+#
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
+# see <http://www.gnu.org/licenses/>.
+
+from __future__ import unicode_literals
+
 from base64 import b64encode
 
 from django.contrib.auth.models import Permission
+from django.contrib.auth import authenticate
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.core.exceptions import ImproperlyConfigured
+from django.db import transaction
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
@@ -11,10 +31,21 @@ from django.utils.six.moves import http_client
 
 import RestAuthCommon
 
-from RestAuth.common.testdata import RestAuthTest
-from RestAuth.Services.models import Service
-from RestAuth.Services.models import service_create
-from RestAuth.Services.models import ServiceUsernameNotValid
+from Services.models import Service
+from Services.models import ServiceUsernameNotValid
+from Services.models import service_create
+from Services.models import get_service_hasher
+from Services.models import load_service_hasher
+from common.testdata import CliMixin
+from common.testdata import RestAuthTest
+from common.testdata import password1
+from common.testdata import password2
+from common.testdata import servicename1
+from common.testdata import servicename2
+from common.testdata import servicename3
+from common.testdata import servicename4
+from common.testdata import servicename5
+from common.testdata import capture
 
 PATHS = [
     (['get', 'post'], '/users/'),
@@ -28,7 +59,7 @@ PATHS = [
     (['get', 'post'], '/groups/group/groups/'),
     (['delete'], '/groups/group/groups/group/'),
 ]
-
+cli = getattr(__import__('bin.restauth-service'), 'restauth-service').main
 
 @override_settings(LOGGING_CONFIG=None)
 class BasicAuthTests(RestAuthTest):  # GET /users/
@@ -213,3 +244,342 @@ class ServiceHostTests(TestCase):
             self.fail()
         except ServiceUsernameNotValid:
             self.assertItemsEqual(Service.objects.all(), [self.service])
+
+
+class AuthBackendTests(RestAuthTest):
+    def setUp(self):
+        self.service = Service.objects.create(username=servicename1)
+        self.service.add_hosts('::1')
+        self.service.set_password('nopass')
+        self.service.save()
+
+    def auth(self, service, password, host='::1', method='Basic'):
+        raw = '%s:%s' % (service.name, password)
+        encoded = b64encode(raw.encode()).decode()
+        header = '%s %s' % (method, encoded)
+        return authenticate(header=header, host=host)
+
+    def test_auth(self):
+        self.assertTrue(self.auth(self.service, 'nopass'))
+        self.assertTrue(self.auth(self.service, 'nopass'))
+        self.assertTrue(self.auth(self.service, 'falsepass') is None)
+        self.assertTrue(self.auth(self.service, 'falsepass') is None)
+
+    def test_wrong_service(self):
+        class bogus_cls:
+            name = servicename2
+        self.assertTrue(self.auth(bogus_cls, 'nopass', '::1') is None)
+        self.assertTrue(self.auth(bogus_cls, 'nopass', '::1') is None)
+
+    def test_wrong_pass(self):
+        self.assertTrue(self.auth(self.service, 'falsepass') is None)
+        self.assertTrue(self.auth(self.service, 'falsepass') is None)
+
+    def test_wrong_host(self):
+        self.assertTrue(self.auth(self.service, 'nopass', '::2') is None)
+        self.assertTrue(self.auth(self.service, 'nopass', '::2') is None)
+
+    def test_wrong_method(self):
+        self.assertTrue(self.auth(self.service, 'nopass', method='foobar') is None)
+        self.assertTrue(self.auth(self.service, 'nopass', method='foobar') is None)
+
+    def test_wrong_format(self):
+        password = 'nopass'
+        host = '::1'
+
+        raw = '%s%s' % (self.service.name, password)
+        encoded = b64encode(raw.encode()).decode()
+        header = '%s %s' % ('Basic', encoded)
+        self.assertTrue(authenticate(header=header, host=host) is None)
+
+        raw = '%s%s' % (self.service.name, password)
+        encoded = b64encode(raw.encode()).decode() + 'fppbasdf'
+        header = '%s %s' % ('Basic', encoded)
+        self.assertTrue(authenticate(header=header, host=host) is None)
+
+
+    def test_no_cache(self):
+        with self.settings(SECURE_CACHE=False):
+            self.test_auth()
+            self.test_wrong_service()
+            self.test_wrong_pass()
+            self.test_wrong_host()
+            self.test_wrong_method()
+            self.test_wrong_format()
+
+
+class ServiceHasherTests(RestAuthTest):
+    def test_default(self):
+        hasher = 'hashers_passlib.phpass'
+
+        with self.settings(SERVICE_PASSWORD_HASHER='default', PASSWORD_HASHERS=(hasher, )):
+            load_service_hasher()
+            hasher = get_service_hasher()
+            self.assertEqual(hasher.algorithm, 'phpass')
+
+    def test_wrong_hasher(self):
+        with self.settings(SERVICE_PASSWORD_HASHER='foobar.blahugo'):
+            self.assertRaises(ImproperlyConfigured, load_service_hasher)
+
+    def test_unknown(self):
+        hasher = 'foobar.phpass'
+
+        with self.settings(SERVICE_PASSWORD_HASHER=hasher, PASSWORD_HASHERS=(hasher, )):
+            self.assertRaises(ImproperlyConfigured, load_service_hasher)
+
+    def tearDown(self):
+        load_service_hasher()
+
+
+class CliTests(RestAuthTest, CliMixin):
+    def test_add(self):
+        with capture() as (stdout, stderr):
+            cli(['add', '--password=foobar', servicename4])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertTrue(Service.objects.get(username=servicename4).check_password('foobar'))
+
+    def test_add_existing(self):
+        s = Service.objects.create(username=servicename3)
+        s.set_password(password1)
+        s.save()
+
+        with capture() as (stdout, stderr), transaction.atomic():
+            try:
+                cli(['add', '--password=%s' % password2, servicename3])
+                self.fail("Adding an existing service should be an error.")
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'Service already exists.$')
+
+        self.assertTrue(Service.objects.get(username=servicename3).check_password(password1))
+
+    def test_add_invalid(self):
+        servicename = 'foo:bar'
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['add', '--password=%s' % password2, servicename])
+                self.fail("Adding an existing service should be an error.")
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'Service name must not contain a \':\'$')
+
+        self.assertFalse(Service.objects.filter(username=servicename).exists())
+
+    def test_add_gen_password(self):
+        with capture() as (stdout, stderr):
+            cli(['add', '--gen-password', servicename4])
+            self.assertEqual(stderr.getvalue(), '')
+            password = stdout.getvalue().strip()
+            self.assertTrue(len(password) > 12)
+        self.assertTrue(Service.objects.get(username=servicename4).check_password(password))
+
+    def test_rename(self):
+        Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['rename', servicename5, servicename4])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertTrue(Service.objects.filter(username=servicename4).exists())
+        self.assertFalse(Service.objects.filter(username=servicename5).exists())
+
+    def test_rename_service_not_existing(self):
+        with capture() as (stdout, stderr):
+            try:
+                cli(['rename', servicename5, servicename4])
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'Service does not exist\.$')
+        self.assertFalse(Service.objects.filter(username=servicename4).exists())
+        self.assertFalse(Service.objects.filter(username=servicename5).exists())
+
+    def test_rename_exists(self):
+        Service.objects.create(username=servicename4)
+        Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['rename', servicename5, servicename4])
+                self.fail('Rename does not fail.')
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'error: %s: Service already exists\.$' % servicename4)
+        self.assertTrue(Service.objects.filter(username=servicename4).exists())
+        self.assertTrue(Service.objects.filter(username=servicename5).exists())
+
+    def test_rm(self):
+        Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['rm', servicename5])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertFalse(Service.objects.filter(username=servicename5).exists())
+
+    def test_ls(self):
+        with capture() as (stdout, stderr):
+            cli(['ls'])
+            hosts = ', '.join(self.service.addresses)
+            self.assertEqual(stdout.getvalue(), '%s: %s\n' % (self.service.name, hosts))
+            self.assertEqual(stderr.getvalue(), '')
+
+    def test_view(self):
+        self.maxDiff = None
+        with capture() as (stdout, stderr):
+            cli(['view', self.service.name])
+            self.assertEqual(stdout.getvalue(), """Last used: %s
+Hosts: %s
+Permissions: %s
+""" % (self.service.last_login, ', '.join(self.service.addresses), ', '.join(self.service.permissions)))
+            self.assertEqual(stderr.getvalue(), '')
+
+    def test_set_hosts(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['set-hosts', servicename5, '127.0.0.1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1'])
+
+        # test if second set overwrites the first host
+        with capture() as (stdout, stderr):
+            cli(['set-hosts', servicename5, '::1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['::1'])
+
+    def test_set_hosts_error(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['set-hosts', servicename5, 'wrong hostname'])
+                self.fail("wrong hostname doesn't exit")
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'error: Enter a valid IPv4 or IPv6 address.$')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), [])
+
+    def test_add_hosts(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['add-hosts', servicename5, '127.0.0.1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1'])
+
+        # test if second add doesn't overwrite the first host
+        with capture() as (stdout, stderr):
+            cli(['add-hosts', servicename5, '::1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1', '::1'])
+
+    def test_add_hosts_error(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            try:
+                cli(['add-hosts', servicename5, 'wrong hostname'])
+                self.fail("wrong hostname doesn't exit")
+            except SystemExit as e:
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'error: Enter a valid IPv4 or IPv6 address.$')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), [])
+
+    def test_rm_hosts(self):
+        s = Service.objects.create(username=servicename5)
+        s.add_hosts('127.0.0.1')
+
+        with capture() as (stdout, stderr):
+            cli(['rm-hosts', servicename5, '127.0.0.1'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertItemsEqual(s.hosts.values_list('address', flat=True), [])
+
+    def test_set_password(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['set-password', servicename5, '--password', password1])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        self.assertTrue(Service.objects.get(username=s.name).check_password(password1))
+
+    def test_set_password_generated(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['set-password', servicename5, '--gen-password'])
+            gen_password = stdout.getvalue().strip()
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=s.name)
+        self.assertFalse(s.check_password(password1))
+        self.assertTrue(s.check_password(gen_password))
+
+    def test_set_permissions(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['set-permissions', servicename5, 'users_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.users_list'))
+
+        with capture() as (stdout, stderr):
+            cli(['set-permissions', servicename5, 'props_list', 'groups_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.props_list'))
+        self.assertTrue(s.has_perm('Groups.groups_list'))
+        self.assertFalse(s.has_perm('Users.users_list'))
+
+    def test_add_permissions(self):
+        s = Service.objects.create(username=servicename5)
+
+        with capture() as (stdout, stderr):
+            cli(['add-permissions', servicename5, 'users_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.users_list'))
+
+        with capture() as (stdout, stderr):
+            cli(['add-permissions', servicename5, 'props_list', 'groups_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.props_list'))
+        self.assertTrue(s.has_perm('Groups.groups_list'))
+        self.assertTrue(s.has_perm('Users.users_list'))
+
+    def test_rm_permissions(self):
+        s = Service.objects.create(username=servicename5)
+        with capture() as (stdout, stderr):
+            cli(['set-permissions', servicename5, 'props_list', 'groups_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertTrue(s.has_perm('Users.props_list'))
+        self.assertTrue(s.has_perm('Groups.groups_list'))
+
+        # remove perm again
+        with capture() as (stdout, stderr):
+            cli(['rm-permissions', servicename5, 'props_list'])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+        s = Service.objects.get(username=servicename5)
+        self.assertFalse(s.has_perm('Users.props_list'))
+        self.assertTrue(s.has_perm('Groups.groups_list'))

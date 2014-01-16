@@ -2,18 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
+# see <http://www.gnu.org/licenses/>.
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -24,16 +22,13 @@ PREFERRED_HANDLER = None
 SUPPORTED_HANDLERS = None
 
 
-def load_handlers(content_handlers=None):
+def load_handlers():
     global HANDLERS
     global PREFERRED_HANDLER
     global SUPPORTED_HANDLERS
 
-    if content_handlers is None:
-        content_handlers = settings.CONTENT_HANDLERS
-
     handlers = []
-    for backend in content_handlers:
+    for backend in settings.CONTENT_HANDLERS:
         try:
             mod_path, cls_name = backend.rsplit('.', 1)
             mod = importlib.import_module(mod_path)
@@ -42,9 +37,8 @@ def load_handlers(content_handlers=None):
             raise ImproperlyConfigured("Handler not found: %s" % backend)
 
         handler = handler_cls()
-        if not getattr(handler, 'mime'):
-            raise ImproperlyConfigured("Handler doesn't specify a "
-                                       "MIME type: %s" % backend)
+        if not getattr(handler, 'mime'):  # pragma: no cover
+            raise ImproperlyConfigured("Handler doesn't specify a MIME type: %s" % backend)
         handlers.append(handler)
 
     HANDLERS = dict([(h.mime, h) for h in handlers])
@@ -53,7 +47,8 @@ def load_handlers(content_handlers=None):
 
 
 def get_handler(mimetype=None):
-    if PREFERRED_HANDLER is None or HANDLERS is None:
+    if PREFERRED_HANDLER is None or HANDLERS is None:  # pragma: no cover
+        # just a safety guard, get_supported() below is alwasy called first.
         load_handlers()
 
     if mimetype is None:
@@ -62,8 +57,9 @@ def get_handler(mimetype=None):
         try:
             return HANDLERS[mimetype]
         except KeyError:
-            raise ValueError("Unknown mimetype %s. Did you specify it in the "
-                             "CONTENT_HANDLERS setting?" % mimetype)
+            raise ValueError(
+                "Unknown mimetype %s. Specify a handler in the CONTENT_HANDLERS setting." %
+                mimetype)
 
 
 def get_supported():

@@ -1,0 +1,10 @@
+{
+    "users": {
+        "mati3 \u6113": {
+            "password": {
+                "hash": "pbkdf2_sha256$12000$aTEYJsznPZvE$/RdAOC6c5oGQuJ9dqV6Fy32Wm6RIUi/bohmYK9ZV6fs=", 
+                "algorithm": "django"
+            }
+        }
+    }
+}

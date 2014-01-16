@@ -28,14 +28,17 @@ from argparse import ArgumentError
 from django.db.utils import IntegrityError
 from django.utils import six
 
-from RestAuth.Services.models import Service
-from RestAuth.Services.models import ServiceUsernameNotValid
-from RestAuth.Services.models import check_service_username
-from RestAuth.backends import property_backend
-from RestAuth.backends import user_backend
-from RestAuth.common.errors import PreconditionFailed
-from RestAuth.common.errors import UserExists
-from RestAuth.common.errors import UserNotFound
+from RestAuthCommon import resource_validator
+
+from Services.models import Service
+from Services.models import ServiceUsernameNotValid
+from Services.models import check_service_username
+from Users.validators import validate_username
+from backends import property_backend
+from backends import user_backend
+from common.errors import PreconditionFailed
+from common.errors import UserExists
+from common.errors import UserNotFound
 
 
 PASSWORD_CHARS = string.digits + string.ascii_letters + string.punctuation
@@ -68,11 +71,15 @@ class ServiceAction(Action):
 class UsernameAction(Action):
     def __call__(self, parser, namespace, value, option_string):
         username = value.lower()
-        if not six.PY3:
+        if not six.PY3:  # pragma: no branch, pragma: py2
             username = username.decode('utf-8')
 
         if namespace.create_user:
+            if not resource_validator(username):
+                raise ArgumentError(self, "Username contains invalid characters")
+
             try:
+                validate_username(username)
                 user = user_backend.create(username=username,
                                            property_backend=property_backend)
             except UserExists:
@@ -89,6 +96,6 @@ class UsernameAction(Action):
 
 class PasswordGeneratorAction(Action):
     def __call__(self, parser, namespace, values, option_string):
-        passwd = ''.join(random.choice(PASSWORD_CHARS) for x in range(30))
+        passwd = Service.objects.make_random_password(length=16)
         setattr(namespace, 'password_generated', True)
         setattr(namespace, self.dest, passwd)

@@ -17,8 +17,9 @@
 
 from argparse import ArgumentParser
 
-from RestAuth.common.cli.parsers import pwd_parser
-from RestAuth.common.cli.parsers import user_parser
+from common.cli.parsers import pwd_parser
+from common.cli.parsers import user_parser
+from common.cli.parsers import service_opt_parser
 
 
 desc = """Manages users in RestAuth. Users are clients that want to
@@ -72,8 +73,6 @@ subparsers.add_parser(
 )
 
 user_view_p = subparsers.add_parser(
-    'view', parents=[user_parser],
+    'view', parents=[service_opt_parser, user_parser],
     help="View details of a user.", description="View details of a user."
 )
-user_view_p.add_argument(
-    '--service', help="View information as SERVICE would see it.")

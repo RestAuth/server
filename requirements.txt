@@ -1,8 +1,7 @@
-python-mimeparse>=0.1.4
-Django==1.5.1
-RestAuthCommon>=0.6.2
+Django==1.6.1
 PyYAML>=3.10
-wsgiref>=0.1.2
-# <2.0 is recommended by the south developers
+RestAuthCommon>=0.6.2
 South<2.0
-Sphinx>=1.2b1
+python-mimeparse>=0.1.4
+wsgiref>=0.1.2
+django-hashers-passlib>=0.1

@@ -23,14 +23,14 @@ from datetime import datetime
 from django.conf import settings
 from django.utils import six
 
-from RestAuth.backends.base import GroupInstance
-from RestAuth.backends.base import UserInstance
-from RestAuth.common.errors import GroupExists
-from RestAuth.common.errors import GroupNotFound
-from RestAuth.common.errors import PropertyExists
-from RestAuth.common.errors import PropertyNotFound
-from RestAuth.common.errors import UserExists
-from RestAuth.common.errors import UserNotFound
+from backends.base import GroupInstance
+from backends.base import UserInstance
+from common.errors import GroupExists
+from common.errors import GroupNotFound
+from common.errors import PropertyExists
+from common.errors import PropertyNotFound
+from common.errors import UserExists
+from common.errors import UserNotFound
 
 
 class MemoryUserInstance(UserInstance):

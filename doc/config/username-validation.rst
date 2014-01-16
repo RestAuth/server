@@ -34,7 +34,7 @@ the best knowledge available, but are of course in no way guaranteed to really
 catch all illegal usernames. If you find inconsistencies, please consider to
 :ref:`contribute <contribute-validators>`.
 
-.. automodule:: RestAuth.Users.validators
+.. automodule:: Users.validators
    :members: EmailValidator, MediaWikiValidator, LinuxValidator, WindowsValidator, XMPPValidator, DrupalValidator
 
 .. _implement-validators:
@@ -49,7 +49,7 @@ an expert.
 To implement a validator, simply inherit from :py:class:`Validator` and override
 any fields or methods. This is the class you want to inherit from:
 
-.. autoclass:: RestAuth.Users.validators.Validator
+.. autoclass:: Users.validators.Validator
    :members:
 
 More complex validations
@@ -57,7 +57,7 @@ More complex validations
 
 If the fields in :py:class:`Validator` do not cover your needs, you can add a
 method called ``check`` to implement your own, more complex checks. This method
-must raise :py:class:`RestAuth.common.errors.UsernameInvalid` if the check
+must raise :py:class:`common.errors.UsernameInvalid` if the check
 fails.
 
 Example
@@ -69,8 +69,8 @@ improve performance).
 
 .. code-block:: python
 
-   from RestAuth.common.validators import Validator
-   from RestAuth.common.errors import UsernameInvalid
+   from common.validators import Validator
+   from common.errors import UsernameInvalid
 
    class MyOwnValidator(Validator):
        # The characters 'a', 'f' and '#' are not allowed:

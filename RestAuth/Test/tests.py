@@ -9,16 +9,16 @@ from __future__ import unicode_literals
 
 from django.utils.six.moves import http_client
 
-from RestAuth.common.testdata import groupname1
-from RestAuth.common.testdata import group_backend
-from RestAuth.common.testdata import password1
-from RestAuth.common.testdata import propkey1
-from RestAuth.common.testdata import propval1
-from RestAuth.common.testdata import propval2
-from RestAuth.common.testdata import property_backend
-from RestAuth.common.testdata import RestAuthTransactionTest
-from RestAuth.common.testdata import user_backend
-from RestAuth.common.testdata import username1
+from common.testdata import groupname1
+from common.testdata import group_backend
+from common.testdata import password1
+from common.testdata import propkey1
+from common.testdata import propval1
+from common.testdata import propval2
+from common.testdata import property_backend
+from common.testdata import RestAuthTransactionTest
+from common.testdata import user_backend
+from common.testdata import username1
 
 
 class CreateUserTest(RestAuthTransactionTest):
@@ -97,9 +97,12 @@ class CreatePropertyTest(RestAuthTransactionTest):
 
     def test_create_invalid_property(self):
         url = '/test/users/%s/props/' % self.user.username
-        resp = self.post(url, {'prop': propkey1, 'value': 'foo/bar'})
-        self.assertEqual(resp.status_code, http_client.CREATED)
+        resp = self.post(url, {'prop': 'foo/bar', 'value': propval1})
+        self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
+        self.assertProperties(self.user, {})
 
+        resp = self.post(url, {'prop': 'foo:bar', 'value': propval1})
+        self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertProperties(self.user, {})
 
     def test_create_property_for_non_existing_user(self):

@@ -164,10 +164,10 @@ plattform. Here are the relevant parts for RestAuth:
    The wsgi-script (see line 5) is located in different locations depending on how you installed
    RestAuth:
 
-   * from source: ``wsgi/restauth`` of your source folder
-   * on Debian/Ubuntu: ``/usr/share/restauth/wsgi/restauth``
+   * from source: :file:`RestAuth/RestAuth/wsgi.py` in your source folder
+   * on Debian/Ubuntu: :file:`/usr/share/restauth/wsgi.py`
    * on Redhat/Fedora: unkown.
-   * on ArchLinux: ``/usr/share/restauth/wsgi/restauth``
+   * on ArchLinux: :file:`/usr/share/restauth/wsgi.py`
 
    .. NOTE:: If you have installed from source, RestAuth (or one of its
       depending libraries) are probably not in your python path. Please add them

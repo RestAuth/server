@@ -19,8 +19,8 @@ If you want to run RestAuth as a `mod_wsgi <https://code.google.com/p/modwsgi/>`
 `Apache <https://httpd.apache.org/>`_, a WSGI script is already provided with RestAuth. If you
 :doc:`installed from source <../install/from-source>`, the script is included in the :file:`wsgi`
 directory. If you installed via our :doc:`APT repositories <../install/debian-ubuntu>` on
-Debian/Ubuntu, the file can be found at :file:`/usr/share/restauth/wsgi/restauth`. You can also
-fetch it `directly from git <https://git.fsinf.at/restauth/server/blobs/raw/master/wsgi/restauth>`_.
+Debian/Ubuntu, the file can be found at :file:`/usr/share/restauth/wsgi.py`. You can also
+fetch it `directly from git <https://raw2.github.com/RestAuth/server/master/RestAuth/RestAuth/wsgi.py>`_.
 
 Configuring Apache is very simple, only the basic WSGI configuration directives are needed:
 
@@ -32,7 +32,7 @@ Configuring Apache is very simple, only the basic WSGI configuration directives 
        #...
 
        # basic django configuration:
-       WSGIScriptAlias / /path/to/your/wsgi-script/restauth
+       WSGIScriptAlias / /path/to/your/wsgi.py
        WSGIPassAuthorization on
 
        # if you want to run WSGI processes as their own user:
@@ -115,7 +115,7 @@ setting up RestAuth with MySQL and memcached, from the start::
    restauth@host:~$ mkdir run log
 
    # Clone source:
-   restauth@host:~$ git clone https://git.fsinf.at/restauth/server.git
+   restauth@host:~$ git clone https://github.com/RestAuth/server.git
    restauth@host:~$ cd server/
 
    # Create virtualenv, install dependencies:
@@ -140,10 +140,8 @@ setting up RestAuth with MySQL and memcached, from the start::
    (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-hosts wiki.example.com 127.0.0.1 ::1
    (server)restauth@host:server$ RestAuth/bin/restauth-service.py set-permissions wiki.example.com user* group* prop*
 
-   # Add uwsgi configuration file, start the server:.
-   (server)restauth@host:server$ cd ../
-   (server)restauth@host:~$ cp server/doc/files/uwsgi.ini .
-   (server)restauth@host:~$ uwsgi --ini uwsgi.ini
+   # Finally start uWSGI server:.
+   (server)restauth@host:server$ uwsgi --ini doc/files/uwsgi.ini
 
    # Configure webserver to proxy requests to uWSGI - see below.
 
@@ -152,9 +150,10 @@ You can start/reload/etc. the instances with::
    (server)restauth@host:server$ uwsgi --stop /usr/local/home/restauth/run/restauth.pid
    (server)restauth@host:server$ uwsgi --reload /usr/local/home/restauth/run/restauth.pid
 
-An example uwsgi-configuration ships with RestAuth. You can also
-:download:`download it here </files/uwsgi.ini>`. The documentation has a `full list
-of configuration directives
+Note that there are also many uWSGI init scripts on the internet that you could
+use to launch RestAuth. An example uwsgi-configuration ships with RestAuth. You
+can also :download:`download it here </files/uwsgi.ini>`. The documentation has
+a `full list of configuration directives
 <http://uwsgi-docs.readthedocs.org/en/latest/Options.html>`_.
 
 Configure webserver

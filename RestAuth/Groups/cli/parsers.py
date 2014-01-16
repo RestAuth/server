@@ -17,17 +17,10 @@
 
 from argparse import ArgumentParser
 
-from RestAuth.Groups.cli.actions import GroupnameAction
-from RestAuth.Groups.cli.helpers import get_group
-from RestAuth.Groups.cli.helpers import print_by_service
-from RestAuth.common.cli.actions import ServiceAction
-from RestAuth.common.cli.parsers import user_parser
-
-
-service_opt_parser = ArgumentParser(add_help=False)
-service_opt_parser.set_defaults(create_service=False)
-service_opt_parser.add_argument('--service', action=ServiceAction,
-                                help="Act as if %(prog)s was SERVICE.")
+from Groups.cli.actions import GroupnameAction
+from common.cli.actions import ServiceAction
+from common.cli.parsers import user_parser
+from common.cli.parsers import service_opt_parser
 
 group_arg_parser = ArgumentParser(add_help=False, parents=[service_opt_parser])
 group_arg_parser.add_argument('group', action=GroupnameAction,

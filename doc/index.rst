@@ -29,13 +29,8 @@ systems, using any webserver and database system supported by Django (see the
 <https://docs.djangoproject.com/en/dev/topics/install/>`_ for a list of
 supported systems).
 
-RestAuth is Free Software, licensed unter the `GNU General Public Licence,
+RestAuth is Free Software, licensed unter the `GNU General Public License,
 version 3 <http://www.gnu.org/licenses/gpl.html>`_.
-
-
-.. Contents:
-   .. toctree::
-      :maxdepth: 1
 
 .. _index_installation:
 

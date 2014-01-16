@@ -24,13 +24,7 @@ your system, just run the following:
 
    yaourt -S restauth-server-git
 
-Next steps
-----------
-Now that you have installed RestAuth, you still need to
-
-#. :doc:`configure your webserver <../config/webserver>`
-#. :doc:`setup your database <../config/database>`
-#. :doc:`configure RestAuth <../config/restauth>`
+.. include:: /includes/next-steps.rst
 
 .. _arch-update:
 

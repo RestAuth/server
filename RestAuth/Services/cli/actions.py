@@ -22,9 +22,9 @@ from argparse import Action
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
-from RestAuth.Groups.models import group_permissions
-from RestAuth.Users.models import prop_permissions
-from RestAuth.Users.models import user_permissions
+from Groups.models import group_permissions
+from Users.models import prop_permissions
+from Users.models import user_permissions
 
 
 class PermissionParser(Action):

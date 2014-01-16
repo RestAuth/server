@@ -1,7 +1,7 @@
 python-mimeparse>=0.1.4
-Django==1.5.1
+Django==1.6
 RestAuthCommon>=0.6.2
 PyYAML>=3.10
 # <2.0 is recommended by the south developers
 South<2.0
-Sphinx>=1.2b1
+Sphinx>=1.2b3

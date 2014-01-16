@@ -5,7 +5,7 @@ from django.db.models import Q
 
 class GroupQuerySet(models.query.QuerySet):
     def member(self, user, service=None, depth=None):
-        if depth is None:
+        if depth is None:  # pragma: no branch
             depth = settings.GROUP_RECURSION_DEPTH
 
         expr = Q(users=user, service=service)

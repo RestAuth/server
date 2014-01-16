@@ -53,6 +53,31 @@ There are no schema changes in earlier releases.
 Use new settings
 ================
 
+.. _update_settings_0.6.4:
+
+New/updated settings in 0.6.4
++++++++++++++++++++++++++++++
+
+* RestAuth 0.6.4 brings a slightly new module layout. Modules no longer use the
+  ``RestAuth`` prefix, except for the settings-module itself. So settings that
+  define module paths should be stripped of ``RestAuth.``, example::
+
+      #before:
+      #VALIDATORS = (
+      #   'RestAuth.Users.validators.DrupalValidator',
+      #   ....
+      #)
+      #
+      #after:
+      #VALIDATORS = (
+      #   'Users.validators.DrupalValidator',
+      #   ....
+      #)
+
+  The following settings are likely to be affected by this change:
+  ``VALIDATORS``, ``PASSWORD_HASHERS``, ``SERVICE_PASSWORD_HASHER``,
+  ``USER_BACKEND``, ``GROUP_BACKEND``, ``PROPERTY_BACKEND``.
+
 .. _update_settings_0.6.1:
 
 New/updated settings in 0.6.1

@@ -13,6 +13,8 @@
 
 import sys, os
 sys.path.insert( 0, '..' )
+sys.path.insert( 0, '../RestAuth' )
+sys.path.insert( 0, 'RestAuth' )
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -27,7 +29,8 @@ sys.path.insert( 0, '..' )
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath',
-              'sphinx.ext.ifconfig', 'sphinx.ext.viewcode', 'extensions.example']
+              'sphinx.ext.ifconfig', 'sphinx.ext.viewcode', 'extensions.example', 'sphinx.ext.extlinks',
+             ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -243,7 +246,7 @@ substitutions = {
 
     'file-settings': 'RestAuth/localsettings.py',
 
-    'wsgi-script': 'wsgi/restauth',
+    'wsgi-script': 'RestAuth/RestAuth/wsgi.py',
 }
 
 if tags.has('man'):
@@ -259,12 +262,12 @@ if tags.has('debian'):
 
     substitutions['file-settings'] = '/etc/restauth/settings.py'
 
-    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi/restauth'
+    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi.py'
 
 elif tags.has('fedora') or tags.has('redhat'):
     substitutions[''] = ''
 elif tags.has('arch'):
-    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi/restauth'
+    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi.py'
 elif tags.has('homepage'):
     substitutions['bin-restauth-manage'] = 'restauth-manage'
     substitutions['bin-restauth-service'] = 'restauth-service'
@@ -274,42 +277,42 @@ elif tags.has('homepage'):
 
 
     substitutions['file-settings'] = 'localsettings.py'
-    substitutions['wsgi-script'] = '/path/to/your/wsgi/script/restauth'
+    substitutions['wsgi-script'] = '/path/to/your/wsgi.py'
 
 elif tags.has('bogus-platform'):
     for key, value in substitutions.items():
         substitutions[key] = 'REPLACED-%s-REPLACED' % key
 
-rst_prolog = ""
+rst_epilog = ""
 
 for key, value in substitutions.items():
-    rst_prolog += ".. |%s| replace:: %s\n" % (key, value)
+    rst_epilog += ".. |%s| replace:: %s\n" % (key, value)
 
     if key.startswith('bin-') or key.startswith('file-'):
-        rst_prolog += ".. |%s-bold| replace:: **%s**\n" % (key, value)
+        rst_epilog += ".. |%s-bold| replace:: **%s**\n" % (key, value)
 
     if tags.has('homepage'):
         if key.startswith('bin-'):
-            rst_prolog += ".. |%s-link-hp| replace:: :command:`%s`\n" % (key, value)
-            rst_prolog += ".. |%s-link| replace:: |%s-link-hp|_\n" % (key, key)
+            rst_epilog += ".. |%s-link-hp| replace:: :command:`%s`\n" % (key, value)
+            rst_epilog += ".. |%s-link| replace:: |%s-link-hp|_\n" % (key, key)
         elif key.startswith('file-'):
-            rst_prolog += ".. |%s-link-hp| replace:: :file:`%s`\n" % (key, value)
-            rst_prolog += ".. |%s-link| replace:: |%s-link-hp|_\n" % (key, key)
+            rst_epilog += ".. |%s-link-hp| replace:: :file:`%s`\n" % (key, value)
+            rst_epilog += ".. |%s-link| replace:: |%s-link-hp|_\n" % (key, key)
         else:
-            rst_prolog += ".. |%s-link| replace:: %s\n" % (key, value)
+            rst_epilog += ".. |%s-link| replace:: %s\n" % (key, value)
 
     else:
         if key.startswith('bin-'):
-            rst_prolog += ".. |%s-link| replace:: :command:`%s`\n" % (key, value)
+            rst_epilog += ".. |%s-link| replace:: :command:`%s`\n" % (key, value)
         elif key.startswith('file-'):
-            rst_prolog += ".. |%s-link| replace:: :file:`%s`\n" % (key, value)
+            rst_epilog += ".. |%s-link| replace:: :file:`%s`\n" % (key, value)
         else:
-            rst_prolog += ".. |%s-link| replace:: %s\n" % (key, value)
+            rst_epilog += ".. |%s-link| replace:: %s\n" % (key, value)
 
     if key.startswith('bin-'):
-        rst_prolog += ".. |%s-as-cmd| replace:: :file:`%s`\n" % (key, value)
+        rst_epilog += ".. |%s-as-cmd| replace:: :file:`%s`\n" % (key, value)
     if key.startswith('file-'):
-        rst_prolog += ".. |%s-as-file| replace:: :file:`%s`\n" % (key, value)
+        rst_epilog += ".. |%s-as-file| replace:: :file:`%s`\n" % (key, value)
 
 if tags.has('homepage'):
     dist_conf_targets = {
@@ -327,20 +330,41 @@ if tags.has('homepage'):
             '/restauth-import.html#dist-specific-bin-restauth-import',
     }
     for key, value in dist_conf_targets.items():
-        rst_prolog += ".. _%s-link-hp: %s\n" % (key, value)
+        rst_epilog += ".. _%s-link-hp: %s\n" % (key, value)
 
 # links to binary documents:
-rst_prolog += ".. |bin-restauth-manage-doc| replace:: :doc:`/bin/restauth-manage`\n"
-rst_prolog += ".. |bin-restauth-service-doc| replace:: :doc:`/restauth-service`\n"
-rst_prolog += ".. |bin-restauth-user-doc| replace:: :doc:`/restauth-user`\n"
-rst_prolog += ".. |bin-restauth-group-doc| replace:: :doc:`/restauth-group`\n"
-rst_prolog += ".. |bin-restauth-import-doc| replace:: :doc:`/restauth-import`\n"
+rst_epilog += ".. |bin-restauth-manage-doc| replace:: :doc:`/bin/restauth-manage`\n"
+rst_epilog += ".. |bin-restauth-service-doc| replace:: :doc:`/restauth-service`\n"
+rst_epilog += ".. |bin-restauth-user-doc| replace:: :doc:`/restauth-user`\n"
+rst_epilog += ".. |bin-restauth-group-doc| replace:: :doc:`/restauth-group`\n"
+rst_epilog += ".. |bin-restauth-import-doc| replace:: :doc:`/restauth-import`\n"
+rst_epilog += ".. _DATABASES: https://docs.djangoproject.com/en/dev/ref/databases/\n"
 
-# some common link labels:
-rst_prolog += """
-.. _Django South: http://south.aeracode.org/
-.. _Django: https://www.djangoproject.com
-.. _RestAuthCommon: https://common.restauth.net
-.. _Python: http://www.python.org
-.. _mimeparse: https://code.google.com/p/mimeparse/
-"""
+LINKS = {
+    # restauth links:
+    'chat': 'xmpp:rest@conference.jabber.at',
+    'git': 'https://github.com/RestAuth/server.git',
+    'git-web': 'https://github.com/RestAuth/server',
+    'issue-tracker': 'https://github.com/RestAuth/server/issues',
+    'issue-tracker-new': 'https://github.com/RestAuth/server/issues/new',
+    'download-releases': 'https://server.restauth.net/download',
+
+    # other RestAuth projects
+    'RestAuthCommon': 'https://common.restauth.net',
+
+    # external projects:
+    'Django South': 'http://south.aeracode.org',
+    'Django': 'https://www.djangoproject.com',
+    'PyPI': 'http://pypi.python.org/',
+    'Python': 'http://www.python.org',
+    'argparse': 'http://docs.python.org/library/argparse.html',
+}
+
+for key, url in LINKS.items():
+    rst_epilog += ".. _%s: %s\n" % (key, url)
+    rst_epilog += ".. |%s| replace:: %s\n" % (key, url)
+
+# external links:
+extlinks = {
+    'pypi': ('https://pypi.python.org/pypi/%s', ''),
+}

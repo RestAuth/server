@@ -25,6 +25,6 @@ class GroupnameAction(Action):
         # NOTE: we do not get/create database, because --service might be given
         #   afterwards and then we'd get the group with no service.
         groupname = value.lower()
-        if not six.PY3:
+        if not six.PY3:  # pragma: no branch, pragma: py2
             groupname = groupname.decode('utf-8')
         setattr(namespace, self.dest, groupname)

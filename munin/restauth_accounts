@@ -44,7 +44,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'autoconf':
 
 from django.utils import six
 
-from RestAuth.Users.models import ServiceUser
+from Users.models import ServiceUser
 
 algos = defaultdict(int)
 
