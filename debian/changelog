@@ -1,3 +1,10 @@
+restauth (0.6.3-253-g034d639) unstable; urgency=low
+  
+  * Preperation of the new upstream release.
+  * Use mati@restauth.net as maintainer address.
+
+ -- Mathias Ertl <mati@restauth.net>  Thu, 16 Jan 2014 21:11:56 +0100
+
 restauth (0.6.3-1-g9df6b2c-1) unstable; urgency=low
 
   * Version bump from upstream.

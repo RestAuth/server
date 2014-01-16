@@ -1,7 +1,7 @@
 Source: restauth
 Section: misc
 Priority: extra
-Maintainer: Mathias Ertl <apt-repository@fsinf.at>
+Maintainer: Mathias Ertl <mati@restauth.net>
 Build-Depends: debhelper (>= 8), 
  python-all (>= 2.6.6-3~), 
  python-restauth-common (>= 0.6.2), python-sphinx (>= 1.0.7), python-argparse,
