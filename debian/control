@@ -5,7 +5,7 @@ Maintainer: Mathias Ertl <mati@restauth.net>
 Build-Depends: debhelper (>= 8), 
  python-all (>= 2.6.6-3~), 
  python-restauth-common (>= 0.6.2), python-sphinx (>= 1.0.7), python-argparse,
- python-django (>= 1.4.2), python-mimeparse, python-django-south,
+ python-django (>= 1.6), python-mimeparse, python-django-south,
  python-setuptools, python3-setuptools
 Standards-Version: 3.9.2
 X-Python-Version: >= 2.6
