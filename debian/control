@@ -9,8 +9,8 @@ Build-Depends: debhelper (>= 8),
  python-setuptools, python3-setuptools
 Standards-Version: 3.9.2
 X-Python-Version: >= 2.6
-Vcs-Browser: https://git.fsinf.at/apt/restauth
-Vcs-Git: https://git.fsinf.at/apt/restauth.git
+Vcs-Browser: https://github.com/RestAuth/server
+Vcs-Git: https://github.com/RestAuth/server.git
 Homepage: https://restauth.net
 
 Package: restauth
