@@ -440,7 +440,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 u'last login': u'2013-12-01 19:27:44',
             }
 
-            self.assertEqual(property_backend.list(user), props)
+            self.assertProperties(property_backend.list(user), props)
 
     def test_users_django_hash(self, overwrite=False):
         path = os.path.join(self.base, 'users5.json')
