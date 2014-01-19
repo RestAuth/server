@@ -436,7 +436,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 propkey1: propval1,
                 propkey2: propval2,
                 # timestamps of when we wrote this test:
-                u'date joined': u'2013-12-01 19:27:50',
+#                u'date joined': u'2013-12-01 19:27:50',
                 u'last login': u'2013-12-01 19:27:44',
             }
 
