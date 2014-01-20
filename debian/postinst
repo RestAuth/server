@@ -24,7 +24,7 @@ case "$1" in
 	sed -i "s/__SECRET_KEY__/$key/" $SETTINGS
 
 	# touch wsgi script to cause reloading of webserver:
-	touch /usr/share/restauth/wsgi/restauth
+	touch /usr/share/pyshared/RestAuth/RestAuth/wsgi.py
 	;;
 esac
 
