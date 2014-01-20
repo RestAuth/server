@@ -497,7 +497,7 @@ setup(
         'RestAuth/manage.py',
     ],
     data_files=[
-        ('share/restauth', ['wsgi', 'RestAuth/fixtures', 'munin', ]),
+        ('share/restauth', ['RestAuth/fixtures', 'munin', ]),
         ('share/restauth/uwsgi', ['doc/files/uwsgi.ini', ]),
         ('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
     ],
