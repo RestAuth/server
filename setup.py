@@ -427,9 +427,9 @@ setup(
         'RestAuth/manage.py',
     ],
     data_files=[
-        ('munin', ['munin/%s' % f for f in os.listdir('munin')]),
-        ('uwsgi', ['doc/files/uwsgi.ini', ]),
-        ('doc', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
+        ('RestAuth/munin', ['munin/%s' % f for f in os.listdir('munin')]),
+        ('RestAuth/uwsgi', ['doc/files/uwsgi.ini', ]),
+        ('RestAuth/doc', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
     ],
     cmdclass={
         'build_doc': build_doc,
