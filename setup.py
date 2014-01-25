@@ -26,16 +26,9 @@ from subprocess import PIPE
 from distutils.command.clean import clean as _clean
 from distutils.command.install_data import install_data as _install_data
 
-try:
-    from setuptools import Command
-    from setuptools import setup
-    from setuptools.command.install import install as _install
-except ImportError:
-    import distribute_setup
-    distribute_setup.use_setuptools()
-    from setuptools import Command
-    from setuptools import setup
-    from setuptools.command.install import install as _install
+from setuptools import Command
+from setuptools import setup
+from setuptools.command.install import install as _install
 
 requires = [
     'Django>=1.6',
