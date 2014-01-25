@@ -113,11 +113,6 @@ class install(_install):
 #        mode = os.stat(source).st_mode
 #        os.chmod(source, mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
-added_options = [
-    ('prefix=', None, 'installation prefix'),
-    ('exec-prefix=', None, 'prefix for platform-specific files')
-]
-
 
 class clean(_clean):
     def initialize_options(self):
