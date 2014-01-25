@@ -27,6 +27,7 @@ from distutils.command.clean import clean as _clean
 from distutils.command.install_data import install_data as _install_data
 
 from setuptools import Command
+from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.install import install as _install
 
@@ -445,22 +446,7 @@ setup(
     download_url='https://server.restauth.net/download',
     install_requires=requires,
     license="GNU General Public License (GPL) v3",
-    packages=[
-        'RestAuth.Groups',
-        'RestAuth.Groups.cli',
-        'RestAuth.Groups.migrations',
-        'RestAuth.RestAuth',
-        'RestAuth.Services',
-        'RestAuth.Services.cli',
-        'RestAuth.Services.migrations',
-        'RestAuth.Test',
-        'RestAuth.Users',
-        'RestAuth.Users.cli',
-        'RestAuth.Users.migrations',
-        'RestAuth.backends',
-        'RestAuth.common',
-        'RestAuth.common.cli',
-    ],
+    packages=find_packages(exclude=['RestAuth.bin']),
     scripts=[
         'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
         'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
