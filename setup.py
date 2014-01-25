@@ -440,25 +440,6 @@ class testserver(Command):
             management.call_command('testserver', fixture, use_ipv6=True)
 
 
-class prepare_debian_changelog(Command):
-    description = "prepare debian/changelog file"
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        if not os.path.exists('debian/changelog'):
-            sys.exit(0)
-
-        version = get_version()
-        cmd = ['sed', '-i', '1s/(.*)/(%s-1)/' % version, 'debian/changelog']
-        p = Popen(cmd)
-        p.communicate()
-
 setup(
     name='RestAuth',
     version=str(get_version()),
@@ -502,7 +483,6 @@ setup(
         'install': install, 'install_data': install_data,
         'version': version,
         'test': test, 'coverage': coverage, 'testserver': testserver,
-        'prepare_debian_changelog': prepare_debian_changelog,
     },
     classifiers=[
         "Development Status :: 6 - Mature",
