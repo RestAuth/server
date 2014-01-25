@@ -57,10 +57,6 @@ if os.path.exists(common_path):
     else:
         os.environ['PYTHONPATH'] = common_path
 
-from django.conf import settings
-from django.core.management import call_command
-from django.utils import six
-
 LATEST_RELEASE = '0.6.3'
 
 if os.path.exists('RestAuth'):
@@ -322,6 +318,7 @@ class test(Command):
 
     def run(self):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
+        from django.core.management import call_command
 
         if self.app:
             print(self.app)
@@ -365,6 +362,10 @@ class coverage(Command):
             'RestAuth/RestAuth/wsgi.py',
             'RestAuth/*/tests.py',
         ]
+
+        from django.conf import settings
+        from django.core.management import call_command
+        from django.utils import six
 
         # compute backend files to exclude:
         backend_path = 'RestAuth/backends/'
@@ -432,10 +433,10 @@ class testserver(Command):
             conn.creation.create_test_db()
 
             # Import the fixture data into the test database.
-            call_command('loaddata', fixture)
+            management.call_command('loaddata', fixture)
 
             use_threading = conn.features.test_db_allows_multiple_connections
-            call_command(
+            management.call_command(
                 'runserver',
                 shutdown_message='Testserver stopped.',
                 use_reloader=False,
@@ -443,7 +444,7 @@ class testserver(Command):
                 use_threading=use_threading
             )
         else:
-            call_command('testserver', fixture, use_ipv6=True)
+            management.call_command('testserver', fixture, use_ipv6=True)
 
 
 class prepare_debian_changelog(Command):
