@@ -31,8 +31,8 @@ from setuptools import setup
 from setuptools.command.install import install as _install
 
 requires = [
-    'Django>=1.6',
-    'South>=0.8.3',
+    'Django>=1.6.1',
+    'South>=0.8.4',
     'RestAuthCommon>=0.6.2',
     'python-mimeparse>=0.1.4',
 ]
