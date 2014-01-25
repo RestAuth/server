@@ -36,6 +36,7 @@ requires = [
     'South>=0.8.4',
     'RestAuthCommon>=0.6.2',
     'python-mimeparse>=0.1.4',
+    'django-hashers-passlib>=0.1',
 ]
 
 # Setup environment
