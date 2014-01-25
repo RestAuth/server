@@ -24,7 +24,6 @@ from subprocess import Popen
 from subprocess import PIPE
 
 from distutils.command.clean import clean as _clean
-from distutils.command.install_data import install_data as _install_data
 
 from setuptools import Command
 from setuptools import find_packages
@@ -78,28 +77,6 @@ def get_version():
             version = version.split(':', 1)[1]
         version = version.rsplit('-', 1)[0]  # strip debian revision
     return version.strip()
-
-
-class install_data(_install_data):
-    """
-    Improve the install_data command so it can also copy directories
-    """
-    def custom_copy_tree(self, src, dest):
-        base = os.path.basename(src)
-        dest = os.path.normpath("%s/%s/%s" % (self.install_dir, dest, base))
-        if os.path.exists(dest):
-            return
-        ignore = shutil.ignore_patterns('.svn', '*.pyc')
-        print("copying %s -> %s" % (src, dest))
-        shutil.copytree(src, dest, ignore=ignore)
-
-    def run(self):
-        for dest, nodes in self.data_files:
-            dirs = [node for node in nodes if os.path.isdir(node)]
-            for src in dirs:
-                self.custom_copy_tree(src, dest)
-                nodes.remove(src)
-        _install_data.run(self)
 
 
 class install(_install):
@@ -454,9 +431,9 @@ setup(
         'RestAuth/manage.py',
     ],
     data_files=[
-        ('share/restauth', ['RestAuth/fixtures', 'munin', ]),
-        ('share/restauth/uwsgi', ['doc/files/uwsgi.ini', ]),
-        ('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
+        ('munin', ['munin/%s' % f for f in os.listdir('munin')]),
+        ('uwsgi', ['doc/files/uwsgi.ini', ]),
+        ('doc', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
     ],
     cmdclass={
         'build_doc': build_doc,
@@ -464,8 +441,7 @@ setup(
         'build_man': build_man,
         'clean': clean,
         'coverage': coverage,
-        'install': install,
-        'install_data': install_data,
+#        'install': install,
         'test': test,
         'testserver': testserver,
         'version': version,
