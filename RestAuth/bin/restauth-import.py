@@ -30,6 +30,13 @@ TIMESTAMP_PROPS = ['date joined', 'last login']
 # Setup environment
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RestAuth.settings')
 sys.path.append(os.getcwd())
+try:
+    req = Requirement.parse("RestAuth")
+    path = resource_filename(req, 'RestAuth')
+    if os.path.exists(path):
+        sys.path.insert(0, path)
+except DistributionNotFound:
+    pass  # we're run in a not-installed environment
 
 try:
     from django.db import transaction
