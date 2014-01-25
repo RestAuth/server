@@ -28,7 +28,7 @@ from distutils.command.clean import clean as _clean
 from setuptools import Command
 from setuptools import find_packages
 from setuptools import setup
-from setuptools.command.install import install as _install
+from setuptools.command.install_scripts import install_scripts as _install_scripts
 
 requires = [
     'Django>=1.6.1',
@@ -79,18 +79,14 @@ def get_version():
     return version.strip()
 
 
-class install(_install):
+class install_scripts(_install_scripts):
     def run(self):
-        _install.run(self)
+        _install_scripts.run(self)
 
-        # write symlink for restauth-manage.py
-        source = os.path.join(self.install_scripts, 'manage.py')
-        target = os.path.join(self.install_scripts, 'restauth-manage.py')
-
+        # rename manage.py to restauth-manage.py
+        source = os.path.join(self.install_dir, 'manage.py')
+        target = os.path.join(self.install_dir, 'restauth-manage.py')
         os.rename(source, target)
-#        # set execute permissions:
-#        mode = os.stat(source).st_mode
-#        os.chmod(source, mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
 class clean(_clean):
@@ -441,7 +437,7 @@ setup(
         'build_man': build_man,
         'clean': clean,
         'coverage': coverage,
-#        'install': install,
+        'install_scripts': install_scripts,
         'test': test,
         'testserver': testserver,
         'version': version,
