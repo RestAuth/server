@@ -1,0 +1,3 @@
+include AUTHORS COPYING COPYRIGHT
+include doc/files/uwsgi.ini
+recursive-include munin *
