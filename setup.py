@@ -426,6 +426,8 @@ setup(
         'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
         'RestAuth/manage.py',
     ],
+    # NOTE: The RestAuth/ prefix for data_files is the location that all files get installed to if
+    #       installed via pip.
     data_files=[
         ('RestAuth/munin', ['munin/%s' % f for f in os.listdir('munin')]),
         ('RestAuth/uwsgi', ['doc/files/uwsgi.ini', ]),
