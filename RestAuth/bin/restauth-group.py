@@ -22,6 +22,7 @@ from pkg_resources import DistributionNotFound
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 
+
 # Setup environment
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RestAuth.settings')
 sys.path.append(os.getcwd())

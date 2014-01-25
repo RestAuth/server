@@ -21,6 +21,10 @@ import json
 
 from collections import defaultdict
 from datetime import datetime
+from pkg_resources import DistributionNotFound
+from pkg_resources import Requirement
+from pkg_resources import resource_filename
+
 
 # Properties that may also be represented as a UNIX timestamp.
 # Otherwise the format must be "%Y-%m-%d %H:%M:%S"
@@ -163,6 +167,7 @@ def save_users(users, args, parser):
             properties[user][key] = value
     return properties
 
+
 def save_properties(properties, args, parser):
     for user, props in six.iteritems(properties):
         if args.overwrite_properties:
@@ -174,6 +179,7 @@ def save_properties(properties, args, parser):
                 except PropertyExists:
                     print('%s: Property "%s" already exists.' % (user.username, key))
                     continue
+
 
 def save_groups(groups, args, parser):
     if groups:
@@ -214,6 +220,7 @@ def save_groups(groups, args, parser):
 
             subgroup = group_backend.get(name=name, service=service)
             group_backend.add_subgroup(group=group, subgroup=subgroup)
+
 
 def main(args=None):
     args = parser.parse_args(args=args)
