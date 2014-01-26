@@ -24,24 +24,18 @@ from subprocess import Popen
 from subprocess import PIPE
 
 from distutils.command.clean import clean as _clean
-from distutils.command.install_data import install_data as _install_data
 
-try:
-    from setuptools import Command
-    from setuptools import setup
-    from setuptools.command.install import install as _install
-except ImportError:
-    import distribute_setup
-    distribute_setup.use_setuptools()
-    from setuptools import Command
-    from setuptools import setup
-    from setuptools.command.install import install as _install
+from setuptools import Command
+from setuptools import find_packages
+from setuptools import setup
+from setuptools.command.install_scripts import install_scripts as _install_scripts
 
 requires = [
-    'Django>=1.6',
-    'South>=0.8.3',
+    'Django>=1.6.1',
+    'South>=0.8.4',
     'RestAuthCommon>=0.6.2',
     'python-mimeparse>=0.1.4',
+    'django-hashers-passlib>=0.1',
 ]
 
 # Setup environment
@@ -56,10 +50,6 @@ if os.path.exists(common_path):
         os.environ['PYTHONPATH'] += ':%s' % common_path
     else:
         os.environ['PYTHONPATH'] = common_path
-
-from django.conf import settings
-from django.core.management import call_command
-from django.utils import six
 
 LATEST_RELEASE = '0.6.3'
 
@@ -89,45 +79,14 @@ def get_version():
     return version.strip()
 
 
-class install_data(_install_data):
-    """
-    Improve the install_data command so it can also copy directories
-    """
-    def custom_copy_tree(self, src, dest):
-        base = os.path.basename(src)
-        dest = os.path.normpath("%s/%s/%s" % (self.install_dir, dest, base))
-        if os.path.exists(dest):
-            return
-        ignore = shutil.ignore_patterns('.svn', '*.pyc')
-        print("copying %s -> %s" % (src, dest))
-        shutil.copytree(src, dest, ignore=ignore)
-
+class install_scripts(_install_scripts):
     def run(self):
-        for dest, nodes in self.data_files:
-            dirs = [node for node in nodes if os.path.isdir(node)]
-            for src in dirs:
-                self.custom_copy_tree(src, dest)
-                nodes.remove(src)
-        _install_data.run(self)
+        _install_scripts.run(self)
 
-
-class install(_install):
-    def run(self):
-        _install.run(self)
-
-        # write symlink for restauth-manage.py
-        source = os.path.join(self.install_scripts, 'manage.py')
-        target = os.path.join(self.install_scripts, 'restauth-manage.py')
-
+        # rename manage.py to restauth-manage.py
+        source = os.path.join(self.install_dir, 'manage.py')
+        target = os.path.join(self.install_dir, 'restauth-manage.py')
         os.rename(source, target)
-#        # set execute permissions:
-#        mode = os.stat(source).st_mode
-#        os.chmod(source, mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-
-added_options = [
-    ('prefix=', None, 'installation prefix'),
-    ('exec-prefix=', None, 'prefix for platform-specific files')
-]
 
 
 class clean(_clean):
@@ -322,6 +281,7 @@ class test(Command):
 
     def run(self):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
+        from django.core.management import call_command
 
         if self.app:
             print(self.app)
@@ -365,6 +325,10 @@ class coverage(Command):
             'RestAuth/RestAuth/wsgi.py',
             'RestAuth/*/tests.py',
         ]
+
+        from django.conf import settings
+        from django.core.management import call_command
+        from django.utils import six
 
         # compute backend files to exclude:
         backend_path = 'RestAuth/backends/'
@@ -432,10 +396,10 @@ class testserver(Command):
             conn.creation.create_test_db()
 
             # Import the fixture data into the test database.
-            call_command('loaddata', fixture)
+            management.call_command('loaddata', fixture)
 
             use_threading = conn.features.test_db_allows_multiple_connections
-            call_command(
+            management.call_command(
                 'runserver',
                 shutdown_message='Testserver stopped.',
                 use_reloader=False,
@@ -443,27 +407,8 @@ class testserver(Command):
                 use_threading=use_threading
             )
         else:
-            call_command('testserver', fixture, use_ipv6=True)
+            management.call_command('testserver', fixture, use_ipv6=True)
 
-
-class prepare_debian_changelog(Command):
-    description = "prepare debian/changelog file"
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        if not os.path.exists('debian/changelog'):
-            sys.exit(0)
-
-        version = get_version()
-        cmd = ['sed', '-i', '1s/(.*)/(%s-1)/' % version, 'debian/changelog']
-        p = Popen(cmd)
-        p.communicate()
 
 setup(
     name='RestAuth',
@@ -475,40 +420,29 @@ setup(
     download_url='https://server.restauth.net/download',
     install_requires=requires,
     license="GNU General Public License (GPL) v3",
-    packages=[
-        'RestAuth.Groups',
-        'RestAuth.Groups.cli',
-        'RestAuth.Groups.migrations',
-        'RestAuth.RestAuth',
-        'RestAuth.Services',
-        'RestAuth.Services.cli',
-        'RestAuth.Services.migrations',
-        'RestAuth.Test',
-        'RestAuth.Users',
-        'RestAuth.Users.cli',
-        'RestAuth.Users.migrations',
-        'RestAuth.backends',
-        'RestAuth.common',
-        'RestAuth.common.cli',
-    ],
+    packages=find_packages(exclude=['RestAuth.bin']),
     scripts=[
         'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
         'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
         'RestAuth/manage.py',
     ],
+    # NOTE: The RestAuth/ prefix for data_files is the location that all files get installed to if
+    #       installed via pip.
     data_files=[
-        ('share/restauth', ['RestAuth/fixtures', 'munin', ]),
-        ('share/restauth/uwsgi', ['doc/files/uwsgi.ini', ]),
-        ('share/doc/restauth', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
+        ('RestAuth/munin', ['munin/%s' % f for f in os.listdir('munin')]),
+        ('RestAuth/uwsgi', ['doc/files/uwsgi.ini', ]),
+        ('RestAuth/doc', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
     ],
     cmdclass={
-        'clean': clean,
-        'build_doc': build_doc, 'build_man': build_man,
+        'build_doc': build_doc,
         'build_html': build_html,
-        'install': install, 'install_data': install_data,
+        'build_man': build_man,
+        'clean': clean,
+        'coverage': coverage,
+        'install_scripts': install_scripts,
+        'test': test,
+        'testserver': testserver,
         'version': version,
-        'test': test, 'coverage': coverage, 'testserver': testserver,
-        'prepare_debian_changelog': prepare_debian_changelog,
     },
     classifiers=[
         "Development Status :: 6 - Mature",
