@@ -3,7 +3,7 @@ Section: misc
 Priority: extra
 Maintainer: Mathias Ertl <mati@restauth.net>
 Build-Depends: debhelper (>= 8), 
- python-argparse,
+ python2.6-argparse | python-all (>= 2.7),
  python-all (>= 2.6.6-3~), 
  python-restauth-common (>= 0.6.2), python-sphinx (>= 1.1.3),
  python-django (>= 1.6), python-mimeparse, python-django-south,
