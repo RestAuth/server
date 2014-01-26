@@ -5,6 +5,9 @@ PY2VERS=$(shell pyversions -rv)
 PY2DIR=${CURDIR}/debian/restauth/
 DOCDIR=${CURDIR}/debian/restauth-doc/
 
+DATAPATH=usr/share/restauth/
+DATADIR=${PY2DIR}${DATAPATH}
+
 DH_ARGS=--with python2,sphinxdoc
 
 
@@ -22,21 +25,31 @@ override_dh_auto_build: ${PY2VERS:%=build-python%}
 
 install-python2%:
 	dh_testdir
-	python2$* setup.py install --force --root ${PY2DIR} --no-compile -O0 --install-layout=deb
+	python2$* setup.py install --force --root ${PY2DIR} --no-compile -O0 --install-layout=deb --install-data=${DATAPATH}
 
 override_dh_auto_install: ${PY2VERS:%=install-python%}
-	dh_auto_install
-	
-	# NOTE: At this point, setup.py has installed manage.py to
-	# /usr/bin/restauth-manage.py
+	# strip .py extensions
 	rename s/.py// ${PY2DIR}usr/bin/*
 	
-	# remove redundant license file:
-	rm -f ${PY2DIR}usr/share/doc/restauth/COPYING
+	# handle doc files:
+	rm -f ${DATADIR}RestAuth/doc/COPYING
+	mkdir -p ${PY2DIR}usr/share/doc/restauth
+	find ${DATADIR}RestAuth/
+	mv ${DATADIR}RestAuth/doc/AUTHORS ${PY2DIR}usr/share/doc/restauth
+	mv ${DATADIR}RestAuth/doc/COPYRIGHT ${PY2DIR}usr/share/doc/restauth
 
 	# move munin script to standard location:
-	mv ${PY2DIR}usr/share/restauth/munin/restauth_accounts ${PY2DIR}usr/share/munin/plugins
-	rmdir ${PY2DIR}usr/share/restauth/munin/
+	mv ${DATADIR}RestAuth/munin/restauth_accounts ${PY2DIR}usr/share/munin/plugins
+
+	# move uwsgi file to top-level datadir:
+	mkdir ${DATADIR}uwsgi
+	mv ${DATADIR}RestAuth/uwsgi/uwsgi.ini ${DATADIR}uwsgi/
+
+	# remove empty directories:
+	rmdir ${DATADIR}RestAuth/doc
+	rmdir ${DATADIR}RestAuth/munin
+	rmdir ${DATADIR}RestAuth/uwsgi
+	rmdir ${DATADIR}RestAuth/
 	
 override_dh_python2:
 	dh_python2
