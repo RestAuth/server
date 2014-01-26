@@ -423,13 +423,16 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_users(self, overwrite=False):
         path = os.path.join(self.base, 'users1.json')
-        with capture() as (stdout, stderr), override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
+        with capture() as (stdout, stderr):
             cmd = [path]
             if overwrite:
                 cmd = ['--overwrite-properties', path]
-            restauth_import(cmd)
-            self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
-            self.assertTrue(user_backend.check_password(username3, 'foobar'))
+
+            with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
+                restauth_import(cmd)
+                self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
+                self.assertTrue(user_backend.check_password(username3, 'foobar'))
+
             self.assertItemsEqual(user_backend.list(), [username1, username2, username3])
             user = user_backend.get(username2)
             props = {

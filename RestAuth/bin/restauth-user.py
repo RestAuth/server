@@ -30,7 +30,7 @@ sys.path.append(os.getcwd())
 try:
     req = Requirement.parse("RestAuth")
     path = resource_filename(req, 'RestAuth')
-    if os.path.exists(path):
+    if os.path.exists(path):  # pragma: no cover
         sys.path.insert(0, path)
 except DistributionNotFound:
     pass  # we're run in a not-installed environment
