@@ -447,14 +447,16 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_users_django_hash(self, overwrite=False):
         path = os.path.join(self.base, 'users5.json')
-        with capture() as (stdout, stderr), override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
+        with capture() as (stdout, stderr):
             cmd = [path]
             if overwrite:
                 cmd = ['--overwrite-properties', path]
-            restauth_import(cmd)
-            self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
-            self.assertTrue(user_backend.check_password(username3, 'foobar'))
-            self.assertItemsEqual(user_backend.list(), [username3])
+
+            with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
+                restauth_import(cmd)
+                self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
+                self.assertTrue(user_backend.check_password(username3, 'foobar'))
+                self.assertItemsEqual(user_backend.list(), [username3])
 
     def test_users_overwrite_properties(self):
         self.test_users(overwrite=True)
