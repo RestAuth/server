@@ -278,6 +278,8 @@ class RestAuthImportTests(RestAuthTest, CliMixin):
                 restauth_import([path])
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
+            except IOError as e:  # pragma: python2.6
+                pass  # this throws IOError on python2.6.
 
         # invalid json data
         path = os.path.join(self.base, 'faulty1.json')

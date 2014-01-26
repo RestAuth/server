@@ -1,4 +1,9 @@
 import os
+import sys
+
+from pkg_resources import DistributionNotFound
+from pkg_resources import Requirement
+from pkg_resources import resource_filename
 
 import django.core.handlers.wsgi
 _application = django.core.handlers.wsgi.WSGIHandler()
@@ -8,6 +13,15 @@ _application = django.core.handlers.wsgi.WSGIHandler()
 #import sys
 #sys.path.insert(0, '/some/path/restauth/server')
 
+# Setup environment
+try:
+    req = Requirement.parse("RestAuth")
+    path = resource_filename(req, 'RestAuth')
+    if os.path.exists(path):  # pragma: no cover
+        sys.path.insert(0, path)
+except DistributionNotFound:
+    pass  # we're run in a not-installed environment
+
 def application(environ, start_response):
     if 'RESTAUTH_HOST' in environ:
         os.environ['RESTAUTH_HOST'] = environ['RESTAUTH_HOST']
@@ -15,7 +29,7 @@ def application(environ, start_response):
         os.environ['DJANGO_SETTINGS_MODULE'] = environ['DJANGO_SETTINGS_MODULE']
     else:
         os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
-        
+
     return _application(environ, start_response)
 
 def check_password(environ, user, password):

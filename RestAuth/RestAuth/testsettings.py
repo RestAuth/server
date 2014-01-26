@@ -173,6 +173,16 @@ LOGGING = {
             'propagate': False,
             'level': LOG_LEVEL,
         },
+        'Services': {
+            'handlers': ['default'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
+        'common': {
+            'handlers': ['default'],
+            'propagate': False,
+            'level': LOG_LEVEL,
+        },
         'users': {
             'handlers': ['base'],
             'propagate': False,
