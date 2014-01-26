@@ -194,7 +194,9 @@ class Drupal7Hasher(PasslibHasher):
     def __init__(self):  # load hashers loads without constructors
         passlib = self._load_library()
         from passlib.utils import h64
-        from passlib.utils.compat import unicode
+        # passlib.utils.compat is only available in passlib >= 1.6, we don't want to depend on it
+        # because Ubuntu 12.04 and Debian 7.0 don't have it.
+        #from passlib.utils.compat import unicode
 
         class Drupal7Handler(passlib.phpass):
             default_ident = "$S$"
@@ -205,7 +207,7 @@ class Drupal7Hasher(PasslibHasher):
 
             def _calc_checksum(self, secret):
                 # FIXME: can't find definitive policy on how phpass handles non-ascii.
-                if isinstance(secret, unicode):  # pragma: no branch
+                if isinstance(secret, six.text_type):  # pragma: no branch
                     secret = secret.encode("utf-8")
                 real_rounds = 1 << self.rounds
                 result = hashlib.sha512(self.salt.encode('ascii') + secret).digest()
