@@ -1,4 +1,10 @@
 restauth (0.6.3-285-gdc2332a-1) unstable; urgency=low
+
+  * Really only depend on python-passlib >= 1.5
+
+ -- Mathias Ertl <mati@restauth.net>  Sun, 26 Jan 2014 18:06:59 +0100
+  
+restauth (0.6.3-285-gdc2332a-1) unstable; urgency=low
   
   * Preperation of the new upstream release.
   * Use mati@restauth.net as maintainer address.
