@@ -1,4 +1,4 @@
-restauth (0.6.3-279-gb1ad37f-1) unstable; urgency=low
+restauth (0.6.3-281-g4976f2e-1) unstable; urgency=low
   
   * Preperation of the new upstream release.
   * Use mati@restauth.net as maintainer address.
