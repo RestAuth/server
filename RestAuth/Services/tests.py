@@ -344,14 +344,15 @@ class CliTests(RestAuthTest, CliMixin):
         s.set_password(password1)
         s.save()
 
-        with capture() as (stdout, stderr), transaction.atomic():
-            try:
-                cli(['add', '--password=%s' % password2, servicename3])
-                self.fail("Adding an existing service should be an error.")
-            except SystemExit as e:
-                self.assertEqual(e.code, 2)
-                self.assertEqual(stdout.getvalue(), '')
-                self.assertHasLine(stderr, 'Service already exists.$')
+        with capture() as (stdout, stderr):
+            with transaction.atomic():
+                try:
+                    cli(['add', '--password=%s' % password2, servicename3])
+                    self.fail("Adding an existing service should be an error.")
+                except SystemExit as e:
+                    self.assertEqual(e.code, 2)
+                    self.assertEqual(stdout.getvalue(), '')
+                    self.assertHasLine(stderr, 'Service already exists.$')
 
         self.assertTrue(Service.objects.get(username=servicename3).check_password(password1))
 
