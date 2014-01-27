@@ -1,34 +1,31 @@
 Installation on Debian/Ubuntu
 =============================
 
-The RestAuth project provides APT repositories for all software it maintains.
-Repositories are available for all distributions that are currently maintained
-by the Debian project and Canonical respectively except Debian 5.0 ("*lenny*")
-and Ubuntu 8.04 (*Hardy Heron*).
+The RestAuth project provides APT repositories for all software it maintains.  Repositories are
+available for all distributions that are currently maintained by the Debian project and Canonical
+respectively except Debian 5.0 ("*lenny*") and Ubuntu 8.04 (*Hardy Heron*).
 
-.. NOTE:: Repositories for older distributions may contain older versions of
-   RestAuth. If you use an older distribution, install the ``restauth-doc``
-   package to get documentation for the specific version of RestAuth.
+.. NOTE:: Repositories for older distributions may contain older versions of RestAuth. If you use
+   an older distribution, install the ``restauth-doc`` package to get documentation for the
+   specific version of RestAuth.
 
 Adding our APT repository
 -------------------------
-To add the repositories, simply add this line to your
-:file:`/etc/apt/sources.list` file::
+To add the repositories, simply add this line to your :file:`/etc/apt/sources.list` file::
 
    deb http://apt.fsinf.at <dist> restauth
 
-... where :samp:`{<dist>}` is any of the supported distributions. At the time of
-writing, possible values are ``lucid``, ``oneiric``, ``precise``, ``squeeze`` or
+... where :samp:`{<dist>}` is any of the supported distributions. At the time of writing, possible
+values are ``lucid``, ``oneiric``, ``precise``, ``squeeze`` or
 ``wheezy``.  Please see the WikiPedia pages for `Ubuntu
-<http://en.wikipedia.org/wiki/List_of_Ubuntu_releases#Table_of_versions>`_ and
-`Debian <http://en.wikipedia.org/wiki/Debian#Release_history>`_ to see how they
-map to your installation.  You can also check the `APT repository itself
-<http://apt.fsinf.at/dists>`_ for a list of available distributions (don't
-forget to check the 'Last modified' timestamp!).
+<http://en.wikipedia.org/wiki/List_of_Ubuntu_releases#Table_of_versions>`_ and `Debian
+<http://en.wikipedia.org/wiki/Debian#Release_history>`_ to see how they map to your installation.
+You can also check the `APT repository itself <http://apt.fsinf.at/dists>`_ for a list of available
+distributions (don't forget to check the 'Last modified' timestamp!).
 
-Once you added the repository, you have to install the fsinf GPG keyring used
-for signing the repositories, so you won't get any warnings when updating. You
-can either install the ``fsinf-keyring`` package using:
+Once you added the repository, you have to install the fsinf GPG keyring used for signing the
+repositories, so you won't get any warnings when updating. You can either install the
+``fsinf-keyring`` package using:
 
 .. code-block:: bash
 
@@ -66,5 +63,5 @@ You can update the source code with the regular process:
    apt-get update
    apt-get install restauth
 
-After you updated the source, don't forget to :ref:`update your database schema
-<update-database>` and :ref:`check for new settings <update-settings>`.
+After you updated the source, don't forget to :ref:`update your database schema <update-database>`
+and :ref:`check for new settings <update-settings>`.
