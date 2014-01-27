@@ -231,13 +231,8 @@ man_pages = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
 
-
-substitutions = {
-    'restauth-import-format': ':doc:`import format </migrate/import-format>`',
-    'restauth-import': ':doc:`restauth-import </restauth-import>`',
-    'restauth-latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE',
-                                              version),
-
+# default substitutions, generally, this should reflect the installation from source.
+defaults = {
     'bin-restauth-manage': 'restauth-manage.py',
     'bin-restauth-service': 'restauth-service.py',
     'bin-restauth-user': 'restauth-user.py',
@@ -245,43 +240,65 @@ substitutions = {
     'bin-restauth-import': 'restauth-import.py',
 
     'file-settings': 'RestAuth/localsettings.py',
-
-    'wsgi-script': 'RestAuth/RestAuth/wsgi.py',
+    'file-wsgi': 'RestAuth/RestAuth/wsgi.py',
 }
+
+settings = {
+    'homepage': {
+        'bin-restauth-manage': 'restauth-manage',
+        'bin-restauth-service': 'restauth-service',
+        'bin-restauth-user': 'restauth-user',
+        'bin-restauth-group': 'restauth-group',
+        'bin-restauth-import': 'restauth-import',
+
+        'file-settings': 'localsettings.py',
+        'file-wsgi': '/path/to/your/wsgi.py',
+    },
+    'debian': {
+        'bin-restauth-manage': 'restauth-manage',
+        'bin-restauth-service': 'restauth-service',
+        'bin-restauth-user': 'restauth-user',
+        'bin-restauth-group': 'restauth-group',
+        'bin-restauth-import': 'restauth-import',
+
+        'file-settings': '/etc/restauth/settings.py',
+        'file-wsgi': '/usr/share/pyshared/RestAuth/RestAuth/wsgi.py',
+    },
+    'man': {
+    },
+    'fedora': {
+    },
+    'arch': {
+        'file-wsgi': '/usr/share/restauth/wsgi.py',
+    },
+}
+
+substitutions = defaults
+
+# set the -source suffix:
+for key, value in defaults.items():
+    substitutions['%s-default' % key] = value
+
+# apply tags (should be only one, really):
+for dist, dist_settings in settings.items():
+    for key, value in dist_settings.items():
+        substitutions['%s-%s' % (key, dist)] = value
+
+        # update default if -t <dist> is given
+        if tags.has(dist):
+            substitutions[key] = value
+
+substitutions.update({
+    'restauth-import-format': ':doc:`import format </migrate/import-format>`',
+    'restauth-import': ':doc:`restauth-import </restauth-import>`',
+    'restauth-latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE',
+                                              version),
+
+})
 
 if tags.has('man'):
     substitutions['restauth-import-format'] = ':manpage:`restauth-import(5)`'
     substitutions['restauth-import'] = ':manpage:`restauth-import(1)`'
-
-if tags.has('debian'):
-    substitutions['bin-restauth-manage'] = 'restauth-manage'
-    substitutions['bin-restauth-service'] = 'restauth-service'
-    substitutions['bin-restauth-user'] = 'restauth-user'
-    substitutions['bin-restauth-group'] = 'restauth-group'
-    substitutions['bin-restauth-import'] = 'restauth-import'
-
-    substitutions['file-settings'] = '/etc/restauth/settings.py'
-
-    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi.py'
-
-elif tags.has('fedora') or tags.has('redhat'):
-    substitutions[''] = ''
-elif tags.has('arch'):
-    substitutions['wsgi-script'] = '/usr/share/restauth/wsgi.py'
-elif tags.has('homepage'):
-    substitutions['bin-restauth-manage'] = 'restauth-manage'
-    substitutions['bin-restauth-service'] = 'restauth-service'
-    substitutions['bin-restauth-user'] = 'restauth-user'
-    substitutions['bin-restauth-group'] = 'restauth-group'
-    substitutions['bin-restauth-import'] = 'restauth-import'
-
-
-    substitutions['file-settings'] = 'localsettings.py'
-    substitutions['wsgi-script'] = '/path/to/your/wsgi.py'
-
-elif tags.has('bogus-platform'):
-    for key, value in substitutions.items():
-        substitutions[key] = 'REPLACED-%s-REPLACED' % key
 
 rst_epilog = ""
 
