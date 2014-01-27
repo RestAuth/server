@@ -1,15 +1,15 @@
 Installation on Red Hat Enterprise Linux (RHEL)
------------------------------------------------
+_______________________________________________
 
-RestAuth is not included in Red Hat Enterprise Linux. The current version does
-not ship with a Python interpreter that works with it, so it is hardly possible
-to install RestAuth on the current version of that distribution.
+RestAuth is not included in Red Hat Enterprise Linux. The current version does not ship with a
+Python interpreter that works with it, so it is hardly possible to install RestAuth on the current
+version of that distribution.
 
-.. NOTE:: Since RestAuth is already included in Fedora, it will be included in
-   the next release of Red Hat Enterprise Linux.
+.. NOTE:: Since RestAuth is already included in Fedora, it will be included in the next release of
+   Red Hat Enterprise Linux.
 
 Installation on Fedora
-----------------------
+______________________
 
 RestAuth is included in Fedora 16 or later. To install RestAuth, just do:
 
@@ -25,7 +25,7 @@ Once you have installed RestAuth, you can go on :doc:`configuring your webserver
 .. _fedora-update:
 
 Updating the source
-===================
+-------------------
 
 You can update the source code with the regular process:
 
@@ -33,5 +33,5 @@ You can update the source code with the regular process:
 
    yum update restauth
 
-After you updated the source, don't forget to :ref:`update your database schema
-<update-database>` and :ref:`check for new settings <update-settings>`.
+After you updated the source, don't forget to :ref:`update your database schema <update-database>`
+and :ref:`check for new settings <update-settings>`.
