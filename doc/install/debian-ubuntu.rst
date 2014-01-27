@@ -3,7 +3,7 @@ Installation on Debian/Ubuntu
 
 The RestAuth project provides APT repositories for all software it maintains.  Repositories are
 available for all distributions that are currently maintained by the Debian project and Canonical
-respectively except Debian 5.0 ("*lenny*") and Ubuntu 8.04 (*Hardy Heron*).
+respectively.
 
 .. NOTE:: Repositories for older distributions may contain older versions of RestAuth. If you use
    an older distribution, install the ``restauth-doc`` package to get documentation for the
@@ -11,6 +11,7 @@ respectively except Debian 5.0 ("*lenny*") and Ubuntu 8.04 (*Hardy Heron*).
 
 Adding our APT repository
 -------------------------
+
 To add the repositories, simply add this line to your :file:`/etc/apt/sources.list` file::
 
    deb http://apt.fsinf.at <dist> restauth
@@ -48,6 +49,10 @@ Once you have added the repositories, installing RestAuth is as simple as
 .. code-block:: bash
 
    apt-get install restauth
+
+Your settings-file is located at |file-settings-debian-as-file|, the WSGI file is located at
+|file-wsgi-debian-as-file| and all command-line scripts will be in :file:`/usr/bin` (so you can
+just execute e.g. |bin-restauth-manage-debian-as-cmd|).
 
 .. include:: /includes/next-steps.rst
 
