@@ -420,7 +420,7 @@ setup(
     download_url='https://server.restauth.net/download',
     install_requires=requires,
     license="GNU General Public License (GPL) v3",
-    packages=find_packages(exclude=['RestAuth.bin']),
+    packages=find_packages(exclude=['RestAuth.bin', 'RestAuth.RestAuth.localsettings', ]),
     scripts=[
         'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
         'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
@@ -432,6 +432,7 @@ setup(
         ('RestAuth/munin', ['munin/%s' % f for f in os.listdir('munin')]),
         ('RestAuth/uwsgi', ['doc/files/uwsgi.ini', ]),
         ('RestAuth/doc', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
+        ('RestAuth/examples', ['RestAuth/RestAuth/localsettings.py', ])
     ],
     cmdclass={
         'build_doc': build_doc,
