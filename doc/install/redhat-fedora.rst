@@ -33,5 +33,4 @@ You can update the source code with the regular process:
 
    yum update restauth
 
-After you updated the source, don't forget to :ref:`update your database schema <update-database>`
-and :ref:`check for new settings <update-settings>`.
+... and be sure to follow the :doc:`update instructions </install/update>`.

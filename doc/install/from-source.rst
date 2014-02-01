@@ -37,12 +37,16 @@ Older versions are marked as tags. You can view available tags with :command:`gi
 use any of those versions with :command:`git checkout`, for example :command:`git checkout 0.6.3`.
 To move back to the newest version, use :command:`git checkout master`.
 
+.. _source-update:
+
 If you ever want to update the source code, just use:
 
 .. code-block:: bash
 
    python setup.py clean
    git pull origin master
+
+... and be sure to follow the :doc:`update instructions </install/update>`.
 
 Download official releases
 --------------------------
@@ -92,19 +96,3 @@ reading), just run:
 
    This will customize various paths, binary names etc. for what is used in the
    respective distribution.
-
-.. _source-update:
-
-Updating the source
--------------------
-
-To update the source code, just run:
-
-.. code-block:: bash
-
-   python setup.py clean
-   git pull
-   python setup.py install
-
-After you updated the source, don't forget to :ref:`update your database schema <update-database>`
-and :ref:`check for new settings <update-settings>`.

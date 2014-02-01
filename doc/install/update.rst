@@ -12,6 +12,7 @@ The specific installation instructions for your platform provide documentation
 on how to update your source code:
 
 * :ref:`from source <source-update>`
+* :ref:`with pip <pip-update>`
 * :ref:`Debian/Ubuntu <debian-update>`
 * :ref:`Fedora <fedora-update>`
 * :ref:`Arch Linux <arch-update>`
