@@ -11,28 +11,25 @@
    Description
    -----------
 
-|bin-restauth-group-bold| manages groups in RestAuth. Groups are a powerful but
-simple way for managing permissions. A user can be a member in one or more
-groups, which grants her/him certain rights.  Analogous concepts are used on
-many systems, such as Unix and Windows systems and most content management
-systems.
+|bin-restauth-group-bold| manages groups in RestAuth. Groups are a powerful but simple way for
+managing permissions. A user can be a member in one or more groups, which grants her/him certain
+rights.  Analogous concepts are used on many systems, such as Unix and Windows systems and most
+content management systems.
 
-A group may itself also be a member of one or more groups, making it the
-**subgroup** of the groups of which it is a member, which are in turn called
-**metagroups**. A subgroup automatically inherits all memberships from all
-metagroups. This way you can easily grant users multiple memberships at once.
+A group may itself also be a member of one or more groups, making it the **subgroup** of the groups
+of which it is a member, which are in turn called **metagroups**. A subgroup automatically inherits
+all memberships from all metagroups. This way you can easily grant users multiple memberships at
+once.
 
-A group is associated with at most one service that uses RestAuth. A service can
-only see the groups associated with it. If a group is not associated with any
-service, the group can not be seen by any service, the only way to modify them
-is via this script.
+A group is associated with at most one service that uses RestAuth. A service can only see the
+groups associated with it. If a group is not associated with any service, the group can not be seen
+by any service, the only way to modify them is via this script.
 
-Note that a group can be a member of any other group, even it is associated with
-a different service or none at all. A common use-case would be to have a
-metagroup called *admin* that is either not associated with any service or with
-some central management service. Any other services using RestAuth have their
-own *admin* group (which can each have a different name, whatever suits the
-service best), which are subgroups to the global admin group.
+Note that a group can be a member of any other group, even it is associated with a different
+service or none at all. A common use-case would be to have a metagroup called *admin* that is
+either not associated with any service or with some central management service. Any other services
+using RestAuth have their own *admin* group (which can each have a different name, whatever suits
+the service best), which are subgroups to the global admin group.
 
 .. only:: homepage
 
@@ -41,9 +38,9 @@ service best), which are subgroups to the global admin group.
    Name of |bin-restauth-group|
    ----------------------------
 
-   If you :doc:`installed from source </install/from-source>`, the script is
-   installed as :command:`restauth-group.py`. If you installed RestAuth via
-   your distributions package management system, the script is usually called
+   If you :doc:`installed from source </install/from-source>` or :doc:`with pip
+   </install/with-pip>`, the script is installed as :command:`restauth-group.py`. If you installed
+   RestAuth via your distributions package management system, the script is usually called
    :command:`restauth-group`.
 
 Usage
@@ -53,10 +50,9 @@ Usage
 
    .. include:: gen/restauth-group-usage.rst
 
-Use one of the commands (either add, add-group, add-user, list, rm, rm-group,
-rm-user or view) to perform the respective operation. Each command usually
-requires more arguments to it, see the respective section for arguments (and
-possible options) for each command.
+Use one of the commands (either add, add-group, add-user, list, rm, rm-group, rm-user or view) to
+perform the respective operation. Each command usually requires more arguments to it, see the
+respective section for arguments (and possible options) for each command.
 
 
 .. only:: html
@@ -76,23 +72,21 @@ possible options) for each command.
 
 .. only:: man
 
-    Use "|bin-restauth-group-bold| **--help**" to get an authoritative list of
-    available commands. If you want help on a specific command, use
-    "|bin-restauth-group-bold| *command* **--help**" or see the :ref:`AVAILABLE
-    COMMANDS <group-available-commands>` section below.
+    Use "|bin-restauth-group-bold| **--help**" to get an authoritative list of available commands.
+    If you want help on a specific command, use "|bin-restauth-group-bold| *command* **--help**" or
+    see the :ref:`AVAILABLE COMMANDS <group-available-commands>` section below.
 
 Examples
 --------
 
 .. example:: |bin-restauth-group-bold| **add** *global_admin_group*
 
-   Create a group called *global_admin_group* that is not associated with any
-   service.
+   Create a group called *global_admin_group* that is not associated with any service.
 
 .. example:: |bin-restauth-group-bold| **add --service=**\ *example.com* *local_admin_group*
 
-   Create a group called *local_admin_group* that is associated with the service
-   called *example.com*.
+   Create a group called *local_admin_group* that is associated with the service called
+   *example.com*.
 
 .. example:: |bin-restauth-group-bold| *view** *global_admin_group*
 
