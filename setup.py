@@ -471,11 +471,5 @@ setup(
     long_description="""RestAuth is the server-side reference implementation of
 the `RestAuth protocol <https://restauth.net/Specification>`_. Please see
 `server.restauth.net <https://server.restauth.net>`_ for extensive
-documentation.
-
-This project requires `RestAuthCommon <https://common.restauth.net>`_
-(`PyPI <https://pypi.python.org/pypi/RestAuthCommon/>`_) and
-`mimeparse <http://code.google.com/p/mimeparse/>`_
-(`PyPI <https://pypi.python.org/pypi/mimeparse/>`_).
-"""
+documentation."""
 )
