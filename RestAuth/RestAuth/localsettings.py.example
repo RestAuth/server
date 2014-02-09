@@ -35,7 +35,7 @@
 #   other settings available in Django, if you know what you are doing.
 
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
-# to False, backtraces will be sent to the adresses listed in the ADMINS
+# to False, backtraces will be sent to the addresses listed in the ADMINS
 # variable.
 # It is highly recommended to set DEBUG = False in any production environment.
 #DEBUG = True
@@ -60,7 +60,7 @@ DATABASES = {
 }
 
 # Configure any known hostnames this service will be contacted as. For
-# connections from localhost this is typically the IP-Adress (e.g. 127.0.0.1),
+# connections from localhost this is typically the IP-Address (e.g. 127.0.0.1),
 # otherwise it is the hostname of the configured webserver (e.g.
 # auth.example.com)
 ALLOWED_HOSTS = [
@@ -84,7 +84,7 @@ CONTENT_HANDLERS = (
 #    'RestAuthCommon.handlers.XMLContentHandler',
 )
 
-# Adresses that will receive backtraces when DEBUG=False
+# Addresses that will receive backtraces when DEBUG=False
 ADMINS = (
 #    ('Your Name', 'your_email@domain.com'),
 )
