@@ -2,22 +2,20 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not,
+# see <http://www.gnu.org/licenses/>.
 
-"""
-This module implements all HTTP queries to ``/group/*``.
-"""
+"""This module implements all HTTP queries to ``/group/*``."""
+
+from __future__ import unicode_literals
 
 import logging
 
@@ -49,10 +47,9 @@ class GroupsView(RestAuthView):
     post_required = (('group', six.string_types),)
 
     def get(self, request, largs):
-        """
-        Get a list of groups or, if called with the 'user' query parameter,
-        a list of groups where the user is a member of.
-        """
+        """Get a list of groups or, if called with the 'user' query parameter, a list of groups
+        where the user is a member of."""
+
         username = request.GET.get('user', None)
         if username is None or username == '':
             if not request.user.has_perm('Groups.groups_list'):
@@ -86,8 +83,7 @@ class GroupsView(RestAuthView):
         group = group_backend.create(service=request.user, name=groupname, dry=dry)
 
         self.log.info('%s: Created group', group.name, extra=largs)
-        return HttpResponseCreated(request,
-                                   'groups.group', name=group.name)  # Created
+        return HttpResponseCreated(request, 'groups.group', name=group.name)  # Created
 
 
 class GroupHandlerView(RestAuthResourceView):
