@@ -11,6 +11,12 @@ library using :command:`pip` and virtualenv:
    source bin/activate
    pip install RestAuth
 
+All non-source files are installed into `RestAuth/`. The configure RestAuth, copy the example
+configuration file in :file:`RestAuth/config/localsettings.py.example` to
+:file:`RestAuth/config/localsettings.py`:
+
+   cp RestAuth/config/localsettings.py.example RestAuth/config/localsettings.py
+
 .. include:: /includes/next-steps.rst
 
 .. _pip-update:

@@ -59,8 +59,10 @@ latest release is version |restauth-latest-release|.
 Installation
 ------------
 
-There isn't really anything you have to do besides downloading the source code. The wsgi-script is
-located at |file-wsgi-default-as-file|, be sure to include the path of your download directory in the
+There isn't really anything you have to do besides downloading the source code. To configure
+RestAuth, copy :file:`RestAuth/RestAuth/localsettings.py.example` to
+:file:`RestAuth/RestAuth/localsettings.py` and edit it to your needs.  The wsgi-script is located
+at |file-wsgi-default-as-file|, be sure to include the path of your download directory in the
 PYTHONPATH of your WSGI-server.
 
 .. include:: /includes/next-steps.rst
