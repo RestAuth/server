@@ -19,6 +19,8 @@
 The ExceptionMiddleware is located in its own class to avoid circular imports.
 """
 
+from __future__ import unicode_literals
+
 import logging
 import traceback
 
