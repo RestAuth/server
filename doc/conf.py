@@ -239,8 +239,8 @@ defaults = {
     'bin-restauth-group': 'restauth-group.py',
     'bin-restauth-import': 'restauth-import.py',
 
-    'file-settings': 'RestAuth/localsettings.py',
-    'file-wsgi': 'RestAuth/RestAuth/wsgi.py',
+    'file-settings': 'RestAuth/localsettings.py',#
+    'file-wsgi': 'RestAuth/RestAuth/wsgi.py',#
 }
 
 settings = {
@@ -251,8 +251,8 @@ settings = {
         'bin-restauth-group': 'restauth-group',
         'bin-restauth-import': 'restauth-import',
 
-        'file-settings': 'localsettings.py',
-        'file-wsgi': '/path/to/your/wsgi.py',
+        'file-settings': 'localsettings.py',#
+        'file-wsgi': '/path/to/your/wsgi.py',#
     },
     'debian': {
         'bin-restauth-manage': 'restauth-manage',
@@ -261,26 +261,26 @@ settings = {
         'bin-restauth-group': 'restauth-group',
         'bin-restauth-import': 'restauth-import',
 
-        'file-settings': '/etc/restauth/settings.py',
-        'file-wsgi': '/usr/share/pyshared/RestAuth/RestAuth/wsgi.py',
+        'file-settings': '/etc/restauth/settings.py',#
+        'file-wsgi': '/usr/share/pyshared/RestAuth/RestAuth/wsgi.py',#
     },
     'man': {
     },
     'fedora': {
     },
     'arch': {
-        'file-wsgi': '/usr/share/restauth/wsgi.py',
+        'file-wsgi': '/usr/share/restauth/wsgi.py',#
     },
 }
 
 substitutions = defaults
 
-# set the -source suffix:
+# set the -default suffix:
 for key, value in defaults.items():
     substitutions['%s-default' % key] = value
 
 # apply tags (should be only one, really):
-for dist, dist_settings in settings.items():
+for dist, dist_settings in list(settings.items()):
     for key, value in dist_settings.items():
         substitutions['%s-%s' % (key, dist)] = value
 
@@ -291,9 +291,7 @@ for dist, dist_settings in settings.items():
 substitutions.update({
     'restauth-import-format': ':doc:`import format </migrate/import-format>`',
     'restauth-import': ':doc:`restauth-import </restauth-import>`',
-    'restauth-latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE',
-                                              version),
-
+    'restauth-latest-release': os.environ.get('RESTAUTH_LATEST_RELEASE', version),
 })
 
 if tags.has('man'):
@@ -302,32 +300,39 @@ if tags.has('man'):
 
 rst_epilog = ""
 
+if tags.has('homepage'):
+    rst_epilog += """
+.. |bin-restauth-manage-link| replace:: :ref:`%s <dist-specific-bin-restauth-manage>`
+.. |bin-restauth-service-link| replace:: :ref:`%s <dist-specific-bin-restauth-service>`
+.. |bin-restauth-user-link| replace:: :ref:`%s <dist-specific-bin-restauth-user>`
+.. |file-settings-link| replace:: :ref:`%s <dist-specific-file-settings>`
+""" % (
+    settings['homepage']['bin-restauth-manage'],
+    settings['homepage']['bin-restauth-service'],
+    settings['homepage']['bin-restauth-user'],
+    settings['homepage']['file-settings'],
+)
+else:
+    rst_epilog += """
+.. |bin-restauth-manage-link| replace:: :doc:`%s </bin/restauth-manage>`
+.. |bin-restauth-service-link| replace:: :doc:`%s </restauth-service>`
+.. |bin-restauth-user-link| replace:: :doc:`%s </restauth-user>`
+.. |file-settings-link| replace:: :doc:`%s </config/all-config-values>`
+""" % (
+    substitutions['bin-restauth-manage'],
+    substitutions['bin-restauth-service'],
+    substitutions['bin-restauth-user'],
+    substitutions['file-settings'],
+)
+
 for key, value in substitutions.items():
     rst_epilog += ".. |%s| replace:: %s\n" % (key, value)
 
     if key.startswith('bin-') or key.startswith('file-'):
         rst_epilog += ".. |%s-bold| replace:: **%s**\n" % (key, value)
 
-    if tags.has('homepage'):
-        if key.startswith('bin-'):
-            rst_epilog += ".. |%s-link-hp| replace:: :command:`%s`\n" % (key, value)
-            rst_epilog += ".. |%s-link| replace:: |%s-link-hp|_\n" % (key, key)
-        elif key.startswith('file-'):
-            rst_epilog += ".. |%s-link-hp| replace:: :file:`%s`\n" % (key, value)
-            rst_epilog += ".. |%s-link| replace:: |%s-link-hp|_\n" % (key, key)
-        else:
-            rst_epilog += ".. |%s-link| replace:: %s\n" % (key, value)
-
-    else:
-        if key.startswith('bin-'):
-            rst_epilog += ".. |%s-link| replace:: :command:`%s`\n" % (key, value)
-        elif key.startswith('file-'):
-            rst_epilog += ".. |%s-link| replace:: :file:`%s`\n" % (key, value)
-        else:
-            rst_epilog += ".. |%s-link| replace:: %s\n" % (key, value)
-
     if key.startswith('bin-'):
-        rst_epilog += ".. |%s-as-cmd| replace:: :file:`%s`\n" % (key, value)
+        rst_epilog += ".. |%s-as-cmd| replace:: :command:`%s`\n" % (key, value)
     if key.startswith('file-'):
         rst_epilog += ".. |%s-as-file| replace:: :file:`%s`\n" % (key, value)
 
@@ -346,8 +351,9 @@ if tags.has('homepage'):
         'bin-restauth-import':
             '/restauth-import.html#dist-specific-bin-restauth-import',
     }
-    for key, value in dist_conf_targets.items():
-        rst_epilog += ".. _%s-link-hp: %s\n" % (key, value)
+
+#    for key, value in dist_conf_targets.items():
+#        rst_epilog += ".. _%s-link-hp: %s\n" % (key, value)
 
 # links to binary documents:
 rst_epilog += ".. |bin-restauth-manage-doc| replace:: :doc:`/bin/restauth-manage`\n"
@@ -356,6 +362,8 @@ rst_epilog += ".. |bin-restauth-user-doc| replace:: :doc:`/restauth-user`\n"
 rst_epilog += ".. |bin-restauth-group-doc| replace:: :doc:`/restauth-group`\n"
 rst_epilog += ".. |bin-restauth-import-doc| replace:: :doc:`/restauth-import`\n"
 rst_epilog += ".. _DATABASES: https://docs.djangoproject.com/en/dev/ref/databases/\n"
+
+print(rst_epilog)
 
 LINKS = {
     # restauth links:
