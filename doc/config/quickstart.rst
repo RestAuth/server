@@ -151,7 +151,7 @@ plattform. Here are the relevant parts for RestAuth:
         # your basic configuration here...
 
         # Django/WSGI application (WSGIScriptAlias needs full path, see below)
-        WSGIScriptAlias / |wsgi-script|
+        WSGIScriptAlias / |file-wsgi|
         WSGIPassAuthorization on
         WSGIProcessGroup restauth
         WSGIDaemonProcess restauth user=restauth group=restauth processes=1 threads=10
