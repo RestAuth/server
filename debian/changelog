@@ -1,19 +1,13 @@
-restauth (0.6.3-285-gdc2332a-1) unstable; urgency=low
+restauth (0.6.4-1) unstable; urgency=low
 
-  * Really only depend on python-passlib >= 1.5
-
- -- Mathias Ertl <mati@restauth.net>  Sun, 26 Jan 2014 18:06:59 +0100
-  
-restauth (0.6.3-285-gdc2332a-1) unstable; urgency=low
-  
-  * Preperation of the new upstream release.
+  * New upstream release.
   * Use mati@restauth.net as maintainer address.
   * This package is now maintained in the debian branch of the new
     GitHub-based master repository.
   * Update dependencies to the requirements of the new release.
   * Remove all patches, none of them were used.
 
- -- Mathias Ertl <mati@restauth.net>  Thu, 16 Jan 2014 21:11:56 +0100
+ -- Mathias Ertl <mati@restauth.net>  Sun, 09 Feb 2014 19:36:23 +0100
 
 restauth (0.6.3-1-g9df6b2c-1) unstable; urgency=low
 
