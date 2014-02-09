@@ -2,24 +2,21 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not,
+# see <http://www.gnu.org/licenses/>.
 
-"""
-Collect various reusable parsers.
-"""
+"""Collect various reusable parsers."""
 
-import random
+from __future__ import unicode_literals
+
 import string
 
 from argparse import Action
@@ -42,8 +39,7 @@ from common.errors import UserNotFound
 
 
 PASSWORD_CHARS = string.digits + string.ascii_letters + string.punctuation
-PASSWORD_CHARS = ''.join([c for c in PASSWORD_CHARS
-                          if c not in ['\\', '"', "'", '`']])
+PASSWORD_CHARS = ''.join([c for c in PASSWORD_CHARS if c not in ['\\', '"', "'", '`']])
 
 
 class ServiceAction(Action):
@@ -80,8 +76,7 @@ class UsernameAction(Action):
 
             try:
                 validate_username(username)
-                user = user_backend.create(username=username,
-                                           property_backend=property_backend)
+                user = user_backend.create(username=username, property_backend=property_backend)
             except UserExists:
                 raise ArgumentError(self, 'User already exists.')
             except PreconditionFailed as e:
