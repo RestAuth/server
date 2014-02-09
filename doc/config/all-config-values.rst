@@ -46,10 +46,11 @@ CACHES
 Default: ``see Django documentation``
 
 This setting is `available in Django
-<https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`__.
-Please see the `official documentation
-<https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this
+<https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-CACHES>`__.  Please see the
+`official documentation <https://docs.djangoproject.com/en/dev/topics/cache/>`_ on how to use this
 setting.
+
+.. WARNING:: If you change this setting, please also see :setting:`SECURE_CACHE`.
 
 .. setting:: CONTENT_HANDLERS
 
@@ -329,33 +330,22 @@ SECURE_CACHE
 ============
 
 .. versionadded:: 0.6.1
+.. versionchanged:: 0.6.4
+   The default is now ``True``, it used to be ``False`` previously.
 
-Default: ``False``
+Default: ``True``
 
-If you consider your cache to be secure, RestAuth can cache some sensitive
-data as well. If SECURE_CACHE is True, RestAuth will also store service
-credentials and user password hashes.
+By default, RestAuth caches service credentials. This is fine with the default settings, since
+Django by default uses an in-memory cache (see :setting:`CACHES`) and once an attacker is able to
+read in-memory datastructures, all information protected by the credentials are already compromised
+anyway.
 
-Setting ``SECURE_CACHE`` to True leads to a *great* speed improvement (for
-example, the `RestAuthClient <https://python.restauth.net>`_ testsuite executes
-5 times faster) but naturally has grave security implications. If an attacker
-can illegitimately access your cache, he/she may gain access to the RestAuth
-server with the same privileges as the services configured.
+Depending on other settings, you might want to set this to ``False``:
 
-If you enable this setting, this has different implications depending on the
-cache you use:
-
-* If you use
-  `Local-memory caching <https://docs.djangoproject.com/en/dev/topics/cache/?from=olddocs#local-memory-caching>`_
-  (the default), there isn't really any difference in security. If an attacker
-  can access your local memory, the host is already fully compromised anyway.
-  There is a disadvantage, though: Since each process has its own cache, setting
-  a password via |bin-restauth-service-link| won't take effect until either the
-  cache expires or you restart all RestAuth instances.
-* If you use any other caching backend (i.e. memcached or filesystem based),
-  make sure that it is as hard as possible to access your cache. In particular,
-  don't use memcached if its running on a different host in an untrusted
-  network.
+* If you use a different caching backend, i.e. memcached or redis.
+* If you use a cache on another host, it is highly recommended to set this to ``False``.
+* If you want to make it as unlikely as possible for an attacker to get service credentials on an
+  already compromised RestAuth server.
 
 .. setting:: SERVICE_PASSWORD_HASHER
 
