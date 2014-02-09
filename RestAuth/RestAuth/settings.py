@@ -26,7 +26,7 @@
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
 # It is highly recommended to set DEBUG = False in any production environment.
-DEBUG = True
+DEBUG = False
 SITE_ID = 1
 USE_I18N = False
 ROOT_URLCONF = 'RestAuth.urls'
@@ -97,7 +97,7 @@ MAX_USERNAME_LENGTH = 255
 MIN_PASSWORD_LENGTH = 6
 VALIDATORS = []
 GROUP_RECURSION_DEPTH = 3
-SECURE_CACHE = False
+SECURE_CACHE = True
 SERVICE_PASSWORD_HASHER = 'default'
 
 # backends:
