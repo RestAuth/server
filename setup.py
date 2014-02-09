@@ -420,19 +420,22 @@ setup(
     download_url='https://server.restauth.net/download',
     install_requires=requires,
     license="GNU General Public License (GPL) v3",
-    packages=find_packages(exclude=['RestAuth.bin', 'RestAuth.RestAuth.localsettings', ]),
+    packages=find_packages(exclude=['RestAuth.bin', ]),
     scripts=[
         'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
         'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
         'RestAuth/manage.py',
     ],
     # NOTE: The RestAuth/ prefix for data_files is the location that all files get installed to if
-    #       installed via pip.
+    #       installed via pip. Make sure files are included in the package via MANIFEST.in.
     data_files=[
         ('RestAuth/munin', ['munin/%s' % f for f in os.listdir('munin')]),
         ('RestAuth/uwsgi', ['doc/files/uwsgi.ini', ]),
         ('RestAuth/doc', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
-        ('RestAuth/examples', ['RestAuth/RestAuth/localsettings.py', ])
+        ('RestAuth/config', [
+            'RestAuth/RestAuth/localsettings.py.example',
+            'RestAuth/RestAuth/__init__.py',
+        ])
     ],
     cmdclass={
         'build_doc': build_doc,
