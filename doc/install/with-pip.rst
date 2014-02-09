@@ -15,6 +15,8 @@ All non-source files are installed into `RestAuth/`. The configure RestAuth, cop
 configuration file in :file:`RestAuth/config/localsettings.py.example` to
 :file:`RestAuth/config/localsettings.py`:
 
+.. code-block:: bash
+
    cp RestAuth/config/localsettings.py.example RestAuth/config/localsettings.py
 
 .. include:: /includes/next-steps.rst
@@ -24,7 +26,10 @@ configuration file in :file:`RestAuth/config/localsettings.py.example` to
 Update
 ------
 
-To update to a new release, just use ``pip install`` inside your virtualenv:
+To update to a new release, just use ``pip install -U`` inside your virtualenv:
+
+.. WARNING:: All changes to source files (e.g. the wsgi script) will be overwritten. If you need to
+   make changes, copy the files and use a different location.
 
 .. code-block:: bash
 
