@@ -32,9 +32,9 @@
    Name of |bin-restauth-manage-as-cmd|
    ------------------------------------
 
-   If you :doc:`installed from source </install/from-source>`, the script is
-   installed as :command:`restauth-manage.py`. If you installed RestAuth via
-   your distributions package management system, the script is usually called
+   If you :doc:`installed from source </install/from-source>` or :doc:`with pip
+   </install/with-pip>`, the script is installed as :command:`restauth-manage.py`. If you installed
+   RestAuth via your distributions package management system, the script is usually called
    :command:`restauth-manage`.
 
 Interesting |bin-restauth-manage-as-cmd| commands

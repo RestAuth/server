@@ -363,8 +363,6 @@ rst_epilog += ".. |bin-restauth-group-doc| replace:: :doc:`/restauth-group`\n"
 rst_epilog += ".. |bin-restauth-import-doc| replace:: :doc:`/restauth-import`\n"
 rst_epilog += ".. _DATABASES: https://docs.djangoproject.com/en/dev/ref/databases/\n"
 
-print(rst_epilog)
-
 LINKS = {
     # restauth links:
     'chat': 'xmpp:rest@conference.jabber.at',
