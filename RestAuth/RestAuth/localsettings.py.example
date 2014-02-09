@@ -19,7 +19,8 @@
 ###################################
 
 # This file configures the behaviour of the RestAuth webservice. Please fill in the apropriate
-# details below.
+# details below. The only settings you absolutely *have to configure* are ALLOWED_HOSTS,
+# SECRET_KEY and DATABASES.
 
 # Since the RestAuth service is implemented as a Django project, you can configure anything
 # available in Django settings.py files. For more information on available settings and more
@@ -31,29 +32,10 @@
 #       administrator, but you can always set any of the other settings available in Django, if you
 #       know what you are doing.
 
-# Set debugging to "True" (without quotes) to get backtraces via HTTP. When set to False,
-# backtraces will be sent to the addresses listed in the ADMINS variable.
-# It is highly recommended to set DEBUG = False in any production environment.
-#DEBUG = True
 
-# Configure your database settings
-DATABASES = {
-    'default': {
-        # Use 'postgresql_psycopg2', 'postgresql', 'mysql' or 'oracle' instead of 'sqlite3' to use
-        # a correct database backend:
-        'ENGINE': 'django.db.backends.sqlite3',
-        # Or path to database file if using sqlite3:
-        'NAME': 'RestAuth.sqlite3',
-        # Not used with sqlite3:
-        'USER': '',
-        # Not used with sqlite3:
-        'PASSWORD': '',
-        # Set to empty string for localhost. Not used with sqlite3:
-        'HOST': '',
-        # Set to empty string for default. Not used with sqlite3:
-        'PORT': '',
-    }
-}
+###############
+### GENERAL ###
+###############
 
 # Configure any known hostnames this service will be contacted as. For connections from localhost
 # this is typically the IP-Address (e.g. 127.0.0.1), otherwise it is the hostname of the configured
@@ -67,6 +49,17 @@ ALLOWED_HOSTS = [
 # Set your SECRET_KEY to some long random string:
 SECRET_KEY = ''
 
+# Addresses that will receive backtraces you can use for bugreports:
+ADMINS = (
+#    ('Your Name', 'your_email@domain.com'),
+)
+
+# If you want to receive backtraces via email and don't have a local mail server, you may want to
+# configure some email-related settings. See also:
+#     https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-EMAIL_HOST
+#EMAIL_PORT = 25
+#EMAIL_HOST = 'localhost'
+
 # You may add additional content handlers here:
 CONTENT_HANDLERS = (
     'RestAuthCommon.handlers.JSONContentHandler',
@@ -79,28 +72,51 @@ CONTENT_HANDLERS = (
 #    'RestAuthCommon.handlers.XMLContentHandler',
 )
 
-# Addresses that will receive backtraces when DEBUG=False
-ADMINS = (
-#    ('Your Name', 'your_email@domain.com'),
-)
-
-# If you want to receive backtraces via email and don't have a local mail server, you may want to
-# configure some email-related settings. See also:
-#     https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-EMAIL_HOST
-#EMAIL_PORT = 25
-#EMAIL_HOST = 'localhost'
-
-# You may want to configure a database router if you use some sort of database replication. For
-# more information, please see:
-#     https://server.restauth.net/config/database-replication.html
-#DATABASE_ROUTERS = []
-
 # Local time zone for this installation. Choices can be found here:
 #     http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems. On Unix systems, a value of
 # None will cause Django to use the same timezone as the operating system. If running in a Windows
 # environment this must be set to the same as your system time zone.
 #TIME_ZONE = 'Europe/Vienna'
+
+
+################
+### DATABASE ###
+################
+# Configure your database settings
+DATABASES = {
+    'default': {
+        # Set 'postgresql_psycopg2', 'postgresql', 'mysql' or 'oracle' instead of 'sqlite3' to use
+        # a correct database backend:
+        'ENGINE': 'django.db.backends.sqlite3',
+        # Name of the database (path to database file if using sqlite3):
+        'NAME': '',
+        # Username/Password/Host/Port used to access the database (not used with sqlite3):
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+    }
+}
+
+# You may want to configure a database router if you use some sort of database replication. For
+# more information, please see:
+#     https://server.restauth.net/config/database-replication.html
+#DATABASE_ROUTERS = []
+
+
+################
+### BACKENDS ###
+################
+# RestAuth can use different backends to store users, properties or groups. The backends can be
+# configured individually, but some property/group backends may depend on a specific user backend.
+# Please see:
+#     https://server.restauth.net/developer/backends.html
+# for more information.
+#USER_BACKEND='backends.django_backend.DjangoUserBackend'
+#GROUP_BACKEND='backends.django_backend.DjangoGroupBackend'
+#PROPERTY_BACKEND='backends.django_backend.DjangoPropertyBackend'
+
 
 #################
 ### USERNAMES ###
@@ -124,6 +140,7 @@ VALIDATORS = (
 #MIN_USERNAME_LENGTH = 3
 #MAX_USERNAME_LENGTH = 255
 
+
 #################
 ### PASSWORDS ###
 #################
@@ -135,13 +152,17 @@ VALIDATORS = (
 
 # RestAuth uses Djangos default password hashing facilities. Please see:
 #     https://docs.djangoproject.com/en/dev/topics/auth/passwords/
-# for more information. RestAuth adds additional hashers for SHA-512, MediaWiki and Apr1 (Apache
-# .htpasswd files). The default is:
+# for more information. RestAuth adds additional hashers for SHA-512, MediaWiki and Drupal7.
+# You can also add hashers for many other systems (e.g. phpass (phpBB, WordPress...), apr1
+# (Apache .htaccess files), ...) via the django-hashers-passlib project (should already be
+# installed):
+#     https://pypi.python.org/pypi/django-hashers-passlib/0.1
+# The default is:
 #PASSWORD_HASHERS = (
 #    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 #    'common.hashers.Sha512Hasher',
 #    'common.hashers.MediaWikiHasher',
-#    'common.hashers.Apr1Hasher',
+#    'common.hashers.Drupal7Hasher',
 #    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
 #    'django.contrib.auth.hashers.BCryptPasswordHasher',
 #    'django.contrib.auth.hashers.SHA1PasswordHasher',
@@ -166,18 +187,6 @@ VALIDATORS = (
 # means that up to three levels of parent groups are checked.
 #GROUP_RECURSION_DEPTH=3
 
-################
-### BACKENDS ###
-################
-# RestAuth can use different backends to store users, properties or groups. The backends can be
-# configured individually, but some property/group backends may depend on a specific user backend.
-# Please see:
-#     https://server.restauth.net/developer/backends.html
-# for more information.
-#USER_BACKEND='backends.django_backend.DjangoUserBackend'
-#GROUP_BACKEND='backends.django_backend.DjangoGroupBackend'
-#PROPERTY_BACKEND='backends.django_backend.DjangoPropertyBackend'
-
 ###############
 ### CACHING ###
 ###############
@@ -186,14 +195,14 @@ VALIDATORS = (
 # caching, please see:
 #     https://docs.djangoproject.com/en/dev/topics/cache/
 #
-# Set your caching configuration here. Note that setting this will automatically enable the caching
-# Middlewares as described in the Django documentation.
+# By default, Django uses an in-memory cache. If you want to use a different caching backend such
+# as memcached or redis, use the CACHES setting:
 #CACHES = {}
 #
-# If you consider your cache to be secure, RestAuth can cache some sensitive data as well. This
-# leads to a significant speed improvement. This is a rather sensitive subject, please read:
+# RestAuth caches service credentials by default. With the default in-memory cache this is not a
+# problem, but if you use a different caching backend (especially on a different host), you
+# probably want to disable this behaviour. More information is available at:
 #     https://server.restauth.net/config/all-config-values.html#secure-cache
-# before enabling this setting. The default is False.
 #SECURE_CACHE = False
 
 ###############
