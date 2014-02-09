@@ -29,7 +29,7 @@ Update
 To update to a new release, just use ``pip install -U`` inside your virtualenv:
 
 .. WARNING:: All changes to source files (e.g. the wsgi script) will be overwritten. If you need to
-   make changes, copy the files and use a different location.
+   make changes, copy the file to a different location first.
 
 .. code-block:: bash
 
