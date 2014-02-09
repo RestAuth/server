@@ -29,10 +29,10 @@ must have permissions to perform the respective actions, use the
    Name of |bin-restauth-service|
    ------------------------------
 
-   If you :doc:`installed from source </install/from-source>`, the script is
-   installed as :command:`restauth-service.py`. If you installed RestAuth via
-   your distributions package management system, the script is usually called
-   :command:`restauth-service`.
+   If you :doc:`installed from source </install/from-source>` or :doc:`with pip
+   </install/with-pip>`, the script is installed as :command:`restauth-service.py`. If you
+   installed RestAuth via your distributions package management system, the script is usually
+   called :command:`restauth-service`.
 
 Usage
 -----

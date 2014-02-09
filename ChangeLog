@@ -1,28 +1,37 @@
-RestAuth 0.6.4 (XX XXX XXXX)
+RestAuth 0.6.4 (09 February 2014)
 
+  General:
   * This project now lives on GitHub: https://github.com/RestAuth/server
-  * The restauth import data format now just has a raw 'hash' key which
-    contains a raw hash as stored by the application (plus the "hash"
-	key identifying the type of hash).
-  * The backend interface function set_password_hash now only understands the
-    "algorithm" and "hash" keyword arguments, where "hash" is the raw
-	password hash.
-  * Fix tests in some python2.6 versions.
+  * RestAuth now requires Django 1.6 or newer and uses the app-layout introduced in Django 1.5.
+  * The source code no longer includes a localsettings.py file but an example-file instead. This
+    file is included in the pip-packages and eases configuration for installations via pip.
+  * The restauth import data format now just has a raw 'hash' key which contains a raw hash as
+	stored by the application (plus the "hash" key identifying the type of hash).
+  * The backend interface function set_password_hash now only understands the "algorithm" and
+	"hash" keyword arguments, where "hash" is the raw password hash.
   * More consistently lowercase input and output names of users and groups.
-  * RestAuth now requires Django 1.6 or newer.
-  * Migrate to app-layout from Django 1.5
   * Improve documentation in many small ways.
-  * Move development dependencies to requirements-dev.txt
-  * Code now (partially) uses a line-width of 99 characters.
-  * django backend now verifies its an actually valid hasher.
+  * django backend now verifies that the hash is supported when importing hashes.
+
+  Settings:
+  * SECURE_CACHE is now True by default, since the default cache is an in-memory cache anyway.
 
   Command-line scripts:
   * Fix listing of subgroups for "restauth-groups view".
-  * Usernames of users created via "restauth-user add" are now subject to the
-    same limitations as via the RestAuth interface.
+  * Usernames of users created via "restauth-user add" are now subject to the same limitations as
+    via the RestAuth interface.
   * Fixed restauth-user view --service=...
-  * restauth-import now correctly sets the 'date joined' property for users
-    it created.
+  * restauth-import now correctly sets the 'date joined' property for users it created.
+
+  Testsuite:
+  * The testsuite fully tests all command-line scripts.
+  * The testsuite features 100% test coverage.
+  * Fix tests in some python2.6 versions.
+
+  Development:
+  * Code now (partially) uses a line-width of 99 characters.
+  * All files use unicode literals and declare a utf-8 source code encoding.
+  * Move development dependencies to requirements-dev.txt
 
 RestAuth 0.6.3 (30 May 2013)
 

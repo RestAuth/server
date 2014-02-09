@@ -12,6 +12,7 @@ The specific installation instructions for your platform provide documentation
 on how to update your source code:
 
 * :ref:`from source <source-update>`
+* :ref:`with pip <pip-update>`
 * :ref:`Debian/Ubuntu <debian-update>`
 * :ref:`Fedora <fedora-update>`
 * :ref:`Arch Linux <arch-update>`
@@ -58,6 +59,8 @@ Use new settings
 New/updated settings in 0.6.4
 +++++++++++++++++++++++++++++
 
+* :setting:`SECURE_CACHE` is now ``True`` by default. If you want to restore the
+  previous default behaviour, set it to ``False``.
 * RestAuth 0.6.4 brings a slightly new module layout. Modules no longer use the
   ``RestAuth`` prefix, except for the settings-module itself. So settings that
   define module paths should be stripped of ``RestAuth.``, example::

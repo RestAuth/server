@@ -2,18 +2,18 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not,
+# see <http://www.gnu.org/licenses/>.
+
+from __future__ import unicode_literals
 
 from django.conf import settings
 
@@ -25,9 +25,8 @@ from common.errors import PropertyNotFound
 class RedisPropertyBackend(PropertyBackend):
     """Store properties in a Redis key/value store.
 
-    This backend enables you to store user properties in a key/value store.
-    Note that the backend is not really faster if you only have a few hundred
-    users.
+    This backend enables you to store user properties in a key/value store.  Note that the backend
+    is not really faster if you only have a few hundred users.
 
     This backend uses a few additional settings in |file-settings|:
 
@@ -39,9 +38,8 @@ class RedisPropertyBackend(PropertyBackend):
     ``REDIS_DB``
         The id of the Redis database. Default: ``0``.
 
-    .. NOTE:: Transaction support of this backend is limited. Basic
-       transaction management works, but no sensible values are returned
-       for method calls within a transaction.
+    .. NOTE:: Transaction support of this backend is limited. Basic transaction management works,
+       but no sensible values are returned for method calls within a transaction.
     """
 
     library = 'redis'

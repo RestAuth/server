@@ -915,9 +915,8 @@ class CliTests(RestAuthTest, CliMixin):
                 self.fail('Renaming user to existing username succeeded.')
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
-                stdout, stderr = self.decode(stdout, stderr)
-                self.assertEqual(stdout, '')
-                self.assertTrue(stderr.startswith('usage: '))
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertTrue(stderr.getvalue().startswith('usage: '))
 
     def test_verify(self):
         self.create_user(username1, password1)

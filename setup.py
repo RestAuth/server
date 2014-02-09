@@ -51,7 +51,7 @@ if os.path.exists(common_path):
     else:
         os.environ['PYTHONPATH'] = common_path
 
-LATEST_RELEASE = '0.6.3'
+LATEST_RELEASE = '0.6.4'
 
 if os.path.exists('RestAuth'):
     sys.path.insert(0, 'RestAuth')
@@ -420,18 +420,22 @@ setup(
     download_url='https://server.restauth.net/download',
     install_requires=requires,
     license="GNU General Public License (GPL) v3",
-    packages=find_packages(exclude=['RestAuth.bin']),
+    packages=find_packages(exclude=['RestAuth.bin', ]),
     scripts=[
         'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
         'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
         'RestAuth/manage.py',
     ],
     # NOTE: The RestAuth/ prefix for data_files is the location that all files get installed to if
-    #       installed via pip.
+    #       installed via pip. Make sure files are included in the package via MANIFEST.in.
     data_files=[
         ('RestAuth/munin', ['munin/%s' % f for f in os.listdir('munin')]),
         ('RestAuth/uwsgi', ['doc/files/uwsgi.ini', ]),
         ('RestAuth/doc', ['AUTHORS', 'COPYING', 'COPYRIGHT', ]),
+        ('RestAuth/config', [
+            'RestAuth/RestAuth/localsettings.py.example',
+            'RestAuth/RestAuth/__init__.py',
+        ])
     ],
     cmdclass={
         'build_doc': build_doc,
@@ -467,11 +471,5 @@ setup(
     long_description="""RestAuth is the server-side reference implementation of
 the `RestAuth protocol <https://restauth.net/Specification>`_. Please see
 `server.restauth.net <https://server.restauth.net>`_ for extensive
-documentation.
-
-This project requires `RestAuthCommon <https://common.restauth.net>`_
-(`PyPI <https://pypi.python.org/pypi/RestAuthCommon/>`_) and
-`mimeparse <http://code.google.com/p/mimeparse/>`_
-(`PyPI <https://pypi.python.org/pypi/mimeparse/>`_).
-"""
+documentation."""
 )
