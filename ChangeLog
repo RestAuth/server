@@ -3,6 +3,8 @@ RestAuth 0.6.4 (XX XXX XXXX)
   General:
   * This project now lives on GitHub: https://github.com/RestAuth/server
   * RestAuth now requires Django 1.6 or newer and uses the app-layout introduced in Django 1.5.
+  * The source code no longer includes a localsettings.py file but an example-file instead. This
+    file is included in the pip-packages and eases configuration for installations via pip.
   * The restauth import data format now just has a raw 'hash' key which contains a raw hash as
 	stored by the application (plus the "hash" key identifying the type of hash).
   * The backend interface function set_password_hash now only understands the "algorithm" and
