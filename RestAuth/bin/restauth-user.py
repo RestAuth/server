@@ -117,7 +117,7 @@ def main(args=None):
         try:
             user_backend.rename(args.user.username, args.name)
         except UserExists as e:
-            parser.error("%s: %s" % (args.name, e))
+            parser.error("%s: %s" % (args.name if six.PY3 else args.name.decode('utf-8'), e))
     elif args.action in ['delete', 'rm', 'remove']:  # pragma: no branch
         user_backend.remove(args.user.username)
 

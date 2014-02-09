@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 from argparse import ArgumentParser
 
 from common.cli.parsers import pwd_parser
