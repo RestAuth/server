@@ -10,6 +10,8 @@ DATADIR=${PY2DIR}${DATAPATH}
 
 DH_ARGS=--with python2,sphinxdoc
 
+PY2PATH=usr/lib/$(shell pyversions -d)/dist-packages/
+PY2MOD=${PY2DIR}${PY2PATH}
 
 %:
 	dh $@ ${DH_ARGS}
@@ -26,6 +28,7 @@ override_dh_auto_build: ${PY2VERS:%=build-python%}
 install-python2%:
 	dh_testdir
 	python2$* setup.py install --force --root ${PY2DIR} --no-compile -O0 --install-layout=deb --install-data=${DATAPATH}
+	cp ${DATADIR}RestAuth/config/localsettings.py.example ${PY2DIR}usr/lib/python2$*/dist-packages/RestAuth/RestAuth/localsettings.py
 
 override_dh_auto_install: ${PY2VERS:%=install-python%}
 	# strip .py extensions
@@ -34,7 +37,6 @@ override_dh_auto_install: ${PY2VERS:%=install-python%}
 	# handle doc files:
 	rm -f ${DATADIR}RestAuth/doc/COPYING
 	mkdir -p ${PY2DIR}usr/share/doc/restauth
-	find ${DATADIR}RestAuth/
 	mv ${DATADIR}RestAuth/doc/AUTHORS ${PY2DIR}usr/share/doc/restauth
 	mv ${DATADIR}RestAuth/doc/COPYRIGHT ${PY2DIR}usr/share/doc/restauth
 
@@ -44,8 +46,11 @@ override_dh_auto_install: ${PY2VERS:%=install-python%}
 	# move uwsgi file to top-level datadir:
 	mkdir ${DATADIR}uwsgi
 	mv ${DATADIR}RestAuth/uwsgi/uwsgi.ini ${DATADIR}uwsgi/
-	mv ${DATADIR}RestAuth/config/localsettings.py.example ${PY2DIR}etc/restauth/settings.py
-	rm -f ${DATADIR}RestAuth/config/__init__.py
+
+	# move to pyshared dir so dh_python2 picks it up
+	mkdir -p ${PY2MOD}RestAuth/RestAuth
+	rm ${DATADIR}RestAuth/config/localsettings.py.example
+	rm ${DATADIR}RestAuth/config/__init__.py
 
 	# remove empty directories:
 	rmdir ${DATADIR}RestAuth/config
@@ -56,6 +61,7 @@ override_dh_auto_install: ${PY2VERS:%=install-python%}
 	
 override_dh_python2:
 	dh_python2
+	mv ${PY2DIR}usr/share/pyshared/RestAuth/RestAuth/localsettings.py ${PY2DIR}etc/restauth/settings.py
 
 test-python%:
 	python$* setup.py test
