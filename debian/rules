@@ -58,10 +58,6 @@ override_dh_python2:
 	cp RestAuth/RestAuth/localsettings.py.example RestAuth/RestAuth/localsettings.py
 	dh_python2
 
-	###
-	find debian | sort | grep settings
-	###
-
 	# move shared file to /etc, dh_symlink restores source as symlink
 	mv ${PY2DIR}usr/share/pyshared/RestAuth/RestAuth/localsettings.py ${PY2DIR}etc/restauth/settings.py
 
