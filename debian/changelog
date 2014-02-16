@@ -1,3 +1,10 @@
+restauth (0.6.4-2) unstable; urgency=low
+
+  * Correctly install localsettings.py via debian/restauth.pyinstall
+  * Do not install testsettings.py
+
+ -- Mathias Ertl <mati@restauth.net>  Sun, 16 Feb 2014 15:36:52 +0100
+
 restauth (0.6.4-1) unstable; urgency=low
 
   * New upstream release.
