@@ -89,6 +89,8 @@ CONTENT_HANDLERS = (
     'RestAuthCommon.handlers.FormContentHandler',
     'RestAuthCommon.handlers.PickleContentHandler',
     'RestAuthCommon.handlers.YamlContentHandler',
+    'RestAuthCommon.handlers.BSONContentHandler',
+    'RestAuthCommon.handlers.MessagePackContentHandler',
 )
 
 # South settings:
