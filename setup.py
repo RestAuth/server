@@ -42,7 +42,7 @@ requires = [
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 
-common_path = os.path.join('..', 'restauth-common', 'python')
+common_path = os.path.join('..', 'RestAuthCommon', 'python')
 if os.path.exists(common_path):
     sys.path.insert(0, common_path)
     pythonpath = os.environ.get('PYTHONPATH')
@@ -184,8 +184,7 @@ class build_doc_meta(Command):
             os.environ['PYTHONPATH'] += ':.'
         else:
             os.environ['PYTHONPATH'] = '.'
-        common_path = os.path.abspath(
-            os.path.join('..', 'restauth-common', 'python'))
+        common_path = os.path.abspath(os.path.join('..', 'RestAuthCommon', 'python'))
         if os.path.exists(common_path):
             os.environ['PYTHONPATH'] += ':%s' % common_path
 
