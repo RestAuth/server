@@ -87,7 +87,7 @@ class RestAuthTestBase(object):
         self.settings(LOGGING_CONFIG=None)
 
         self.c = Client()
-        self.handler = handlers.json()
+        self.handler = handlers.JSONContentHandler()
         self.extra = {
             'HTTP_ACCEPT': self.handler.mime,
             'REMOTE_USER': 'vowi',

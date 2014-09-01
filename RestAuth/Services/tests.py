@@ -65,7 +65,7 @@ cli = getattr(__import__('bin.restauth-service'), 'restauth-service').main
 class BasicAuthTests(RestAuthTest):  # GET /users/
     def setUp(self):
         self.c = Client()
-        self.handler = RestAuthCommon.handlers.json()
+        self.handler = RestAuthCommon.handlers.JSONContentHandler()
         self.extra = {
             'HTTP_ACCEPT': self.handler.mime,
             'REMOTE_ADDR': '127.0.0.1',

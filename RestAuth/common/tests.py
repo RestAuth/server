@@ -72,7 +72,7 @@ PASSWORD_HASHERS = (
 
 class RestAuthMiddlewareTests(TestCase):
     def setUp(self):
-        self.handler = handlers.json()
+        self.handler = handlers.JSONContentHandler()
         self.extra = {
             'HTTP_ACCEPT': self.handler.mime,
             'REMOTE_USER': 'vowi',
