@@ -258,6 +258,9 @@ class UserPropHandler(RestAuthSubResourceView):
         if not request.user.has_perm('Users.prop_set'):
             return HttpResponseForbidden()
 
+        if not resource_validator(subname):
+            raise PreconditionFailed("Property contains invalid characters")
+
         # If BadRequest: 400 Bad Request
         value = self._parse_put(request)
 
