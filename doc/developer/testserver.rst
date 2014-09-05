@@ -38,10 +38,6 @@ some services preconfigured:
 =================== ======== =================================================
 service             password Notes
 =================== ======== =================================================
-vowi                nopass   Used by most unittests in client libraries.
-                             Has all permissions. Primarily there for
-                             historical reasons, use example.* services
-                             instead.
 example.com         nopass   Has all permissions.
 example.org         nopass   Has all permissions and the group ``orggroup``
                              predefined.
