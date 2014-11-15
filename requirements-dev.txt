@@ -1,2 +1,2 @@
-Sphinx>=1.2.1
+Sphinx>=1.3b1
 coverage>=3.7.1
