@@ -1,3 +1,8 @@
+RestAuth 0.7.0 (XX XXXX 2014)
+
+  Documentation:
+  * Remove last traces of old git host.
+
 RestAuth 0.6.4 (09 February 2014)
 
   General:
@@ -171,7 +176,7 @@ RestAuth 0.5.3 (11 August 2012)
   General:
   * Removed the migration directory, as the scripts there are now maintained in
     a dedicated git repository:
-        https://git.fsinf.at/restauth/migration
+        https://github.com/RestAuth/migration
   * Add a test fixture that can be used by the manage.py testserver. setup.py
     now includes a 'testserver' command that automatically loads that fixture.
     Libraries that require a testserver for testing should run 'setup.py

@@ -62,4 +62,4 @@ Migration repository
 ====================
 
 You can find a git-repository that collects various migration scripts at
-`git.fsinf.at/restauth/migration <https://git.fsinf.at/restauth/migration>`_.
+`github.com/RestAuth/migration <https://github.com/RestAuth/migration>`_.
