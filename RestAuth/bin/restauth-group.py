@@ -37,6 +37,9 @@ except DistributionNotFound:
 
 
 try:
+    import django
+    django.setup()
+
     from Groups.cli.helpers import get_group
     from Groups.cli.helpers import print_by_service
     from Groups.cli.parsers import parser

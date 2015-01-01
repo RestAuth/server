@@ -37,6 +37,9 @@ except DistributionNotFound:
     pass  # we're run in a not-installed environment
 
 try:
+    import django
+    django.setup()
+
     from django.utils import six
 
     from Services.models import Service

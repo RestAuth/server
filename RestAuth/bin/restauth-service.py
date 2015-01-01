@@ -36,6 +36,9 @@ except DistributionNotFound:
     pass  # we're run in a not-installed environment
 
 try:
+    import django
+    django.setup()
+
     from django.core.exceptions import ValidationError
     from django.db import transaction
     from django.db.utils import IntegrityError

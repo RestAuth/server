@@ -44,6 +44,9 @@ except DistributionNotFound:
     pass  # we're run in a not-installed environment
 
 try:
+    import django
+    django.setup()
+
     from django.db import transaction
     from django.utils import six
 
