@@ -20,8 +20,6 @@ from pkg_resources import DistributionNotFound
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 
-import django.core.handlers.wsgi
-_application = django.core.handlers.wsgi.WSGIHandler()
 
 # You may need to add directories to the python path if RestAuth (or one of the
 # depending libraries) is not in your path:
@@ -37,15 +35,9 @@ try:
 except DistributionNotFound:
     pass  # we're run in a not-installed environment
 
-def application(environ, start_response):
-    if 'RESTAUTH_HOST' in environ:
-        os.environ['RESTAUTH_HOST'] = environ['RESTAUTH_HOST']
-    if 'DJANGO_SETTINGS_MODULE' in environ:
-        os.environ['DJANGO_SETTINGS_MODULE'] = environ['DJANGO_SETTINGS_MODULE']
-    else:
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
-
-    return _application(environ, start_response)
+from django.core.wsgi import get_wsgi_application
+os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
+application = get_wsgi_application()
 
 def check_password(environ, user, password):
     try:
