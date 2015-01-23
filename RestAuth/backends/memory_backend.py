@@ -2,18 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not,
+# see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
@@ -94,9 +92,8 @@ class MemoryGroupInstance(GroupInstance):
 class MemoryUserBackend(object):
     """Dummy backend that stores all users in memory (for debugging purposes).
 
-    Please note the obvious: This backend should *never be used in a production
-    environment*. Any restart of the server software will completely wipe all
-    data.
+    Please note the obvious: This backend should *never be used in a production environment*. Any
+    restart of the server software will completely wipe all data.
     """
 
     def __init__(self):
@@ -165,9 +162,8 @@ class MemoryUserBackend(object):
 class MemoryPropertyBackend(object):
     """Dummy backend that stores all properties in memory (for debugging).
 
-    Please note the obvious: This backend should *never be used in a production
-    environment*. Any restart of the server software will completely wipe all
-    data.
+    Please note the obvious: This backend should *never be used in a production environment*. Any
+    restart of the server software will completely wipe all data.
     """
 
     def __init__(self):
@@ -218,9 +214,8 @@ class MemoryPropertyBackend(object):
 class MemoryGroupBackend(object):
     """Dummy backend that stores all groups in memory (for debugging).
 
-    Please note the obvious: This backend should *never be used in a production
-    environment*. Any restart of the server software will completely wipe all
-    data.
+    Please note the obvious: This backend should *never be used in a production environment*. Any
+    restart of the server software will completely wipe all data.
     """
 
     def __init__(self):

@@ -160,28 +160,16 @@ class DjangoUserBackend(UserBackend):
         else:
             raise UserNotFound(username)
 
-    def init_transaction(self):
-        # already handled by Djangos transaction management
-        pass
-
-    def commit_transaction(self):
-        # already handled by Djangos transaction management
-        pass
-
-    def rollback_transaction(self):
-        # already handled by Djangos transaction management
-        pass
-
 
 class DjangoPropertyBackend(PropertyBackend):
     """Use the standard Django ORM to store user properties.
 
-    This backend should be ready-to use as soon as you have :doc:`configured
-    your database </config/database>`. This backend requires that you also use
-    the :py:class:`~.DjangoUserBackend`.
+    This backend should be ready-to use as soon as you have :doc:`configured your database
+    </config/database>`. This backend requires that you also use the
+    :py:class:`~.DjangoUserBackend`.
 
-    All settings used by this backend are documented in the :doc:`settings
-    reference </config/all-config-values>`.
+    All settings used by this backend are documented in the :doc:`settings reference
+    </config/all-config-values>`.
     """
 
     def list(self, user):
@@ -255,28 +243,16 @@ class DjangoPropertyBackend(PropertyBackend):
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def init_transaction(self):
-        # already handled by Djangos transaction management
-        pass
-
-    def commit_transaction(self):
-        # already handled by Djangos transaction management
-        pass
-
-    def rollback_transaction(self):
-        # already handled by Djangos transaction management
-        pass
-
 
 class DjangoGroupBackend(GroupBackend):
     """Use the standard Django ORM to store groups.
 
-    This backend should be ready-to use as soon as you have :doc:`configured
-    your database </config/database>`. This backend requires that you also use
-    the :py:class:`~.DjangoUserBackend`.
+    This backend should be ready-to use as soon as you have :doc:`configured your database
+    </config/database>`. This backend requires that you also use the
+    :py:class:`~.DjangoUserBackend`.
 
-    All settings used by this backend are documented in the :doc:`settings
-    reference </config/all-config-values>`.
+    All settings used by this backend are documented in the :doc:`settings reference
+    </config/all-config-values>`.
     """
 
     def get(self, name, service=None):
@@ -408,15 +384,3 @@ class DjangoGroupBackend(GroupBackend):
     def parents(self, group):
         assert isinstance(group, Group)
         return group.parent_groups.all()
-
-    def init_transaction(self):
-        # already handled by Djangos transaction management
-        pass
-
-    def commit_transaction(self):
-        # already handled by Djangos transaction management
-        pass
-
-    def rollback_transaction(self):
-        # already handled by Djangos transaction management
-        pass
