@@ -1,5 +1,5 @@
-Django==1.7.1
+Django==1.7.3
 PyYAML>=3.11
 RestAuthCommon>=0.7.0
 python-mimeparse>=0.1.4
-django-hashers-passlib>=0.1
+django-hashers-passlib>=0.2

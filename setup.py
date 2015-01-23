@@ -31,11 +31,10 @@ from setuptools import setup
 from setuptools.command.install_scripts import install_scripts as _install_scripts
 
 requires = [
-    'Django>=1.6.1',
-    'South>=0.8.4',
-    'RestAuthCommon>=0.6.2',
+    'Django>=1.7.3',
+    'RestAuthCommon>=0.7.0',
     'python-mimeparse>=0.1.4',
-    'django-hashers-passlib>=0.1',
+    'django-hashers-passlib>=0.2',
 ]
 
 # Setup environment
