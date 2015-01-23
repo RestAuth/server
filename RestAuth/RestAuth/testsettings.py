@@ -17,13 +17,17 @@
 
 # This file is used for setup.py test and setup.py testserver.
 
+import os
+
 DEBUG = False
-SITE_ID = 1
 USE_I18N = False
 ROOT_URLCONF = 'RestAuth.urls'
 TEMPLATE_LOADERS = ()
 TIME_ZONE = None  # None='same as os'
 SECRET_KEY = 'dummy'
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',

@@ -22,16 +22,20 @@
 # These settings are set for Django, a sysadmin will rarely need to change
 # these.
 
+import os
+
 # Set debugging to "True" (without quotes) to get backtraces via HTTP. When set
 # to False, backtraces will be sent to the adresses listed in the ADMINS
 # variable.
 # It is highly recommended to set DEBUG = False in any production environment.
 DEBUG = False
-SITE_ID = 1
 USE_I18N = False
 ROOT_URLCONF = 'RestAuth.urls'
 TEMPLATE_LOADERS = ()
 TIME_ZONE = None  # None='same as os'
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # do not insert session middleware:
 LOGGING = {}
