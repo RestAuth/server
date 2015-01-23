@@ -59,9 +59,6 @@ class UsersView(RestAuthView):
     post_optional = (('password', six.string_types),
                      ('properties', dict))
 
-#    def dispatch(self, *args, **kwargs):
-#        return super(UsersView, self).dispatch(*args, **kwargs)
-
     def get(self, request, largs, *args, **kwargs):
         """Get all users."""
 
@@ -71,7 +68,6 @@ class UsersView(RestAuthView):
         names = [n.lower() for n in user_backend.list()]
         return HttpRestAuthResponse(request, names)
 
-#    @method_decorator(transaction.non_atomic_requests)
     def post(self, request, largs, dry=False):
         """Create a new user."""
 
