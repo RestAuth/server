@@ -46,6 +46,10 @@ class GroupsView(RestAuthView):
     post_optional = (
         ('users', list),
     )
+    put_required = (
+        ('groups', list),
+        ('user', six.string_types),
+    )
 
     def get(self, request, largs):
         """Get a list of groups or a list of groups where the user is a member of."""
@@ -67,6 +71,25 @@ class GroupsView(RestAuthView):
         groups = [g.lower() for g in groups]
         return HttpRestAuthResponse(request, groups)
 
+    def parse_users(self, usernames):
+        users = []
+        for username in [stringprep(u) for u in usernames]:
+            try:
+                users.append(user_backend.get(username))
+            except UserNotFound:
+                pass
+        return users
+
+    def parse_groups(self, groupnames, service, dry=False, transaction=True):
+        groups = []
+        for groupname in [stringprep(u) for u in groupnames]:
+            try:
+                groups.append(user_backend.get(groupname))
+            except UserNotFound:
+                groups.append(
+                    group_backend.create(groupname, service=service, dry=dry, transaction=False))
+        return groups
+
     def post(self, request, largs, dry=False):
         """Create a new group."""
 
@@ -76,23 +99,29 @@ class GroupsView(RestAuthView):
         # If BadRequest: 400 Bad Request
         groupname, users = self._parse_post(request)
         groupname = stringcheck(groupname)
-        users = [stringprep(u) for u in users]
-        backend_users = []
-        for username in [stringprep(u) for u in users]:
-            try:
-                backend_users.append(user_backend.get(username))
-            except UserNotFound:
-                pass
+
+        if users is not None:
+            users = self.parse_users(users)
 
         # If ResourceExists: 409 Conflict
         with group_backend.transaction():
             group = group_backend.create(service=request.user, name=groupname, transaction=False,
                                          dry=dry)
-            group_backend.set_users_for_group(group, backend_users, transaction=False, dry=dry)
+            if users:
+                group_backend.set_users_for_group(group, users, transaction=False, dry=dry)
 
         self.log.info('%s: Created group', group.name, extra=largs)
         return HttpResponseCreated()  # Created
 
+    def put(self, request, largs, dry=False):
+        """Set groups of a user."""
+
+        if not not request.user.has_perm('Groups.group_remove_user') or not \
+                request.user.has_perm('Groups.group_add_user'):
+            return HttpResponseForbidden()
+
+        # If BadRequest: 400 Bad Request
+        groupnames, user = self._parse_put(request)
 
 class GroupHandlerView(RestAuthResourceView):
     """Handle requests to ``/groups/<group>/``."""

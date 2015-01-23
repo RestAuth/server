@@ -23,6 +23,7 @@ from Services.models import service_create
 from common.compat import encode_str as _e
 from common.testdata import CliMixin
 from common.testdata import RestAuthTest
+from common.testdata import RestAuthTransactionTest
 from common.testdata import capture
 from common.testdata import group_backend
 from common.testdata import groupname1
@@ -47,9 +48,9 @@ from common.testdata import username5
 cli = getattr(__import__('bin.restauth-group'), 'restauth-group').main
 
 
-class GroupTests(RestAuthTest):
+class GroupTests(RestAuthTransactionTest):
     def setUp(self):
-        RestAuthTest.setUp(self)
+        super(GroupTests, self).setUp()
 
         # two users, so we can make sure nothing leaks to the other user
         self.user1 = self.create_user(username1, password1)
