@@ -61,6 +61,20 @@ class GroupInstance(object):
         return self.username < other.username
 
 
+class TransactionContextManager(object):
+    def __init__(self, backend):
+        self.backend = backend
+
+    def __enter__(self):
+        self.init = self.backend.init_transaction()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            self.backend.commit_transaction(transaction_id=self.init)
+        else:
+            self.backend.rollback_transaction(transaction_id=self.init)
+
+
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
 
@@ -130,6 +144,49 @@ class RestAuthBackend(object):  # pragma: no cover
             return module
         raise ValueError("Hasher '%s' doesn't specify a library attribute" %
                          self.__class__)
+
+    def transaction(self):
+        """Override if your backend requires its own transaction management.
+
+        The default will call :py:meth:`~.RestAuthBackend.init_transaction` upon entering a
+        transaction, :py:meth:`~.RestAuthBackend.commit_transaction` upon success and
+        :py:meth:`~.RestAuthBackend.rollback_transaction` upon error.
+        """
+        return TransactionContextManager(self)
+
+    def init_transaction(self):
+        """Start a transaction.
+
+        If the transaction handling of your backend provides a transaction id required for
+        commit/rollback, simply return it and commit_transaction/rollback_transaction will receive
+        it as keword argument.
+        """
+        pass
+
+    def commit_transaction(self, transaction_id=None):
+        """Commit a transaction."""
+        pass
+
+    def rollback_transaction(self, transaction_id=None):
+        """Rollback a transaction."""
+        pass
+
+    def testSetUp(self):
+        """Set up your backend for a test run.
+
+        This method is exclusively used in unit tests. It should perform any actions necessary to
+        start a unit test.
+        """
+        pass
+
+    def testTearDown(self):
+        """Tear down your backend after a test run.
+
+        This method is exclusively used in unit tests. It should perform any actions necessary
+        after a unit test. In general, this should completely wipe all users created during a unit
+        test.
+        """
+        pass
 
 
 class UserBackend(RestAuthBackend):  # pragma: no cover
@@ -278,49 +335,6 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def init_transaction(self):
-        """Start a transaction.
-
-        This method is only used by restauth-import.
-        """
-        pass
-
-    def commit_transaction(self):
-        """Start a transaction.
-
-        This method is only used by restauth-import.
-        """
-        pass
-
-    def rollback_transaction(self):
-        """Start a transaction.
-
-        This method is only used by restauth-import.
-        """
-        pass
-
-    def testSetUp(self):
-        """Set up your backend for a test run.
-
-        This method is exclusively used in unit tests. It should perform any actions necessary to
-        start a unit test.
-
-        .. NOTE:: You do not need to implement this method, if there is nothing to do.
-        """
-        pass
-
-    def testTearDown(self):
-        """Tear down your backend after a test run.
-
-        This method is exclusively used in unit tests. It should perform any actions necessary
-        after a unit test. In general, this should completely wipe all users created during a unit
-        test.
-
-        .. NOTE:: You do not need to implement this method if the backend automatically cleans
-           itself.
-        """
-        pass
-
 
 class PropertyBackend(RestAuthBackend):  # pragma: no cover
     """Provide user properties."""
@@ -434,49 +448,6 @@ class PropertyBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def init_transaction(self):
-        """Start a transaction.
-
-        This method is only used by restauth-import.
-        """
-        pass
-
-    def commit_transaction(self):
-        """Start a transaction.
-
-        This method is only used by restauth-import.
-        """
-        pass
-
-    def rollback_transaction(self):
-        """Start a transaction.
-
-        This method is only used by restauth-import.
-        """
-        pass
-
-    def testSetUp(self):
-        """Set up your backend for a test run.
-
-        This method is exclusively used in unit tests. It should perform any actions necessary to
-        start a unit test.
-
-        .. NOTE:: You do not need to implement this method if there is nothing to do.
-        """
-        pass
-
-    def testTearDown(self):
-        """Tear down your backend after a test run.
-
-        This method is exclusively used in unit tests. It should perform any actions necessary
-        after a unit test. In general, this should completely wipe all users and properties created
-        during a unit test.
-
-        .. NOTE:: You do not need to implement this method if the backend automatically cleans
-           itself.
-        """
-        pass
-
 
 class GroupBackend(RestAuthBackend):  # pragma: no cover
     """Provide groups.
@@ -526,6 +497,8 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :param service: The service of the named group. If None, the group should not belong to any
             service.
         :type  service: :py:class:`~Services.models.Service` or None
+        :param users: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  users: list
         :param     dry: Wether or not to actually create the group.
         :type      dry: boolean
         :param transaction: If False, execute statements outside any transactional context, if
@@ -575,13 +548,37 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
+    def set_groups_for_user(self, user, groups):
+        """Set groups for a user.
+
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  user: :py:class:`.UserInstance`
+        :param groups: A list of groups as returned by :py:meth:`.GroupBackend.get`.
+        :type  groups: list
+        """
+        raise NotImplementedError
+
+    def set_users_for_group(self, group, users):
+        """Set all members of a group.
+
+        This method replaces the current list of members with the one passed by ``users``. If a
+        user is member of a meta-group, this method must not remove that membership if the user is
+        not in the new list of members.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param user: A list of users as returned by :py:meth:`.UserBackend.get`.
+        :type  user: list
+        """
+        raise NotImplementedError
+
     def add_user(self, group, user):
         """Add a user to the given group.
 
         :param group: A group as provided by :py:meth:`.GroupBackend.get`.
         :type  group: :py:class:`.GroupInstance`
         :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type   user: :py:class:`.UserInstance`
+        :type  user: :py:class:`.UserInstance`
         """
         raise NotImplementedError
 
@@ -683,46 +680,3 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :rtype: list
         """
         raise NotImplementedError
-
-    def init_transaction(self):
-        """Start a transaction.
-
-        This method is only used by restauth-import.
-        """
-        pass
-
-    def commit_transaction(self):
-        """Start a transaction.
-
-        This method is only used by restauth-import.
-        """
-        pass
-
-    def rollback_transaction(self):
-        """Start a transaction.
-
-        This method is only used by restauth-import.
-        """
-        pass
-
-    def testSetUp(self):
-        """Set up your backend for a test run.
-
-        This method is exclusively used in unit tests. It should perform any actions necessary to
-        start a unit test.
-
-        .. NOTE:: You do not need to implement this method, if there is nothing to do.
-        """
-        pass
-
-    def testTearDown(self):
-        """Tear down your backend after a test run.
-
-        This method is exclusively used in unit tests. It should perform any actions necessary
-        after a unit test. In general, this should completely wipe all users and groups created
-        during a unit test.
-
-        .. NOTE:: You do not need to implement this method if the backend automatically cleans
-            itself.
-        """
-        pass
