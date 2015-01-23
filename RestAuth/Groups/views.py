@@ -43,6 +43,9 @@ class GroupsView(RestAuthView):
     log = logging.getLogger('groups')
     http_method_names = ['get', 'post']
     post_required = (('group', six.string_types),)
+    post_optional = (
+        ('users', list),
+    )
 
     def get(self, request, largs):
         """Get a list of groups or a list of groups where the user is a member of."""
@@ -71,10 +74,21 @@ class GroupsView(RestAuthView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        groupname = stringcheck(self._parse_post(request))
+        groupname, users = self._parse_post(request)
+        groupname = stringcheck(groupname)
+        users = [stringprep(u) for u in users]
+        backend_users = []
+        for username in [stringprep(u) for u in users]:
+            try:
+                backend_users.append(user_backend.get(username))
+            except UserNotFound:
+                pass
 
         # If ResourceExists: 409 Conflict
-        group = group_backend.create(service=request.user, name=groupname, dry=dry)
+        with group_backend.transaction():
+            group = group_backend.create(service=request.user, name=groupname, transaction=False,
+                                         dry=dry)
+            group_backend.set_users_for_group(group, backend_users, transaction=False, dry=dry)
 
         self.log.info('%s: Created group', group.name, extra=largs)
         return HttpResponseCreated()  # Created
