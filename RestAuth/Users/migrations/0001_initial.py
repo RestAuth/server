@@ -1,67 +1,47 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'ServiceUser'
-        db.create_table('Users_serviceuser', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('username', self.gf('django.db.models.fields.CharField')(unique=True, max_length=60)),
-            ('algorithm', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('salt', self.gf('django.db.models.fields.CharField')(max_length=16, null=True, blank=True)),
-            ('hash', self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True)),
-            ('last_login', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
-            ('date_joined', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal('Users', ['ServiceUser'])
+    dependencies = [
+    ]
 
-        # Adding model 'Property'
-        db.create_table('Users_property', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['Users.ServiceUser'])),
-            ('key', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('value', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal('Users', ['Property'])
-
-        # Adding unique constraint on 'Property', fields ['user', 'key']
-        db.create_unique('Users_property', ['user_id', 'key'])
-
-
-    def backwards(self, orm):
-        # Removing unique constraint on 'Property', fields ['user', 'key']
-        db.delete_unique('Users_property', ['user_id', 'key'])
-
-        # Deleting model 'ServiceUser'
-        db.delete_table('Users_serviceuser')
-
-        # Deleting model 'Property'
-        db.delete_table('Users_property')
-
-
-    models = {
-        'Users.property': {
-            'Meta': {'unique_together': "(('user', 'key'),)", 'object_name': 'Property'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['Users.ServiceUser']"}),
-            'value': ('django.db.models.fields.TextField', [], {})
-        },
-        'Users.serviceuser': {
-            'Meta': {'object_name': 'ServiceUser'},
-            'algorithm': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'hash': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'}),
-            'salt': ('django.db.models.fields.CharField', [], {'max_length': '16', 'null': 'True', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '60'})
-        }
-    }
-
-    complete_apps = ['Users']
+    operations = [
+        migrations.CreateModel(
+            name='Property',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('key', models.CharField(max_length=128, db_index=True)),
+                ('value', models.TextField()),
+            ],
+            options={
+                'permissions': (('props_list', 'List all properties of a user'), ('prop_create', 'Create a new property'), ('prop_get', 'Get value of a property'), ('prop_set', 'Set or create a property'), ('prop_delete', 'Delete a property')),
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ServiceUser',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('username', models.CharField(unique=True, max_length=60, verbose_name='username')),
+                ('password', models.CharField(max_length=256, null=True, verbose_name='password', blank=True)),
+            ],
+            options={
+                'permissions': (('users_list', 'List all users'), ('user_create', 'Create a new user'), ('user_exists', 'Check if a user exists'), ('user_delete', 'Delete a user'), ('user_verify_password', 'Verify a users password'), ('user_change_password', 'Change a users password'), ('user_delete_password', 'Delete a user')),
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='property',
+            name='user',
+            field=models.ForeignKey(to='Users.ServiceUser'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='property',
+            unique_together=set([('user', 'key')]),
+        ),
+    ]

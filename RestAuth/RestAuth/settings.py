@@ -52,9 +52,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
 
-    # schema migrations:
-    'south',
-
     # our own apps:
     'Services',
     'Users',
