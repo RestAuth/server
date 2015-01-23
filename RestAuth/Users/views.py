@@ -77,9 +77,11 @@ class UsersView(RestAuthView):
         validate_username(name)
 
         # check password:
-        if password is not None and password != '':
+        if password:
             if len(password) < settings.MIN_PASSWORD_LENGTH:
                 raise PasswordInvalid("Password too short")
+        else:
+            password = None
 
         # check properties:
         if properties is not None:
@@ -138,9 +140,11 @@ class UserHandlerView(RestAuthResourceView):
 
         # If BadRequest: 400 Bad Request
         password = self._parse_put(request)
-        if password is not None and password != '':
+        if password:
             if len(password) < settings.MIN_PASSWORD_LENGTH:
                 raise PasswordInvalid("Password too short")
+        else:
+            password = None
 
         user_backend.set_password(username=name, password=password)
         return HttpResponseNoContent()
