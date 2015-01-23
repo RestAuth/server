@@ -226,7 +226,7 @@ class CreateGroupTests(GroupTests):  # POST /groups/
         self.assertItemsEqual(group_backend.list(self.fsinf), [groupname1])
 
     def test_invalid_resource(self):
-        resp = self.post('/groups/', {'group': 'foo/bar'})
+        resp = self.post('/groups/', {'group': 'foo\nbar'})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertItemsEqual(group_backend.list(self.vowi), [])
 

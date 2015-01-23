@@ -60,7 +60,7 @@ class CreateUserTest(RestAuthTransactionTest):
         self.assertItemsEqual([user.username], list(user_backend.list()))
 
     def test_dry_run_create_invalid_user(self):
-        resp = self.post('/test/users/', {'user': 'foo/bar'})
+        resp = self.post('/test/users/', {'user': 'foo\nbar'})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(list(user_backend.list()), [])
 

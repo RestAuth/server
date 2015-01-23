@@ -218,12 +218,12 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEqual(self.get_usernames(), [])
 
     def test_add_invalid_username(self):
-        username = 'foo/bar'
+        username = 'foo\nbar'
         resp = self.post('/users/', {'user': username, 'password': password1, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(self.get_usernames(), [])
 
-        username = 'foo:bar'
+        username = 'foo\tbar'
         resp = self.post('/users/', {'user': username, 'password': password1, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(self.get_usernames(), [])
