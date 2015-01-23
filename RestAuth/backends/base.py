@@ -556,17 +556,25 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_groups_for_user(self, user, groups):
+    def set_groups_for_user(self, user, groups, transaction=True, dry=False):
         """Set groups for a user.
 
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`.UserInstance`
+        :param   user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type    user: :py:class:`.UserInstance`
         :param groups: A list of groups as returned by :py:meth:`.GroupBackend.get`.
         :type  groups: list
+        :param    dry: Wether or not to actually create the group.
+        :type     dry: boolean
+        :param transaction: If False, the statement is executed in a larger transactional context,
+            meaning that transactions are already handled by
+            :py:meth:`~RestAuthBackend.init_transaction`,
+            :py:meth:`~RestAuthBackend.commit_transaction` and
+            :py:meth:`~RestAuthBackend.rollback_transaction`.
+        :type  transaction: boolean
         """
         raise NotImplementedError
 
-    def set_users_for_group(self, group, users):
+    def set_users_for_group(self, group, users, transaction=True, dry=False):
         """Set all members of a group.
 
         This method replaces the current list of members with the one passed by ``users``. If a
@@ -575,8 +583,16 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
 
         :param group: A group as provided by :py:meth:`.GroupBackend.get`.
         :type  group: :py:class:`.GroupInstance`
-        :param user: A list of users as returned by :py:meth:`.UserBackend.get`.
-        :type  user: list
+        :param users: A list of users as returned by :py:meth:`.UserBackend.get`.
+        :type  users: list
+        :param   dry: Wether or not to actually create the group.
+        :type    dry: boolean
+        :param transaction: If False, the statement is executed in a larger transactional context,
+            meaning that transactions are already handled by
+            :py:meth:`~RestAuthBackend.init_transaction`,
+            :py:meth:`~RestAuthBackend.commit_transaction` and
+            :py:meth:`~RestAuthBackend.rollback_transaction`.
+        :type  transaction: boolean
         """
         raise NotImplementedError
 
