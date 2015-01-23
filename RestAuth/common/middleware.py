@@ -40,7 +40,7 @@ class RestAuthMiddleware:
     def process_request(self, request):
         """Middleware to ensure required headers are present."""
         version = request.META.get('X_RESTAUTH_VERSION', '0.6')
-        request.version = tuple(version.split('.'))
+        request.version = tuple([int(e) for e in version.split('.')])
 
         if request.method in CONTENT_TYPE_METHODS:
             if 'CONTENT_TYPE' not in request.META:
