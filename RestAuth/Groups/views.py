@@ -22,8 +22,8 @@ import logging
 from django.http import HttpResponseForbidden
 from django.utils import six
 
-from RestAuthCommon import resource_validator
-from RestAuthCommon.error import PreconditionFailed
+from RestAuthCommon.strprep import stringcheck
+from RestAuthCommon.strprep import stringprep
 
 from backends import user_backend
 from backends import group_backend
@@ -61,7 +61,7 @@ class GroupsView(RestAuthView):
                 return HttpResponseForbidden()
 
             # Get all groups of a user
-            user = user_backend.get(username=username.lower())
+            user = user_backend.get(username=stringprep(username))
             groups = group_backend.list(service=request.user, user=user)
 
         groups = [g.lower() for g in groups]
@@ -75,9 +75,7 @@ class GroupsView(RestAuthView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        groupname = self._parse_post(request).lower()
-        if not resource_validator(groupname):
-            raise PreconditionFailed('Group name contains invalid characters!')
+        groupname = stringcheck(self._parse_post(request))
 
         # If ResourceExists: 409 Conflict
         group = group_backend.create(service=request.user, name=groupname, dry=dry)
@@ -148,7 +146,7 @@ class GroupUsersIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        username = self._parse_post(request).lower()
+        username = stringprep(self._parse_post(request))
 
         # If GroupNotFound: 404 Not Found
         group = group_backend.get(service=request.user, name=name)
@@ -235,7 +233,7 @@ class GroupGroupsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        subname = self._parse_post(request).lower()
+        subname = stringprep(self._parse_post(request))
 
         # If GroupNotFound: 404 Not Found
         group = group_backend.get(service=request.user, name=name)

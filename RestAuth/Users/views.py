@@ -23,8 +23,7 @@ from django.conf import settings
 from django.http import HttpResponseForbidden
 from django.utils import six
 
-from RestAuthCommon import resource_validator
-from RestAuthCommon.error import PreconditionFailed
+from RestAuthCommon.strprep import stringcheck
 
 from Users.validators import validate_username
 from backends import property_backend
@@ -74,11 +73,8 @@ class UsersView(RestAuthView):
             return HttpResponseForbidden()
 
         name, password, properties = self._parse_post(request)
-        name = name.lower()
+        name = stringcheck(name)
 
-        # check username:
-        if not resource_validator(name):
-            raise PreconditionFailed("Username contains invalid characters")
         # If UsernameInvalid: 412 Precondition Failed
         validate_username(name)
 
@@ -90,8 +86,8 @@ class UsersView(RestAuthView):
         # check properties:
         if properties is not None:
             for key in six.iterkeys(properties):
-                if not resource_validator(key):
-                    raise PreconditionFailed("Property contains invalid characters")
+                key = stringcheck(key)
+                properties[key] = properties.pop(key)
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
@@ -198,8 +194,7 @@ class UserPropsIndex(RestAuthResourceView):
 
         # If AssertionError: 400 Bad Request
         key, value = self._parse_post(request)
-        if not resource_validator(key):
-            raise PreconditionFailed("Property contains invalid characters")
+        key = stringcheck(key)
 
         # If UserNotFound: 404 Not Found
         user = user_backend.get(username=name)
@@ -221,8 +216,8 @@ class UserPropsIndex(RestAuthResourceView):
         user = user_backend.get(username=name)
         properties = parse_dict(request)
         for key in six.iterkeys(properties):
-            if not resource_validator(key):
-                raise PreconditionFailed("Property contains invalid characters")
+            new_key = stringcheck(key)
+            properties[new_key] = properties.pop(key)
 
         property_backend.set_multiple(user=user, props=properties)
         return HttpResponseNoContent()
@@ -260,9 +255,6 @@ class UserPropHandler(RestAuthSubResourceView):
         """
         if not request.user.has_perm('Users.prop_set'):
             return HttpResponseForbidden()
-
-        if not resource_validator(subname):
-            raise PreconditionFailed("Property contains invalid characters")
 
         # If BadRequest: 400 Bad Request
         value = self._parse_put(request)

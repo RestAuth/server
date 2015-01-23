@@ -21,6 +21,8 @@ from __future__ import unicode_literals
 
 from django.views.generic.base import View
 
+from RestAuthCommon.strprep import stringprep
+
 from common.types import assert_format
 from common.types import parse_dict
 
@@ -58,7 +60,7 @@ class RestAuthResourceView(RestAuthView):
         Adds the 'name' logging argument, and passes that as extra keyword-argument to the parents
         dispatch method.
         """
-        name = name.lower()
+        name = stringprep(name)
         largs = {'name': name}
 
         return super(RestAuthResourceView, self).dispatch(
@@ -76,8 +78,8 @@ class RestAuthSubResourceView(RestAuthView):
         Adds the 'subname' logging argument, and passes that as extra keyword-argument to the
         parents dispatch method.
         """
-        name = name.lower()
-        subname = subname.lower()
+        name = stringprep(name)
+        subname = stringprep(subname)
         largs = {'name': name, 'subname': subname}
 
         return super(RestAuthSubResourceView, self).dispatch(
