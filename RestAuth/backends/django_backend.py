@@ -161,7 +161,7 @@ class DjangoUserBackend(DjangoTransactionMixin, UserBackend):
             raise UserNotFound(username)
 
 
-class DjangoPropertyBackend(PropertyBackend):
+class DjangoPropertyBackend(DjangoTransactionMixin, PropertyBackend):
     """Use the standard Django ORM to store user properties.
 
     This backend should be ready-to use as soon as you have :doc:`configured your database
@@ -244,7 +244,7 @@ class DjangoPropertyBackend(PropertyBackend):
             raise PropertyNotFound(key)
 
 
-class DjangoGroupBackend(GroupBackend):
+class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
     """Use the standard Django ORM to store groups.
 
     This backend should be ready-to use as soon as you have :doc:`configured your database
