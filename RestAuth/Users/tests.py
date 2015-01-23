@@ -44,6 +44,7 @@ from common.testdata import CliMixin
 from common.testdata import PASSWORD_HASHERS
 from common.testdata import RestAuthTest
 from common.testdata import RestAuthTestBase
+from common.testdata import RestAuthTransactionTest
 from common.testdata import capture
 from common.testdata import groupname1
 from common.testdata import groupname2
@@ -90,7 +91,7 @@ class GetUsersTests(RestAuthTest):  # GET /users/
         self.assertCountEqual(self.parse(resp, 'list'), [username1, username2])
 
 
-class AddUserTests(RestAuthTest):  # POST /users/
+class AddUserTests(RestAuthTransactionTest):  # POST /users/
     def tearDown(self):
         super(AddUserTests, self).tearDown()
         property_backend.testTearDown()
@@ -377,13 +378,13 @@ class DeleteUserTest(UserTests):  # DELETE /users/<user>/
         self.assertTrue(user_backend.exists(username2))
 
 
-class PropertyTests(RestAuthTest):
+class PropertyTests(RestAuthTransactionTest):
     """
     Superclass for tests on
     ``/users/<user>/props/`` and ``/users/<user>/props/<prop>/``.
     """
     def setUp(self):
-        RestAuthTest.setUp(self)
+        super(PropertyTests, self).setUp()
 
         # two users, so we can make sure nothing leaks to the other user
         self.user1 = self.create_user(username1, password1)

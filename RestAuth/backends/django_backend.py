@@ -15,8 +15,6 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime
-
 from django.contrib.auth.models import User as BaseUser
 from django.db import transaction as dj_transaction
 from django.db.utils import IntegrityError
@@ -37,7 +35,23 @@ from common.errors import UserExists
 from common.errors import UserNotFound
 
 
-class DjangoUserBackend(UserBackend):
+class DjangoTransactionMixin(object):
+    def init_transaction(self):
+        print('init')
+        dj_transaction.set_autocommit(False)
+
+    def commit_transaction(self, transaction_id=None):
+        print('commit')
+        dj_transaction.commit()
+        dj_transaction.set_autocommit(True)
+
+    def rollback_transaction(self, transaction_id=None):
+        print('rollback')
+        dj_transaction.rollback()
+        dj_transaction.set_autocommit(True)
+
+
+class DjangoUserBackend(DjangoTransactionMixin, UserBackend):
     """Use the standard Django ORM to store user data.
 
     This backend should be ready-to use as soon as you have :doc:`configured your database
@@ -62,10 +76,9 @@ class DjangoUserBackend(UserBackend):
     def list(self):
         return list(User.objects.values_list('username', flat=True))
 
-    def _create(self, username, password=None, properties=None, dry=False, transaction=True):
+    def _create(self, username, password=None, dry=False, transaction=True):
         assert isinstance(username, six.string_types)
         assert isinstance(password, six.string_types) or password is None
-        assert isinstance(properties, dict) or properties is None
 
         try:
             user = User(username=username)
@@ -75,36 +88,26 @@ class DjangoUserBackend(UserBackend):
         except IntegrityError:
             raise UserExists("A user with the given name already exists.")
 
-        if properties is None:
-            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            properties = {'date joined': stamp}
-        elif 'date joined' not in properties:
-            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            properties['date joined'] = stamp
-
-        self.property_backend.set_multiple(user, properties, dry=dry, transaction=transaction)
         return user
 
-    def create(self, username, password=None, properties=None, dry=False, transaction=True):
+    def create(self, username, password=None, dry=False, transaction=True):
         assert isinstance(username, six.string_types)
         assert isinstance(password, six.string_types) or password is None
-        assert isinstance(properties, dict) or properties is None
 
         if dry:
             dj_transaction.set_autocommit(False)
 
             try:
-                return self._create(username, password, properties, dry=dry,
+                return self._create(username, password, dry=dry,
                                     transaction=transaction)
             finally:
                 dj_transaction.rollback()
                 dj_transaction.set_autocommit(True)
         elif transaction:
             with dj_transaction.atomic():
-                return self._create(username, password, properties, dry=dry,
-                                    transaction=transaction)
-        else:  # pragma: no cover
-            return self._create(username, password, properties, dry=dry, transaction=transaction)
+                return self._create(username, password, dry=dry, transaction=transaction)
+        else:
+            return self._create(username, password, dry=dry, transaction=transaction)
 
     def rename(self, username, name):
         assert isinstance(username, six.string_types)

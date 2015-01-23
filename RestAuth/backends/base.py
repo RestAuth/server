@@ -219,7 +219,7 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def create(self, username, password=None, properties=None, dry=False, transaction=True):
+    def create(self, username, password=None, dry=False, transaction=True):
         """Create a new user.
 
         The ``username`` is already validated, so you don't need to do any additional validation
@@ -244,8 +244,6 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :param password: The password to set. If not given, the user should not have a valid
             password and is unable to log in.
         :type  password: str
-        :param properties: Any initial properties for the user.
-        :type  properties: dict
         :param dry: Wether or not to actually create the user.
         :type  dry: boolean
         :param transaction: If False, execute statements outside any transactional context, if

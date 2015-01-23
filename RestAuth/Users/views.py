@@ -19,9 +19,13 @@ from __future__ import unicode_literals
 
 import logging
 
+from datetime import datetime
+
 from django.conf import settings
+#from django.db import transaction
 from django.http import HttpResponseForbidden
 from django.utils import six
+#from django.utils.decorators import method_decorator
 
 from RestAuthCommon.strprep import stringcheck
 
@@ -55,6 +59,9 @@ class UsersView(RestAuthView):
     post_optional = (('password', six.string_types),
                      ('properties', dict))
 
+#    def dispatch(self, *args, **kwargs):
+#        return super(UsersView, self).dispatch(*args, **kwargs)
+
     def get(self, request, largs, *args, **kwargs):
         """Get all users."""
 
@@ -64,6 +71,7 @@ class UsersView(RestAuthView):
         names = [n.lower() for n in user_backend.list()]
         return HttpRestAuthResponse(request, names)
 
+#    @method_decorator(transaction.non_atomic_requests)
     def post(self, request, largs, dry=False):
         """Create a new user."""
 
@@ -83,16 +91,21 @@ class UsersView(RestAuthView):
         else:
             password = None
 
-        # check properties:
-        if properties is not None:
-            for key in six.iterkeys(properties):
-                key = stringcheck(key)
-                properties[key] = properties.pop(key)
+        if properties is None:
+            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            properties = {'date joined': stamp}
+        else:
+            properties = {stringcheck(k): v for k, v in six.iteritems(properties)}
+            if 'date joined' not in properties:
+                stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                properties['date joined'] = stamp
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
-        user = user_backend.create(username=name, password=password, properties=properties,
-                                   dry=dry)
+        with user_backend.transaction(), property_backend.transaction():
+            user = user_backend.create(username=name, password=password, transaction=False,
+                                       dry=dry)
+            property_backend.set_multiple(user, properties, transaction=False, dry=dry)
 
         self.log.info('%s: Created user', user.username, extra=largs)
         return HttpResponseCreated()
@@ -204,10 +217,7 @@ class UserPropsIndex(RestAuthResourceView):
 
         # If UserNotFound: 404 Not Found
         user = user_backend.get(username=name)
-        properties = parse_dict(request)
-        for key in six.iterkeys(properties):
-            new_key = stringcheck(key)
-            properties[new_key] = properties.pop(key)
+        properties = {stringcheck(k): v for k, v in six.iteritems(parse_dict(request))}
 
         property_backend.set_multiple(user=user, props=properties)
         return HttpResponseNoContent()
