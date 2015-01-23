@@ -83,7 +83,7 @@ class GroupsView(RestAuthView):
         group = group_backend.create(service=request.user, name=groupname, dry=dry)
 
         self.log.info('%s: Created group', group.name, extra=largs)
-        return HttpResponseCreated(request, 'groups.group', name=group.name)  # Created
+        return HttpResponseCreated()  # Created
 
 
 class GroupHandlerView(RestAuthResourceView):

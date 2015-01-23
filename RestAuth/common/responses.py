@@ -15,31 +15,24 @@
 
 from __future__ import unicode_literals
 
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse as HttpResponseBase
+from django.http import HttpResponse as HttpResponse
 
 from common.types import get_response_type
 from common.content_handlers import get_handler
 
 
-class HttpRestAuthResponse(HttpResponseBase):
+class HttpRestAuthResponse(HttpResponse):
     def __init__(self, request, response_object, status=200):
         mime_type = get_response_type(request)
         handler = get_handler(mime_type)
         body = handler.marshal(response_object)
 
-        HttpResponseBase.__init__(self, body, mime_type, status, mime_type)
+        HttpResponse.__init__(self, body, mime_type, status, mime_type)
 
 
-class HttpResponseNoContent(HttpRestAuthResponse):
-    def __init__(self):
-        HttpResponseBase.__init__(self, status=204)
+class HttpResponseNoContent(HttpResponse):
+    status_code = 204
 
 
-class HttpResponseCreated(HttpRestAuthResponse):
-    def __init__(self, request, viewname, **kwargs):
-        location = reverse(viewname, kwargs=kwargs)
-        uri = request.build_absolute_uri(location)
-
-        HttpRestAuthResponse.__init__(self, request, [uri], 201)
-        self['Location'] = uri
+class HttpResponseCreated(HttpResponse):
+    status_code = 201

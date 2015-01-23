@@ -100,7 +100,7 @@ class UsersView(RestAuthView):
             property_backend=property_backend, dry=dry)
 
         self.log.info('%s: Created user', user.username, extra=largs)
-        return HttpResponseCreated(request, 'users.user', name=user.username)
+        return HttpResponseCreated()
 
 
 class UserHandlerView(RestAuthResourceView):
@@ -208,7 +208,7 @@ class UserPropsIndex(RestAuthResourceView):
         key, value = property_backend.create(user=user, key=key, value=value, dry=dry)
 
         self.log.info('Created property "%s" as "%s"', key, value, extra=largs)
-        return HttpResponseCreated(request, 'users.user.props.prop', name=name, subname=key)
+        return HttpResponseCreated()
 
     def put(self, request, largs, name):
         """
@@ -271,7 +271,7 @@ class UserPropHandler(RestAuthSubResourceView):
 
         if old_value is None:  # new property
             self.log.info('Set to "%s"', value, extra=largs)
-            return HttpResponseCreated(request, 'users.user.props.prop', name=name, subname=key)
+            return HttpResponseCreated()
         else:  # existing property
             self.log.info('Changed from "%s" to "%s"', old_value, value, extra=largs)
             return HttpRestAuthResponse(request, old_value)
