@@ -626,6 +626,27 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
+    def set_subgroups(self, group, subgroups):
+        """Set all subgroups of a group.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  subgroup: :py:class:`.GroupInstance`
+        """
+        raise NotImplementedError
+
+
+    def is_subgroup(self, group, subgroup):
+        """Verify that a group is a subgroup of another group.
+
+        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  group: :py:class:`.GroupInstance`
+        :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
+        :type  subgroup: :py:class:`.GroupInstance`
+        """
+        raise NotImplementedError
+
     def subgroups(self, group, filter=True):
         """Get a list of subgroups.
 
