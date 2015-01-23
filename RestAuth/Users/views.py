@@ -40,12 +40,10 @@ from common.views import RestAuthView
 
 
 class UsersView(RestAuthView):
-    """
-    Handle requests to ``/users/``.
-    """
+    """Handle requests to ``/users/``."""
+
     http_method_names = ['get', 'post']
     log = logging.getLogger('users')
-
     post_format = {
         'mandatory': (('user', six.string_types),),
         'optional': (
@@ -100,19 +98,16 @@ class UsersView(RestAuthView):
 
 
 class UserHandlerView(RestAuthResourceView):
-    """
-    Handle requests to ``/users/<user>/``.
-    """
+    """Handle requests to ``/users/<user>/``."""
+
     http_method_names = ['get', 'post', 'put', 'delete']
     log = logging.getLogger('users.user')
-
     post_required = (('password', six.string_types),)
     put_optional = (('password', six.string_types),)
 
     def get(self, request, largs, name):
-        """
-        Verify that a user exists.
-        """
+        """Verify that a user exists."""
+
         if not request.user.has_perm('Users.user_exists'):
             return HttpResponseForbidden()
 
@@ -122,9 +117,8 @@ class UserHandlerView(RestAuthResourceView):
             raise UserNotFound(name)  # 404 Not Found
 
     def post(self, request, largs, name):
-        """
-        Verify a users password.
-        """
+        """Verify a users password."""
+
         if not request.user.has_perm('Users.user_verify_password'):
             return HttpResponseForbidden()
 
@@ -137,9 +131,8 @@ class UserHandlerView(RestAuthResourceView):
             raise UserNotFound(name)
 
     def put(self, request, largs, name):
-        """
-        Change a users password.
-        """
+        """Change a users password."""
+
         if not request.user.has_perm('Users.user_change_password'):
             return HttpResponseForbidden()
 
@@ -153,9 +146,8 @@ class UserHandlerView(RestAuthResourceView):
         return HttpResponseNoContent()
 
     def delete(self, request, largs, name):
-        """
-        Delete a user.
-        """
+        """Delete a user."""
+
         if not request.user.has_perm('Users.user_delete'):
             return HttpResponseForbidden()
 
@@ -164,18 +156,15 @@ class UserHandlerView(RestAuthResourceView):
 
 
 class UserPropsIndex(RestAuthResourceView):
-    """
-    Handle requests to ``/users/<user>/props/``.
-    """
+    """Handle requests to ``/users/<user>/props/``."""
+
     log = logging.getLogger('users.user.props')
     http_method_names = ['get', 'post', 'put']
-
     post_required = (('prop', six.string_types), ('value', six.string_types),)
 
     def get(self, request, largs, name):
-        """
-        Get all properties of a user.
-        """
+        """Get all properties of a user."""
+
         if not request.user.has_perm('Users.props_list'):
             return HttpResponseForbidden()
 
@@ -186,9 +175,8 @@ class UserPropsIndex(RestAuthResourceView):
         return HttpRestAuthResponse(request, props)
 
     def post(self, request, largs, name, dry=False):
-        """
-        Create a new property.
-        """
+        """Create a new property."""
+
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
@@ -206,9 +194,8 @@ class UserPropsIndex(RestAuthResourceView):
         return HttpResponseCreated()
 
     def put(self, request, largs, name):
-        """
-        Set multiple properties.
-        """
+        """Set multiple properties."""
+
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
@@ -224,18 +211,15 @@ class UserPropsIndex(RestAuthResourceView):
 
 
 class UserPropHandler(RestAuthSubResourceView):
-    """
-    Handle requests to ``/users/<user>/props/<prop>/``.
-    """
+    """Handle requests to ``/users/<user>/props/<prop>/``."""
+
     log = logging.getLogger('users.user.props.prop')
     http_method_names = ['get', 'put', 'delete']
-
     put_required = (('value', six.string_types),)
 
     def get(self, request, largs, name, subname):
-        """
-        Get value of a single property.
-        """
+        """Get value of a single property."""
+
         if not request.user.has_perm('Users.prop_get'):
             return HttpResponseForbidden()
 
@@ -250,9 +234,8 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpRestAuthResponse(request, {'value': value})
 
     def put(self, request, largs, name, subname):
-        """
-        Set value of a single property.
-        """
+        """Set value of a single property."""
+
         if not request.user.has_perm('Users.prop_set'):
             return HttpResponseForbidden()
 
@@ -276,9 +259,8 @@ class UserPropHandler(RestAuthSubResourceView):
                 return HttpRestAuthResponse(request, {'value': old_value})
 
     def delete(self, request, largs, name, subname):
-        """
-        Delete a property.
-        """
+        """Delete a property."""
+
         if not request.user.has_perm('Users.prop_delete'):
             return HttpResponseForbidden()
 
