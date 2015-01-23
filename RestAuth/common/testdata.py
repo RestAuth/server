@@ -118,7 +118,9 @@ class RestAuthTestBase(object):
 
         cache.clear()
 
-    def get(self, url, data={}):
+    def get(self, url, data=None):
+        if data is None:
+            data = {}
         return self.c.get(url, data, **self.extra)
 
     def post(self, url, data):
