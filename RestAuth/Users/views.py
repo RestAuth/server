@@ -125,6 +125,9 @@ class UserHandlerView(RestAuthResourceView):
     http_method_names = ['get', 'post', 'put', 'delete']
     log = logging.getLogger('users.user')
     post_required = (('password', six.string_types),)
+    post_optional = (
+        ('groups', list),
+    )
     put_optional = (('password', six.string_types),)
 
     def get(self, request, largs, name):
@@ -145,9 +148,14 @@ class UserHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        password = self._parse_post(request)
+        password, groups = self._parse_post(request)
 
         if user_backend.check_password(username=name, password=password):
+            if groups:
+                user = user_backend.get(username=name)
+                memberships = set(group_backend.list(service=request.user, user=user))
+                if not memberships.intersection(set(groups)):
+                    raise UserNotFound(name)
             return HttpResponseNoContent()
         else:
             raise UserNotFound(name)
