@@ -18,6 +18,8 @@ from __future__ import unicode_literals
 import contextlib
 import re
 
+from datetime import datetime
+
 from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -143,7 +145,9 @@ class RestAuthTestBase(object):
         return func(body)
 
     def create_user(self, username, password=None):
-        return user_backend.create(username=username, password=password)
+        user = user_backend.create(username=username, password=password)
+        property_backend.create(user, 'date joined', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        return user
 
     def create_group(self, service, groupname):
         return group_backend.create(name=groupname, service=service)
