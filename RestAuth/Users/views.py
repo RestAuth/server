@@ -88,13 +88,13 @@ class UsersView(RestAuthView):
             password = None
 
         if properties is None:
-            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            properties = {'date joined': stamp}
+            properties = {
+                'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
         else:
             properties = {stringcheck(k): v for k, v in six.iteritems(properties)}
             if 'date joined' not in properties:
-                stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                properties['date joined'] = stamp
+                properties['date joined'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
