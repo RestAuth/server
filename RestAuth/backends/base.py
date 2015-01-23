@@ -246,9 +246,11 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :type  password: str
         :param dry: Wether or not to actually create the user.
         :type  dry: boolean
-        :param transaction: If False, execute statements outside any transactional context, if
-            possible. This parameter is used by restauth-import to import multiple users at once
-            with only one transaction.
+        :param transaction: If False, the statement is executed in a larger transactional context,
+            meaning that transactions are already handled by
+            :py:meth:`~RestAuthBackend.init_transaction`,
+            :py:meth:`~RestAuthBackend.commit_transaction` and
+            :py:meth:`~RestAuthBackend.rollback_transaction`.
         :type  transaction: boolean
         :return: A user object providing at least the properties of the UserInstance class.
         :rtype: :py:class:`~.UserInstance`
@@ -366,9 +368,11 @@ class PropertyBackend(RestAuthBackend):  # pragma: no cover
         :type  value: str
         :param dry: Wether or not to actually create the property.
         :type  dry: boolean
-        :param transaction: If False, execute statements outside any transactional context, if
-            possible. This parameter is used by restauth-import to import multiple users at once
-            with only one transaction.
+        :param transaction: If False, the statement is executed in a larger transactional context,
+            meaning that transactions are already handled by
+            :py:meth:`~RestAuthBackend.init_transaction`,
+            :py:meth:`~RestAuthBackend.commit_transaction` and
+            :py:meth:`~RestAuthBackend.rollback_transaction`.
         :type  transaction: boolean
         :return: A tuple of key/value as they are stored in the database.
         :rtype: tuple
@@ -403,9 +407,11 @@ class PropertyBackend(RestAuthBackend):  # pragma: no cover
         :type  key: str
         :param value: The value of the property.
         :type  value: str
-        :param transaction: If False, execute statements outside any transactional context, if
-            possible. This parameter is used by restauth-import to import multiple users at once
-            with only one transaction.
+        :param transaction: If False, the statement is executed in a larger transactional context,
+            meaning that transactions are already handled by
+            :py:meth:`~RestAuthBackend.init_transaction`,
+            :py:meth:`~RestAuthBackend.commit_transaction` and
+            :py:meth:`~RestAuthBackend.rollback_transaction`.
         :type  transaction: boolean
         :return: A tuple of key/value as they are stored in the database. The value should be
             ``None`` if the property didn't exist previously or the old value, if it did.
@@ -428,9 +434,11 @@ class PropertyBackend(RestAuthBackend):  # pragma: no cover
         :type  user: :py:class:`~.UserInstance`
         :param dry: Wether or not to actually create the properties.
         :type  dry: boolean
-        :param transaction: If False, execute statements outside any transactional context, if
-            possible. This parameter is used by restauth-import to import multiple users at once
-            with only one transaction.
+        :param transaction: If False, the statement is executed in a larger transactional context,
+            meaning that transactions are already handled by
+            :py:meth:`~RestAuthBackend.init_transaction`,
+            :py:meth:`~RestAuthBackend.commit_transaction` and
+            :py:meth:`~RestAuthBackend.rollback_transaction`.
         :type  transaction: boolean
         """
         raise NotImplementedError
@@ -499,9 +507,11 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type  users: list
         :param     dry: Wether or not to actually create the group.
         :type      dry: boolean
-        :param transaction: If False, execute statements outside any transactional context, if
-            possible. This parameter is used by restauth-import to import multiple users at once
-            with only one transaction.
+        :param transaction: If False, the statement is executed in a larger transactional context,
+            meaning that transactions are already handled by
+            :py:meth:`~RestAuthBackend.init_transaction`,
+            :py:meth:`~RestAuthBackend.commit_transaction` and
+            :py:meth:`~RestAuthBackend.rollback_transaction`.
         :type  transaction: boolean
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
