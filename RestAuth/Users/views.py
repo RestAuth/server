@@ -249,7 +249,10 @@ class UserPropHandler(RestAuthSubResourceView):
 
         value = property_backend.get(user=user, key=subname)
 
-        return HttpRestAuthResponse(request, value)
+        if request.version < (0, 7):
+            return HttpRestAuthResponse(request, value)
+        else:
+            return HttpRestAuthResponse(request, {'value': value})
 
     def put(self, request, largs, name, subname):
         """
@@ -274,7 +277,11 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseCreated()
         else:  # existing property
             self.log.info('Changed from "%s" to "%s"', old_value, value, extra=largs)
-            return HttpRestAuthResponse(request, old_value)
+
+            if request.version < (0, 7):
+                return HttpRestAuthResponse(request, old_value)
+            else:
+                return HttpRestAuthResponse(request, {'value': old_value})
 
     def delete(self, request, largs, name, subname):
         """

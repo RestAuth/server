@@ -94,7 +94,7 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
 
         resp = self.get('/users/')
         self.assertEqual(resp.status_code, http_client.OK)
-        self.assertItemsEqual(self.parse(resp, 'list'), [])
+        self.assertCountEqual(self.parse(resp, 'list'), [])
 
     def test_permission_denied(self):
         self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
@@ -183,10 +183,10 @@ class ServiceHostTests(TestCase):
     def get_hosts(self):
         return self.get_service().hosts.values_list('address', flat=True)
 
-    def assertItemsEqual(self, actual, expected, msg=None):
+    def assertCountEqual(self, actual, expected, msg=None):
         """This method is not present in python3."""
         try:
-            super(ServiceHostTests, self).assertItemsEqual(
+            super(ServiceHostTests, self).assertCountEqual(
                 actual, expected, msg)
         except AttributeError:
             self.assertEqual(set(actual), set(expected), msg)
@@ -195,13 +195,13 @@ class ServiceHostTests(TestCase):
     def test_add_host(self):
         hosts = ['127.0.0.1']
         self.assertIsNone(self.service.add_hosts(*hosts))
-        self.assertItemsEqual(self.get_hosts(), hosts)
+        self.assertCountEqual(self.get_hosts(), hosts)
 
     def test_set_hosts(self):
         hosts = ['127.0.0.1', '::1']
         self.assertIsNone(self.service.set_hosts(*hosts))
-        # Warning: using assertItemsEqual fails in python2.6 in the next line
-        self.assertItemsEqual(self.get_hosts(), hosts)
+        # Warning: using assertCountEqual fails in python2.6 in the next line
+        self.assertCountEqual(self.get_hosts(), hosts)
 
     def test_verify_host(self):
         hosts = ['127.0.0.1', '::1']
@@ -228,22 +228,22 @@ class ServiceHostTests(TestCase):
     def test_del_hosts(self):
         hosts = ['127.0.0.1']
         self.service.add_hosts(*hosts)
-        self.assertItemsEqual(self.get_hosts(), hosts)
+        self.assertCountEqual(self.get_hosts(), hosts)
 
         self.assertIsNone(self.service.del_hosts(*hosts))
-        self.assertItemsEqual(self.get_service().hosts.all(), [])
+        self.assertCountEqual(self.get_service().hosts.all(), [])
 
     def test_del_hosts_gone(self):
-        self.assertItemsEqual(self.get_service().hosts.all(), [])
+        self.assertCountEqual(self.get_service().hosts.all(), [])
         self.assertIsNone(self.service.del_hosts(*['127.0.0.1']))
-        self.assertItemsEqual(self.get_service().hosts.all(), [])
+        self.assertCountEqual(self.get_service().hosts.all(), [])
 
     def test_create_invalid_host(self):
         try:
             service_create('fs:inf', 'foobar')
             self.fail()
         except ServiceUsernameNotValid:
-            self.assertItemsEqual(Service.objects.all(), [self.service])
+            self.assertCountEqual(Service.objects.all(), [self.service])
 
 
 class AuthBackendTests(RestAuthTest):
@@ -447,14 +447,14 @@ Permissions: %s
             cli(['set-hosts', servicename5, '127.0.0.1'])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1'])
+        self.assertCountEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1'])
 
         # test if second set overwrites the first host
         with capture() as (stdout, stderr):
             cli(['set-hosts', servicename5, '::1'])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['::1'])
+        self.assertCountEqual(s.hosts.values_list('address', flat=True), ['::1'])
 
     def test_set_hosts_error(self):
         s = Service.objects.create(username=servicename5)
@@ -467,7 +467,7 @@ Permissions: %s
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertHasLine(stderr, 'error: Enter a valid IPv4 or IPv6 address.$')
-        self.assertItemsEqual(s.hosts.values_list('address', flat=True), [])
+        self.assertCountEqual(s.hosts.values_list('address', flat=True), [])
 
     def test_add_hosts(self):
         s = Service.objects.create(username=servicename5)
@@ -476,14 +476,14 @@ Permissions: %s
             cli(['add-hosts', servicename5, '127.0.0.1'])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1'])
+        self.assertCountEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1'])
 
         # test if second add doesn't overwrite the first host
         with capture() as (stdout, stderr):
             cli(['add-hosts', servicename5, '::1'])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertItemsEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1', '::1'])
+        self.assertCountEqual(s.hosts.values_list('address', flat=True), ['127.0.0.1', '::1'])
 
     def test_add_hosts_error(self):
         s = Service.objects.create(username=servicename5)
@@ -496,7 +496,7 @@ Permissions: %s
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertHasLine(stderr, 'error: Enter a valid IPv4 or IPv6 address.$')
-        self.assertItemsEqual(s.hosts.values_list('address', flat=True), [])
+        self.assertCountEqual(s.hosts.values_list('address', flat=True), [])
 
     def test_rm_hosts(self):
         s = Service.objects.create(username=servicename5)
@@ -506,7 +506,7 @@ Permissions: %s
             cli(['rm-hosts', servicename5, '127.0.0.1'])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertItemsEqual(s.hosts.values_list('address', flat=True), [])
+        self.assertCountEqual(s.hosts.values_list('address', flat=True), [])
 
     def test_set_password(self):
         s = Service.objects.create(username=servicename5)

@@ -53,11 +53,11 @@ class CreateUserTest(RestAuthTransactionTest):
 
     def test_dry_run_create_existing_user(self):
         user = self.create_user(username=username1)
-        self.assertItemsEqual([user.username], list(user_backend.list()))
+        self.assertCountEqual([user.username], list(user_backend.list()))
 
         resp = self.post('/test/users/', {'user': username1})
         self.assertEqual(resp.status_code, http_client.CONFLICT)
-        self.assertItemsEqual([user.username], list(user_backend.list()))
+        self.assertCountEqual([user.username], list(user_backend.list()))
 
     def test_dry_run_create_invalid_user(self):
         resp = self.post('/test/users/', {'user': 'foo\nbar'})
@@ -135,7 +135,7 @@ class CreateGroupTest(RestAuthTransactionTest):
 
         resp = self.post('/test/groups/', {'group': groupname1})
         self.assertEqual(resp.status_code, http_client.CONFLICT)
-        self.assertItemsEqual([group.name], group_backend.list(self.service))
+        self.assertCountEqual([group.name], group_backend.list(self.service))
 
     def test_dry_run_create_invalid_group(self):
         resp = self.post('/test/groups/', {'group': 'foo\nbar'})

@@ -111,20 +111,20 @@ class ContentTypeTests(RestAuthTest):
         del extra['content_type']
         resp = self.c.post('/users/', content, content_type='foo/bar', **extra)
         self.assertEqual(resp.status_code, http_client.UNSUPPORTED_MEDIA_TYPE)
-        self.assertItemsEqual(user_backend.list(), [])
+        self.assertCountEqual(user_backend.list(), [])
 
     def test_wrong_accept_header(self):
         extra = self.extra
         extra['HTTP_ACCEPT'] = 'foo/bar'
         resp = self.c.get('/users/', **extra)
         self.assertEqual(resp.status_code, http_client.NOT_ACCEPTABLE)
-        self.assertItemsEqual(user_backend.list(), [])
+        self.assertCountEqual(user_backend.list(), [])
 
     def test_wrong_content(self):
         content = 'no_json_at_all}}}'
         resp = self.c.post('/users/', content, **self.extra)
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
-        self.assertItemsEqual(user_backend.list(), [])
+        self.assertCountEqual(user_backend.list(), [])
 
 class ContentHandlerTests(RestAuthTest):
     def test_load_handlers(self):
@@ -421,7 +421,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertHasLine(stdout, '^\* new.example.com: Added service with no password.$')
             service = Service.objects.get(username='new.example.com')
             hosts = service.hosts.values_list('address', flat=True)
-            self.assertItemsEqual(hosts, ['127.0.0.1', '::1'])
+            self.assertCountEqual(hosts, ['127.0.0.1', '::1'])
 
     def test_users(self, overwrite=False):
         path = os.path.join(self.base, 'users1.json')
@@ -435,7 +435,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
                 self.assertTrue(user_backend.check_password(username3, 'foobar'))
 
-            self.assertItemsEqual(user_backend.list(), [username1, username2, username3])
+            self.assertCountEqual(user_backend.list(), [username1, username2, username3])
             user = user_backend.get(username2)
             props = {
                 propkey1: propval1,
@@ -458,7 +458,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 restauth_import(cmd)
                 self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
                 self.assertTrue(user_backend.check_password(username3, 'foobar'))
-                self.assertItemsEqual(user_backend.list(), [username3])
+                self.assertCountEqual(user_backend.list(), [username3])
 
     def test_users_overwrite_properties(self):
         self.test_users(overwrite=True)
@@ -487,7 +487,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         with capture() as (stdout, stderr):
             cmd = [path]
             restauth_import(cmd)
-            self.assertItemsEqual(user_backend.list(), [username1, username2, username3])
+            self.assertCountEqual(user_backend.list(), [username1, username2, username3])
             user = user_backend.get(username2)
 
             pattern = '^%s: Property "%s" already exists\.$' % (username2, propkey1)
@@ -544,10 +544,10 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         group4 = group_backend.get(groupname4)
 
         # test memberships
-        self.assertItemsEqual(group_backend.members(group1), [])
-        self.assertItemsEqual(group_backend.members(group2), [username1, username2])
-        self.assertItemsEqual(group_backend.members(group3), [username1, username2, username3])
-        self.assertItemsEqual(group_backend.members(group4), [username1, username2])
+        self.assertCountEqual(group_backend.members(group1), [])
+        self.assertCountEqual(group_backend.members(group2), [username1, username2])
+        self.assertCountEqual(group_backend.members(group3), [username1, username2, username3])
+        self.assertCountEqual(group_backend.members(group4), [username1, username2])
 
     def test_existing_groups(self):
         user1 = user_backend.create(username1, property_backend=property_backend)
@@ -575,11 +575,11 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         group4 = group_backend.get(groupname4)
 
         # test memberships
-        self.assertItemsEqual(group_backend.members(group1), [])
-        self.assertItemsEqual(group_backend.members(group2), [username1, username2, username4])
-        self.assertItemsEqual(group_backend.members(group3), [username1, username2, username3,
+        self.assertCountEqual(group_backend.members(group1), [])
+        self.assertCountEqual(group_backend.members(group2), [username1, username2, username4])
+        self.assertCountEqual(group_backend.members(group3), [username1, username2, username3,
                                                               username4])
-        self.assertItemsEqual(group_backend.members(group4), [username1, username2, username4])
+        self.assertCountEqual(group_backend.members(group4), [username1, username2, username4])
 
     def test_skip_existing_groups(self):
         # same test-setup as above, only we skip existing groups
@@ -611,8 +611,8 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         group4 = group_backend.get(groupname4)
 
         # test memberships
-        self.assertItemsEqual(group_backend.members(group1), [])
-        self.assertItemsEqual(group_backend.members(group2), [username1, username4])
+        self.assertCountEqual(group_backend.members(group1), [])
+        self.assertCountEqual(group_backend.members(group2), [username1, username4])
         # group3 now is not a subgroup, because group2 already existed and we skipped its data
         self.assertEqual(group_backend.members(group3), [username3])
         self.assertEqual(group_backend.members(group4), [])

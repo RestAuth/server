@@ -164,23 +164,22 @@ class RestAuthTestBase(object):
         user_backend.testTearDown()
         group_backend.testTearDown()
 
+    if six.PY2:
+        assertCountEqual = TestCase.assertItemsEqual
+
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTest(RestAuthTestBase, TestCase):
-    def assertItemsEqual(self, actual, expected, msg=None):
-        """This method is not present in python3 and behaves erratic over
-        different 2.6 versions."""
-        self.assertEqual(set(actual), set(expected), msg)
-        self.assertEqual(len(list(actual)), len(list(expected)))
+    pass
 
 
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class RestAuthTransactionTest(RestAuthTestBase, TransactionTestCase):
-    def assertItemsEqual(self, actual, expected, msg=None):
-        """This method is not present in python3 and behaves erratic over
-        different 2.6 versions."""
-        self.assertEqual(set(actual), set(expected), msg)
-        self.assertEqual(len(list(actual)), len(list(expected)))
+    if six.PY2:
+        # real strange fuckup: must be overwritten because otherwise this method is an unbound
+        # method of TestCase - unlike in RestAuthTest!
+        def assertCountEqual(self, *args, **kwargs):
+            return self.assertItemsEqual(*args, **kwargs)
 
 
 class CliMixin(object):

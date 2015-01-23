@@ -72,14 +72,14 @@ class GetUsersTests(RestAuthTest):  # GET /users/
     def test_get_empty_users(self):
         resp = self.get('/users/')
         self.assertEqual(resp.status_code, http_client.OK)
-        self.assertItemsEqual(self.parse(resp, 'list'), [])
+        self.assertCountEqual(self.parse(resp, 'list'), [])
 
     def test_get_one_user(self):
         self.create_user(username1, password1)
 
         resp = self.get('/users/')
         self.assertEqual(resp.status_code, http_client.OK)
-        self.assertItemsEqual(self.parse(resp, 'list'), [username1])
+        self.assertCountEqual(self.parse(resp, 'list'), [username1])
 
     def test_get_two_users(self):
         self.create_user(username1, password1)
@@ -87,7 +87,7 @@ class GetUsersTests(RestAuthTest):  # GET /users/
 
         resp = self.get('/users/')
         self.assertEqual(resp.status_code, http_client.OK)
-        self.assertItemsEqual(self.parse(resp, 'list'), [username1, username2])
+        self.assertCountEqual(self.parse(resp, 'list'), [username1, username2])
 
 
 class AddUserTests(RestAuthTest):  # POST /users/
@@ -167,7 +167,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
 
         resp = self.post('/users/', {'user': username3, 'password': None, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertItemsEqual(self.get_usernames(), [username1, username2, username3])
+        self.assertCountEqual(self.get_usernames(), [username1, username2, username3])
         user = user_backend.get(username3)
         self.assertFalsePassword(username3, '')
         self.assertFalsePassword(username3, password1)
@@ -811,7 +811,7 @@ class CliTests(RestAuthTest, CliMixin):
                            username1 if six.PY3 else username1.encode('utf-8')])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertItemsEqual(user_backend.list(), [username1])
+        self.assertCountEqual(user_backend.list(), [username1])
         self.assertTrue(user_backend.check_password(username1, password1))
         self.assertFalse(user_backend.check_password(username1, password2))
 
@@ -823,7 +823,7 @@ class CliTests(RestAuthTest, CliMixin):
             gen_password = stdout.getvalue().strip()
             self.assertEqual(stderr.getvalue(), '')
 
-        self.assertItemsEqual(user_backend.list(), [username1, username2])
+        self.assertCountEqual(user_backend.list(), [username1, username2])
         self.assertTrue(user_backend.check_password(username2, gen_password))
 
     def test_add_exists(self):
@@ -850,7 +850,7 @@ class CliTests(RestAuthTest, CliMixin):
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertTrue(stderr.getvalue().startswith('usage: '))
 
-        self.assertItemsEqual(user_backend.list(), [])
+        self.assertCountEqual(user_backend.list(), [])
         self.assertRaises(UserNotFound, user_backend.check_password, username, password1)
 
         # load a custom validator:
@@ -864,7 +864,7 @@ class CliTests(RestAuthTest, CliMixin):
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertTrue(stderr.getvalue().startswith('usage: '))
-        self.assertItemsEqual(user_backend.list(), [])
+        self.assertCountEqual(user_backend.list(), [])
         self.assertRaises(UserNotFound, user_backend.check_password, username, password1)
 
         load_username_validators()
@@ -879,14 +879,14 @@ class CliTests(RestAuthTest, CliMixin):
         with capture() as (stdout, stderr):
             restauth_user(['ls'])
             out = stdout.getvalue() if six.PY3 else stdout.getvalue().decode('utf-8')
-            self.assertItemsEqual(out.strip().split('\n'), [username1, ])
+            self.assertCountEqual(out.strip().split('\n'), [username1, ])
             self.assertEqual(stderr.getvalue(), '')
 
         self.create_user(username2, password2)
         with capture() as (stdout, stderr):
             restauth_user(['ls'])
             stdout, stderr = self.decode(stdout, stderr)
-            self.assertItemsEqual(stdout.strip().split('\n'), [username1, username2, ])
+            self.assertCountEqual(stdout.strip().split('\n'), [username1, username2, ])
             self.assertEqual(stderr, '')
 
     def test_rename(self):
