@@ -86,13 +86,12 @@ class RestAuthTestBase(object):
     def setUp(self):
         self.settings(LOGGING_CONFIG=None)
 
-        self.c = Client()
         self.handler = handlers.JSONContentHandler()
-        self.extra = {
-            'HTTP_ACCEPT': self.handler.mime,
-            'REMOTE_USER': 'vowi',
-            'content_type': self.handler.mime,
-        }
+        self.c = Client(
+            HTTP_ACCEPT=self.handler.mime,
+            REMOTE_USER='vowi',
+            X_RESTAUTH_VERSION='0.7'
+        )
         self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
 
         # add permissions:
@@ -118,21 +117,25 @@ class RestAuthTestBase(object):
 
         cache.clear()
 
-    def get(self, url, data=None):
+    def get(self, url, data=None, **kwargs):
         if data is None:
             data = {}
-        return self.c.get(url, data, **self.extra)
+        return self.c.get(url, data, **kwargs)
 
-    def post(self, url, data):
+    def post(self, url, data, content_type=None, **kwargs):
+        if content_type is None:
+            content_type = self.handler.mime
         post_data = self.handler.marshal_dict(data)
-        return self.c.post(url, post_data, **self.extra)
+        return self.c.post(url, post_data, content_type=content_type, **kwargs)
 
-    def put(self, url, data):
+    def put(self, url, data, content_type=None, **kwargs):
+        if content_type is None:
+            content_type = self.handler.mime
         data = self.handler.marshal_dict(data)
-        return self.c.put(url, data, **self.extra)
+        return self.c.put(url, data, content_type=content_type, **kwargs)
 
-    def delete(self, url):
-        return self.c.delete(url, **self.extra)
+    def delete(self, url, **kwargs):
+        return self.c.delete(url, **kwargs)
 
     def parse(self, response, typ):
         body = response.content.decode('utf-8')

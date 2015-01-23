@@ -107,22 +107,17 @@ class ContentTypeTests(RestAuthTest):
 
     def test_wrong_content_type_header(self):
         content = self.handler.marshal_dict({'user': username1})
-        extra = self.extra
-        del extra['content_type']
-        resp = self.c.post('/users/', content, content_type='foo/bar', **extra)
+        resp = self.c.post('/users/', content, content_type='foo/bar')
         self.assertEqual(resp.status_code, http_client.UNSUPPORTED_MEDIA_TYPE)
         self.assertCountEqual(user_backend.list(), [])
 
     def test_wrong_accept_header(self):
-        extra = self.extra
-        extra['HTTP_ACCEPT'] = 'foo/bar'
-        resp = self.c.get('/users/', **extra)
+        resp = self.c.get('/users/', HTTP_ACCEPT='foo/bar')
         self.assertEqual(resp.status_code, http_client.NOT_ACCEPTABLE)
         self.assertCountEqual(user_backend.list(), [])
 
     def test_wrong_content(self):
-        content = 'no_json_at_all}}}'
-        resp = self.c.post('/users/', content, **self.extra)
+        resp = self.c.post('/users/', 'no_json_at_all}}}', content_type='application/json')
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertCountEqual(user_backend.list(), [])
 

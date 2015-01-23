@@ -64,19 +64,18 @@ cli = getattr(__import__('bin.restauth-service'), 'restauth-service').main
 @override_settings(LOGGING_CONFIG=None)
 class BasicAuthTests(RestAuthTest):  # GET /users/
     def setUp(self):
-        self.c = Client()
         self.handler = RestAuthCommon.handlers.JSONContentHandler()
-        self.extra = {
-            'HTTP_ACCEPT': self.handler.mime,
-            'REMOTE_ADDR': '127.0.0.1',
-            'content_type': self.handler.mime,
-        }
+        self.c = Client(
+            HTTP_ACCEPT=self.handler.mime,
+            REMOTE_ADDR='127.0.0.1',
+        )
         cache.clear()
 
     def set_auth(self, user, password):
         decoded = '%s:%s' % (user, password)
-        header_value = "Basic %s" % (b64encode(decoded.encode()).decode())
-        self.extra['HTTP_AUTHORIZATION'] = header_value
+        return {
+            'HTTP_AUTHORIZATION': "Basic %s" % (b64encode(decoded.encode()).decode()),
+        }
 
     def tearDown(self):
         Service.objects.all().delete()
@@ -90,75 +89,73 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
         )
         self.service.user_permissions.add(p)
 
-        self.set_auth('vowi', 'vowi')
-
-        resp = self.get('/users/')
+        headers = self.set_auth('vowi', 'vowi')
+        resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [])
 
     def test_permission_denied(self):
         self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
-        self.set_auth('vowi', 'vowi')
+        headers = self.set_auth('vowi', 'vowi')
 
         for methods, path in PATHS:
             for method in methods:
                 if method in ['post', 'put']:
-                    resp = getattr(self, method)(path, {})
+                    resp = getattr(self, method)(path, {}, **headers)
                 else:
-                    resp = getattr(self, method)(path)
+                    resp = getattr(self, method)(path, **headers)
                 self.assertEqual(resp.status_code, http_client.FORBIDDEN)
 
         # manually handle /groups/?user=foobar
-        resp = self.get('/groups/', {'user': 'whatever'})
+        resp = self.get('/groups/', {'user': 'whatever'}, **headers)
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
 
     def test_method_now_allowed(self):
         self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
-        self.set_auth('vowi', 'vowi')
+        headers = self.set_auth('vowi', 'vowi')
 
         for good_methods, path in PATHS:
             for method in ['get', 'post', 'put', 'delete']:
                 if method not in good_methods:
                     if method in ['post', 'put']:
-                        resp = getattr(self, method)(path, {})
+                        resp = getattr(self, method)(path, {}, **headers)
                     else:
-                        resp = getattr(self, method)(path)
+                        resp = getattr(self, method)(path, **headers)
                     self.assertEqual(resp.status_code,
                                       http_client.METHOD_NOT_ALLOWED)
 
     def test_wrong_user(self):
         service_create('vowi', 'vowi', '127.0.0.1', '::1')
-        self.set_auth('fsinf', 'vowi')
+        headers = self.set_auth('fsinf', 'vowi')
 
-        resp = self.get('/users/')
+        resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.UNAUTHORIZED)
 
     def test_wrong_password(self):
         service_create('vowi', 'vowi', '127.0.0.1', '::1')
-        self.set_auth('vowi', 'fsinf')
+        headers = self.set_auth('vowi', 'fsinf')
 
-        resp = self.get('/users/')
+        resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.UNAUTHORIZED)
 
     def test_wrong_host(self):
         service = service_create('vowi', 'vowi')
-        self.set_auth('vowi', 'vowi')
+        headers = self.set_auth('vowi', 'vowi')
 
-        resp = self.get('/users/')
+        resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.UNAUTHORIZED)
 
         service.add_hosts('127.0.0.1')
 
-        self.set_auth('vowi', 'vowi')
-        self.extra['REMOTE_ADDR'] = '127.0.0.2'
-        resp = self.get('/users/')
+        headers['REMOTE_ADDR'] = '127.0.0.2'
+        resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.UNAUTHORIZED)
 
     def test_no_credentials(self):
         service_create('vowi', 'vowi', '127.0.0.1', '::1')
-        self.set_auth('', '')
+        headers = self.set_auth('', '')
 
-        resp = self.get('/users/')
+        resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.UNAUTHORIZED)
 
     def test_no_auth_header(self):

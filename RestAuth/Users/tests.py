@@ -601,7 +601,9 @@ class GetPropertyTests(PropertyTests):  # GET /users/<user>/props/<prop>/
     def test_get_property(self):
         property_backend.create(user=self.user1, key=propkey1, value=propval1)
 
-        resp = self.get('/users/%s/props/%s/' % (username1, propkey1))
+        # TODO: also test 0.7 format
+        resp = self.get('/users/%s/props/%s/' % (username1, propkey1),
+                        X_RESTAUTH_VERSION='0.6')
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertEqual(self.parse(resp, 'str'), propval1)
 
@@ -627,7 +629,8 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
         property_backend.create(user=self.user1, key=propkey1, value=propval1)
 
         # set a property again and assert that it returns the old value:
-        resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval2, })
+        resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval2, },
+                        X_RESTAUTH_VERSION='0.6')
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertEqual(self.parse(resp, 'str'), propval1)
         self.assertEqual(property_backend.get(self.user1, propkey1), propval2)
