@@ -18,6 +18,7 @@
 from __future__ import unicode_literals
 
 from django.utils import importlib
+from django.utils.module_loading import import_string
 
 
 class UserInstance(object):
@@ -86,6 +87,28 @@ class RestAuthBackend(object):  # pragma: no cover
 
     _library = None
     library = None
+
+    _user_backend = None
+    _group_backend = None
+    _property_backend = None
+
+    @property
+    def user_backend(self):
+        if self._user_backend is None:
+            self._user_backend = import_string('backends.user_backend')
+        return self._user_backend
+
+    @property
+    def property_backend(self):
+        if self._property_backend is None:
+            self._property_backend = import_string('backends.user_backend')
+        return self._property_backend
+
+    @property
+    def group_backend(self):
+        if self._group_backend is None:
+            self._group_backend = import_string('backends.group_backend')
+        return self._group_backend
 
     def _load_library(self):
         """Load a library.
