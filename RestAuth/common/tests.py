@@ -41,6 +41,7 @@ from common.content_handlers import load_handlers
 from common.errors import UsernameInvalid
 from common.middleware import RestAuthMiddleware
 from common.testdata import RestAuthTest
+from common.testdata import RestAuthTransactionTest
 from common.testdata import CliMixin
 from common.testdata import capture
 from common.testdata import group_backend
@@ -255,7 +256,7 @@ class BasicTests(RestAuthTest):
         self.assertEqual(response.status_code, 200)
 
 
-class RestAuthImportTests(RestAuthTest, CliMixin):
+class RestAuthImportTests(RestAuthTransactionTest, CliMixin):
     base = os.path.join(os.path.dirname(__file__), 'testdata')
 
     def test_basic(self):
@@ -420,10 +421,11 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_users(self, overwrite=False):
         path = os.path.join(self.base, 'users1.json')
+        cmd = [path]
+        if overwrite:
+            cmd = ['--overwrite-properties', path]
+
         with capture() as (stdout, stderr):
-            cmd = [path]
-            if overwrite:
-                cmd = ['--overwrite-properties', path]
 
             with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
                 restauth_import(cmd)
@@ -459,7 +461,9 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         self.test_users(overwrite=True)
 
     def test_skip_existing_users(self):
-        user = user_backend.create(username2, properties={propkey1: propval3, })
+        user = user_backend.create(username2)
+        property_backend.set(user, propkey1, propval3)
+        property_backend.set(user, "date joined", propval3)
 
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):
@@ -476,6 +480,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
     def test_existing_properties(self):
         user = user_backend.create(username2)
         property_backend.create(user, propkey1, propval3)  # propval1 is in json file
+        property_backend.create(user, "date joined", propval3)
 
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):
@@ -515,7 +520,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         with capture() as (stdout, stderr):
             restauth_import([path])
             self.assertEqual(stdout.getvalue(), 'Users:\n')
-            self.assertHasLine(stderr, '^TypeError: password is of type list$')
+            self.assertHasLine(stderr, '^TypeError: password is of type list.$')
 
     def test_groups(self):
         user1 = user_backend.create(username1)

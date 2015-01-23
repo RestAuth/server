@@ -37,16 +37,13 @@ from common.errors import UserNotFound
 
 class DjangoTransactionMixin(object):
     def init_transaction(self):
-        print('init')
         dj_transaction.set_autocommit(False)
 
     def commit_transaction(self, transaction_id=None):
-        print('commit')
         dj_transaction.commit()
         dj_transaction.set_autocommit(True)
 
     def rollback_transaction(self, transaction_id=None):
-        print('rollback')
         dj_transaction.rollback()
         dj_transaction.set_autocommit(True)
 

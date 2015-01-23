@@ -102,7 +102,7 @@ def save_services(services, args, parser):
             elif isinstance(pwd, dict):
                 service.password = import_hash(**pwd)
             else:
-                raise TypeError("'password' is neither string nor dictionary.")
+                raise TypeError("'password' is neither string nor dictionary")
             print('* %s: Set password from input data.' % name)
         elif args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=32)
@@ -125,7 +125,7 @@ def save_users(users, args, parser):
         username = username.lower()
 
         try:
-            user = user_backend.create(username=username)
+            user = user_backend.create(username=username, transaction=False)
             created = True
         except UserExists:
             user = user_backend.get(username=username)
@@ -163,11 +163,6 @@ def save_users(users, args, parser):
                     value = datetime.strptime(value, TIMESTAMP_FORMAT)
                 value = datetime.strftime(value, TIMESTAMP_FORMAT)
 
-                # if the user was created, remove the 'date joined' prop, if we
-                # find it in the passed properties
-                if key == 'date joined' and created:
-                    property_backend.remove(user, key)
-
             properties[user][key] = value
     return properties
 
@@ -175,11 +170,11 @@ def save_users(users, args, parser):
 def save_properties(properties, args, parser):
     for user, props in six.iteritems(properties):
         if args.overwrite_properties:
-            property_backend.set_multiple(user, props)
+            property_backend.set_multiple(user, props, transaction=False)
         else:
             for key, value in six.iteritems(props):
                 try:
-                    property_backend.create(user=user, key=key, value=value)
+                    property_backend.create(user=user, key=key, value=value, transaction=False)
                 except PropertyExists:
                     print('%s: Property "%s" already exists.' % (user.username, key))
                     continue
@@ -196,7 +191,7 @@ def save_groups(groups, args, parser):
             service = Service.objects.get(username=service)
 
         try:
-            group = group_backend.create(service=service, name=name)
+            group = group_backend.create(service=service, name=name, transaction=False)
             print("* %s: created." % name)
         except GroupExists:
             if args.skip_existing_groups:
@@ -225,6 +220,20 @@ def save_groups(groups, args, parser):
             subgroup = group_backend.get(name=name, service=service)
             group_backend.add_subgroup(group=group, subgroup=subgroup)
 
+class ServiceTransactionManager(object):
+    def __enter__(self):
+        transaction.set_autocommit(False)
+        self.sid = transaction.savepoint()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            transaction.savepoint_commit(self.sid)
+        else:
+            print("An error occured, rolling back transaction:", file=sys.stderr)
+            print("%s: %s." % (exc_type.__name__, exc_value), file=sys.stderr)
+            transaction.savepoint_rollback(self.sid)
+        return True
+
 
 def main(args=None):
     args = parser.parse_args(args=args)
@@ -249,32 +258,23 @@ def main(args=None):
     if not isinstance(groups, dict):
         parser.error("'groups' does not appear to be a dictionary.")
 
-    try:
-        init_transaction()
+    with user_backend.transaction(), property_backend.transaction(), group_backend.transaction(), \
+            ServiceTransactionManager():
+        #######################
+        ### Import services ###
+        #######################
+        save_services(services, args, parser)
 
-        with transaction.atomic():
-            #######################
-            ### Import services ###
-            #######################
-            save_services(services, args, parser)
+        ####################
+        ### import users ###
+        ####################
+        props = save_users(users, args, parser)
+        save_properties(props, args, parser)
 
-            ####################
-            ### import users ###
-            ####################
-            props = save_users(users, args, parser)
-            save_properties(props, args, parser)
-
-            #####################
-            ### import groups ###
-            #####################
-            save_groups(groups, args, parser)  # pragma: no branch
-
-    except Exception as e:
-        print("An error occured, rolling back transaction:", file=sys.stderr)
-        print("%s: %s" % (type(e).__name__, e), file=sys.stderr)
-        rollback_transaction()
-    else:
-        commit_transaction()
+        #####################
+        ### import groups ###
+        #####################
+        save_groups(groups, args, parser)  # pragma: no branch
 
 if __name__ == '__main__':  # pragma: no cover
     main()
