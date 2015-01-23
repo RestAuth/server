@@ -282,7 +282,6 @@ class test(Command):
         from django.core.management import call_command
 
         if self.app:
-            print(self.app)
             call_command('test', self.app)
         else:
             call_command('test', 'Users', 'Groups', 'Test', 'Services',
