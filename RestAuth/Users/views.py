@@ -107,7 +107,7 @@ class UsersView(RestAuthView):
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
-        with user_backend.transaction(), property_backend.transaction():
+        with user_backend.transaction(), property_backend.transaction(), group_backend.transaction():
             user = user_backend.create(username=name, password=password, transaction=False,
                                        dry=dry)
             property_backend.set_multiple(user, properties, transaction=False, dry=dry)
