@@ -22,10 +22,8 @@ import logging
 from datetime import datetime
 
 from django.conf import settings
-#from django.db import transaction
 from django.http import HttpResponseForbidden
 from django.utils import six
-#from django.utils.decorators import method_decorator
 
 from RestAuthCommon.strprep import stringcheck
 
