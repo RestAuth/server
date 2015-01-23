@@ -102,8 +102,8 @@ class UsersView(RestAuthView):
             user = user_backend.create(username=name, password=password, transaction=False,
                                        dry=dry)
             property_backend.set_multiple(user, properties, transaction=False, dry=dry)
+            self.log.info('%s: Created user', user.username, extra=largs)
 
-        self.log.info('%s: Created user', user.username, extra=largs)
         return HttpResponseCreated()
 
 
