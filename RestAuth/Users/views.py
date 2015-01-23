@@ -30,6 +30,7 @@ from django.utils import six
 from RestAuthCommon.strprep import stringcheck
 
 from Users.validators import validate_username
+from backends import group_backend
 from backends import property_backend
 from backends import user_backend
 from common.errors import PasswordInvalid
@@ -56,8 +57,11 @@ class UsersView(RestAuthView):
         ),
     }
     post_required = (('user', six.string_types),)
-    post_optional = (('password', six.string_types),
-                     ('properties', dict))
+    post_optional = (
+        ('password', six.string_types),
+        ('properties', dict),
+        ('groups', list),
+    )
 
     def get(self, request, largs, *args, **kwargs):
         """Get all users."""
@@ -74,7 +78,7 @@ class UsersView(RestAuthView):
         if not request.user.has_perm('Users.user_create'):
             return HttpResponseForbidden()
 
-        name, password, properties = self._parse_post(request)
+        name, password, properties, groups = self._parse_post(request)
         name = stringcheck(name)
 
         # If UsernameInvalid: 412 Precondition Failed
@@ -87,6 +91,7 @@ class UsersView(RestAuthView):
         else:
             password = None
 
+        # normalize properties, add date-joined if not present
         if properties is None:
             properties = {
                 'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -96,12 +101,19 @@ class UsersView(RestAuthView):
             if 'date joined' not in properties:
                 properties['date joined'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+        # normalize groups
+        if groups:
+            groups = [stringcheck(g) for g in groups]
+
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
         with user_backend.transaction(), property_backend.transaction():
             user = user_backend.create(username=name, password=password, transaction=False,
                                        dry=dry)
             property_backend.set_multiple(user, properties, transaction=False, dry=dry)
+            if groups:
+                group_backend.set_groups_for_user(self, user, groups)
+
             self.log.info('%s: Created user', user.username, extra=largs)
 
         return HttpResponseCreated()
