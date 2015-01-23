@@ -125,7 +125,7 @@ def save_users(users, args, parser):
         username = username.lower()
 
         try:
-            user = user_backend.create(username=username, property_backend=property_backend)
+            user = user_backend.create(username=username)
             created = True
         except UserExists:
             user = user_backend.get(username=username)

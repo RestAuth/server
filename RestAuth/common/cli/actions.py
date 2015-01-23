@@ -78,7 +78,7 @@ class UsernameAction(Action):
 
             try:
                 validate_username(username)
-                user = user_backend.create(username=username, property_backend=property_backend)
+                user = user_backend.create(username=username)
             except UserExists:
                 raise ArgumentError(self, 'User already exists.')
             except PreconditionFailed as e:

@@ -882,9 +882,9 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
     def test_view(self):
-        user1 = user_backend.create(username1, property_backend=property_backend)
-        user2 = user_backend.create(username2, property_backend=property_backend)
-        user3 = user_backend.create(username3, property_backend=property_backend)
+        user1 = user_backend.create(username1)
+        user2 = user_backend.create(username2)
+        user3 = user_backend.create(username3)
         group1 = group_backend.create(groupname1)
         group2 = group_backend.create(groupname2)
         group3 = group_backend.create(groupname3)
@@ -965,8 +965,8 @@ class CliTests(RestAuthTest, CliMixin):
         self.assertEqual(group_backend.list(service=None), [groupname1])
 
     def test_add_user(self):
-        user1 = user_backend.create(username1, property_backend=property_backend)
-        user2 = user_backend.create(username2, property_backend=property_backend)
+        user1 = user_backend.create(username1)
+        user2 = user_backend.create(username2)
         group1 = group_backend.create(groupname1)
         group2 = group_backend.create(groupname2, service=self.service)
 
@@ -1050,7 +1050,7 @@ class CliTests(RestAuthTest, CliMixin):
 
     def test_rm_user(self):
         group = group_backend.create(groupname1)
-        user = user_backend.create(username1, property_backend=property_backend)
+        user = user_backend.create(username1)
         group_backend.add_user(group, user)
         self.assertEqual(group_backend.members(group), [username1])
 

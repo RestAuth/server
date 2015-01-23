@@ -111,8 +111,7 @@ class MemoryUserBackend(object):
     def list(self):
         return six.iterkeys(self._users)
 
-    def create(self, username, password=None, properties=None,
-               property_backend=None, dry=False, transaction=True):
+    def create(self, username, password=None, properties=None, dry=False, transaction=True):
         if username in self._users:
             raise UserExists(username)
 
@@ -126,8 +125,7 @@ class MemoryUserBackend(object):
             stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             properties['date joined'] = stamp
 
-        property_backend.set_multiple(user, properties, dry=dry,
-                                      transaction=transaction)
+        self.property_backend.set_multiple(user, properties, dry=dry, transaction=transaction)
 
         if not dry:
             self._users[username] = user

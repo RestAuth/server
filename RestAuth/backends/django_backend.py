@@ -62,8 +62,7 @@ class DjangoUserBackend(UserBackend):
     def list(self):
         return list(User.objects.values_list('username', flat=True))
 
-    def _create(self, username, password=None, properties=None, property_backend=None, dry=False,
-                transaction=True):
+    def _create(self, username, password=None, properties=None, dry=False, transaction=True):
         assert isinstance(username, six.string_types)
         assert isinstance(password, six.string_types) or password is None
         assert isinstance(properties, dict) or properties is None
@@ -83,11 +82,10 @@ class DjangoUserBackend(UserBackend):
             stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             properties['date joined'] = stamp
 
-        property_backend.set_multiple(user, properties, dry=dry, transaction=transaction)
+        self.property_backend.set_multiple(user, properties, dry=dry, transaction=transaction)
         return user
 
-    def create(self, username, password=None, properties=None, property_backend=None, dry=False,
-               transaction=True):
+    def create(self, username, password=None, properties=None, dry=False, transaction=True):
         assert isinstance(username, six.string_types)
         assert isinstance(password, six.string_types) or password is None
         assert isinstance(properties, dict) or properties is None
@@ -96,18 +94,17 @@ class DjangoUserBackend(UserBackend):
             dj_transaction.set_autocommit(False)
 
             try:
-                return self._create(username, password, properties, property_backend, dry=dry,
+                return self._create(username, password, properties, dry=dry,
                                     transaction=transaction)
             finally:
                 dj_transaction.rollback()
                 dj_transaction.set_autocommit(True)
         elif transaction:
             with dj_transaction.atomic():
-                return self._create(username, password, properties, property_backend, dry=dry,
+                return self._create(username, password, properties, dry=dry,
                                     transaction=transaction)
         else:  # pragma: no cover
-            return self._create(username, password, properties, property_backend, dry=dry,
-                                transaction=transaction)
+            return self._create(username, password, properties, dry=dry, transaction=transaction)
 
     def rename(self, username, name):
         assert isinstance(username, six.string_types)

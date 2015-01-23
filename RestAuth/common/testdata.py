@@ -143,8 +143,7 @@ class RestAuthTestBase(object):
         return func(body)
 
     def create_user(self, username, password=None):
-        return user_backend.create(username=username, password=password,
-                                   property_backend=property_backend)
+        return user_backend.create(username=username, password=password)
 
     def create_group(self, service, groupname):
         return group_backend.create(name=groupname, service=service)

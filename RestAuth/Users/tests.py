@@ -724,8 +724,7 @@ class HashTestMixin(RestAuthTestBase):
     def test_backend(self):
         # test password during creation:
         for password, data in six.iteritems(self.testdata):
-            user = user_backend.create(username=username1, password=password,
-                                       property_backend=property_backend)
+            user = user_backend.create(username=username1, password=password)
             self.assertTrue(user.password.startswith('%s$' % self.algorithm))
             self.assertTrue(user_backend.check_password(username1, password))
 
@@ -733,7 +732,7 @@ class HashTestMixin(RestAuthTestBase):
 
         # test password for set_password:
         for password, data in six.iteritems(self.testdata):
-            user = user_backend.create(username=username1, property_backend=property_backend)
+            user = user_backend.create(username=username1)
             user_backend.set_password(username=username1, password=password)
             self.assertTrue(user_backend.check_password(username1, password))
             self.assertTrue(user_backend.check_password(username1, password))

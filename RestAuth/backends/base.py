@@ -101,7 +101,7 @@ class RestAuthBackend(object):  # pragma: no cover
     @property
     def property_backend(self):
         if self._property_backend is None:
-            self._property_backend = import_string('backends.user_backend')
+            self._property_backend = import_string('backends.property_backend')
         return self._property_backend
 
     @property
@@ -162,21 +162,19 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def create(self, username, password=None, properties=None,
-               property_backend=None, dry=False, transaction=True):
+    def create(self, username, password=None, properties=None, dry=False, transaction=True):
         """Create a new user.
 
         The ``username`` is already validated, so you don't need to do any
         additional validation here. If your backend has username restrictions,
         please implement a :ref:`username validator <implement-validators>`.
 
-        If ``properties`` are passed, please use the property backend passed to
-        store the properties:
+        If ``properties`` are passed, please use the property backend to store the properties:
 
         .. code-block:: python
 
            user = ...  # create the user
-           property_backend.set_multiple(user, properties, dry=dry)
+           self.property_backend.set_multiple(user, properties, dry=dry)
            return user
 
         The ``dry`` parameter tells you if you should actually create the user.
@@ -192,8 +190,6 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :type  password: str
         :param properties: Any initial properties for the user.
         :type  properties: dict
-        :param property_backend: The backend to use to store properties.
-        :type  property_backend: :py:class:`~.PropertyBackend`
         :param dry: Wether or not to actually create the user.
         :type  dry: boolean
         :param transaction: If False, execute statements outside any

@@ -91,9 +91,8 @@ class UsersView(RestAuthView):
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
-        user = user_backend.create(
-            username=name, password=password, properties=properties,
-            property_backend=property_backend, dry=dry)
+        user = user_backend.create(username=name, password=password, properties=properties,
+                                   dry=dry)
 
         self.log.info('%s: Created user', user.username, extra=largs)
         return HttpResponseCreated()
