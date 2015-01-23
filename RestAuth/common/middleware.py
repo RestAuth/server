@@ -39,7 +39,7 @@ CONTENT_TYPE_METHODS = set(['POST', 'PUT'])
 class RestAuthMiddleware:
     def process_request(self, request):
         """Middleware to ensure required headers are present."""
-        version = request.META.get('X_RESTAUTH_VERSION', '0.7')
+        version = request.META.get('X_RESTAUTH_VERSION', '0.6')
         request.version = tuple(version.split('.'))
 
         if request.method in CONTENT_TYPE_METHODS:
