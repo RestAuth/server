@@ -102,11 +102,11 @@ class CreatePropertyTest(RestAuthTransactionTest):
 
     def test_create_invalid_property(self):
         url = '/test/users/%s/props/' % self.user.username
-        resp = self.post(url, {'prop': 'foo/bar', 'value': propval1})
+        resp = self.post(url, {'prop': 'foo\nbar', 'value': propval1})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertProperties(self.user, {})
 
-        resp = self.post(url, {'prop': 'foo:bar', 'value': propval1})
+        resp = self.post(url, {'prop': 'foo\nbar', 'value': propval1})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertProperties(self.user, {})
 
@@ -138,6 +138,6 @@ class CreateGroupTest(RestAuthTransactionTest):
         self.assertItemsEqual([group.name], group_backend.list(self.service))
 
     def test_dry_run_create_invalid_group(self):
-        resp = self.post('/test/groups/', {'group': 'foo/bar'})
+        resp = self.post('/test/groups/', {'group': 'foo\nbar'})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertFalse(group_backend.list(self.service))

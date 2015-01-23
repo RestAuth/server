@@ -197,7 +197,7 @@ class AddUserTests(RestAuthTest):  # POST /users/
         self.assertEqual(property_backend.list(user), props)
 
     def test_add_user_with_invalid_properties(self):
-        props = {'foo/bar': propval1, }
+        props = {'foo\nbar': propval1, }
         resp = self.post('/users/', {'user': username1, 'properties': props, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(self.get_usernames(), [])
@@ -488,7 +488,7 @@ class CreatePropertyTests(PropertyTests):  # POST /users/<user>/props/
         self.assertProperties(self.user2, {})
 
     def test_create_invalid_property(self):
-        resp = self.post('/users/%s/props/' % username1, {'prop': "foo:bar", 'value': propval2, })
+        resp = self.post('/users/%s/props/' % username1, {'prop': "foo\nbar", 'value': propval2, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertProperties(self.user1, {})
 
@@ -582,7 +582,7 @@ class SetMultiplePropertiesTests(PropertyTests):
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_set_invalid_properties(self):
-        resp = self.put('/users/%s/props/' % username1, {'foo/bar': propval1, })
+        resp = self.put('/users/%s/props/' % username1, {'foo\nbar': propval1, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertProperties(self.user1, {})
 
@@ -840,7 +840,7 @@ class CliTests(RestAuthTest, CliMixin):
 
     def test_add_invalid(self):
         # test an invalid resource (that is, with a slash)
-        username = 'foo/bar'
+        username = 'foo\nbar'
         with capture() as (stdout, stderr):
             try:
                 restauth_user(['add', '--password', password1, username])
