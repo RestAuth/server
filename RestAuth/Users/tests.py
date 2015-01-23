@@ -601,7 +601,11 @@ class GetPropertyTests(PropertyTests):  # GET /users/<user>/props/<prop>/
     def test_get_property(self):
         property_backend.create(user=self.user1, key=propkey1, value=propval1)
 
-        # TODO: also test 0.7 format
+        resp = self.get('/users/%s/props/%s/' % (username1, propkey1))
+        self.assertEqual(resp.status_code, http_client.OK)
+        self.assertEqual(self.parse(resp, 'dict'), {'value': propval1})
+
+        # get it again, but this time with RestAuth 0.6
         resp = self.get('/users/%s/props/%s/' % (username1, propkey1),
                         X_RESTAUTH_VERSION='0.6')
         self.assertEqual(resp.status_code, http_client.OK)
@@ -629,11 +633,18 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
         property_backend.create(user=self.user1, key=propkey1, value=propval1)
 
         # set a property again and assert that it returns the old value:
-        resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval2, },
+        resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval2, })
+        self.assertEqual(resp.status_code, http_client.OK)
+        self.assertEqual(self.parse(resp, 'dict'), {'value': propval1})
+        self.assertEqual(property_backend.get(self.user1, propkey1), propval2)
+        self.assertRaises(PropertyNotFound, property_backend.get, self.user2, propkey1)
+
+        # set it again, but this time with RestAuth 0.6
+        resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval1, },
                         X_RESTAUTH_VERSION='0.6')
         self.assertEqual(resp.status_code, http_client.OK)
-        self.assertEqual(self.parse(resp, 'str'), propval1)
-        self.assertEqual(property_backend.get(self.user1, propkey1), propval2)
+        self.assertEqual(self.parse(resp, 'str'), propval2)
+        self.assertEqual(property_backend.get(self.user1, propkey1), propval1)
         self.assertRaises(PropertyNotFound, property_backend.get, self.user2, propkey1)
 
     def test_bad_request(self):
