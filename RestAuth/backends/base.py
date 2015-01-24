@@ -490,7 +490,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def create(self, name, service=None, dry=False, transaction=True):
+    def create(self, name, service=None, users=None, dry=False, transaction=True):
         """Create a new group for the given service.
 
         The ``dry`` parameter tells you if you should actually create the group. The parameter will

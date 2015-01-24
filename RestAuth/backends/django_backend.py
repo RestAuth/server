@@ -274,7 +274,7 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             groups = Group.objects.member(user=user, service=service)
         return list(groups.only('id').values_list('name', flat=True))
 
-    def create(self, name, service=None, dry=False, transaction=True):
+    def create(self, name, service=None, users=None, dry=False, transaction=True):
         assert isinstance(service, BaseUser) or service is None
         assert isinstance(name, six.string_types)
 

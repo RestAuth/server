@@ -97,18 +97,14 @@ class GroupsView(RestAuthView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        groupname, users = self._parse_post(request)
-        groupname = stringcheck(groupname)
+        name, users = self._parse_post(request)
+        name = stringcheck(name)
 
         if users is not None:
             users = self.parse_users(users)
 
         # If ResourceExists: 409 Conflict
-        with group_backend.transaction():
-            group = group_backend.create(service=request.user, name=groupname, transaction=False,
-                                         dry=dry)
-            if users:
-                group_backend.set_users_for_group(group, users, transaction=False, dry=dry)
+        group = group_backend.create(service=request.user, name=name, users=users, dry=dry)
 
         self.log.info('%s: Created group', group.name, extra=largs)
         return HttpResponseCreated()  # Created
@@ -121,7 +117,14 @@ class GroupsView(RestAuthView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        groupnames, user = self._parse_put(request)
+        groupnames, username = self._parse_put(request)
+
+        # If PreconditionFailed: 412 Precondition Failed
+        username = stringprep(username)
+        groupnames = [stringprep(g) for g in groupnames]
+
+
+        return HttpResponseNoContent()
 
 class GroupHandlerView(RestAuthResourceView):
     """Handle requests to ``/groups/<group>/``."""
