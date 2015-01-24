@@ -585,14 +585,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type  group: :py:class:`.GroupInstance`
         :param users: A list of users as returned by :py:meth:`.UserBackend.get`.
         :type  users: list
-        :param   dry: Wether or not to actually create the group.
-        :type    dry: boolean
-        :param transaction: If False, the statement is executed in a larger transactional context,
-            meaning that transactions are already handled by
-            :py:meth:`~RestAuthBackend.init_transaction`,
-            :py:meth:`~RestAuthBackend.commit_transaction` and
-            :py:meth:`~RestAuthBackend.rollback_transaction`.
-        :type  transaction: boolean
         """
         raise NotImplementedError
 
