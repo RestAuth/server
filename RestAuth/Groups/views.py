@@ -263,6 +263,9 @@ class GroupGroupsIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.groups')
     http_method_names = ['get', 'post']
     post_required = (('group', six.string_types),)
+    put_required = (
+        ('groups', list),
+    )
 
     def get(self, request, largs, name):
         """Get a list of sub-groups."""
@@ -292,6 +295,21 @@ class GroupGroupsIndex(RestAuthResourceView):
         group_backend.add_subgroup(group=group, subgroup=subgroup)
 
         self.log.info('Add subgroup "%s"', subname, extra=largs)
+        return HttpResponseNoContent()
+
+    def put(self, request, largs, name):
+        """Set the sub-groups of a group."""
+
+        if not request.user.has_perm('Groups.group_add_group') or \
+                not request.user.has_perm('Groups.group_remove_group'):
+            return HttpResponseForbidden()
+
+        subnames = [stringprep(g) for g in self._parse_put(request)]
+
+        # If GroupNotFound: 404 Not Found
+        group_backend.set_subgroups(service=request.user, group=name, subgroups=subnames)
+
+        self.log.info('Set sub-groups', extra=largs)
         return HttpResponseNoContent()
 
 
