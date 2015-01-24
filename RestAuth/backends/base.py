@@ -556,7 +556,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_groups_for_user(self, user, groups, transaction=True, dry=False):
+    def set_groups_for_user(self, user, groupnames, transaction=True, dry=False):
         """Set groups for a user.
 
         :param   user: A user as returned by :py:meth:`.UserBackend.get`.
