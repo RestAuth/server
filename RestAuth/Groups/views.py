@@ -41,7 +41,7 @@ class GroupsView(RestAuthView):
     """Handle requests to ``/groups/``."""
 
     log = logging.getLogger('groups')
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'put', ]
     post_required = (('group', six.string_types),)
     post_optional = (
         ('users', list),
@@ -159,8 +159,8 @@ class GroupUsersIndex(RestAuthResourceView):
     """Handle requests to ``/groups/<group>/users/``."""
 
     log = logging.getLogger('groups.group.users')
-    http_method_names = ['get', 'post']
-    post_required = (('user', six.string_types),)
+    http_method_names = ['get', 'post', 'put', ]
+    post_required = (('user', six.string_types), )
     put_required = (('users', list),)
 
     def get(self, request, largs, name):
@@ -261,7 +261,7 @@ class GroupGroupsIndex(RestAuthResourceView):
     """Handle requests to ``/groups/<group>/group/``."""
 
     log = logging.getLogger('groups.group.groups')
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'put', ]
     post_required = (('group', six.string_types),)
     put_required = (
         ('groups', list),
