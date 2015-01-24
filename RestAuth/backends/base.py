@@ -574,7 +574,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_users_for_group(self, group, users, transaction=True, dry=False):
+    def set_users_for_group(self, group, users):
         """Set all members of a group.
 
         This method replaces the current list of members with the one passed by ``users``. If a
