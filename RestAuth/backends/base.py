@@ -561,8 +561,8 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
 
         :param   user: A user as returned by :py:meth:`.UserBackend.get`.
         :type    user: :py:class:`.UserInstance`
-        :param groups: A list of groups as returned by :py:meth:`.GroupBackend.get`.
-        :type  groups: list
+        :param groups: A list of groupnames. Groups that don't exist have to be created.
+        :type  groups: list of str
         :param    dry: Wether or not to actually create the group.
         :type     dry: boolean
         :param transaction: If False, the statement is executed in a larger transactional context,
