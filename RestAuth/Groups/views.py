@@ -317,7 +317,16 @@ class GroupGroupHandler(RestAuthSubResourceView):
     """Handle requests to ``/groups/<meta-group>/group/<sub-group>/``."""
 
     log = logging.getLogger('groups.group.groups.subgroup')
-    http_method_names = ['delete']
+    http_method_names = ['get', 'delete']
+
+    def get(self, request, largs, name, subname):
+        if not request.user.has_perm('Groups.subgroup_exists'):
+            return HttpResponseForbidden()
+
+        # If GroupNotFound: 404 Not Found
+        group_backend.has_subgroup(service=request.user, group=name, subgroup=subname)
+
+        return HttpResponseNoContent()
 
     def delete(self, request, largs, name, subname):
         """Remove a subgroup from a group."""
