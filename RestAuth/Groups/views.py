@@ -161,6 +161,7 @@ class GroupUsersIndex(RestAuthResourceView):
     log = logging.getLogger('groups.group.users')
     http_method_names = ['get', 'post']
     post_required = (('user', six.string_types),)
+    put_required = (('users', list),)
 
     def get(self, request, largs, name):
         """Get all users in a group."""
@@ -192,6 +193,27 @@ class GroupUsersIndex(RestAuthResourceView):
         group_backend.add_user(group=group, user=user)
 
         self.log.info('Add user "%s"', username, extra=largs)
+        return HttpResponseNoContent()
+
+    def put(self, request, largs, name):
+        """Set users of a group."""
+
+        if not request.user.has_perm('Groups.group_add_user') or \
+                not request.user.has_perm('Groups.group_remove_user'):
+            return HttpResponseForbidden()
+
+        # If BadRequest: 400 Bad Request
+        users = [stringprep(u) for u in self._parse_post(request)]
+
+        # If GroupNotFound: 404 Not Found
+        group = group_backend.get(service=request.user, name=name)
+
+        # If UserNotFound: 404 Not Found
+        users = [user_backend.get(u) for u in users]
+
+        group_backend.set_users_for_group(group=group, users=users)
+
+        self.log.info('Set users for group "%s"', name, extra=largs)
         return HttpResponseNoContent()
 
 
