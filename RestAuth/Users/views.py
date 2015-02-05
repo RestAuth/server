@@ -105,13 +105,15 @@ class UsersView(RestAuthView):
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
-        with user_backend.transaction(), property_backend.transaction(), group_backend.transaction():
+        with user_backend.transaction(), property_backend.transaction():
             user = user_backend.create(username=name, password=password, transaction=False,
                                        dry=dry)
             property_backend.set_multiple(user, properties, transaction=False, dry=dry)
+
             if groups:
-                group_backend.set_groups_for_user(user, groupnames=groups, transaction=False,
-                                                  dry=dry)
+                with group_backend.transaction():
+                    group_backend.set_groups_for_user(user=user, groups=groups, transaction=False,
+                                                      dry=dry)
 
             self.log.info('%s: Created user', user.username, extra=largs)
 
