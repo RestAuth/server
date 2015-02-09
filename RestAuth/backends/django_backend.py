@@ -323,6 +323,16 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
 
         return Group.objects.filter(name=name, service=service).exists()
 
+    def set_groups_for_user(self, service, user, groupnames, transaction=True, dry=False):
+        for name in groupnames:
+            try:
+                group = Group.objects.get(service=service, name=name)
+            except Group.DoesNotExist:
+                group = Group.objects.create(service=service, name=name)
+
+            if not group.is_member(user):
+                group.users.add(user)
+
     def add_user(self, group, user):
         assert isinstance(group, Group)
         assert isinstance(user, User)
