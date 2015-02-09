@@ -52,12 +52,12 @@ PATHS = [
     (['get', 'post', 'put', 'delete'], '/users/user/'),
     (['get', 'post', 'put'], '/users/user/props/'),
     (['get', 'put', 'delete'], '/users/user/props/prop/'),
-    (['get', 'post'], '/groups/'),
+    (['get', 'post', 'put'], '/groups/'),
     (['get', 'delete'], '/groups/group/'),
-    (['get', 'post'], '/groups/group/users/'),
+    (['get', 'post', 'put'], '/groups/group/users/'),
     (['get', 'delete'], '/groups/group/users/user/'),
-    (['get', 'post'], '/groups/group/groups/'),
-    (['delete'], '/groups/group/groups/group/'),
+    (['get', 'post', 'put'], '/groups/group/groups/'),
+    (['get', 'delete'], '/groups/group/groups/group/'),
 ]
 cli = getattr(__import__('bin.restauth-service'), 'restauth-service').main
 
