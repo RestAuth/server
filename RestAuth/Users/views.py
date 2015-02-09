@@ -112,7 +112,8 @@ class UsersView(RestAuthView):
 
             if groups:
                 with group_backend.transaction():
-                    group_backend.set_groups_for_user(user=user, groups=groups, transaction=False,
+                    group_backend.set_groups_for_user(service=request.user, user=user,
+                                                      groupnames=groups, transaction=False,
                                                       dry=dry)
 
             self.log.info('%s: Created user', user.username, extra=largs)
