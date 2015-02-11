@@ -35,6 +35,27 @@ from common.errors import UserExists
 from common.errors import UserNotFound
 
 
+class DjangoTransactionManager(object):
+    def __init__(self, backend, dry):
+        self.backend = backend
+        self.dry = dry
+
+    def __enter__(self):
+        return self.backend.init_transaction()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.dry or exc_type:
+            self.backend.rollback_transaction()
+        else:
+            self.backend.commit_transaction()
+
+    def __eq__(self, other):
+        return isinstance(other, type(self))
+
+    def __hash__(self):
+        return hash(type(self))
+
+
 class DjangoTransactionMixin(object):
     def init_transaction(self):
         dj_transaction.set_autocommit(False)
@@ -46,6 +67,9 @@ class DjangoTransactionMixin(object):
     def rollback_transaction(self, transaction_id=None):
         dj_transaction.rollback()
         dj_transaction.set_autocommit(True)
+
+    def transaction_manager(self, dry=False):
+        return DjangoTransactionManager(self, dry=dry)
 
 
 class DjangoUserBackend(DjangoTransactionMixin, UserBackend):
