@@ -15,9 +15,39 @@
 
 from __future__ import unicode_literals
 
+from collections import deque
+
 from django.conf import settings
 
 from common.utils import import_path
+
+
+class GlobalTransactionManager(object):
+    #TODO: docs
+
+    def __init__(self, users=False, props=False, groups=False, dry=False):
+        assert users or props or groups, "At least one of users, props, groups must be True."
+        self.stack = deque()
+        self.backends = set()
+
+        if users is True:
+            self.backends.add(user_backend.transaction_manager(dry=dry))
+        if props is True:
+            self.backends.add(property_backend.transaction_manager(dry=dry))
+        if groups is True:
+            self.backends.add(group_backend.transaction_manager(dry=dry))
+
+    def __enter__(self):
+        for backend in self.backends:
+            backend.__enter__()
+            self.stack.append(backend.__exit__)
+
+    def __eq__(self, other):
+        return isinstance(other, type(self))
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        while self.stack:
+            self.stack.pop()(exc_type, exc_value, traceback)
 
 
 def get_user_backend():
