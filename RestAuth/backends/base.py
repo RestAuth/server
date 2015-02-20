@@ -22,10 +22,6 @@ from collections import deque
 from django.utils import importlib
 from django.utils.module_loading import import_string
 
-from backends import user_backend
-from backends import property_backend
-from backends import group_backend
-
 
 class UserInstance(object):
     """Class representing a user.
