@@ -357,6 +357,8 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
         return Group.objects.filter(name=name, service=service).exists()
 
     def set_groups_for_user(self, service, user, groupnames, transaction=True, dry=False):
+        user.group_set.clear() # clear existing groups
+
         for name in groupnames:
             try:
                 group = Group.objects.get(service=service, name=name)
