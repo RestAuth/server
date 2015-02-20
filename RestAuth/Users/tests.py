@@ -223,6 +223,17 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         user = user_backend.get(username3)
         self.assertEqual(group_backend.list(service=self.service, user=user), groups)
 
+    def test_transactions(self):
+        resp = self.post('/users/', {
+            'user': username1,
+            'properties': {propkey1: propval1},
+            'groups': [groupname1, 'foo\nbar']})
+        self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
+        self.assertEqual(self.get_usernames(), [])
+        # TODO: we cannot test this currently, because backend does not return a user object.
+        #self.assertEqual(property_backend.list(user=user), {})
+        self.assertEqual(group_backend.list(service=self.service), [])
+
     def test_bad_requests(self):
         self.assertEqual(self.get_usernames(), [])
 
