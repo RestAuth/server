@@ -310,6 +310,20 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
+    def test_password_groups(self):
+        data = {'password': password1, 'groups': [groupname1] }
+
+        # we're not in the group
+        resp = self.post('/users/%s/' % username1, data)
+        self.assertEqual(resp.status_code, http_client.NOT_FOUND)
+
+        # create a group membership
+        group = group_backend.create(groupname1, service=self.service)
+        group_backend.add_user(group, user=self.user1)
+
+        resp = self.post('/users/%s/' % username1, data)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+
     @skipUnless(settings.USER_BACKEND == 'backends.django_backend.DjangoUserBackend', '')
     def test_update_password_hash(self):
         """Test if checking the password with an old hash automatically updates the hash."""
