@@ -244,8 +244,8 @@ class CreateGroupTests(GroupTests):  # POST /groups/
 class SetGroupsTests(GroupTests):  # PUT /groups/
     def setUp(self):
         super(SetGroupsTests, self).setUp()
-        group_backend.create(service=self.service, name=groupname1)
-        group_backend.create(service=self.service, name=groupname2)
+        self.group1 = group_backend.create(service=self.service, name=groupname1)
+        self.group2 = group_backend.create(service=self.service, name=groupname2)
 
     def test_set_groups_for_user(self):
         group_lists = (
@@ -267,6 +267,19 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
         self.assertCountEqual(
             group_backend.list(self.vowi, user=self.user1), [groupname1, groupname3])
         self.assertTrue(group_backend.exists(name=groupname3, service=self.vowi))
+
+    def test_visibility(self):
+        self.assertFalse(group_backend.is_member(self.group2, self.user1))
+        group3 = group_backend.create(service=self.service2, name=groupname3)  # different service!
+        group_backend.add_subgroup(group3, self.group2)  # make group3 a meta-group of group2
+        group_backend.add_user(group3, self.user1)
+        self.assertTrue(group_backend.is_member(group3, self.user1))
+        self.assertTrue(group_backend.is_member(self.group2, self.user1))
+
+        resp = self.put('/groups/', {'user': username1, 'groups': [groupname1]})
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+        self.assertCountEqual(  # we still have groupname2 because it's inherited
+            group_backend.list(self.service, user=self.user1), [groupname1, groupname2])
 
 
 class VerifyGroupExistanceTests(GroupTests):  # GET /groups/<group>/
