@@ -218,6 +218,15 @@ class CreateGroupTests(GroupTests):  # POST /groups/
         self.assertEqual(resp.status_code, http_client.CONFLICT)
         self.assertCountEqual(group_backend.list(self.vowi), [groupname1])
 
+    def test_create_group_with_users(self):
+        users = [username1, username2]
+        resp = self.post('/groups/', {'group': groupname1, 'users': users})
+        self.assertEqual(resp.status_code, http_client.CREATED)
+
+        self.assertCountEqual(group_backend.list(self.vowi), [groupname1])
+        group = group_backend.get(service=self.service, name=groupname1)
+        self.assertCountEqual(group_backend.members(group), users)
+
     def test_service_isolation(self):
         self.create_group(self.fsinf, groupname1)
 

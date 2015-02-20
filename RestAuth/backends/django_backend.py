@@ -306,7 +306,10 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             dj_transaction.set_autocommit(False)
 
             try:
-                return Group.objects.create(name=name, service=service)
+                group = Group.objects.create(name=name, service=service)
+                if users:
+                    group.users.add(*users)
+                return group
             except IntegrityError:
                 raise GroupExists('Group "%s" already exists' % name)
             finally:
@@ -315,12 +318,18 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
         elif transaction:
             with dj_transaction.atomic():
                 try:
-                    return Group.objects.create(name=name, service=service)
+                    group = Group.objects.create(name=name, service=service)
+                    if users:
+                        group.users.add(*users)
+                    return group
                 except IntegrityError:
                     raise GroupExists('Group "%s" already exists' % name)
         else:  # pragma: no cover
             try:
-                return Group.objects.create(name=name, service=service)
+                group = Group.objects.create(name=name, service=service)
+                if users:
+                    group.users.add(*users)
+                return group
             except IntegrityError:
                 raise GroupExists('Group "%s" already exists' % name)
 
