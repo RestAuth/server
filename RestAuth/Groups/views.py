@@ -112,7 +112,7 @@ class GroupsView(RestAuthView):
     def put(self, request, largs):
         """Set groups of a user."""
 
-        if not not request.user.has_perm('Groups.group_remove_user') or not \
+        if not request.user.has_perm('Groups.group_remove_user') or not \
                 request.user.has_perm('Groups.group_add_user'):
             return HttpResponseForbidden()
 
@@ -120,10 +120,10 @@ class GroupsView(RestAuthView):
         groupnames, username = self._parse_put(request)
 
         # If PreconditionFailed: 412 Precondition Failed
-        user = user_backend.get(name=stringprep(username))
+        user = user_backend.get(username=stringprep(username))
         groupnames = [stringprep(g) for g in groupnames]
 
-        group_backend.set_groups_for_user(user=user, groupnames=groupnames)
+        group_backend.set_groups_for_user(service=request.user, user=user, groupnames=groupnames)
         return HttpResponseNoContent()
 
 class GroupHandlerView(RestAuthResourceView):
