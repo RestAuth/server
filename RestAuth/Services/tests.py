@@ -81,7 +81,7 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
         Service.objects.all().delete()
 
     def test_good_credentials(self):
-        self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
+        self.service = service_create('example.com', 'nopass', '127.0.0.1', '::1')
         u_ct = ContentType.objects.get(app_label="Users", model="serviceuser")
         p, c = Permission.objects.get_or_create(
             codename='users_list', content_type=u_ct,
@@ -89,14 +89,14 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
         )
         self.service.user_permissions.add(p)
 
-        headers = self.set_auth('vowi', 'vowi')
+        headers = self.set_auth('example.com', 'nopass')
         resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [])
 
     def test_permission_denied(self):
-        self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
-        headers = self.set_auth('vowi', 'vowi')
+        self.service = service_create('example.com', 'nopass', '127.0.0.1', '::1')
+        headers = self.set_auth('example.com', 'nopass')
 
         for methods, path in PATHS:
             for method in methods:
@@ -111,8 +111,8 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
         self.assertEqual(resp.status_code, http_client.FORBIDDEN)
 
     def test_method_now_allowed(self):
-        self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
-        headers = self.set_auth('vowi', 'vowi')
+        self.service = service_create('example.com', 'nopass', '127.0.0.1', '::1')
+        headers = self.set_auth('example.com', 'nopass')
 
         for good_methods, path in PATHS:
             for method in ['get', 'post', 'put', 'delete']:
@@ -125,22 +125,22 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
                                       http_client.METHOD_NOT_ALLOWED)
 
     def test_wrong_user(self):
-        service_create('vowi', 'vowi', '127.0.0.1', '::1')
+        service_create('example.com', 'nopass', '127.0.0.1', '::1')
         headers = self.set_auth('fsinf', 'vowi')
 
         resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.UNAUTHORIZED)
 
     def test_wrong_password(self):
-        service_create('vowi', 'vowi', '127.0.0.1', '::1')
+        service_create('example.com', 'nopass', '127.0.0.1', '::1')
         headers = self.set_auth('vowi', 'fsinf')
 
         resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.UNAUTHORIZED)
 
     def test_wrong_host(self):
-        service = service_create('vowi', 'vowi')
-        headers = self.set_auth('vowi', 'vowi')
+        service = service_create('example.com', 'nopass')
+        headers = self.set_auth('example.com', 'nopass')
 
         resp = self.get('/users/', **headers)
         self.assertEqual(resp.status_code, http_client.UNAUTHORIZED)
@@ -152,7 +152,7 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
         self.assertEqual(resp.status_code, http_client.UNAUTHORIZED)
 
     def test_no_credentials(self):
-        service_create('vowi', 'vowi', '127.0.0.1', '::1')
+        service_create('example.com', 'nopass', '127.0.0.1', '::1')
         headers = self.set_auth('', '')
 
         resp = self.get('/users/', **headers)
@@ -169,13 +169,13 @@ class ServiceHostTests(TestCase):
     exposed via the API.
     """
     def setUp(self):
-        self.service = service_create('vowi', 'vowi')
+        self.service = service_create('example.com', 'nopass')
 
     def tearDown(self):
         Service.objects.all().delete()
 
     def get_service(self):
-        return Service.objects.get(username='vowi')
+        return Service.objects.get(username='example.com')
 
     def get_hosts(self):
         return self.get_service().hosts.values_list('address', flat=True)
@@ -213,14 +213,14 @@ class ServiceHostTests(TestCase):
         hosts = ['127.0.0.1', '::1']
         self.assertIsNone(self.service.set_hosts(*hosts))
 
-        self.assertTrue(self.service.verify('vowi', '127.0.0.1'))
-        self.assertTrue(self.service.verify('vowi', '::1'))
+        self.assertTrue(self.service.verify('nopass', '127.0.0.1'))
+        self.assertTrue(self.service.verify('nopass', '::1'))
 
         self.assertFalse(self.service.verify('wrong', '127.0.0.1'))
         self.assertFalse(self.service.verify('wrong', '::1'))
 
-        self.assertFalse(self.service.verify('vowi', '127.0.0.2'))
-        self.assertFalse(self.service.verify('vowi', '::2'))
+        self.assertFalse(self.service.verify('nopass', '127.0.0.2'))
+        self.assertFalse(self.service.verify('nopass', '::2'))
 
     def test_del_hosts(self):
         hosts = ['127.0.0.1']
@@ -424,7 +424,9 @@ class CliTests(RestAuthTest, CliMixin):
         with capture() as (stdout, stderr):
             cli(['ls'])
             hosts = ', '.join(self.service.addresses)
-            self.assertEqual(stdout.getvalue(), '%s: %s\n' % (self.service.name, hosts))
+            hosts2 = ', '.join(self.service2.addresses)
+            self.assertHasLine(stdout, '%s: %s' % (self.service.name, hosts))
+            self.assertHasLine(stdout, '%s: %s' % (self.service2.name, hosts2))
             self.assertEqual(stderr.getvalue(), '')
 
     def test_view(self):
