@@ -241,6 +241,33 @@ class CreateGroupTests(GroupTests):  # POST /groups/
         self.assertCountEqual(group_backend.list(self.vowi), [])
 
 
+class SetGroupsTests(GroupTests):  # PUT /groups/
+    def setUp(self):
+        super(SetGroupsTests, self).setUp()
+        group_backend.create(service=self.service, name=groupname1)
+        group_backend.create(service=self.service, name=groupname2)
+
+    def test_set_groups_for_user(self):
+        group_lists = (
+            [groupname1],
+            [groupname2],
+            [groupname1, groupname2],
+        )
+        for group_list in group_lists:
+            resp = self.put('/groups/', {'user': username1, 'groups': group_list})
+            self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+            self.assertCountEqual(
+                group_backend.list(self.vowi, user=self.user1), group_list)
+
+    def test_set_groups_with_new(self):
+        self.assertFalse(group_backend.exists(name=groupname3, service=self.vowi))
+        resp = self.put('/groups/', {'user': username1, 'groups': [groupname1, groupname3]})
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+        self.assertCountEqual(
+            group_backend.list(self.vowi, user=self.user1), [groupname1, groupname3])
+        self.assertTrue(group_backend.exists(name=groupname3, service=self.vowi))
+
+
 class VerifyGroupExistanceTests(GroupTests):  # GET /groups/<group>/
     def test_does_not_exist(self):
         resp = self.get('/groups/%s/' % groupname1)
