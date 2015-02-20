@@ -28,7 +28,7 @@ from django.utils import six
 from RestAuthCommon.strprep import stringcheck
 
 from Users.validators import validate_username
-from backends import GlobalTransactionManager
+from backends import transaction
 from backends import group_backend
 from backends import property_backend
 from backends import user_backend
@@ -106,7 +106,7 @@ class UsersView(RestAuthView):
 
         # If ResourceExists: 409 Conflict
         # If PasswordInvalid: 412 Precondition Failed
-        with GlobalTransactionManager(users=True, props=True, groups=bool(groups), dry=dry):
+        with transaction(users=True, props=True, groups=bool(groups), dry=dry):
             user = user_backend.create(username=name, password=password, transaction=False,
                                        dry=dry)
             property_backend.set_multiple(user, properties, transaction=False, dry=dry)
