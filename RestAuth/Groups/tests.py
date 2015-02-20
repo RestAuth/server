@@ -249,6 +249,7 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
 
     def test_set_groups_for_user(self):
         group_lists = (
+            [],  # also enable us to set empty list
             [groupname1],
             [groupname2],
             [groupname1, groupname2],
