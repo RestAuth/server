@@ -17,8 +17,14 @@
 
 from __future__ import unicode_literals
 
+from collections import deque
+
 from django.utils import importlib
 from django.utils.module_loading import import_string
+
+from backends import user_backend
+from backends import property_backend
+from backends import group_backend
 
 
 class UserInstance(object):
@@ -62,14 +68,15 @@ class GroupInstance(object):
 
 
 class TransactionContextManager(object):
-    def __init__(self, backend):
+    def __init__(self, backend, dry=False):
         self.backend = backend
+        self.dry = dry
 
     def __enter__(self):
         self.init = self.backend.init_transaction()
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type is None:
+        if exc_type is None and self.dry is False:
             self.backend.commit_transaction(transaction_id=self.init)
         else:
             self.backend.rollback_transaction(transaction_id=self.init)
