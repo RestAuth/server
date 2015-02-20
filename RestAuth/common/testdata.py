@@ -95,6 +95,7 @@ class RestAuthTestBase(object):
             X_RESTAUTH_VERSION='0.7'
         )
         self.service = service_create('vowi', 'vowi', '127.0.0.1', '::1')
+        self.service2 = service_create('example.net', 'nopass', '127.0.0.1', '::1')
 
         # add permissions:
         u_ct = ContentType.objects.get(app_label="Users", model="serviceuser")
