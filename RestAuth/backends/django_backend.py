@@ -358,8 +358,12 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
 
     def set_groups_for_user(self, service, user, groupnames, transaction=True, dry=False):
         user.group_set.filter(service=service).delete()  # clear existing groups
-        groups = [Group.objects.get_or_create(service=service, name=name)[0]
-                  for name in groupnames]
+        groups = []
+        for name in groupnames:
+            try:
+                groups.append(Group.objects.get(service=service, name=name))
+            except Group.DoesNotExist:
+                groups.append(Group.objects.create(service=service, name=name))
         user.group_set.add(*groups)
 
     def add_user(self, group, user):
