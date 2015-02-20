@@ -17,8 +17,6 @@
 
 from __future__ import unicode_literals
 
-from collections import deque
-
 from django.utils import importlib
 from django.utils.module_loading import import_string
 
