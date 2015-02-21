@@ -854,6 +854,14 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertCountEqual(group_backend.parents(self.get_grp(groupname5, self.service2)), [])
 
 
+class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
+    pass
+
+
+class VerifySubgroupTests(GroupUserTests):  # GET /groups/<group>/groups/<subgroup>/
+    pass
+
+
 # DELETE /groups/<group>/groups/<subgroup>/
 class RemoveSubGroupTests(GroupUserTests):
     def test_group_doesnt_exist(self):
