@@ -928,7 +928,9 @@ class VerifySubgroupTests(GroupUserTests):  # GET /groups/<group>/groups/<subgro
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
     def test_service_isolation(self):
-        pass
+        group_backend.add_subgroup(self.group1, self.group4)
+        resp = self.get('/groups/%s/groups/%s/' % (self.group1.name, self.group4.name))
+        self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
 
 # DELETE /groups/<group>/groups/<subgroup>/
