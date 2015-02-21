@@ -307,7 +307,10 @@ class GroupGroupsIndex(RestAuthResourceView):
         subnames = [stringprep(g) for g in self._parse_put(request)]
 
         # If GroupNotFound: 404 Not Found
-        group_backend.set_subgroups(service=request.user, group=name, subgroups=subnames)
+        group = group_backend.get(service=request.user, name=name)
+        subgroups = [group_backend.get(service=request.user, name=n) for n in subnames]
+
+        group_backend.set_subgroups(group=group, subgroups=subgroups)
 
         self.log.info('Set sub-groups', extra=largs)
         return HttpResponseNoContent()
