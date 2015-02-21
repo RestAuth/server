@@ -405,6 +405,11 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
 
         group.groups.add(subgroup)
 
+    def set_subgroups(self, group, subgroups):
+        pks = group.groups.filter(service=group.service).values_list('pk', flat=True)
+        group.groups.remove(*pks)
+        group.groups.add(*subgroups)
+
     def subgroups(self, group, filter=True):
         assert isinstance(group, Group)
 
