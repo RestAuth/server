@@ -18,8 +18,6 @@ from __future__ import unicode_literals
 from django.utils import six
 from django.utils.six.moves import http_client
 
-from Services.models import Service
-from Services.models import service_create
 from common.compat import encode_str as _e
 from common.testdata import CliMixin
 from common.testdata import RestAuthTest
@@ -37,7 +35,6 @@ from common.testdata import password2
 from common.testdata import password3
 from common.testdata import password4
 from common.testdata import password5
-from common.testdata import property_backend
 from common.testdata import user_backend
 from common.testdata import username1
 from common.testdata import username2
@@ -1000,7 +997,7 @@ class CliTests(RestAuthTest, CliMixin):
         user3 = user_backend.create(username3)
         group1 = group_backend.create(groupname1)
         group2 = group_backend.create(groupname2)
-        group3 = group_backend.create(groupname3)
+        group_backend.create(groupname3)
         group4 = group_backend.create(groupname4, service=self.service)
         group5 = group_backend.create(groupname5, service=self.service)
 
@@ -1078,8 +1075,8 @@ class CliTests(RestAuthTest, CliMixin):
         self.assertEqual(group_backend.list(service=None), [groupname1])
 
     def test_add_user(self):
-        user1 = user_backend.create(username1)
-        user2 = user_backend.create(username2)
+        user_backend.create(username1)
+        user_backend.create(username2)
         group1 = group_backend.create(groupname1)
         group2 = group_backend.create(groupname2, service=self.service)
 
@@ -1103,7 +1100,7 @@ class CliTests(RestAuthTest, CliMixin):
 
     def test_add_group_neither(self):  # neither group is in any service
         group1 = group_backend.create(groupname1)
-        group2 = group_backend.create(groupname2)
+        group_backend.create(groupname2)
 
         with capture() as (stdout, stderr):
             cli(['add-group',
@@ -1116,7 +1113,7 @@ class CliTests(RestAuthTest, CliMixin):
 
     def test_add_group_both(self):  # bout groups are in service
         group1 = group_backend.create(groupname1, service=self.service)
-        group2 = group_backend.create(groupname2, service=self.service)
+        group_backend.create(groupname2, service=self.service)
 
         with capture() as (stdout, stderr):
             cli(['add-group', '--service=%s' % self.service.username,
