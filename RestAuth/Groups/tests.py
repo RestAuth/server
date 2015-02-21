@@ -920,10 +920,12 @@ class VerifySubgroupTests(GroupUserTests):  # GET /groups/<group>/groups/<subgro
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_metagroup_doesnt_exist(self):
-        pass
+        resp = self.get('/groups/%s/groups/%s/' % (groupname6, self.group2.name))
+        self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
     def test_subgroup_doesnt_exist(self):
-        pass
+        resp = self.get('/groups/%s/groups/%s/' % (self.group1.name, groupname6))
+        self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
     def test_service_isolation(self):
         pass
