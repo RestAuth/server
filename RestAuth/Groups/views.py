@@ -112,8 +112,7 @@ class GroupsView(RestAuthView):
     def put(self, request, largs):
         """Set groups of a user."""
 
-        if not request.user.has_perm('Groups.group_remove_user') or not \
-                request.user.has_perm('Groups.group_add_user'):
+        if not request.user.has_perms(['Groups.group_remove_user', 'Groups.group_add_user']):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
@@ -198,8 +197,7 @@ class GroupUsersIndex(RestAuthResourceView):
     def put(self, request, largs, name):
         """Set users of a group."""
 
-        if not request.user.has_perm('Groups.group_add_user') or \
-                not request.user.has_perm('Groups.group_remove_user'):
+        if not request.user.has_perms(['Groups.group_add_user', 'Groups.group_remove_user']):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
@@ -300,8 +298,7 @@ class GroupGroupsIndex(RestAuthResourceView):
     def put(self, request, largs, name):
         """Set the sub-groups of a group."""
 
-        if not request.user.has_perm('Groups.group_add_group') or \
-                not request.user.has_perm('Groups.group_remove_group'):
+        if not request.user.has_perms(['Groups.group_add_group', 'Groups.group_remove_group']):
             return HttpResponseForbidden()
 
         subnames = [stringprep(g) for g in self._parse_put(request)]
