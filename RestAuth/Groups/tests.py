@@ -514,6 +514,63 @@ class AddUserToGroupTests(GroupUserTests):  # POST /groups/<group>/users/
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
 
 
+class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
+    def test_basic(self):
+        usernames = (
+            [],
+            [self.user1.username],
+            [self.user1.username, self.user2.username],
+            [self.user1.username, self.user2.username, self.user3.username],
+        )
+
+        for names in usernames:
+            resp = self.put('/groups/%s/users/' % self.group1.name, {'users': names})
+            self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+            self.assertEqual(group_backend.members(self.group1), names)
+
+    def test_non_existing_user(self):
+        resp = self.put('/groups/%s/users/' % self.group1.name, {'users': [username5]})
+        self.assertEqual(resp.status_code, http_client.NOT_FOUND)
+        self.assertEqual(group_backend.members(self.group1), [])
+
+    def test_service_inheritance(self):
+        # user1 membership in group2 is inherited
+        group_backend.add_user(group=self.group1, user=self.user1)
+        group_backend.add_subgroup(group=self.group1, subgroup=self.group2)
+        self.assertCountEqual(group_backend.members(self.group1), [self.user1.username])
+        self.assertCountEqual(group_backend.members(self.group2), [self.user1.username])
+
+        # Set user2 to group2, user1 is still member because of inheritance
+        resp = self.put('/groups/%s/users/' % self.group2.name, {'users': [self.user2.username]})
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+        self.assertEqual(group_backend.members(self.group2),
+                         [self.user1.username, self.user2.username])
+
+    def test_service_isolation(self):
+        # user1 membership in group2 is inherited
+        metagroup = group_backend.create(groupname4, service=self.service)
+        group_backend.add_user(group=metagroup, user=self.user1)
+        group_backend.add_subgroup(group=metagroup, subgroup=self.group2)
+        self.assertCountEqual(group_backend.members(metagroup), [self.user1.username])
+        self.assertCountEqual(group_backend.members(self.group2), [self.user1.username])
+
+        resp = self.put('/groups/%s/users/' % self.group2.name, {'users': [self.user2.username]})
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+
+        self.assertEqual(group_backend.members(metagroup), [self.user1.username])
+        self.assertEqual(group_backend.members(self.group2), [self.user1.username, self.user2.username])
+
+    def test_bad_request(self):
+        resp = self.put('/groups/%s/users/' % groupname1, {})
+        self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
+
+        resp = self.put('/groups/%s/users/' % groupname1, {'foo': 'bar'})
+        self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
+
+        resp = self.put('/groups/%s/users/' % groupname1, {'user': username1, 'foo': 'bar'})
+        self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
+
+
 # GET /groups/<group>/users/<user>/
 class VerifyUserInGroupTests(GroupUserTests):
     def is_member(self, groupname, username):
