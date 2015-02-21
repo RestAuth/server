@@ -323,6 +323,8 @@ class coverage(Command):
             'RestAuth/*/tests.py',
         ]
 
+        import django
+        django.setup()
         from django.conf import settings
         from django.core.management import call_command
         from django.utils import six
