@@ -366,6 +366,10 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
                 groups.append(Group.objects.create(service=service, name=name))
         user.group_set.add(*groups)
 
+    def set_users_for_group(self, group, users):
+        group.users.clear()
+        group.users.add(*users)
+
     def add_user(self, group, user):
         assert isinstance(group, Group)
         assert isinstance(user, User)
