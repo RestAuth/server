@@ -419,6 +419,9 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
         else:
             return group.groups.all()
 
+    def has_subgroup(self, group, subgroup):
+        return group.groups.filter(pk=subgroup.pk).exists()
+
     def rm_subgroup(self, group, subgroup):
         assert isinstance(group, Group)
         assert isinstance(subgroup, Group)
