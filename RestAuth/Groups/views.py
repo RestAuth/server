@@ -323,7 +323,8 @@ class GroupGroupHandler(RestAuthSubResourceView):
     http_method_names = ['get', 'delete']
 
     def get(self, request, largs, name, subname):
-        if not request.user.has_perm('Groups.subgroup_exists'):
+        if not request.user.has_perm('Groups.group_groups_list'):
+            print('forbidden!')
             return HttpResponseForbidden()
 
         # If GroupNotFound: 404 Not Found
