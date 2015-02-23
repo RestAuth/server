@@ -39,7 +39,7 @@ def get_group_backend():
 def get_backend():
     config = getattr(settings, 'DATA_BACKEND', {
         'BACKEND': 'backends.django.DjangoBackend',
-    })
+    }).copy()
     backend_cls = import_string(config.pop('BACKEND', 'backends.django.DjangoBackend'))
     return backend_cls(**config)
 
