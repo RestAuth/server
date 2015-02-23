@@ -23,6 +23,7 @@ from django.utils import six
 from Groups.models import Group
 from Users.models import Property
 from Users.models import ServiceUser as User
+from backends.base import BackendBase
 from backends.base import GroupBackend
 from backends.base import PropertyBackend
 from backends.base import UserBackend
@@ -33,6 +34,10 @@ from common.errors import PropertyExists
 from common.errors import PropertyNotFound
 from common.errors import UserExists
 from common.errors import UserNotFound
+
+
+class DjangoBackend(BackendBase):
+    pass
 
 
 class DjangoTransactionManager(object):
