@@ -279,6 +279,9 @@ class test(Command):
 
     def run(self):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
+        import django
+        django.setup()
+
         from django.core.management import call_command
 
         if self.app:
