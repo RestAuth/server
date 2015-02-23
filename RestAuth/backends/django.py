@@ -15,6 +15,8 @@
 
 from __future__ import unicode_literals, absolute_import
 
+import warnings
+
 from django.contrib.auth.models import User as BaseUser
 from django.db import transaction as dj_transaction
 from django.db.utils import IntegrityError
@@ -73,6 +75,10 @@ class DjangoBackend(BackendBase):
 
     def atomic(self, dry=False):
         return DjangoTransactionManager(dry=dry, using=self.db)
+
+    def get(self, username):
+        warnings.warn("Deprecated!")
+        return User.objects.get(username=username)
 
     def create_user(self, username, password=None, properties=None, groups=None, dry=False):
         with self.atomic(dry=dry):
