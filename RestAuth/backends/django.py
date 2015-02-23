@@ -65,6 +65,12 @@ class DjangoBackend(BackendBase):
     def __init__(self, USING=None):
         self.db = USING
 
+    def _user(self, username, *fields):
+        try:
+            return User.objects.only(*fields).get(username=username)
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+
     def atomic(self, dry=False):
         return DjangoTransactionManager(dry=dry, using=self.db)
 
@@ -100,11 +106,7 @@ class DjangoBackend(BackendBase):
         return User.objects.filter(username=username).exists()
 
     def rename_user(self, username, name):
-        try:
-            user = User.objects.only('username').get(username=username)
-        except User.DoesNotExist:
-            raise UserNotFound(username)
-
+        user = self._user(username, 'username')
         user.username = name
         try:
             user.save()
@@ -112,17 +114,10 @@ class DjangoBackend(BackendBase):
             raise UserExists("User already exists.")
 
     def check_password(self, username, password):
-        try:
-            user = User.objects.only('password').get(username=username)
-        except User.DoesNotExist:
-            raise UserNotFound(username)
-        return user.check_password(password)
+        return self._user('password').check_password(password)
 
     def set_password(self, username, password=None):
-        try:
-            user = User.objects.only('id').get(username=username)
-        except User.DoesNotExist:
-            raise UserNotFound(username)
+        user = self._user('id')
 
         if password is not None and password != '':
             user.set_password(password)
@@ -132,10 +127,7 @@ class DjangoBackend(BackendBase):
         user.save()
 
     def set_password_hash(self, username, algorithm, hash):
-        try:
-            user = User.objects.only('password').get(username=username)
-        except User.DoesNotExist:
-            raise UserNotFound(username)
+        user = self._user('password')
 
         user.password = import_hash(algorithm=algorithm, hash=hash)
         user.save()
