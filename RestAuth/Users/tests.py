@@ -24,7 +24,7 @@ from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.hashers import make_password
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.utils import six
 from django.utils.six import StringIO
@@ -35,6 +35,7 @@ from django.utils.six.moves import http_client
 
 from Users.cli.parsers import parser
 from Users.validators import load_username_validators
+from backends import backend
 from common.cli.helpers import write_commands
 from common.cli.helpers import write_usage
 from common.cli.helpers import write_parameters
@@ -42,7 +43,6 @@ from common.errors import UserNotFound
 from common.errors import PropertyNotFound
 from common.testdata import CliMixin
 from common.testdata import PASSWORD_HASHERS
-from common.testdata import RestAuthTest
 from common.testdata import RestAuthTestBase
 from common.testdata import RestAuthTransactionTest
 from common.testdata import capture
@@ -69,7 +69,7 @@ from common.testdata import username3
 restauth_user = getattr(__import__('bin.restauth-user'), 'restauth-user').main
 
 
-class GetUsersTests(RestAuthTest):  # GET /users/
+class GetUsersTests(RestAuthTransactionTest):  # GET /users/
     def test_get_empty_users(self):
         resp = self.get('/users/')
         self.assertEqual(resp.status_code, http_client.OK)
@@ -266,9 +266,9 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(self.get_usernames(), [])
 
 
-class UserTests(RestAuthTest):
+class UserTests(RestAuthTransactionTest):
     def setUp(self):
-        RestAuthTest.setUp(self)
+        super(UserTests, self).setUp()
 
         # two users, so we can make sure nothing leaks to the other user
         self.user1 = self.create_user(username1, password1)
@@ -770,7 +770,7 @@ class HashTestMixin(RestAuthTestBase):
     def test_backend(self):
         # test password during creation:
         for password, data in six.iteritems(self.testdata):
-            user = user_backend.create(username=username1, password=password)
+            user = backend.create_user(username=username1, password=password)
             self.assertTrue(user.password.startswith('%s$' % self.algorithm))
             self.assertTrue(user_backend.check_password(username1, password))
 
@@ -778,7 +778,7 @@ class HashTestMixin(RestAuthTestBase):
 
         # test password for set_password:
         for password, data in six.iteritems(self.testdata):
-            user = user_backend.create(username=username1)
+            user = backend.create_user(username=username1)
             user_backend.set_password(username=username1, password=password)
             self.assertTrue(user_backend.check_password(username1, password))
             self.assertTrue(user_backend.check_password(username1, password))
@@ -792,7 +792,7 @@ class HashTestMixin(RestAuthTestBase):
 
 @override_settings(PASSWORD_HASHERS=('common.hashers.Drupal7Hasher',
                                      'django.contrib.auth.hashers.MD5PasswordHasher',))
-class Drupal7Test(HashTestMixin, TestCase):
+class Drupal7Test(HashTestMixin, TransactionTestCase):
     hashers = ('common.hashers.Drupal7Hasher',)
     algorithm = 'drupal7'
 
@@ -827,7 +827,7 @@ class Drupal7Test(HashTestMixin, TestCase):
 
 
 @override_settings(PASSWORD_HASHERS=('common.hashers.Sha512Hasher',))
-class Sha512Test(HashTestMixin, TestCase):
+class Sha512Test(HashTestMixin, TransactionTestCase):
     hashers = ('common.hashers.Sha512Hasher',)
     algorithm = 'sha512'
 
@@ -846,7 +846,7 @@ class Sha512Test(HashTestMixin, TestCase):
 
 
 @override_settings(PASSWORD_HASHERS=('common.hashers.MediaWikiHasher',))
-class MediaWikiTest(HashTestMixin, TestCase):
+class MediaWikiTest(HashTestMixin, TransactionTestCase):
     hashers = ('common.hashers.MediaWikiHasher',)
     algorithm = 'mediawiki'
 
@@ -863,7 +863,7 @@ class MediaWikiTest(HashTestMixin, TestCase):
     }
 
 
-class CliTests(RestAuthTest, CliMixin):
+class CliTests(RestAuthTransactionTest, CliMixin):
     def test_add(self):
         with capture() as (stdout, stderr):
             restauth_user(['add', '--password', password1,

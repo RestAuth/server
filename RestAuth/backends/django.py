@@ -36,11 +36,66 @@ from common.errors import UserExists
 from common.errors import UserNotFound
 
 
-class DjangoBackend(BackendBase):
-    pass
-
-
 class DjangoTransactionManager(object):
+    def __init__(self, dry, using=None):
+        self.dry = dry
+        self.using = using
+
+    def __enter__(self):
+        dj_transaction.set_autocommit(False, using=None)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            if self.dry or exc_type:
+                dj_transaction.rollback(using=self.using)
+            else:
+                dj_transaction.commit(using=self.using)
+        finally:
+            dj_transaction.set_autocommit(True, using=self.using)
+
+    #TODO: Can be removed:
+    def __eq__(self, other):
+        return isinstance(other, type(self))
+
+    #TODO: Can be removed:
+    def __hash__(self):
+        return hash(type(self))
+
+
+class DjangoBackend(BackendBase):
+    def __init__(self, USING=None):
+        self.db = USING
+
+    def atomic(self, dry=False):
+        return DjangoTransactionManager(dry=dry, using=self.db)
+
+    def create_user(self, username, password=None, properties=None, groups=None, dry=False):
+        with self.atomic(dry=dry):
+            try:
+                user = User(username=username)
+                user.set_password(password)
+                if password is not None and password != '':
+                    user.set_password(password)
+                user.save()
+            except IntegrityError:
+                raise UserExists("A user with the given name already exists.")
+
+            if properties:  # create properties
+                user.create_properties(properties)
+
+            if groups:  # add groups
+                _groups = []
+                for name, service in groups:
+                    try:
+                        _groups.append(Group.objects.get(service=service, name=name))
+                    except Group.DoesNotExist:
+                        _groups.append(Group.objects.create(service=service, name=name))
+                user.group_set.add(*_groups)
+
+        return user  #TODO: We should not need to return anything!
+
+
+class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
         self.backend = backend
         self.dry = dry
@@ -74,7 +129,7 @@ class DjangoTransactionMixin(object):
         dj_transaction.set_autocommit(True)
 
     def transaction_manager(self, dry=False):
-        return DjangoTransactionManager(self, dry=dry)
+        return DjangoTransactionManagerOld(self, dry=dry)
 
 
 class DjangoUserBackend(DjangoTransactionMixin, UserBackend):
@@ -101,39 +156,6 @@ class DjangoUserBackend(DjangoTransactionMixin, UserBackend):
 
     def list(self):
         return list(User.objects.values_list('username', flat=True))
-
-    def _create(self, username, password=None, dry=False, transaction=True):
-        assert isinstance(username, six.string_types)
-        assert isinstance(password, six.string_types) or password is None
-
-        try:
-            user = User(username=username)
-            if password is not None and password != '':
-                user.set_password(password)
-            user.save()
-        except IntegrityError:
-            raise UserExists("A user with the given name already exists.")
-
-        return user
-
-    def create(self, username, password=None, dry=False, transaction=True):
-        assert isinstance(username, six.string_types)
-        assert isinstance(password, six.string_types) or password is None
-
-        if dry:
-            dj_transaction.set_autocommit(False)
-
-            try:
-                return self._create(username, password, dry=dry,
-                                    transaction=transaction)
-            finally:
-                dj_transaction.rollback()
-                dj_transaction.set_autocommit(True)
-        elif transaction:
-            with dj_transaction.atomic():
-                return self._create(username, password, dry=dry, transaction=transaction)
-        else:
-            return self._create(username, password, dry=dry, transaction=transaction)
 
     def rename(self, username, name):
         assert isinstance(username, six.string_types)

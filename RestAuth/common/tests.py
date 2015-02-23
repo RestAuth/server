@@ -34,6 +34,7 @@ from Users.validators import Validator
 from Users.validators import get_validators
 from Users.validators import load_username_validators
 from Users.validators import validate_username
+from backends import backend
 from backends.base import GroupInstance
 from backends.base import UserInstance
 from common.content_handlers import get_handler
@@ -461,7 +462,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         self.test_users(overwrite=True)
 
     def test_skip_existing_users(self):
-        user = user_backend.create(username2)
+        user = backend.create_user(username2)
         property_backend.set(user, propkey1, propval3)
         property_backend.set(user, "date joined", propval3)
 
@@ -478,7 +479,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 stdout, '^\* %s: Hash of type "unknown" is not supported, skipping\.$' % username1)
 
     def test_existing_properties(self):
-        user = user_backend.create(username2)
+        user = backend.create_user(username2)
         property_backend.create(user, propkey1, propval3)  # propval1 is in json file
         property_backend.create(user, "date joined", propval3)
 
@@ -523,9 +524,9 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertHasLine(stderr, '^TypeError: password is of type list.$')
 
     def test_groups(self):
-        user1 = user_backend.create(username1)
-        user2 = user_backend.create(username2)
-        user3 = user_backend.create(username3)
+        backend.create_user(username1)
+        backend.create_user(username2)
+        backend.create_user(username3)
 
         path = os.path.join(self.base, 'groups1.json')
         with capture() as (stdout, stderr):
@@ -549,10 +550,10 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         self.assertCountEqual(group_backend.members(group4), [username1, username2])
 
     def test_existing_groups(self):
-        user1 = user_backend.create(username1)
-        user2 = user_backend.create(username2)
-        user3 = user_backend.create(username3)
-        user4 = user_backend.create(username4)  # new user
+        user1 = backend.create_user(username1)
+        backend.create_user(username2)
+        backend.create_user(username3)
+        user4 = backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
         group2 = group_backend.create(groupname2, service=self.service)
@@ -582,10 +583,10 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_skip_existing_groups(self):
         # same test-setup as above, only we skip existing groups
-        user1 = user_backend.create(username1)
-        user2 = user_backend.create(username2)
-        user3 = user_backend.create(username3)
-        user4 = user_backend.create(username4)  # new user
+        user1 = backend.create_user(username1)
+        backend.create_user(username2)
+        backend.create_user(username3)
+        user4 = backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
         group2 = group_backend.create(groupname2, service=self.service)

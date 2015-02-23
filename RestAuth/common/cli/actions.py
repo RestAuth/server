@@ -32,7 +32,7 @@ from Services.models import Service
 from Services.models import ServiceUsernameNotValid
 from Services.models import check_service_username
 from Users.validators import validate_username
-from backends import property_backend
+from backends import backend
 from backends import user_backend
 from common.errors import UserExists
 from common.errors import UserNotFound
@@ -78,7 +78,7 @@ class UsernameAction(Action):
 
             try:
                 validate_username(username)
-                user = user_backend.create(username=username)
+                user = backend.create_user(username=username)
             except UserExists:
                 raise ArgumentError(self, 'User already exists.')
             except PreconditionFailed as e:

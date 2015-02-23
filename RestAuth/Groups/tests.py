@@ -18,9 +18,9 @@ from __future__ import unicode_literals
 from django.utils import six
 from django.utils.six.moves import http_client
 
+from backends import backend
 from common.compat import encode_str as _e
 from common.testdata import CliMixin
-from common.testdata import RestAuthTest
 from common.testdata import RestAuthTransactionTest
 from common.testdata import capture
 from common.testdata import group_backend
@@ -35,7 +35,6 @@ from common.testdata import password2
 from common.testdata import password3
 from common.testdata import password4
 from common.testdata import password5
-from common.testdata import user_backend
 from common.testdata import username1
 from common.testdata import username2
 from common.testdata import username3
@@ -1012,7 +1011,7 @@ class RemoveSubGroupTests(GroupUserTests):
                               [self.group1])
 
 
-class CliTests(RestAuthTest, CliMixin):
+class CliTests(RestAuthTransactionTest, CliMixin):
     def test_add(self):
         with capture() as (stdout, stderr):
             cli(['add', groupname1 if six.PY3 else groupname1.encode('utf-8')])
@@ -1066,9 +1065,9 @@ class CliTests(RestAuthTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
     def test_view(self):
-        user1 = user_backend.create(username1)
-        user2 = user_backend.create(username2)
-        user3 = user_backend.create(username3)
+        user1 = backend.create_user(username1)
+        user2 = backend.create_user(username2)
+        user3 = backend.create_user(username3)
         group1 = group_backend.create(groupname1)
         group2 = group_backend.create(groupname2)
         group_backend.create(groupname3)
@@ -1149,8 +1148,8 @@ class CliTests(RestAuthTest, CliMixin):
         self.assertEqual(group_backend.list(service=None), [groupname1])
 
     def test_add_user(self):
-        user_backend.create(username1)
-        user_backend.create(username2)
+        backend.create_user(username1)
+        backend.create_user(username2)
         group1 = group_backend.create(groupname1)
         group2 = group_backend.create(groupname2, service=self.service)
 
@@ -1234,7 +1233,7 @@ class CliTests(RestAuthTest, CliMixin):
 
     def test_rm_user(self):
         group = group_backend.create(groupname1)
-        user = user_backend.create(username1)
+        user = backend.create_user(username1)
         group_backend.add_user(group, user)
         self.assertEqual(group_backend.members(group), [username1])
 

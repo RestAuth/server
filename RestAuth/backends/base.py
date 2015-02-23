@@ -79,7 +79,7 @@ class BackendBase(object):
     _library = None
     library = None
 
-    def load_library(self):
+    def _load_library(self):
         if self._library is not None:
             return self._library
 
@@ -96,6 +96,35 @@ class BackendBase(object):
             return self._library
         except ImportError as e:
             raise ValueError("Couldn't load %r: %s" % (self.__class__.__name__, e))
+
+    def create_user(self, username, password=None, properties=None, groups=None, dry=False):
+        """Create a new user.
+
+        The ``username`` is already validated, so you don't need to do any additional validation
+        here. If your backend has username restrictions, please implement a :ref:`username
+        validator <implement-validators>`.
+
+        The ``dry`` parameter tells you if you should actually create the user. The parameter will
+        be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
+        dry-run, the method should behave as closely as possible to a normal invocation but
+        shouldn't actually create the user.
+
+        :param   username: The username.
+        :type    username: str
+        :param   password: The password to set. If not given, the user should not have a valid
+            password and is unable to log in.
+        :type    password: str
+        :param properties: An initial set of properties.
+        :type  properties: dict
+        :param     groups: An inital set of groups.
+        :type      groups: list
+        :param        dry: Wether or not to actually create the user.
+        :type         dry: boolean
+        :return: A user object providing at least the properties of the UserInstance class.
+        :rtype: :py:class:`~.UserInstance`
+        :raise: :py:class:`~common.errors.UserExists` if the user already exist.
+        """
+        raise NotImplementedError
 
 
 class RestAuthBackend(object):  # pragma: no cover
@@ -239,45 +268,6 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
 
         :return: A list of usernames.
         :rtype: list
-        """
-        raise NotImplementedError
-
-    def create(self, username, password=None, dry=False, transaction=True):
-        """Create a new user.
-
-        The ``username`` is already validated, so you don't need to do any additional validation
-        here. If your backend has username restrictions, please implement a :ref:`username
-        validator <implement-validators>`.
-
-        If ``properties`` are passed, please use the property backend to store the properties:
-
-        .. code-block:: python
-
-           user = ...  # create the user
-           self.property_backend.set_multiple(user, properties, dry=dry)
-           return user
-
-        The ``dry`` parameter tells you if you should actually create the user. The parameter will
-        be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the user.
-
-        :param username: The username.
-        :type  username: str
-        :param password: The password to set. If not given, the user should not have a valid
-            password and is unable to log in.
-        :type  password: str
-        :param dry: Wether or not to actually create the user.
-        :type  dry: boolean
-        :param transaction: If False, the statement is executed in a larger transactional context,
-            meaning that transactions are already handled by
-            :py:meth:`~RestAuthBackend.init_transaction`,
-            :py:meth:`~RestAuthBackend.commit_transaction` and
-            :py:meth:`~RestAuthBackend.rollback_transaction`.
-        :type  transaction: boolean
-        :return: A user object providing at least the properties of the UserInstance class.
-        :rtype: :py:class:`~.UserInstance`
-        :raise: :py:class:`~common.errors.UserExists` if the user already exist.
         """
         raise NotImplementedError
 

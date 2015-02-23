@@ -52,6 +52,7 @@ try:
 
     from Services.models import Service
     from Services.models import ServiceAddress
+    from backends import backend
     from backends import group_backend
     from backends import property_backend
     from backends import user_backend
@@ -125,7 +126,7 @@ def save_users(users, args, parser):
         username = username.lower()
 
         try:
-            user = user_backend.create(username=username, transaction=False)
+            user = backend.create_user(username=username)
             created = True
         except UserExists:
             user = user_backend.get(username=username)

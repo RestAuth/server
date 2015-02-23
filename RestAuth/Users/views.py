@@ -29,6 +29,7 @@ from RestAuthCommon.strprep import stringcheck
 
 from Users.validators import validate_username
 from backends import transaction
+from backends import backend
 from backends import group_backend
 from backends import property_backend
 from backends import user_backend
@@ -86,6 +87,7 @@ class UsersView(RestAuthView):
         # check password:
         if password:
             if len(password) < settings.MIN_PASSWORD_LENGTH:
+                # If PasswordInvalid: 412 Precondition Failed
                 raise PasswordInvalid("Password too short")
         else:
             password = None
@@ -102,20 +104,12 @@ class UsersView(RestAuthView):
 
         # normalize groups
         if groups:
-            groups = [stringcheck(g) for g in groups]
+            groups = [(stringcheck(g), request.user) for g in groups]
 
-        # If ResourceExists: 409 Conflict
-        # If PasswordInvalid: 412 Precondition Failed
-        with transaction(users=True, props=True, groups=bool(groups), dry=dry):
-            user = user_backend.create(username=name, password=password, transaction=False,
-                                       dry=dry)
-            property_backend.set_multiple(user, properties, transaction=False, dry=dry)
-
-            if groups:
-                group_backend.set_groups_for_user(service=request.user, user=user,
-                                                  groupnames=groups, transaction=False, dry=dry)
-
-            self.log.info('%s: Created user', user.username, extra=largs)
+        # If UserExists: 409 Conflict
+        backend.create_user(username=name, password=password, properties=properties, groups=groups,
+                            dry=dry)
+        self.log.info('%s: Created user', name, extra=largs)
 
         return HttpResponseCreated()
 

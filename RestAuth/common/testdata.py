@@ -37,6 +37,7 @@ from Groups.models import group_permissions
 from Services.models import service_create
 from Users.models import prop_permissions
 from Users.models import user_permissions
+from backends import backend
 from backends import group_backend
 from backends import property_backend
 from backends import user_backend
@@ -146,9 +147,9 @@ class RestAuthTestBase(object):
         return func(body)
 
     def create_user(self, username, password=None):
-        user = user_backend.create(username=username, password=password)
-        property_backend.create(user, 'date joined', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        return user
+        return backend.create_user(username=username, password=password, properties={
+            'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        })
 
     def create_group(self, service, groupname):
         return group_backend.create(name=groupname, service=service)
