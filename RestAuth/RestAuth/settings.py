@@ -47,6 +47,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'common.middleware.RestAuthMiddleware',
 )
+DATA_BACKEND = {
+    'BACKEND': 'backends.django.DjangoBackend',
+}
 
 CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = 'restauth'

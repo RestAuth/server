@@ -25,7 +25,7 @@ from django.utils import six
 from RestAuthCommon.strprep import stringcheck
 from RestAuthCommon.strprep import stringprep
 
-from backends import user_backend
+from backends import backend
 from backends import group_backend
 from common.errors import UserNotFound
 from common.errors import GroupNotFound
@@ -65,7 +65,7 @@ class GroupsView(RestAuthView):
                 return HttpResponseForbidden()
 
             # Get all groups of a user
-            user = user_backend.get(username=stringprep(username))
+            user = backend.get(username=stringprep(username))
             groups = group_backend.list(service=request.user, user=user)
 
         groups = [g.lower() for g in groups]
@@ -75,7 +75,7 @@ class GroupsView(RestAuthView):
         users = []
         for username in [stringprep(u) for u in usernames]:
             try:
-                users.append(user_backend.get(username))
+                users.append(backend.get(username))
             except UserNotFound:
                 pass
         return users
@@ -84,7 +84,7 @@ class GroupsView(RestAuthView):
         groups = []
         for groupname in [stringprep(u) for u in groupnames]:
             try:
-                groups.append(user_backend.get(groupname))
+                groups.append(backend.get(groupname))
             except UserNotFound:
                 groups.append(
                     group_backend.create(groupname, service=service, dry=dry, transaction=False))
@@ -119,7 +119,7 @@ class GroupsView(RestAuthView):
         groupnames, username = self._parse_put(request)
 
         # If PreconditionFailed: 412 Precondition Failed
-        user = user_backend.get(username=stringprep(username))
+        user = backend.get(username=stringprep(username))
         groupnames = [stringprep(g) for g in groupnames]
 
         group_backend.set_groups_for_user(service=request.user, user=user, groupnames=groupnames)
@@ -187,7 +187,7 @@ class GroupUsersIndex(RestAuthResourceView):
         group = group_backend.get(service=request.user, name=name)
 
         # If UserNotFound: 404 Not Found
-        user = user_backend.get(username=username)
+        user = backend.get(username=username)
 
         group_backend.add_user(group=group, user=user)
 
@@ -207,7 +207,7 @@ class GroupUsersIndex(RestAuthResourceView):
         group = group_backend.get(service=request.user, name=name)
 
         # If UserNotFound: 404 Not Found
-        users = [user_backend.get(u) for u in users]
+        users = [backend.get(u) for u in users]
 
         group_backend.set_users_for_group(group=group, users=users)
 
@@ -231,7 +231,7 @@ class GroupUserHandler(RestAuthSubResourceView):
         group = group_backend.get(service=request.user, name=name)
 
         # If UserNotFound: 404 Not Found
-        user = user_backend.get(username=subname)
+        user = backend.get(username=subname)
 
         if group_backend.is_member(group=group, user=user):
             return HttpResponseNoContent()
@@ -248,7 +248,7 @@ class GroupUserHandler(RestAuthSubResourceView):
         group = group_backend.get(service=request.user, name=name)
 
         # If UserNotFound: 404 Not Found
-        user = user_backend.get(username=subname)
+        user = backend.get(username=subname)
 
         group_backend.rm_user(group=group, user=user)
         self.log.info('Remove user from group', extra=largs)

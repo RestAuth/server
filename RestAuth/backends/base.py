@@ -97,6 +97,23 @@ class BackendBase(object):
         except ImportError as e:
             raise ValueError("Couldn't load %r: %s" % (self.__class__.__name__, e))
 
+    def testSetUp(self):
+        """Set up your backend for a test run.
+
+        This method is exclusively used in unit tests. It should perform any actions necessary to
+        start a unit test.
+        """
+        pass
+
+    def testTearDown(self):
+        """Tear down your backend after a test run.
+
+        This method is exclusively used in unit tests. It should perform any actions necessary
+        after a unit test. In general, this should completely wipe all users created during a unit
+        test.
+        """
+        pass
+
     def create_user(self, username, password=None, properties=None, groups=None, dry=False):
         """Create a new user.
 

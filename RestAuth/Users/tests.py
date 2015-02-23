@@ -61,7 +61,6 @@ from common.testdata import propval2
 from common.testdata import propval3
 from common.testdata import propval4
 from common.testdata import propval5
-from common.testdata import user_backend
 from common.testdata import username1
 from common.testdata import username2
 from common.testdata import username3
@@ -105,7 +104,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
         self.assertPassword(username1, password1)
-        user = user_backend.get(username1)
+        user = backend.get(username1)
         self.assertProperties(user, {})
 
     def test_add_two_users(self):
@@ -114,13 +113,13 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(self.get_usernames(), [username1])
         self.assertPassword(username1, password1)
         self.assertFalsePassword(username1, password2)
-        user1 = user_backend.get(username1)
+        user1 = backend.get(username1)
         self.assertProperties(user1, {})
 
         resp = self.post('/users/', {'user': username2, 'password': password2, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1, username2])
-        user2 = user_backend.get(username2)
+        user2 = backend.get(username2)
         self.assertProperties(user2, {})
 
         self.assertPassword(username1, password1)
@@ -133,7 +132,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         resp = self.post('/users/', {'user': username1, 'password': password1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
-        user = user_backend.get(username1)
+        user = backend.get(username1)
         self.assertProperties(user, {})
 
         self.assertPassword(username1, password1)
@@ -155,12 +154,12 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertFalsePassword(username1, '')
         self.assertFalsePassword(username1, password1)
         self.assertFalsePassword(username1, password2)
-        self.assertProperties(user_backend.get(username1), {})
+        self.assertProperties(backend.get(username1), {})
 
         resp = self.post('/users/', {'user': username2, 'password': '', })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1, username2])
-        user = user_backend.get(username2)
+        user = backend.get(username2)
         self.assertFalsePassword(username2, '')
         self.assertFalsePassword(username2, password1)
         self.assertFalsePassword(username2, password2)
@@ -169,7 +168,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         resp = self.post('/users/', {'user': username3, 'password': None, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertCountEqual(self.get_usernames(), [username1, username2, username3])
-        user = user_backend.get(username3)
+        user = backend.get(username3)
         self.assertFalsePassword(username3, '')
         self.assertFalsePassword(username3, password1)
         self.assertFalsePassword(username3, password2)
@@ -181,20 +180,20 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
 
-        user = user_backend.get(username1)
+        user = backend.get(username1)
         self.assertProperties(user, {propkey1: propval1, })
 
     def test_add_user_with_properties(self):
         props = {propkey1: propval1, propkey2: propval2, }
         resp = self.post('/users/', {'user': username1, 'properties': props, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertProperties(user_backend.get(username1), props)
+        self.assertProperties(backend.get(username1), props)
 
     def test_add_user_with_date_joined(self):
         props = {propkey1: propval1, 'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
         resp = self.post('/users/', {'user': username1, 'properties': props, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        user = user_backend.get(username1)
+        user = backend.get(username1)
         self.assertEqual(property_backend.list(user), props)
 
     def test_add_user_with_invalid_properties(self):
@@ -206,13 +205,13 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
     def test_add_user_with_group(self):
         resp = self.post('/users/', {'user': username1, 'groups': []})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        user = user_backend.get(username1)
+        user = backend.get(username1)
         self.assertEqual(group_backend.list(service=self.service, user=user), [])
 
         groups = [groupname1]
         resp = self.post('/users/', {'user': username2, 'groups': groups})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        user = user_backend.get(username2)
+        user = backend.get(username2)
         group = group_backend.get(service=self.service, name=groupname1)
         self.assertTrue(group_backend.is_member(group, user))
         self.assertEqual(group_backend.list(service=self.service, user=user), groups)
@@ -220,7 +219,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         groups = [groupname1, groupname2]
         resp = self.post('/users/', {'user': username3, 'groups': [groupname1, groupname2]})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        user = user_backend.get(username3)
+        user = backend.get(username3)
         self.assertEqual(group_backend.list(service=self.service, user=user), groups)
 
     def test_transactions(self):
@@ -324,7 +323,7 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         resp = self.post('/users/%s/' % username1, data)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
-    @skipUnless(settings.USER_BACKEND == 'backends.django.DjangoUserBackend', '')
+    @skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
     def test_update_password_hash(self):
         """Test if checking the password with an old hash automatically updates the hash."""
 
@@ -334,7 +333,7 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
             load_hashers()
             resp = self.post('/users/%s/' % username1, {'password': password1, })
             self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-            u = user_backend.get(username=username1)
+            u = backend.get(username=username1)
             self.assertTrue(u.password.startswith('pbkdf2_sha256$'))
 
     def test_verify_disabled_password(self):
@@ -766,7 +765,7 @@ class HashTestMixin(RestAuthTestBase):
             self.assertTrue(check_password(password, generated))
 
     @override_settings(MIN_PASSWORD_LENGTH=1)
-    @skipUnless(settings.USER_BACKEND == 'backends.django.DjangoUserBackend', '')
+    @skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
     def test_backend(self):
         # test password during creation:
         for password, data in six.iteritems(self.testdata):
@@ -783,7 +782,7 @@ class HashTestMixin(RestAuthTestBase):
             self.assertTrue(backend.check_password(username1, password))
             self.assertTrue(backend.check_password(username1, password))
 
-            user = user_backend.get(username1)
+            user = backend._user(username1, 'password')
             self.assertTrue(user.password.startswith('%s$' % self.algorithm))
             self.assertTrue(check_password(password, user.password))
 

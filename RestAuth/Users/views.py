@@ -31,7 +31,6 @@ from Users.validators import validate_username
 from backends import backend
 from backends import group_backend
 from backends import property_backend
-from backends import user_backend
 from common.errors import PasswordInvalid
 from common.errors import UserNotFound
 from common.responses import HttpResponseCreated
@@ -146,7 +145,7 @@ class UserHandlerView(RestAuthResourceView):
 
         if backend.check_password(username=name, password=password):
             if groups:
-                user = user_backend.get(username=name)
+                user = backend.get(username=name)
                 memberships = set(group_backend.list(service=request.user, user=user))
                 if not memberships.intersection(set(groups)):
                     raise UserNotFound(name)
@@ -195,7 +194,7 @@ class UserPropsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        user = user_backend.get(username=name)
+        user = backend.get(username=name)
 
         props = property_backend.list(user=user)
         return HttpRestAuthResponse(request, props)
@@ -211,7 +210,7 @@ class UserPropsIndex(RestAuthResourceView):
         key = stringcheck(key)
 
         # If UserNotFound: 404 Not Found
-        user = user_backend.get(username=name)
+        user = backend.get(username=name)
 
         # If PropertyExists: 409 Conflict
         key, value = property_backend.create(user=user, key=key, value=value, dry=dry)
@@ -226,7 +225,7 @@ class UserPropsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        user = user_backend.get(username=name)
+        user = backend.get(username=name)
         properties = {stringcheck(k): v for k, v in six.iteritems(parse_dict(request))}
 
         property_backend.set_multiple(user=user, props=properties)
@@ -247,7 +246,7 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        user = user_backend.get(username=name)
+        user = backend.get(username=name)
 
         value = property_backend.get(user=user, key=subname)
 
@@ -266,7 +265,7 @@ class UserPropHandler(RestAuthSubResourceView):
         value = self._parse_put(request)
 
         # If UserNotFound: 404 Not Found
-        user = user_backend.get(username=name)
+        user = backend.get(username=name)
 
         key, old_value = property_backend.set(user=user, key=subname, value=value)
 
@@ -288,7 +287,7 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        user = user_backend.get(username=name)
+        user = backend.get(username=name)
 
         property_backend.remove(user=user, key=subname)
         return HttpResponseNoContent()

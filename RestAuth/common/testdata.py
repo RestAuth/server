@@ -40,7 +40,6 @@ from Users.models import user_permissions
 from backends import backend
 from backends import group_backend
 from backends import property_backend
-from backends import user_backend
 
 servicename1 = 'auth.example.com'
 servicename2 = 'auth.example.net'
@@ -171,7 +170,7 @@ class RestAuthTestBase(object):
         load_hashers(('django.contrib.auth.hashers.MD5PasswordHasher', ))
 
     def tearDown(self):
-        user_backend.testTearDown()
+        backend.testTearDown()
         group_backend.testTearDown()
 
     if six.PY2:

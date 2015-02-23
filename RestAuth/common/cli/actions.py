@@ -33,7 +33,6 @@ from Services.models import ServiceUsernameNotValid
 from Services.models import check_service_username
 from Users.validators import validate_username
 from backends import backend
-from backends import user_backend
 from common.errors import UserExists
 from common.errors import UserNotFound
 
@@ -85,7 +84,7 @@ class UsernameAction(Action):
                 raise ArgumentError(self, e)
         else:
             try:
-                user = user_backend.get(username=username)
+                user = backend.get(username=username)
             except UserNotFound:
                 raise ArgumentError(self, 'User does not exist.')
         setattr(namespace, self.dest, user)

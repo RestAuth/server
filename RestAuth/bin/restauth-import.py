@@ -55,7 +55,6 @@ try:
     from backends import backend
     from backends import group_backend
     from backends import property_backend
-    from backends import user_backend
     from common.cli.parsers import parser
     from common.hashers import import_hash
     from common.errors import GroupExists
@@ -65,24 +64,6 @@ except ImportError as e:  # pragma: no cover
     sys.stderr.write(
         'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)
-
-
-def init_transaction():
-    user_backend.init_transaction()
-    property_backend.init_transaction()
-    group_backend.init_transaction()
-
-
-def commit_transaction():
-    user_backend.commit_transaction()
-    group_backend.commit_transaction()
-    property_backend.commit_transaction()
-
-
-def rollback_transaction():
-    user_backend.rollback_transaction()
-    group_backend.rollback_transaction()
-    property_backend.rollback_transaction()
 
 
 def save_services(services, args, parser):
@@ -129,7 +110,7 @@ def save_users(users, args, parser):
             user = backend.create_user(username=username)
             created = True
         except UserExists:
-            user = user_backend.get(username=username)
+            user = backend.get(username=username)
             created = False
 
         if not created and args.skip_existing_users:
@@ -203,7 +184,7 @@ def save_groups(groups, args, parser):
                 group = group_backend.get(service=service, name=name)
 
         for username in data.get('users', []):
-            user = user_backend.get(username=username)
+            user = backend.get(username=username)
             group_backend.add_user(group=group, user=user)
 
         if 'subgroups' in data:
@@ -259,7 +240,7 @@ def main(args=None):
     if not isinstance(groups, dict):
         parser.error("'groups' does not appear to be a dictionary.")
 
-    with user_backend.transaction(), property_backend.transaction(), group_backend.transaction(), \
+    with backend.atomic(), property_backend.transaction(), group_backend.transaction(), \
             ServiceTransactionManager():
         #######################
         ### Import services ###

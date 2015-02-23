@@ -47,6 +47,9 @@ DATABASES = {
         'PORT': '',
     }
 }
+DATA_BACKEND = {
+    'BACKEND': 'backends.django.DjangoBackend',
+}
 
 ALLOWED_HOSTS = [
     '[::1]',

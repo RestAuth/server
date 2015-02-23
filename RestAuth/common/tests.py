@@ -56,7 +56,6 @@ from common.testdata import propkey2
 from common.testdata import propval1
 from common.testdata import propval2
 from common.testdata import propval3
-from common.testdata import user_backend
 from common.testdata import username1
 from common.testdata import username2
 from common.testdata import username3
@@ -434,7 +433,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 self.assertTrue(backend.check_password(username3, 'foobar'))
 
             self.assertCountEqual(backend.list_users(), [username1, username2, username3])
-            user = user_backend.get(username2)
+            user = backend.get(username2)
             props = {
                 propkey1: propval1,
                 propkey2: propval2,
@@ -488,7 +487,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             cmd = [path]
             restauth_import(cmd)
             self.assertCountEqual(backend.list_users(), [username1, username2, username3])
-            user = user_backend.get(username2)
+            user = backend.get(username2)
 
             pattern = '^%s: Property "%s" already exists\.$' % (username2, propkey1)
             self.assertHasLine(stdout, pattern)
@@ -501,7 +500,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             }
 
             props = property_backend.list(user)
-            # delete 'date joined' prop because it was created by the user_backend and
+            # delete 'date joined' prop because it was created by the backend and
             # restauth-import doesn't overwrite in this invocation:
             del props['date joined']
 
