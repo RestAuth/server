@@ -161,10 +161,10 @@ class RestAuthTestBase(object):
         self.assertDictEqual(actual, expected)
 
     def assertPassword(self, username, password):
-        self.assertTrue(user_backend.check_password(username, password))
+        self.assertTrue(backend.check_password(username, password))
 
     def assertFalsePassword(self, username, password):
-        self.assertFalse(user_backend.check_password(username, password))
+        self.assertFalse(backend.check_password(username, password))
 
     @classmethod
     def setUpClass(cls):

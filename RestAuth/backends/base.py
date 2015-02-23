@@ -147,6 +147,72 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def rename_user(self, username, name):
+        """Rename a user.
+
+        This operation is only available via |bin-restauth-user-doc|.
+
+        :param username: The username.
+        :type  username: str
+        :param     name: The new username.
+        :type      name: str
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
+        :raise: :py:class:`~common.errors.UserExists` if the user already exist.
+        """
+        raise NotImplementedError
+
+    def check_password(self, username, password):
+        """Check a users password.
+
+        :param username: The username.
+        :type  username: str
+        :param password: The password to check.
+        :type  password: str
+        :return: True if the password is correct, False otherwise.
+        :rtype: boolean
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
+        """
+        raise NotImplementedError
+
+    def set_password(self, username, password=None):
+        """Set a new password.
+
+        :param username: The username.
+        :type  username: str
+        :param password: The new password. If None or empty, the user should get an unusable
+            password.
+        :type  password: str
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
+        """
+        raise NotImplementedError
+
+    def set_password_hash(self, algorithm, hash):
+        """Set a users password hash.
+
+        This method is called by |bin-restauth-import| if users with a password hash should be
+        imported.
+
+        If you can store password hashes as an arbitrary string and then use Djangos password
+        hashing framework for verifying those hashes, you can import the hash like this::
+
+            from common.hashers import import_hash
+            django_hash = import_hash(algorithm, hash)
+
+        :param algorithm: The algorithm used for creating the hash.
+        :type  algorithm: str
+        :param      hash: The hash created by the algorithm.
+        :type       hash: str
+        """
+        raise NotImplementedError
+
+    def remove_user(self, username):
+        """Remove a user.
+
+        :param username: The username.
+        :type  username: str
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
+        """
+        raise NotImplementedError
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -281,72 +347,6 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def rename(self, username, name):
-        """Rename a user.
-
-        This operation is only available via |bin-restauth-user-doc|.
-
-        :param username: The username.
-        :type  username: str
-        :param     name: The new username.
-        :type      name: str
-        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
-        :raise: :py:class:`~common.errors.UserExists` if the user already exist.
-        """
-        raise NotImplementedError
-
-    def check_password(self, username, password):
-        """Check a users password.
-
-        :param username: The username.
-        :type  username: str
-        :param password: The password to check.
-        :type  password: str
-        :return: True if the password is correct, False otherwise.
-        :rtype: boolean
-        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
-        """
-        raise NotImplementedError
-
-    def set_password(self, username, password=None):
-        """Set a new password.
-
-        :param username: The username.
-        :type  username: str
-        :param password: The new password. If None or empty, the user should get an unusable
-            password.
-        :type  password: str
-        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
-        """
-        raise NotImplementedError
-
-    def set_password_hash(self, algorithm, hash):
-        """Set a users password hash.
-
-        This method is called by |bin-restauth-import| if users with a password hash should be
-        imported.
-
-        If you can store password hashes as an arbitrary string and then use Djangos password
-        hashing framework for verifying those hashes, you can import the hash like this::
-
-            from common.hashers import import_hash
-            django_hash = import_hash(algorithm, hash)
-
-        :param algorithm: The algorithm used for creating the hash.
-        :type  algorithm: str
-        :param      hash: The hash created by the algorithm.
-        :type       hash: str
-        """
-        raise NotImplementedError
-
-    def remove(self, username):
-        """Remove a user.
-
-        :param username: The username.
-        :type  username: str
-        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
-        """
-        raise NotImplementedError
 
 
 class PropertyBackend(RestAuthBackend):  # pragma: no cover

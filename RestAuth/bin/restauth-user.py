@@ -45,7 +45,6 @@ try:
     from Services.models import Service
     from Users.cli.parsers import parser
     from backends import backend
-    from backends import user_backend
     from backends import property_backend
     from backends import group_backend
     from common.errors import UserExists
@@ -64,7 +63,7 @@ def main(args=None):
         if args.password_generated:
             print(args.pwd)
 
-        user_backend.set_password(args.user.username, password)
+        backend.set_password(args.user.username, password)
     elif args.action in ['ls', 'list']:
         for username in sorted(backend.list_users()):
             if six.PY3:  # pragma: py3
@@ -74,7 +73,7 @@ def main(args=None):
     elif args.action == 'verify':
         if not args.pwd:  # pragma: no cover
             args.pwd = getpass.getpass('password: ')
-        if user_backend.check_password(args.user.username, args.pwd):
+        if backend.check_password(args.user.username, args.pwd):
             print('Ok.')
         else:
             print('Failed.')
@@ -84,7 +83,7 @@ def main(args=None):
         if args.password_generated:
             print(args.pwd)
 
-        user_backend.set_password(args.user.username, args.pwd)
+        backend.set_password(args.user.username, args.pwd)
     elif args.action == 'view':
         props = property_backend.list(args.user)
 
@@ -120,11 +119,11 @@ def main(args=None):
                 print('No groups.')
     elif args.action == 'rename':
         try:
-            user_backend.rename(args.user.username, args.name)
+            backend.rename_user(args.user.username, args.name)
         except UserExists as e:
             parser.error("%s: %s" % (args.name if six.PY3 else args.name.decode('utf-8'), e))
     elif args.action in ['delete', 'rm', 'remove']:  # pragma: no branch
-        user_backend.remove(args.user.username)
+        backend.remove_user(args.user.username)
 
 if __name__ == '__main__':  # pragma: no cover
     main()

@@ -26,7 +26,6 @@ from Users.models import ServiceUser as User
 from backends.base import BackendBase
 from backends.base import GroupBackend
 from backends.base import PropertyBackend
-from backends.base import UserBackend
 from common.hashers import import_hash
 from common.errors import GroupExists
 from common.errors import GroupNotFound
@@ -100,6 +99,54 @@ class DjangoBackend(BackendBase):
     def user_exists(self, username):
         return User.objects.filter(username=username).exists()
 
+    def rename_user(self, username, name):
+        try:
+            user = User.objects.only('username').get(username=username)
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+
+        user.username = name
+        try:
+            user.save()
+        except IntegrityError:
+            raise UserExists("User already exists.")
+
+    def check_password(self, username, password):
+        try:
+            user = User.objects.only('password').get(username=username)
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+        return user.check_password(password)
+
+    def set_password(self, username, password=None):
+        try:
+            user = User.objects.only('id').get(username=username)
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+
+        if password is not None and password != '':
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+
+        user.save()
+
+    def set_password_hash(self, username, algorithm, hash):
+        try:
+            user = User.objects.only('password').get(username=username)
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+
+        user.password = import_hash(algorithm=algorithm, hash=hash)
+        user.save()
+
+    def remove_user(self, username):
+        qs = User.objects.filter(username=username)
+        if qs.exists():
+            qs.delete()
+        else:
+            raise UserNotFound(username)
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -136,79 +183,6 @@ class DjangoTransactionMixin(object):
 
     def transaction_manager(self, dry=False):
         return DjangoTransactionManagerOld(self, dry=dry)
-
-
-class DjangoUserBackend(DjangoTransactionMixin, UserBackend):
-    """Use the standard Django ORM to store user data.
-
-    This backend should be ready-to use as soon as you have :doc:`configured your database
-    </config/database>`.
-
-    All settings used by this backend are documented in the :doc:`settings reference
-    </config/all-config-values>`.
-    """
-
-    def _get_user(self, username, *fields):
-        assert isinstance(username, six.string_types)
-
-        try:
-            return User.objects.only(*fields).get(username=username)
-        except User.DoesNotExist:
-            raise UserNotFound(username)
-
-    def get(self, username):
-        assert isinstance(username, six.string_types)
-        return self._get_user(username, 'id', 'username')
-
-    def rename(self, username, name):
-        assert isinstance(username, six.string_types)
-        assert isinstance(name, six.string_types)
-
-        user = self._get_user(username)
-
-        user.username = name
-        try:
-            user.save()
-        except IntegrityError:
-            raise UserExists("User already exists.")
-
-    def check_password(self, username, password):
-        assert isinstance(username, six.string_types)
-        assert isinstance(password, six.string_types)
-
-        user = self._get_user(username, 'password')
-        return user.check_password(password)
-
-    def set_password(self, username, password=None):
-        assert isinstance(username, six.string_types)
-        assert isinstance(password, six.string_types) or password is None
-
-        user = self._get_user(username, 'id')
-        if password is not None and password != '':
-            user.set_password(password)
-        else:
-            user.set_unusable_password()
-
-        user.save()
-
-    def set_password_hash(self, username, algorithm, hash):
-        assert isinstance(username, six.string_types)
-        assert isinstance(algorithm, six.string_types)
-        assert isinstance(hash, six.string_types)
-
-        user = self._get_user(username, 'password')
-
-        user.password = import_hash(algorithm=algorithm, hash=hash)
-        user.save()
-
-    def remove(self, username):
-        assert isinstance(username, six.string_types)
-
-        qs = User.objects.filter(username=username)
-        if qs.exists():
-            qs.delete()
-        else:
-            raise UserNotFound(username)
 
 
 class DjangoPropertyBackend(DjangoTransactionMixin, PropertyBackend):

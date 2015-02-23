@@ -139,11 +139,11 @@ def save_users(users, args, parser):
         if 'password' in data and (created or args.overwrite_passwords):
             pwd = data['password']
             if isinstance(pwd, six.string_types):
-                user_backend.set_password(username=username, password=pwd)
+                backend.set_password(username=username, password=pwd)
                 print('* %s: Set password from input data.' % username)
             elif isinstance(pwd, dict):
                 try:
-                    user_backend.set_password_hash(username=username, **pwd)
+                    backend.set_password_hash(username=username, **pwd)
                     print('* %s: Set hash from input data.' % username)
                 except ValueError:
                     print('* %s: Hash of type "%s" is not supported, skipping.' %
@@ -152,7 +152,7 @@ def save_users(users, args, parser):
                 raise TypeError("password is of type %s" % type(pwd).__name__)
         elif created and args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=16)
-            user_backend.set_password(username=username, password=raw_passwd)
+            backend.set_password(username=username, password=raw_passwd)
             print('* %s: Generated password: %s' % (username, raw_passwd))
 
         # handle all other preferences

@@ -431,7 +431,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
                 restauth_import(cmd)
                 self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
-                self.assertTrue(user_backend.check_password(username3, 'foobar'))
+                self.assertTrue(backend.check_password(username3, 'foobar'))
 
             self.assertCountEqual(backend.list_users(), [username1, username2, username3])
             user = user_backend.get(username2)
@@ -455,7 +455,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
                 restauth_import(cmd)
                 self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
-                self.assertTrue(user_backend.check_password(username3, 'foobar'))
+                self.assertTrue(backend.check_password(username3, 'foobar'))
                 self.assertCountEqual(backend.list_users(), [username3])
 
     def test_users_overwrite_properties(self):
@@ -514,7 +514,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             output = stdout.getvalue()
             self.assertHasLine(output, '^\* %s: Generated password: .*' % username1)
             password = re.search('Generated password: (.*)', output).groups()[0]
-        self.assertTrue(user_backend.check_password(username1, password))
+        self.assertTrue(backend.check_password(username1, password))
 
     def test_wrong_password_type(self):
         path = os.path.join(self.base, 'users4.json')

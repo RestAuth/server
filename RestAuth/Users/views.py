@@ -144,7 +144,7 @@ class UserHandlerView(RestAuthResourceView):
         # If BadRequest: 400 Bad Request
         password, groups = self._parse_post(request)
 
-        if user_backend.check_password(username=name, password=password):
+        if backend.check_password(username=name, password=password):
             if groups:
                 user = user_backend.get(username=name)
                 memberships = set(group_backend.list(service=request.user, user=user))
@@ -168,7 +168,7 @@ class UserHandlerView(RestAuthResourceView):
         else:
             password = None
 
-        user_backend.set_password(username=name, password=password)
+        backend.set_password(username=name, password=password)
         return HttpResponseNoContent()
 
     def delete(self, request, largs, name):
@@ -177,7 +177,7 @@ class UserHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Users.user_delete'):
             return HttpResponseForbidden()
 
-        user_backend.remove(username=name)
+        backend.remove_user(username=name)
         return HttpResponseNoContent()
 
 
