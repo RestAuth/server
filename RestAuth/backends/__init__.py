@@ -23,13 +23,6 @@ from django.utils.module_loading import import_string
 from common.utils import import_path
 
 
-def get_user_backend():
-    return import_path(getattr(
-        settings, 'USER_BACKEND',
-        'backends.django.DjangoUserBackend'
-    ))[0]()
-
-
 def get_property_backend():
     return import_path(getattr(
         settings, 'PROPERTY_BACKEND',
@@ -51,7 +44,6 @@ def get_backend():
     return backend_cls(**config)
 
 backend = get_backend()
-user_backend = get_user_backend()
 property_backend = get_property_backend()
 group_backend = get_group_backend()
 
