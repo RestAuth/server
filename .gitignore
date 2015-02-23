@@ -2,7 +2,7 @@
 *.sw[po]
 *.sqlite3
 build/
-RestAuth/djangosettings.py
+/RestAuth/RestAuth/localsettings.py
 man/*.8
 doc/_build
 doc/gen
