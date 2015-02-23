@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 
 from django.utils import importlib
 from django.utils.module_loading import import_string
@@ -75,6 +75,8 @@ class TransactionContextManager(object):
         else:
             self.backend.rollback_transaction(transaction_id=self.init)
 
+class BackendBase(object):
+    pass
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.

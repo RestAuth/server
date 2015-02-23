@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License along with RestAuth.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 
 from django.contrib.auth.models import User as BaseUser
 from django.db import transaction as dj_transaction
