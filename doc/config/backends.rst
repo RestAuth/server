@@ -14,9 +14,9 @@ backends:
 RestAuth can use different backends for each individual task, but property- and
 group-backends may depend on a specific user-backend being used. Most
 prominently, the default backends
-:py:class:`~backends.django_backend.DjangoPropertyBackend` and
-:py:class:`~backends.django_backend.DjangoGroupBackend` require that you
-also use :py:class:`~backends.django_backend.DjangoUserBackend`.
+:py:class:`~backends.django.DjangoPropertyBackend` and
+:py:class:`~backends.django.DjangoGroupBackend` require that you
+also use :py:class:`~backends.django.DjangoUserBackend`.
 
 Configuring backends
 ____________________
@@ -39,7 +39,7 @@ A user backend handles the most basic operations related to users. The user
 backend is used to create and delete users as well as to check and update a
 users password.
 
-.. autoclass:: backends.django_backend.DjangoUserBackend
+.. autoclass:: backends.django.DjangoUserBackend
 .. autoclass:: backends.memory_backend.MemoryUserBackend
 
 .. _property-backends:
@@ -50,7 +50,7 @@ _________________
 A property backend handles user properties such as email, full
 name and so on.
 
-.. autoclass:: backends.django_backend.DjangoPropertyBackend
+.. autoclass:: backends.django.DjangoPropertyBackend
 
 .. autoclass:: backends.redis_backend.RedisPropertyBackend
 .. autoclass:: backends.memory_backend.MemoryPropertyBackend
@@ -63,5 +63,5 @@ ______________
 A group backend handles user groups. Groups may be used by a service for
 authorization or similar purposes.
 
-.. autoclass:: backends.django_backend.DjangoGroupBackend
+.. autoclass:: backends.django.DjangoGroupBackend
 .. autoclass:: backends.memory_backend.MemoryGroupBackend

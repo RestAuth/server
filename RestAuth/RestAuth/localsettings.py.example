@@ -113,9 +113,9 @@ DATABASES = {
 # Please see:
 #     https://server.restauth.net/developer/backends.html
 # for more information.
-#USER_BACKEND='backends.django_backend.DjangoUserBackend'
-#GROUP_BACKEND='backends.django_backend.DjangoGroupBackend'
-#PROPERTY_BACKEND='backends.django_backend.DjangoPropertyBackend'
+#USER_BACKEND='backends.django.DjangoUserBackend'
+#GROUP_BACKEND='backends.django.DjangoGroupBackend'
+#PROPERTY_BACKEND='backends.django.DjangoPropertyBackend'
 
 
 #################

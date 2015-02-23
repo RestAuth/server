@@ -25,21 +25,21 @@ from common.utils import import_path
 def get_user_backend():
     return import_path(getattr(
         settings, 'USER_BACKEND',
-        'backends.django_backend.DjangoUserBackend'
+        'backends.django.DjangoUserBackend'
     ))[0]()
 
 
 def get_property_backend():
     return import_path(getattr(
         settings, 'PROPERTY_BACKEND',
-        'backends.django_backend.DjangoPropertyBackend'
+        'backends.django.DjangoPropertyBackend'
     ))[0]()
 
 
 def get_group_backend():
     return import_path(getattr(
         settings, 'GROUP_BACKEND',
-        'backends.django_backend.DjangoGroupBackend'
+        'backends.django.DjangoGroupBackend'
     ))[0]()
 
 user_backend = get_user_backend()

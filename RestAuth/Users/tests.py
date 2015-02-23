@@ -324,7 +324,7 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         resp = self.post('/users/%s/' % username1, data)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
-    @skipUnless(settings.USER_BACKEND == 'backends.django_backend.DjangoUserBackend', '')
+    @skipUnless(settings.USER_BACKEND == 'backends.django.DjangoUserBackend', '')
     def test_update_password_hash(self):
         """Test if checking the password with an old hash automatically updates the hash."""
 
@@ -766,7 +766,7 @@ class HashTestMixin(RestAuthTestBase):
             self.assertTrue(check_password(password, generated))
 
     @override_settings(MIN_PASSWORD_LENGTH=1)
-    @skipUnless(settings.USER_BACKEND == 'backends.django_backend.DjangoUserBackend', '')
+    @skipUnless(settings.USER_BACKEND == 'backends.django.DjangoUserBackend', '')
     def test_backend(self):
         # test password during creation:
         for password, data in six.iteritems(self.testdata):
