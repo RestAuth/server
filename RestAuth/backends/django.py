@@ -97,6 +97,9 @@ class DjangoBackend(BackendBase):
     def list_users(self):
         return list(User.objects.values_list('username', flat=True))
 
+    def user_exists(self, username):
+        return User.objects.filter(username=username).exists()
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -168,10 +171,6 @@ class DjangoUserBackend(DjangoTransactionMixin, UserBackend):
             user.save()
         except IntegrityError:
             raise UserExists("User already exists.")
-
-    def exists(self, username):
-        assert isinstance(username, six.string_types)
-        return User.objects.filter(username=username).exists()
 
     def check_password(self, username, password):
         assert isinstance(username, six.string_types)

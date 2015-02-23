@@ -419,8 +419,8 @@ class DeleteUserTest(UserTests):  # DELETE /users/<user>/
     def test_delete_user(self):
         resp = self.delete('/users/%s/' % username1)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-        self.assertFalse(user_backend.exists(username1))
-        self.assertTrue(user_backend.exists(username2))
+        self.assertFalse(backend.user_exists(username1))
+        self.assertTrue(backend.user_exists(username2))
 
 
 class PropertyTests(RestAuthTransactionTest):

@@ -137,6 +137,16 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def user_exists(self, username):
+        """Determine if the username exists.
+
+        :param username: The username.
+        :type  username: str
+        :return: True if the user exists, False otherwise.
+        :rtype: boolean
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -282,16 +292,6 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :type      name: str
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
         :raise: :py:class:`~common.errors.UserExists` if the user already exist.
-        """
-        raise NotImplementedError
-
-    def exists(self, username):
-        """Determine if the username exists.
-
-        :param username: The username.
-        :type  username: str
-        :return: True if the user exists, False otherwise.
-        :rtype: boolean
         """
         raise NotImplementedError
 
