@@ -78,6 +78,14 @@ class ServiceUser(models.Model):
         except Property.DoesNotExist:
             return Property.objects.create(user=self, key=key, value=value), None
 
+    def create_properties(self, properties):
+        """Creates multiple properties with one database call.
+
+        This method assumes that all the values are new properties.
+        """
+        Property.objects.bulk_create(
+            [Property(user=self, key=k, value=v) for k, v in properties.items()])
+
     def del_property(self, key):
         """Delete a property.
 
