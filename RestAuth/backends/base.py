@@ -241,15 +241,8 @@ class RestAuthBackend(object):  # pragma: no cover
     _library = None
     library = None
 
-    _user_backend = None
     _group_backend = None
     _property_backend = None
-
-    @property
-    def user_backend(self):
-        if self._user_backend is None:
-            self._user_backend = import_string('backends.user_backend')
-        return self._user_backend
 
     @property
     def property_backend(self):
