@@ -77,7 +77,7 @@ class DjangoBackend(BackendBase):
         return DjangoTransactionManager(dry=dry, using=self.db)
 
     def get(self, username):
-        warnings.warn("Deprecated!")
+        #warnings.warn("Deprecated!")
         try:
             return User.objects.get(username=username)
         except User.DoesNotExist:
@@ -123,10 +123,10 @@ class DjangoBackend(BackendBase):
             raise UserExists("User already exists.")
 
     def check_password(self, username, password):
-        return self._user('password').check_password(password)
+        return self._user(username, 'password').check_password(password)
 
     def set_password(self, username, password=None):
-        user = self._user('id')
+        user = self._user(username, 'id')
 
         if password is not None and password != '':
             user.set_password(password)
@@ -136,7 +136,7 @@ class DjangoBackend(BackendBase):
         user.save()
 
     def set_password_hash(self, username, algorithm, hash):
-        user = self._user('password')
+        user = self._user(username, 'password')
 
         user.password = import_hash(algorithm=algorithm, hash=hash)
         user.save()
