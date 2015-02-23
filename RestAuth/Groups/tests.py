@@ -523,7 +523,7 @@ class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
         for names in usernames:
             resp = self.put('/groups/%s/users/' % self.group1.name, {'users': names})
             self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-            self.assertEqual(group_backend.members(self.group1), names)
+            self.assertCountEqual(group_backend.members(self.group1), names)
 
     def test_non_existing_user(self):
         resp = self.put('/groups/%s/users/' % self.group1.name, {'users': [username5]})
