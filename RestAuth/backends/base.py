@@ -76,7 +76,27 @@ class TransactionContextManager(object):
             self.backend.rollback_transaction(transaction_id=self.init)
 
 class BackendBase(object):
-    pass
+    _library = None
+    library = None
+
+    def load_library(self):
+        if self._library is not None:
+            return self._library
+
+        if self.library is None:
+            raise ValueError("%r: No library attribute specified" % self.__class__.__name__)
+
+        if isinstance(self.library, (tuple, list)):
+            name, mod_path = self.library
+        else:
+            mod_path = self.library
+
+        try:
+            self._library = importlib.import_module(mod_path)
+            return self._library
+        except ImportError as e:
+            raise ValueError("Couldn't load %r: %s" % (self.__class__.__name__, e))
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
