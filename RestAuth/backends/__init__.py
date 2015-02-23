@@ -13,11 +13,12 @@
 # You should have received a copy of the GNU General Public License along with RestAuth. If not,
 # see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 
 from collections import deque
 
 from django.conf import settings
+from django.utils.module_loading import import_string
 
 from common.utils import import_path
 
@@ -42,6 +43,14 @@ def get_group_backend():
         'backends.django.DjangoGroupBackend'
     ))[0]()
 
+def get_backend():
+    config = getattr(settings, 'DATA_BACKEND', {
+        'BACKEND': 'backends.django.DjangoBackend',
+    })
+    backend_cls = import_string(config.pop('BACKEND', 'backends.django.DjangoBackend'))
+    return backend_cls(**config)
+
+backend = get_backend()
 user_backend = get_user_backend()
 property_backend = get_property_backend()
 group_backend = get_group_backend()
