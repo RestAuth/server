@@ -126,6 +126,17 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def list_users(self):
+        """Get a list of all usernames.
+
+        Each element of the returned list should be a valid username that can
+        be passed to :py:meth:`~.UserBackend.get`.
+
+        :return: A list of usernames.
+        :rtype: list
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -257,17 +268,6 @@ class UserBackend(RestAuthBackend):  # pragma: no cover
         :rtype: :py:class:`~.UserInstance`
         :raise: :py:class:`~common.errors.UserNotFound` if the user
             doesn't exist.
-        """
-        raise NotImplementedError
-
-    def list(self):
-        """Get a list of all usernames.
-
-        Each element of the returned list should be a valid username that can
-        be passed to :py:meth:`~.UserBackend.get`.
-
-        :return: A list of usernames.
-        :rtype: list
         """
         raise NotImplementedError
 

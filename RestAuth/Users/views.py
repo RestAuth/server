@@ -28,7 +28,6 @@ from django.utils import six
 from RestAuthCommon.strprep import stringcheck
 
 from Users.validators import validate_username
-from backends import transaction
 from backends import backend
 from backends import group_backend
 from backends import property_backend
@@ -69,7 +68,7 @@ class UsersView(RestAuthView):
         if not request.user.has_perm('Users.users_list'):
             return HttpResponseForbidden()
 
-        names = [n.lower() for n in user_backend.list()]
+        names = [n.lower() for n in backend.list_users()]
         return HttpRestAuthResponse(request, names)
 
     def post(self, request, largs, dry=False):

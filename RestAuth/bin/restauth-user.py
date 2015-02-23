@@ -44,6 +44,7 @@ try:
 
     from Services.models import Service
     from Users.cli.parsers import parser
+    from backends import backend
     from backends import user_backend
     from backends import property_backend
     from backends import group_backend
@@ -65,7 +66,7 @@ def main(args=None):
 
         user_backend.set_password(args.user.username, password)
     elif args.action in ['ls', 'list']:
-        for username in sorted(user_backend.list()):
+        for username in sorted(backend.list_users()):
             if six.PY3:  # pragma: py3
                 print(username)
             else:   # pragma: py2

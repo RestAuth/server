@@ -111,17 +111,17 @@ class ContentTypeTests(RestAuthTest):
         content = self.handler.marshal_dict({'user': username1})
         resp = self.c.post('/users/', content, content_type='foo/bar')
         self.assertEqual(resp.status_code, http_client.UNSUPPORTED_MEDIA_TYPE)
-        self.assertCountEqual(user_backend.list(), [])
+        self.assertCountEqual(backend.list_users(), [])
 
     def test_wrong_accept_header(self):
         resp = self.c.get('/users/', HTTP_ACCEPT='foo/bar')
         self.assertEqual(resp.status_code, http_client.NOT_ACCEPTABLE)
-        self.assertCountEqual(user_backend.list(), [])
+        self.assertCountEqual(backend.list_users(), [])
 
     def test_wrong_content(self):
         resp = self.c.post('/users/', 'no_json_at_all}}}', content_type='application/json')
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
-        self.assertCountEqual(user_backend.list(), [])
+        self.assertCountEqual(backend.list_users(), [])
 
 class ContentHandlerTests(RestAuthTest):
     def test_load_handlers(self):
@@ -433,7 +433,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
                 self.assertTrue(user_backend.check_password(username3, 'foobar'))
 
-            self.assertCountEqual(user_backend.list(), [username1, username2, username3])
+            self.assertCountEqual(backend.list_users(), [username1, username2, username3])
             user = user_backend.get(username2)
             props = {
                 propkey1: propval1,
@@ -456,7 +456,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 restauth_import(cmd)
                 self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
                 self.assertTrue(user_backend.check_password(username3, 'foobar'))
-                self.assertCountEqual(user_backend.list(), [username3])
+                self.assertCountEqual(backend.list_users(), [username3])
 
     def test_users_overwrite_properties(self):
         self.test_users(overwrite=True)
@@ -487,7 +487,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         with capture() as (stdout, stderr):
             cmd = [path]
             restauth_import(cmd)
-            self.assertCountEqual(user_backend.list(), [username1, username2, username3])
+            self.assertCountEqual(backend.list_users(), [username1, username2, username3])
             user = user_backend.get(username2)
 
             pattern = '^%s: Property "%s" already exists\.$' % (username2, propkey1)

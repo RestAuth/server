@@ -94,6 +94,9 @@ class DjangoBackend(BackendBase):
 
         return user  #TODO: We should not need to return anything!
 
+    def list_users(self):
+        return list(User.objects.values_list('username', flat=True))
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -153,9 +156,6 @@ class DjangoUserBackend(DjangoTransactionMixin, UserBackend):
     def get(self, username):
         assert isinstance(username, six.string_types)
         return self._get_user(username, 'id', 'username')
-
-    def list(self):
-        return list(User.objects.values_list('username', flat=True))
 
     def rename(self, username, name):
         assert isinstance(username, six.string_types)

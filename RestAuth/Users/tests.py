@@ -97,7 +97,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         property_backend.testTearDown()
 
     def get_usernames(self):
-        return user_backend.list()
+        return backend.list_users()
 
     def test_add_user(self):
         resp = self.post('/users/', {'user': username1, 'password': password1, })
@@ -870,7 +870,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                            username1 if six.PY3 else username1.encode('utf-8')])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertCountEqual(user_backend.list(), [username1])
+        self.assertCountEqual(backend.list_users(), [username1])
         self.assertTrue(user_backend.check_password(username1, password1))
         self.assertFalse(user_backend.check_password(username1, password2))
 
@@ -882,7 +882,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             gen_password = stdout.getvalue().strip()
             self.assertEqual(stderr.getvalue(), '')
 
-        self.assertCountEqual(user_backend.list(), [username1, username2])
+        self.assertCountEqual(backend.list_users(), [username1, username2])
         self.assertTrue(user_backend.check_password(username2, gen_password))
 
     def test_add_exists(self):
@@ -909,7 +909,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertTrue(stderr.getvalue().startswith('usage: '))
 
-        self.assertCountEqual(user_backend.list(), [])
+        self.assertCountEqual(backend.list_users(), [])
         self.assertRaises(UserNotFound, user_backend.check_password, username, password1)
 
         # load a custom validator:
@@ -923,7 +923,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertTrue(stderr.getvalue().startswith('usage: '))
-        self.assertCountEqual(user_backend.list(), [])
+        self.assertCountEqual(backend.list_users(), [])
         self.assertRaises(UserNotFound, user_backend.check_password, username, password1)
 
         load_username_validators()
@@ -1106,7 +1106,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             restauth_user(['rm', frm])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertEqual(user_backend.list(), [])
+        self.assertEqual(backend.list_users(), [])
 
     def test_man(self):  # test man-page generation
         output = StringIO()

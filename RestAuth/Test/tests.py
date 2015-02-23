@@ -17,6 +17,7 @@ from __future__ import unicode_literals
 
 from django.utils.six.moves import http_client
 
+from backends import backend
 from common.testdata import groupname1
 from common.testdata import group_backend
 from common.testdata import password1
@@ -25,7 +26,6 @@ from common.testdata import propval1
 from common.testdata import propval2
 from common.testdata import property_backend
 from common.testdata import RestAuthTransactionTest
-from common.testdata import user_backend
 from common.testdata import username1
 
 
@@ -33,46 +33,46 @@ class CreateUserTest(RestAuthTransactionTest):
     def test_dry_run_create_user(self):
         resp = self.post('/test/users/', {'user': username1})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(list(user_backend.list()), [])
+        self.assertEqual(list(backend.list_users()), [])
 
     def test_dry_run_create_user_with_pass(self):
         resp = self.post('/test/users/', {'user': username1, 'password': password1})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(list(user_backend.list()), [])
+        self.assertEqual(list(backend.list_users()), [])
 
     def test_dry_run_create_user_with_props(self):
         resp = self.post('/test/users/', {'user': username1, 'properties': {'foo': 'bar'}})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(list(user_backend.list()), [])
+        self.assertEqual(list(backend.list_users()), [])
 
     def test_dry_run_create_user_with_pass_and_props(self):
         content = {'user': username1, 'password': password1, 'properties': {'foo': 'bar'}}
         resp = self.post('/test/users/', content)
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(list(user_backend.list()), [])
+        self.assertEqual(list(backend.list_users()), [])
 
     def test_dry_run_create_existing_user(self):
         user = self.create_user(username=username1)
-        self.assertCountEqual([user.username], list(user_backend.list()))
+        self.assertCountEqual([user.username], list(backend.list_users()))
 
         resp = self.post('/test/users/', {'user': username1})
         self.assertEqual(resp.status_code, http_client.CONFLICT)
-        self.assertCountEqual([user.username], list(user_backend.list()))
+        self.assertCountEqual([user.username], list(backend.list_users()))
 
     def test_dry_run_create_invalid_user(self):
         resp = self.post('/test/users/', {'user': 'foo\nbar'})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
-        self.assertEqual(list(user_backend.list()), [])
+        self.assertEqual(list(backend.list_users()), [])
 
     def test_dry_run_create_short_user(self):
         resp = self.post('/test/users/', {'user': 'x'})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
-        self.assertEqual(list(user_backend.list()), [])
+        self.assertEqual(list(backend.list_users()), [])
 
     def test_create_with_too_short_pass(self):
         resp = self.post('/test/users/', {'user': username1, 'password': 'a'})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
-        self.assertEqual(list(user_backend.list()), [])
+        self.assertEqual(list(backend.list_users()), [])
 
 
 class CreatePropertyTest(RestAuthTransactionTest):
