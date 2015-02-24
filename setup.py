@@ -335,16 +335,11 @@ class coverage(Command):
         # compute backend files to exclude:
         backend_path = 'RestAuth/backends/'
         backend_whitelist = ['__init__.py', 'base.py']
-        backend_mods = [os.path.splitext(f)[0]
-                        for f in os.listdir(backend_path)
-                        if f.endswith('py') and f not in backend_whitelist]
-        used_backend_mods = [mod.rsplit('.', 2)[1] for mod in [
-            settings.USER_BACKEND, settings.GROUP_BACKEND,
-            settings.PROPERTY_BACKEND
-        ]]
-        for mod in backend_mods:
-            if mod not in used_backend_mods:
-                omit.append('%s%s.py' % (backend_path, mod))
+        mod = settings.DATA_BACKEND['BACKEND'].rsplit('.', 2)[2]
+        backend_mods = [os.path.splitext(f)[0] for f in os.listdir(backend_path)
+                        if f.endswith('py') and f not in backend_whitelist and f != '%s.py' % mod]
+        for backend_mod in backend_mods:
+            omit.append('%s%s.py' % (backend_path, backend_mod))
 
         cov = coverage.coverage(cover_pylib=False, source=['RestAuth', ],
                                 branch=True, omit=omit)
