@@ -35,6 +35,7 @@ from Users.validators import get_validators
 from Users.validators import load_username_validators
 from Users.validators import validate_username
 from backends import backend
+from backends import property_backend
 from backends.base import GroupInstance
 from backends.base import UserInstance
 from common.content_handlers import get_handler
@@ -50,7 +51,6 @@ from common.testdata import groupname1
 from common.testdata import groupname2
 from common.testdata import groupname3
 from common.testdata import groupname4
-from common.testdata import property_backend
 from common.testdata import propkey1
 from common.testdata import propkey2
 from common.testdata import propval1
@@ -433,7 +433,6 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 self.assertTrue(backend.check_password(username3, 'foobar'))
 
             self.assertCountEqual(backend.list_users(), [username1, username2, username3])
-            user = backend.get(username2)
             props = {
                 propkey1: propval1,
                 propkey2: propval2,
@@ -442,7 +441,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 u'last login': u'2013-12-01 19:27:44',
             }
 
-            self.assertProperties(user, props)
+            self.assertProperties(username2, props)
 
     def test_users_django_hash(self, overwrite=False):
         path = os.path.join(self.base, 'users5.json')
@@ -468,7 +467,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):
             restauth_import(['--skip-existing-users', path])
-        self.assertProperties(user, {propkey1: propval3, })
+        self.assertProperties(username2, {propkey1: propval3, })
 
     def test_unknown_hash_algorithm(self):
         path = os.path.join(self.base, 'users2.json')
@@ -487,7 +486,6 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             cmd = [path]
             restauth_import(cmd)
             self.assertCountEqual(backend.list_users(), [username1, username2, username3])
-            user = backend.get(username2)
 
             pattern = '^%s: Property "%s" already exists\.$' % (username2, propkey1)
             self.assertHasLine(stdout, pattern)
@@ -499,7 +497,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 u'last login': u'2013-12-01 19:27:44',  # date from json file
             }
 
-            props = property_backend.list(user)
+            props = backend.list_properties(username2)
             # delete 'date joined' prop because it was created by the backend and
             # restauth-import doesn't overwrite in this invocation:
             del props['date joined']

@@ -18,13 +18,13 @@ from __future__ import unicode_literals
 from django.utils.six.moves import http_client
 
 from backends import backend
+from backends import property_backend
 from common.testdata import groupname1
 from common.testdata import group_backend
 from common.testdata import password1
 from common.testdata import propkey1
 from common.testdata import propval1
 from common.testdata import propval2
-from common.testdata import property_backend
 from common.testdata import RestAuthTransactionTest
 from common.testdata import username1
 
@@ -85,43 +85,43 @@ class CreatePropertyTest(RestAuthTransactionTest):
         property_backend.testTearDown()
 
     def test_create_property(self):
-        url = '/test/users/%s/props/' % self.user.username
+        url = '/test/users/%s/props/' % username1
         resp = self.post(url, {'prop': propkey1, 'value': propval1})
         self.assertEqual(resp.status_code, http_client.CREATED)
 
-        self.assertProperties(self.user, {})
+        self.assertProperties(username1, {})
 
     def test_create_existing_property(self):
         property_backend.create(self.user, propkey1, propval1)
 
-        url = '/test/users/%s/props/' % self.user.username
+        url = '/test/users/%s/props/' % username1
         resp = self.post(url, {'prop': propkey1, 'value': propval2})
         self.assertEqual(resp.status_code, http_client.CONFLICT)
 
-        self.assertProperties(self.user, {propkey1: propval1})
+        self.assertProperties(username1, {propkey1: propval1})
 
     def test_create_invalid_property(self):
-        url = '/test/users/%s/props/' % self.user.username
+        url = '/test/users/%s/props/' % username1
         resp = self.post(url, {'prop': 'foo\nbar', 'value': propval1})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
-        self.assertProperties(self.user, {})
+        self.assertProperties(username1, {})
 
         resp = self.post(url, {'prop': 'foo\nbar', 'value': propval1})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
-        self.assertProperties(self.user, {})
+        self.assertProperties(username1, {})
 
     def test_create_property_for_non_existing_user(self):
         url = '/test/users/%s/props/' % 'wronguser'
         resp = self.post(url, {'prop': propkey1, 'value': propval1})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
-        self.assertProperties(self.user, {})
+        self.assertProperties(username1, {})
 
     def test_create_property_for_invalid_user(self):
         url = '/test/users/%s/props/' % 'wrong\\user'
         resp = self.post(url, {'prop': propkey1, 'value': propval1})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
-        self.assertProperties(self.user, {})
+        self.assertProperties(username1, {})
 
 
 class CreateGroupTest(RestAuthTransactionTest):

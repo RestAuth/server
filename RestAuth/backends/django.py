@@ -15,7 +15,7 @@
 
 from __future__ import unicode_literals, absolute_import
 
-import warnings
+#import waarnings
 
 from django.contrib.auth.models import User as BaseUser
 from django.db import transaction as dj_transaction
@@ -77,6 +77,7 @@ class DjangoBackend(BackendBase):
         return DjangoTransactionManager(dry=dry, using=self.db)
 
     def get(self, username):
+        #TODO: Remove this function
         #warnings.warn("Deprecated!")
         try:
             return User.objects.get(username=username)
@@ -148,6 +149,13 @@ class DjangoBackend(BackendBase):
         else:
             raise UserNotFound(username)
 
+    def list_properties(self, username):
+        qs = Property.objects.filter(user__username=username)
+        properties = dict(qs.values_list('key', 'value'))
+        if not properties and not self.user_exists(username=username):
+            raise UserNotFound(username)
+        return properties
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -196,10 +204,6 @@ class DjangoPropertyBackend(DjangoTransactionMixin, PropertyBackend):
     All settings used by this backend are documented in the :doc:`settings reference
     </config/all-config-values>`.
     """
-
-    def list(self, user):
-        qs = Property.objects.filter(user_id=user.id)
-        return dict(qs.values_list('key', 'value'))
 
     def create(self, user, key, value, dry=False, transaction=True):
         if dry:

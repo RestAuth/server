@@ -39,7 +39,6 @@ from Users.models import prop_permissions
 from Users.models import user_permissions
 from backends import backend
 from backends import group_backend
-from backends import property_backend
 
 servicename1 = 'auth.example.com'
 servicename2 = 'auth.example.net'
@@ -153,8 +152,8 @@ class RestAuthTestBase(object):
     def create_group(self, service, groupname):
         return group_backend.create(name=groupname, service=service)
 
-    def assertProperties(self, user, expected):
-        actual = property_backend.list(user)
+    def assertProperties(self, username, expected):
+        actual = backend.list_properties(username)
         self.assertTrue('date joined' in actual)
         del actual['date joined']
         self.assertDictEqual(actual, expected)

@@ -36,6 +36,7 @@ from django.utils.six.moves import http_client
 from Users.cli.parsers import parser
 from Users.validators import load_username_validators
 from backends import backend
+from backends import property_backend
 from common.cli.helpers import write_commands
 from common.cli.helpers import write_usage
 from common.cli.helpers import write_parameters
@@ -52,7 +53,6 @@ from common.testdata import group_backend
 from common.testdata import password1
 from common.testdata import password2
 from common.testdata import password3
-from common.testdata import property_backend
 from common.testdata import propkey1
 from common.testdata import propkey2
 from common.testdata import propkey3
@@ -104,8 +104,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
         self.assertPassword(username1, password1)
-        user = backend.get(username1)
-        self.assertProperties(user, {})
+        self.assertProperties(username1, {})
 
     def test_add_two_users(self):
         resp = self.post('/users/', {'user': username1, 'password': password1, })
@@ -113,14 +112,12 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(self.get_usernames(), [username1])
         self.assertPassword(username1, password1)
         self.assertFalsePassword(username1, password2)
-        user1 = backend.get(username1)
-        self.assertProperties(user1, {})
+        self.assertProperties(username1, {})
 
         resp = self.post('/users/', {'user': username2, 'password': password2, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1, username2])
-        user2 = backend.get(username2)
-        self.assertProperties(user2, {})
+        self.assertProperties(username2, {})
 
         self.assertPassword(username1, password1)
         self.assertFalsePassword(username1, password2)
@@ -132,8 +129,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         resp = self.post('/users/', {'user': username1, 'password': password1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
-        user = backend.get(username1)
-        self.assertProperties(user, {})
+        self.assertProperties(username1, {})
 
         self.assertPassword(username1, password1)
         self.assertFalsePassword(username1, password2)
@@ -154,25 +150,23 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertFalsePassword(username1, '')
         self.assertFalsePassword(username1, password1)
         self.assertFalsePassword(username1, password2)
-        self.assertProperties(backend.get(username1), {})
+        self.assertProperties(username1, {})
 
         resp = self.post('/users/', {'user': username2, 'password': '', })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1, username2])
-        user = backend.get(username2)
         self.assertFalsePassword(username2, '')
         self.assertFalsePassword(username2, password1)
         self.assertFalsePassword(username2, password2)
-        self.assertProperties(user, {})
+        self.assertProperties(username2, {})
 
         resp = self.post('/users/', {'user': username3, 'password': None, })
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertCountEqual(self.get_usernames(), [username1, username2, username3])
-        user = backend.get(username3)
         self.assertFalsePassword(username3, '')
         self.assertFalsePassword(username3, password1)
         self.assertFalsePassword(username3, password2)
-        self.assertProperties(user, {})
+        self.assertProperties(username3, {})
 
     def test_add_user_with_property(self):
         resp = self.post('/users/', {'user': username1, 'properties': {propkey1: propval1, }, })
@@ -180,21 +174,19 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertEqual(self.get_usernames(), [username1])
 
-        user = backend.get(username1)
-        self.assertProperties(user, {propkey1: propval1, })
+        self.assertProperties(username1, {propkey1: propval1, })
 
     def test_add_user_with_properties(self):
         props = {propkey1: propval1, propkey2: propval2, }
         resp = self.post('/users/', {'user': username1, 'properties': props, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertProperties(backend.get(username1), props)
+        self.assertProperties(username1, props)
 
     def test_add_user_with_date_joined(self):
         props = {propkey1: propval1, 'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
         resp = self.post('/users/', {'user': username1, 'properties': props, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        user = backend.get(username1)
-        self.assertEqual(property_backend.list(user), props)
+        self.assertEqual(backend.list_properties(username=username1), props)
 
     def test_add_user_with_invalid_properties(self):
         props = {'foo\nbar': propval1, }
@@ -229,8 +221,8 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
             'groups': [groupname1, 'foo\nbar']})
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(self.get_usernames(), [])
-        # TODO: we cannot test this currently, because backend does not return a user object.
-        #self.assertEqual(property_backend.list(user=user), {})
+        with self.assertRaises(UserNotFound):
+            backend.list_properties(username=username1), {}
         self.assertEqual(group_backend.list(service=self.service), [])
 
     def test_bad_requests(self):
@@ -506,21 +498,21 @@ class CreatePropertyTests(PropertyTests):  # POST /users/<user>/props/
         resp = self.post('/users/%s/props/' % username1, {'prop': propkey1, 'value': propval1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
 
-        self.assertProperties(self.user1, {propkey1: propval1, })
-        self.assertProperties(self.user2, {})
+        self.assertProperties(username1, {propkey1: propval1, })
+        self.assertProperties(username2, {})
 
         # we create a second property
         resp = self.post('/users/%s/props/' % username1, {'prop': propkey2, 'value': propval2, })
         self.assertEqual(resp.status_code, http_client.CREATED)
 
-        self.assertProperties(self.user1, {propkey1: propval1, propkey2: propval2, })
-        self.assertProperties(self.user2, {})
+        self.assertProperties(username1, {propkey1: propval1, propkey2: propval2, })
+        self.assertProperties(username2, {})
 
         # and a property for second user:
         resp = self.post('/users/%s/props/' % username2, {'prop': propkey3, 'value': propval3, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertProperties(self.user1, {propkey1: propval1, propkey2: propval2, })
-        self.assertProperties(self.user2, {propkey3: propval3, })
+        self.assertProperties(username1, {propkey1: propval1, propkey2: propval2, })
+        self.assertProperties(username2, {propkey3: propval3, })
 
     def test_create_existing_property(self):
         resp = self.post('/users/%s/props/' % username1, {'prop': propkey1, 'value': propval1, })
@@ -529,31 +521,31 @@ class CreatePropertyTests(PropertyTests):  # POST /users/<user>/props/
         resp = self.post('/users/%s/props/' % username1, {'prop': propkey1, 'value': propval2, })
         self.assertEqual(resp.status_code, http_client.CONFLICT)
 
-        self.assertProperties(self.user1, {propkey1: propval1, })
-        self.assertProperties(self.user2, {})
+        self.assertProperties(username1, {propkey1: propval1, })
+        self.assertProperties(username2, {})
 
     def test_create_invalid_property(self):
         resp = self.post('/users/%s/props/' % username1, {'prop': "foo\nbar", 'value': propval2, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
-        self.assertProperties(self.user1, {})
+        self.assertProperties(username1, {})
 
     def test_bad_requests(self):
         resp = self.post('/users/%s/props/' % username2, {})
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
-        self.assertProperties(self.user1, {})
-        self.assertProperties(self.user2, {})
+        self.assertProperties(username1, {})
+        self.assertProperties(username2, {})
 
         resp = self.post('/users/%s/props/' % username2, {'foo': 'bar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
-        self.assertProperties(self.user1, {})
-        self.assertProperties(self.user2, {})
+        self.assertProperties(username1, {})
+        self.assertProperties(username2, {})
 
         resp = self.post('/users/%s/props/' % username2, {
             'foo': 'bar', 'prop': propkey3, 'value': propval3,
         })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
-        self.assertProperties(self.user1, {})
-        self.assertProperties(self.user2, {})
+        self.assertProperties(username1, {})
+        self.assertProperties(username2, {})
 
 
 class SetMultiplePropertiesTests(PropertyTests):
@@ -564,72 +556,72 @@ class SetMultiplePropertiesTests(PropertyTests):
 
     def test_no_property(self):
         self.put('/users/%s/props/' % username1, {})
-        self.assertProperties(self.user1, {})
+        self.assertProperties(username1, {})
 
     def test_create_one_property(self):
         testdict = {propkey1: propval1, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_create_two_properties(self):
         testdict = {propkey1: propval1, propkey2: propval2, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_create_three_properties(self):
         testdict = {propkey1: propval1, propkey2: propval2, propkey3: propval3, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_set_one_property(self):
         testdict = {propkey1: propval1, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
 
         testdict = {propkey1: propval2, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_set_two_properties(self):
         testdict = {propkey1: propval1, propkey2: propval2, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
 
         testdict = {propkey1: propval3, propkey2: propval4, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_set_three_properties(self):
         testdict = {propkey1: propval1, propkey2: propval2, propkey3: propval3, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
         testdict = {propkey1: propval2, propkey2: propval5, propkey3: propval4, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_mix_set_and_create(self):
         testdict = {propkey1: propval1, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
         testdict = {propkey1: propval1, propkey2: propval2, }
         resp = self.put('/users/%s/props/' % username1, testdict)
-        self.assertProperties(self.user1, testdict)
+        self.assertProperties(username1, testdict)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_set_invalid_properties(self):
         resp = self.put('/users/%s/props/' % username1, {'foo\nbar': propval1, })
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
-        self.assertProperties(self.user1, {})
+        self.assertProperties(username1, {})
 
 
 class GetPropertyTests(PropertyTests):  # GET /users/<user>/props/<prop>/
@@ -696,16 +688,16 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
         # do some bad request tests:
         resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {})
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
-        self.assertProperties(self.user1, {})
+        self.assertProperties(username1, {})
 
         resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'foo': 'bar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
-        self.assertProperties(self.user1, {})
+        self.assertProperties(username1, {})
 
         resp = self.put('/users/%s/props/%s/' % (username1, propkey1),
                         {'value': propkey3, 'foo': 'bar', })
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
-        self.assertProperties(self.user1, {})
+        self.assertProperties(username1, {})
 
 
 class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
@@ -725,7 +717,7 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
 
         resp = self.delete('/users/%s/props/%s/' % (username1, propkey1),)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-        self.assertProperties(self.user1, {propkey2: propval2, })
+        self.assertProperties(username1, {propkey2: propval2, })
 
     def test_cross_user(self):
         # two users have properties with the same key, we verify that deleting
@@ -735,8 +727,8 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
 
         resp = self.delete('/users/%s/props/%s/' % (username1, propkey1),)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-        self.assertProperties(self.user1, {})
-        self.assertProperties(self.user2, {propkey1: propval1, })
+        self.assertProperties(username1, {})
+        self.assertProperties(username2, {propkey1: propval1, })
 
 
 class HashTestMixin(RestAuthTestBase):

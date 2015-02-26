@@ -231,6 +231,17 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def list_properties(self, username):
+        """Get a full list of all user properties.
+
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  user: :py:class:`~.UserInstance`
+        :return: A dictionary of key/value pairs, each describing a property.
+        :rtype: dict
+        """
+        raise NotImplementedError
+
+
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
 
@@ -338,39 +349,8 @@ class RestAuthBackend(object):  # pragma: no cover
         pass
 
 
-class UserBackend(RestAuthBackend):  # pragma: no cover
-    """Provide the most basic user operations and password management."""
-
-    def get(self, username):
-        """Get a user object for the given username.
-
-        This method is used to get user objects passed to property- and
-        group-backends.
-
-        :param username: The username.
-        :type  username: str
-        :return: A user object providing at least the properties of the
-            UserInstance class.
-        :rtype: :py:class:`~.UserInstance`
-        :raise: :py:class:`~common.errors.UserNotFound` if the user
-            doesn't exist.
-        """
-        raise NotImplementedError
-
-
-
 class PropertyBackend(RestAuthBackend):  # pragma: no cover
     """Provide user properties."""
-
-    def list(self, user):
-        """Get a full list of all user properties.
-
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`~.UserInstance`
-        :return: A dictionary of key/value pairs, each describing a property.
-        :rtype: dict
-        """
-        raise NotImplementedError
 
     def create(self, user, key, value, dry=False, transaction=True):
         """Create a new user property.

@@ -45,7 +45,6 @@ try:
     from Services.models import Service
     from Users.cli.parsers import parser
     from backends import backend
-    from backends import property_backend
     from backends import group_backend
     from common.errors import UserExists
 except ImportError as e:  # pragma: no cover
@@ -85,7 +84,7 @@ def main(args=None):
 
         backend.set_password(args.user.username, args.pwd)
     elif args.action == 'view':
-        props = property_backend.list(args.user)
+        props = backend.list_properties(args.user.username)
 
         if 'date joined' in props:
             print('Joined: %s' % props['date joined'])
