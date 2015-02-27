@@ -105,9 +105,7 @@ SECURE_CACHE = True
 SERVICE_PASSWORD_HASHER = 'default'
 
 # backends:
-USER_BACKEND = 'backends.django.DjangoUserBackend'
 GROUP_BACKEND = 'backends.django.DjangoGroupBackend'
-PROPERTY_BACKEND = 'backends.django.DjangoPropertyBackend'
 
 try:
     from localsettings import *

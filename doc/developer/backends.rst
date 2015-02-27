@@ -5,16 +5,9 @@ RestAuth :doc:`/config/backends` are written in a way that you can easily write
 a drop-in replacement, if you want to use a different storage system for users,
 groups or user properties.
 
-To develop your own backend, simply implement one or all of the base classes
-below.
+To develop your own backend, simply implement the base class below:
 
-.. autoclass:: backends.base.UserBackend
-   :members:
-
-.. autoclass:: backends.base.PropertyBackend
-   :members:
-
-.. autoclass:: backends.base.GroupBackend
+.. autoclass:: backends.base.BackendBase
    :members:
 
 Use RestAuth to hash passwords
@@ -26,22 +19,19 @@ passwords. Django provides two simple functions, ``check_password()`` and
 ``make_password()`` that you can use.
 
 Simply use those functions in your implementations of
-:py:func:`UserBackend.create() <backends.base.UserBackend.create>`,
-:py:func:`UserBackend.set_password()
-<backends.base.UserBackend.create>` and
-:py:func:`UserBackend.check_password()
-<backends.base.UserBackend.create>`. Here is a small example:
+:py:func:`~backends.base.BackendBase.create_user`,
+:py:func:`~backends.base.BackendBase.set_password` and
+:py:func:`~backends.base.BackendBase.check_password`. Here is a small example:
 
 .. code-block:: python
 
    from django.contrib.auth.hashers import check_password, make_password
 
-   from backends.base import UserBackend
+   from backends.base import BackendBase
 
 
-   class CustomUserBackend(UserBackend):
-       def create(self, username, password=None, properties=None,
-                  property_backend=None, dry=False, transaction=True):
+   class CustomBackend(BackendBase):
+       def create(self, username, password=None, properties=None, groups=None):
            # generate hashed password:
            hashed_passsword = make_password(password)
 
@@ -69,28 +59,5 @@ If you want to use a third-party library for your backend, use the
 ``_load_library()`` method implemented in ``RestAuthBackend``. All Backend
 classes mentioned above inherit from this class.
 
-.. autoclass:: backends.base.RestAuthBackend
+.. autoclass:: backends.base.BackendBase
    :members:
-
-Returning User/Group objects
-____________________________
-
-Some backend methods to implement expect (or return) a user/group object. The
-objects don't have to be of any particular class but must have a few properties
-available. The classes below are given for convenience only, if your objects
-already provide the correct properties, there is no need to use them.
-
-In most cases, backends are called similar to this:
-
-.. code-block:: python
-
-   user = user_backend.get(username='some username')
-   group = group_backend.get(name='group', service=service)
-
-   group_backend.add_user(group=group, user=user)
-
-Note that in the above case, users and groups may be stored in totally different
-backends.
-
-.. autoclass:: backends.base.UserInstance
-.. autoclass:: backends.base.GroupInstance

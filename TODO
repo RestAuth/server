@@ -6,6 +6,7 @@
 * backend.create_user still returns a user because of many tests still using it
   in later backend methods - should be removed.
 * backend.get() should be removed
+* Document DATA_BACKEND setting, update backend documentation.
 
 Future:
 

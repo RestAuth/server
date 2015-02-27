@@ -355,13 +355,6 @@ class RestAuthBackend(object):  # pragma: no cover
     library = None
 
     _group_backend = None
-    _property_backend = None
-
-    @property
-    def property_backend(self):
-        if self._property_backend is None:
-            self._property_backend = import_string('backends.property_backend')
-        return self._property_backend
 
     @property
     def group_backend(self):
@@ -432,11 +425,6 @@ class RestAuthBackend(object):  # pragma: no cover
         test.
         """
         pass
-
-
-class PropertyBackend(RestAuthBackend):  # pragma: no cover
-    """Provide user properties."""
-    pass
 
 
 class GroupBackend(RestAuthBackend):  # pragma: no cover

@@ -36,7 +36,6 @@ from django.utils.six.moves import http_client
 from Users.cli.parsers import parser
 from Users.validators import load_username_validators
 from backends import backend
-from backends import property_backend
 from common.cli.helpers import write_commands
 from common.cli.helpers import write_usage
 from common.cli.helpers import write_parameters
@@ -91,10 +90,6 @@ class GetUsersTests(RestAuthTransactionTest):  # GET /users/
 
 
 class AddUserTests(RestAuthTransactionTest):  # POST /users/
-    def tearDown(self):
-        super(AddUserTests, self).tearDown()
-        property_backend.testTearDown()
-
     def get_usernames(self):
         return backend.list_users()
 
@@ -425,10 +420,6 @@ class PropertyTests(RestAuthTransactionTest):
         # two users, so we can make sure nothing leaks to the other user
         self.user1 = self.create_user(username1, password1)
         self.user2 = self.create_user(username2, password2)
-
-    def tearDown(self):
-        super(PropertyTests, self).tearDown()
-        property_backend.testTearDown()
 
 
 class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/

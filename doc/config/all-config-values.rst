@@ -286,29 +286,6 @@ information.
 .. NOTE:: This setting is by default also used for services. You can speed up
    RestAuth with the :setting:`SERVICE_PASSWORD_HASHER` setting.
 
-.. setting:: PROPERTY_BACKEND
-
-PROPERTY_BACKEND
-================
-
-.. versionadded:: 0.6.1
-
-Default: ``'backends.django.DjangoPropertyBackend'``
-
-The backend to use to store user properties. RestAuth comes with two property
-backends:
-
-``'backends.django.DjangoPropertyBackend'``
-   Use the standard Django ORM to store property data. This backend requireds
-   that you also use the DjangoUserBackend.
-
-``'backends.redis_backend.RedisPropertyBackend'``
-   Use a `Redis <http://redis.io>`_ server to store properties.
-
-Please see :ref:`property-backends` for a more comprehensive description of
-available backends. Other backends may be available elsewhere, if you need to
-develop your own backend, please see :doc:`/developer/backends`.
-
 .. setting:: RELAXED_LINUX_CHECKS
 
 RELAXED_LINUX_CHECKS
@@ -368,22 +345,6 @@ value ``default`` (which is the default) means the first hasher in
 :setting:`PASSWORD_HASHERS`.  This speeds up RestAuth significantly, but has the
 security drawback that an attacker might be able to retrieve service
 credentials from the cache..
-
-.. setting:: USER_BACKEND
-
-USER_BACKEND
-============
-
-.. versionadded:: 0.6.1
-
-Default: ``'backends.django.UserBackend'``
-
-The backend used for storing user data. Please see :ref:`user-backends` for a
-more comprehensive description of available backends. The default is the only
-backend shipping with RestAuth, but other backends may be available elsewhere.
-
-If you need a custom backend to store user data, please see
-:doc:`/developer/backends`.
 
 .. setting:: VALIDATORS
 

@@ -111,14 +111,13 @@ DATABASES = {
 ################
 ### BACKENDS ###
 ################
-# RestAuth can use different backends to store users, properties or groups. The backends can be
-# configured individually, but some property/group backends may depend on a specific user backend.
-# Please see:
+# RestAuth can use different backends to store users, properties or groups. Please see:
 #     https://server.restauth.net/developer/backends.html
 # for more information.
-#USER_BACKEND='backends.django.DjangoUserBackend'
+#DATA_BACKEND = {
+#    'BACKEND': 'backends.django.DjangoBackend',
+#}
 #GROUP_BACKEND='backends.django.DjangoGroupBackend'
-#PROPERTY_BACKEND='backends.django.DjangoPropertyBackend'
 
 
 #################

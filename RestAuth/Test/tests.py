@@ -18,7 +18,6 @@ from __future__ import unicode_literals
 from django.utils.six.moves import http_client
 
 from backends import backend
-from backends import property_backend
 from common.testdata import groupname1
 from common.testdata import group_backend
 from common.testdata import password1
@@ -79,10 +78,6 @@ class CreatePropertyTest(RestAuthTransactionTest):
     def setUp(self):
         RestAuthTransactionTest.setUp(self)
         self.user = self.create_user(username=username1)
-
-    def tearDown(self):
-        super(CreatePropertyTest, self).tearDown()
-        property_backend.testTearDown()
 
     def test_create_property(self):
         url = '/test/users/%s/props/' % username1

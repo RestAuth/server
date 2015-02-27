@@ -35,7 +35,7 @@ from Users.validators import get_validators
 from Users.validators import load_username_validators
 from Users.validators import validate_username
 from backends import backend
-from backends import property_backend
+from backends import group_backend
 from backends.base import GroupInstance
 from backends.base import UserInstance
 from common.content_handlers import get_handler
@@ -46,7 +46,6 @@ from common.testdata import RestAuthTest
 from common.testdata import RestAuthTransactionTest
 from common.testdata import CliMixin
 from common.testdata import capture
-from common.testdata import group_backend
 from common.testdata import groupname1
 from common.testdata import groupname2
 from common.testdata import groupname3

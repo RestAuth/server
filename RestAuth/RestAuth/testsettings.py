@@ -110,13 +110,8 @@ SECURE_CACHE = True
 SERVICE_PASSWORD_HASHER = 'django.contrib.auth.hashers.MD5PasswordHasher'
 
 # backends:
-USER_BACKEND = 'backends.django.DjangoUserBackend'
 GROUP_BACKEND = 'backends.django.DjangoGroupBackend'
-PROPERTY_BACKEND = 'backends.django.DjangoPropertyBackend'
-#USER_BACKEND = 'backends.memory_backend.MemoryUserBackend'
 #GROUP_BACKEND = 'backends.memory_backend.MemoryGroupBackend'
-#PROPERTY_BACKEND = 'backends.memory_backend.MemoryPropertyBackend'
-#PROPERTY_BACKEND = 'backends.redis_backend.RedisPropertyBackend'
 
 LOG_HANDLER = 'logging.StreamHandler'
 LOG_HANDLER_KWARGS = {}

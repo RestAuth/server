@@ -54,7 +54,6 @@ try:
     from Services.models import ServiceAddress
     from backends import backend
     from backends import group_backend
-    from backends import property_backend
     from common.cli.parsers import parser
     from common.hashers import import_hash
     from common.errors import GroupExists
@@ -240,8 +239,7 @@ def main(args=None):
     if not isinstance(groups, dict):
         parser.error("'groups' does not appear to be a dictionary.")
 
-    with backend.atomic(), property_backend.transaction(), group_backend.transaction(), \
-            ServiceTransactionManager():
+    with backend.atomic(), group_backend.transaction(), ServiceTransactionManager():
         #######################
         ### Import services ###
         #######################
