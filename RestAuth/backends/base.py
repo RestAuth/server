@@ -344,15 +344,15 @@ class BackendBase(object):
         dry-run, the method should behave as closely as possible to a normal invocation but
         shouldn't actually create the group.
 
-        :param    name: The name of the group.
-        :type     name: str
+        :param name: The name of the group.
+        :type  name: str
         :param service: The service of the named group. If None, the group should not belong to any
             service.
         :type  service: :py:class:`~Services.models.Service` or None
         :param users: A list of usernames.
         :type  users: list
-        :param     dry: Wether or not to actually create the group.
-        :type      dry: boolean
+        :param dry: Wether or not to actually create the group.
+        :type  dry: boolean
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raises: :py:class:`common.errors.GroupExists` if the group already exists.
