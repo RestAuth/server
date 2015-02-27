@@ -192,8 +192,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
     def test_add_user_with_group(self):
         resp = self.post('/users/', {'user': username1, 'groups': []})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        user = backend.get(username1)
-        self.assertEqual(group_backend.list(service=self.service, user=user), [])
+        self.assertEqual(backend.list_groups(service=self.service, username=username1), [])
 
         groups = [groupname1]
         resp = self.post('/users/', {'user': username2, 'groups': groups})
@@ -201,13 +200,12 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         user = backend.get(username2)
         group = group_backend.get(service=self.service, name=groupname1)
         self.assertTrue(group_backend.is_member(group, user))
-        self.assertEqual(group_backend.list(service=self.service, user=user), groups)
+        self.assertEqual(backend.list_groups(service=self.service, username=username2), groups)
 
         groups = [groupname1, groupname2]
         resp = self.post('/users/', {'user': username3, 'groups': [groupname1, groupname2]})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        user = backend.get(username3)
-        self.assertEqual(group_backend.list(service=self.service, user=user), groups)
+        self.assertEqual(backend.list_groups(service=self.service, username=username3), groups)
 
     def test_transactions(self):
         resp = self.post('/users/', {
@@ -218,7 +216,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(self.get_usernames(), [])
         with self.assertRaises(UserNotFound):
             backend.list_properties(username=username1), {}
-        self.assertEqual(group_backend.list(service=self.service), [])
+        self.assertEqual(backend.list_groups(service=self.service), [])
 
     def test_bad_requests(self):
         self.assertEqual(self.get_usernames(), [])

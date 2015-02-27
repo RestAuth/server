@@ -29,7 +29,6 @@ from RestAuthCommon.strprep import stringcheck
 
 from Users.validators import validate_username
 from backends import backend
-from backends import group_backend
 from common.errors import PasswordInvalid
 from common.errors import UserNotFound
 from common.responses import HttpResponseCreated
@@ -144,8 +143,8 @@ class UserHandlerView(RestAuthResourceView):
 
         if backend.check_password(username=name, password=password):
             if groups:
-                user = backend.get(username=name)
-                memberships = set(group_backend.list(service=request.user, user=user))
+                # If GroupNotFound: 404 Not Found
+                memberships = set(backend.list_groups(service=request.user, username=name))
                 if not memberships.intersection(set(groups)):
                     raise UserNotFound(name)
             return HttpResponseNoContent()
@@ -166,6 +165,7 @@ class UserHandlerView(RestAuthResourceView):
         else:
             password = None
 
+        # If UserNotFound: 404 Not Found
         backend.set_password(username=name, password=password)
         return HttpResponseNoContent()
 
@@ -175,6 +175,7 @@ class UserHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Users.user_delete'):
             return HttpResponseForbidden()
 
+        # If UserNotFound: 404 Not Found
         backend.remove_user(username=name)
         return HttpResponseNoContent()
 

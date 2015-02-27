@@ -324,7 +324,17 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def list_groups(self, service, username=None):
+        """Get a list of group names for the given service.
 
+        :param service: The service of the named group.
+        :param username: If given, only return groups that the user is a member of.
+        :type  username: str
+        :return: list of strings, each representing a group name.
+        :rtype: list
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
+        """
+        raise NotImplementedError
 
 
 class RestAuthBackend(object):  # pragma: no cover
@@ -448,17 +458,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raises: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def list(self, service, user=None):
-        """Get a list of group names for the given service.
-
-        :param service: The service of the named group.
-        :param    user: If given, only return groups that the user is a member of.
-        :type     user: :py:class:`.UserInstance`
-        :return: list of strings, each representing a group name.
-        :rtype: list
         """
         raise NotImplementedError
 

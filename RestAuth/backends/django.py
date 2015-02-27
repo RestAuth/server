@@ -27,7 +27,6 @@ from Users.models import Property
 from Users.models import ServiceUser as User
 from backends.base import BackendBase
 from backends.base import GroupBackend
-from backends.base import PropertyBackend
 from common.hashers import import_hash
 from common.errors import GroupExists
 from common.errors import GroupNotFound
@@ -200,6 +199,17 @@ class DjangoBackend(BackendBase):
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
+    def list_groups(self, service=None, username=None):
+        if username is None:
+            groups = Group.objects.filter(service=service)
+        else:
+            try:
+                user = User.objects.only('id').get(username=username)
+                groups = Group.objects.member(user=user, service=service)
+            except User.DoesNotExist:
+                raise UserNotFound(username)
+        return list(groups.only('name').values_list('name', flat=True))
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -238,19 +248,6 @@ class DjangoTransactionMixin(object):
         return DjangoTransactionManagerOld(self, dry=dry)
 
 
-class DjangoPropertyBackend(DjangoTransactionMixin, PropertyBackend):
-    """Use the standard Django ORM to store user properties.
-
-    This backend should be ready-to use as soon as you have :doc:`configured your database
-    </config/database>`. This backend requires that you also use the
-    :py:class:`~.DjangoUserBackend`.
-
-    All settings used by this backend are documented in the :doc:`settings reference
-    </config/all-config-values>`.
-    """
-    pass
-
-
 class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
     """Use the standard Django ORM to store groups.
 
@@ -270,16 +267,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
             raise GroupNotFound(name)
-
-    def list(self, service=None, user=None):
-        assert isinstance(service, BaseUser) or service is None
-        assert isinstance(user, User) or user is None
-
-        if user is None:
-            groups = Group.objects.filter(service=service)
-        else:
-            groups = Group.objects.member(user=user, service=service)
-        return list(groups.only('id').values_list('name', flat=True))
 
     def create(self, name, service=None, users=None, dry=False, transaction=True):
         assert isinstance(service, BaseUser) or service is None

@@ -45,7 +45,6 @@ try:
     from Services.models import Service
     from Users.cli.parsers import parser
     from backends import backend
-    from backends import group_backend
     from common.errors import UserExists
 except ImportError as e:  # pragma: no cover
     sys.stderr.write(
@@ -93,17 +92,17 @@ def main(args=None):
             print('Last login: %s' % props['last login'])
 
         if args.service:
-            groups = group_backend.list(service=args.service, user=args.user)
+            groups = backend.list_groups(service=args.service, username=args.user.username)
             if groups:
                 print('Groups: %s' % ', '.join(sorted(groups)))
             else:
                 print('No groups.')
         else:
             groups = {}
-            none_groups = group_backend.list(service=None, user=args.user)
+            none_groups = backend.list_groups(service=None, username=args.user.username)
 
             for service in Service.objects.all():
-                subgroups = group_backend.list(service=service, user=args.user)
+                subgroups = backend.list_groups(service=service, username=args.user.username)
                 if subgroups:
                     groups[service.username] = subgroups
 

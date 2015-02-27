@@ -59,14 +59,13 @@ class GroupsView(RestAuthView):
             if not request.user.has_perm('Groups.groups_list'):
                 return HttpResponseForbidden()
 
-            groups = group_backend.list(service=request.user)
+            groups = backend.list_groups(service=request.user)
         else:
             if not request.user.has_perm('Groups.groups_for_user'):
                 return HttpResponseForbidden()
 
             # Get all groups of a user
-            user = backend.get(username=stringprep(username))
-            groups = group_backend.list(service=request.user, user=user)
+            groups = backend.list_groups(service=request.user, username=username)
 
         groups = [g.lower() for g in groups]
         return HttpRestAuthResponse(request, groups)

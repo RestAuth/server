@@ -43,6 +43,7 @@ try:
     from Groups.cli.helpers import get_group
     from Groups.cli.helpers import print_by_service
     from Groups.cli.parsers import parser
+    from backends import backend
     from backends import group_backend
     from common.compat import decode_str as _d
     from common.errors import GroupExists
@@ -65,7 +66,7 @@ def main(args=None):
         except GroupExists:
             parser.error('Group already exists.')
     elif args.action in ['list', 'ls']:
-        groups = group_backend.list(service=args.service)
+        groups = backend.list_groups(service=args.service)
 
         for name in sorted(groups):
             print(name)
