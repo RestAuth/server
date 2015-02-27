@@ -355,8 +355,40 @@ class BackendBase(object):
         :type  dry: boolean
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
-        :raises: :py:class:`common.errors.GroupExists` if the group already exists.
+        :raise: :py:class:`common.errors.GroupExists` if the group already exists.
         :raise: :py:class:`~common.errors.UserNotFound` if any of the given users don't exist.
+        """
+        raise NotImplementedError
+
+    def rename_group(self, name, new_name, service=None):
+        """Rename a group.
+
+        This operation is only available via |bin-restauth-group-doc|.
+
+        :param name: The old name of the group.
+        :type  name: str
+        :param new_name: The new name of the group.
+        :type  new_name: str
+        :param service: The service of the group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :raise: :py:class:`~common.errors.GroupNotFound` if the old group does not exist.
+        :raise: :py:class:`~common.errors.GroupExists` if the group already exist.
+        """
+        raise NotImplementedError
+
+    def set_group_service(self, name, service=None, new_service=None):
+        """Set the service of a group.
+
+        This operation is only available via |bin-restauth-group-doc|.
+
+        :param name: The name of the group.
+        :type  name: str
+        :param service: The old service of the group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param new_service: The new service of the group.
+        :type  new_service: :py:class:`~Services.models.Service` or None
+        :raise: :py:class:`~common.errors.GroupNotFound` if the old group does not exist.
+        :raise: :py:class:`~common.errors.GroupExists` if the new group already exist.
         """
         raise NotImplementedError
 
@@ -481,32 +513,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type  service: :py:class:`~Services.models.Service` or None
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
-        :raises: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def rename(self, group, name):
-        """Rename a group.
-
-        This operation is only available via |bin-restauth-group-doc|.
-
-        :param   group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type    group: :py:class:`.GroupInstance`
-        :param    name: The new groupname.
-        :type     name: str
-        :raise: :py:class:`~common.errors.GroupExists` if the group already exist.
-        """
-        raise NotImplementedError
-
-    def set_service(self, group, service=None):
-        """Set the service of a group.
-
-        This operation is only available via |bin-restauth-group-doc|.
-
-        :param   group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type    group: :py:class:`.GroupInstance`
-        :param service: The new service of the group.
-        :type  service: :py:class:`~Services.models.Service` or None
+        :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
         """
         raise NotImplementedError
 
@@ -596,7 +603,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type  group: :py:class:`.GroupInstance`
         :param  user: A user as returned by :py:meth:`.UserBackend.get`.
         :type   user: :py:class:`.UserInstance`
-        :raises: :py:class:`common.errors.UserNotFound` if the user is not a member of the group.
+        :raise: :py:class:`common.errors.UserNotFound` if the user is not a member of the group.
         """
         raise NotImplementedError
 
@@ -669,7 +676,7 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :type  group: :py:class:`.GroupInstance`
         :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
         :type  subgroup: :py:class:`.GroupInstance`
-        :raises: :py:class:`common.errors.GroupNotFound` if the named subgroup is not actually a
+        :raise: :py:class:`common.errors.GroupNotFound` if the named subgroup is not actually a
             subgroup of group.
         """
         raise NotImplementedError

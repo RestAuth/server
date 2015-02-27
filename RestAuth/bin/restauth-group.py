@@ -55,10 +55,7 @@ except ImportError as e:  # pragma: no cover
     sys.exit(1)
 
 
-def main(args=None):
-    # parse arguments
-    args = parser.parse_args(args=args)
-
+def _main(args):
     # Actions that do not act on an existing group:
     if args.action == 'add':
         try:
@@ -97,8 +94,8 @@ def main(args=None):
         else:
             print('* No subgroups')
     elif args.action == 'set-service':
-        group = get_group(parser, args.group, args.service)
-        group_backend.set_service(group, args.new_service)
+        backend.set_group_service(name=args.group, service=args.service,
+                                  new_service=args.new_service)
     elif args.action == 'add-user':
         group = get_group(parser, args.group, args.service)
         group_backend.add_user(group, args.user)
@@ -117,11 +114,7 @@ def main(args=None):
         except UserNotFound:
             parser.error('User "%s" not member of group "%s".' % (args.user.username, group.name))
     elif args.action == 'rename':
-        group = get_group(parser, args.group, args.service)
-        try:
-            group_backend.rename(group, args.name)
-        except GroupExists as e:
-            parser.error("%s: %s" % (_d(args.name), e))
+        backend.rename_group(args.group, args.name, service=args.service)
     elif args.action in ['remove-group', 'rm-group', 'del-group']:  # pragma: no branch
         group = get_group(parser, args.group, args.service)
         subgroup = get_group(parser, args.subgroup, args.sub_service)
@@ -130,6 +123,15 @@ def main(args=None):
             group_backend.rm_subgroup(group, subgroup)
         except GroupNotFound:
             parser.error('Group "%s" is not a subgroup of "%s".' % (subgroup.name, group.name))
+
+def main(args=None):
+    args = parser.parse_args(args)
+    try:
+        _main(args)
+    except GroupNotFound:
+        parser.error('%s at service %s: Group does not exist.' % (args.group, args.service))
+    except GroupExists:
+        parser.error("%s: Group already exists." % (_d(args.name)))
 
 if __name__ == '__main__':  # pragma: no cover
     main()

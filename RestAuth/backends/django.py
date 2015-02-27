@@ -224,6 +224,28 @@ class DjangoBackend(BackendBase):
 
             return group
 
+    #def rename(self, group, name):
+    def rename_group(self, name, new_name, service=None):
+        try:
+            group = Group.objects.get(name=name, service=service)
+            group.name = new_name
+            group.save()
+        except Group.DoesNotExist:
+            raise GroupNotFound(name)
+        except IntegrityError:
+            raise GroupExists(new_name)
+
+    #def set_service(self, group, service=None):
+    def set_group_service(self, name, service=None, new_service=None):
+        try:
+            group = Group.objects.get(name=name, service=service)
+            group.service = new_service
+            group.save()
+        except Group.DoesNotExist:
+            raise GroupNotFound(name)
+        except IntegrityError:
+            raise GroupExists(name)
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -281,23 +303,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
             raise GroupNotFound(name)
-
-    def rename(self, group, name):
-        assert isinstance(group, Group)
-        assert isinstance(name, six.string_types)
-
-        try:
-            group.name = name
-            group.save()
-        except IntegrityError:
-            raise GroupExists("Group already exists.")
-
-    def set_service(self, group, service=None):
-        assert isinstance(group, Group)
-        assert isinstance(service, BaseUser) or service is None, type(service)
-
-        group.service = service
-        group.save()
 
     def exists(self, name, service=None):
         assert isinstance(service, BaseUser) or service is None

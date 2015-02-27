@@ -8,6 +8,7 @@
 * Same for backend.create_group.
 * backend.get() should be removed
 * Document DATA_BACKEND setting, update backend documentation.
+* GroupNotFound/GroupExist should require two params: name and service.
 
 Future:
 
