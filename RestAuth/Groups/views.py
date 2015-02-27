@@ -260,13 +260,11 @@ class GroupGroupsIndex(RestAuthResourceView):
         if not request.user.has_perms(['Groups.group_add_group', 'Groups.group_remove_group']):
             return HttpResponseForbidden()
 
-        subnames = [stringprep(g) for g in self._parse_put(request)]
+        subgroups = [stringprep(g) for g in self._parse_put(request)]
 
         # If GroupNotFound: 404 Not Found
-        group = group_backend.get(service=request.user, name=name)
-        subgroups = [group_backend.get(service=request.user, name=n) for n in subnames]
-
-        group_backend.set_subgroups(group=group, subgroups=subgroups)
+        backend.set_subgroups(group=name, service=request.user, subgroups=subgroups,
+                              subservice=request.user)
 
         self.log.info('Set sub-groups', extra=largs)
         return HttpResponseNoContent()
