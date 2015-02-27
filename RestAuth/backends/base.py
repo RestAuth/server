@@ -267,7 +267,7 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
-    def get(self, username, key):
+    def get_property(self, username, key):
         """Get a specific property of the user.
 
         :param username: The username.
@@ -281,7 +281,7 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
-    def set(self, username, key, value, dry=False):
+    def set_property(self, username, key, value, dry=False):
         """Set a property for the given user.
 
         Unlike :py:meth:`~.PropertyBackend.create` this method overwrites an existing property.
