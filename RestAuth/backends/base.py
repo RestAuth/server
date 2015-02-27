@@ -481,6 +481,20 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def rm_user(self, group, service, user):
+        """Remove a user from the group.
+
+        :param group: A group from which to remove the user.
+        :type  group: str
+        :param service: The service of the given group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param  user: The user to remove.
+        :type   user: str
+        :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
+        :raise: :py:class:`~common.errors.UserNotFound` if the named user does not exist.
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -603,17 +617,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def rm_user(self, group, user):
-        """Remove a user from the group.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
-        :param  user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type   user: :py:class:`.UserInstance`
-        :raise: :py:class:`common.errors.UserNotFound` if the user is not a member of the group.
         """
         raise NotImplementedError
 

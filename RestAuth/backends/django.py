@@ -296,6 +296,21 @@ class DjangoBackend(BackendBase):
 
         return group.is_member(user)
 
+    def rm_user(self, group, service, user):
+        try:
+            group = Group.objects.only('id').get(name=group, service=service)
+            user = User.objects.only('id').get(username=user)
+        except Group.DoesNotExist:
+            raise GroupNotFound(group)
+        except User.DoesNotExist:
+            raise UserNotFound(user)
+
+        if group.is_member(user):
+            group.users.remove(user)
+        else:
+            raise UserNotFound(user.username)  # 404 Not Found
+
+
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
         self.backend = backend
@@ -345,19 +360,10 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
     """
 
     def get(self, name, service=None):
-        assert isinstance(name, six.string_types)
-        assert isinstance(service, BaseUser) or service is None
-
         try:
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
             raise GroupNotFound(name)
-
-    def rm_user(self, group, user):
-        if group.is_member(user):
-            group.users.remove(user)
-        else:
-            raise UserNotFound(user)  # 404 Not Found
 
     def add_subgroup(self, group, subgroup):
         group.groups.add(subgroup)

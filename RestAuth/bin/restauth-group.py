@@ -107,11 +107,10 @@ def _main(args):
         group = get_group(parser, args.group, args.service)
         group_backend.remove(group)
     elif args.action in ['remove-user', 'rm-user', 'del-user']:
-        group = get_group(parser, args.group, args.service)
         try:
-            group_backend.rm_user(group, args.user)
+            backend.rm_user(group=args.group, service=args.service, user=args.user.username)
         except UserNotFound:
-            parser.error('User "%s" not member of group "%s".' % (args.user.username, group.name))
+            parser.error('User "%s" not member of group "%s".' % (args.user.username, args.group))
     elif args.action == 'rename':
         backend.rename_group(args.group, args.name, service=args.service)
     elif args.action in ['remove-group', 'rm-group', 'del-group']:  # pragma: no branch
