@@ -97,8 +97,7 @@ def _main(args):
         backend.set_group_service(name=args.group, service=args.service,
                                   new_service=args.new_service)
     elif args.action == 'add-user':
-        group = get_group(parser, args.group, args.service)
-        group_backend.add_user(group, args.user)
+        backend.add_user(group=args.group, service=args.service, user=args.user.username)
     elif args.action == 'add-group':
         group = get_group(parser, args.group, args.service)
         subgroup = get_group(parser, args.subgroup, args.sub_service)

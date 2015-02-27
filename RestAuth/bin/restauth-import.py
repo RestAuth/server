@@ -183,8 +183,7 @@ def save_groups(groups, args, parser):
                 group = group_backend.get(service=service, name=name)
 
         for username in data.get('users', []):
-            user = backend.get(username=username)
-            group_backend.add_user(group=group, user=user)
+            backend.add_user(group=name, service=service, user=username)
 
         if 'subgroups' in data:
             subgroups[group] = data.pop('subgroups')

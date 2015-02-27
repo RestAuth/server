@@ -302,8 +302,8 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
         # create a group membership
-        group = backend.create_group(name=groupname1, service=self.service)
-        group_backend.add_user(group, user=self.user1)
+        backend.create_group(name=groupname1, service=self.service)
+        backend.add_user(group=groupname1, service=self.service, user=username1)
 
         resp = self.post('/users/%s/' % username1, data)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
@@ -1003,7 +1003,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
     def test_view(self):
-        user = self.create_user(username1, password1)
+        self.create_user(username1, password1)
         frm = username1 if six.PY3 else username1.encode('utf-8')
         with capture() as (stdout, stderr):
             restauth_user(['view', frm])
@@ -1036,8 +1036,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
         # add group to service:
-        group = backend.create_group(name=groupname1, service=self.service)
-        group_backend.add_user(group, user)
+        backend.create_group(name=groupname1, service=self.service)
+        backend.add_user(group=groupname1, service=self.service, user=username1)
 
         with capture() as (stdout, stderr):
             restauth_user(['view', '--service', self.service.name, frm])
@@ -1063,8 +1063,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
         # add "global" group with no service
-        group2 = backend.create_group(name=groupname2, service=None)
-        group_backend.add_user(group2, user)
+        backend.create_group(name=groupname2, service=None)
+        backend.add_user(group=groupname2, service=None, user=username1)
 
         with capture() as (stdout, stderr):
             restauth_user(['view', frm])

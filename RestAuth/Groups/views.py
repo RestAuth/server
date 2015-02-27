@@ -159,17 +159,13 @@ class GroupUsersIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        username = stringprep(self._parse_post(request))
+        user = stringprep(self._parse_post(request))
 
         # If GroupNotFound: 404 Not Found
-        group = group_backend.get(service=request.user, name=name)
-
         # If UserNotFound: 404 Not Found
-        user = backend.get(username=username)
+        backend.add_user(group=name, service=request.user, user=user)
 
-        group_backend.add_user(group=group, user=user)
-
-        self.log.info('Add user "%s"', username, extra=largs)
+        self.log.info('Add user "%s"', user, extra=largs)
         return HttpResponseNoContent()
 
     def put(self, request, largs, name):

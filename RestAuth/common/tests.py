@@ -546,15 +546,15 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         self.assertCountEqual(group_backend.members(group4), [username1, username2])
 
     def test_existing_groups(self):
-        user1 = backend.create_user(username1)
+        backend.create_user(username1)
         backend.create_user(username2)
         backend.create_user(username3)
-        user4 = backend.create_user(username4)  # new user
+        backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
         group2 = backend.create_group(name=groupname2, service=self.service)
-        group_backend.add_user(group2, user1)
-        group_backend.add_user(group2, user4)
+        backend.add_user(group=groupname2, service=self.service, user=username1)
+        backend.add_user(group=groupname2, service=self.service, user=username4)
 
         path = os.path.join(self.base, 'groups1.json')
         with capture() as (stdout, stderr):
@@ -579,15 +579,15 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_skip_existing_groups(self):
         # same test-setup as above, only we skip existing groups
-        user1 = backend.create_user(username1)
+        backend.create_user(username1)
         backend.create_user(username2)
         backend.create_user(username3)
-        user4 = backend.create_user(username4)  # new user
+        backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
         group2 = backend.create_group(name=groupname2, service=self.service)
-        group_backend.add_user(group2, user1)
-        group_backend.add_user(group2, user4)
+        backend.add_user(group=groupname2, service=self.service, user=username1)
+        backend.add_user(group=groupname2, service=self.service, user=username4)
 
         path = os.path.join(self.base, 'groups1.json')
         with capture() as (stdout, stderr):
