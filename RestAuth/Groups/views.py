@@ -182,12 +182,8 @@ class GroupUsersIndex(RestAuthResourceView):
         users = [stringprep(u) for u in self._parse_put(request)]
 
         # If GroupNotFound: 404 Not Found
-        group = group_backend.get(service=request.user, name=name)
-
         # If UserNotFound: 404 Not Found
-        users = [backend.get(u) for u in users]
-
-        group_backend.set_users_for_group(group=group, users=users)
+        backend.set_users_for_group(group=name, service=request.user, users=users)
 
         self.log.info('Set users for group "%s"', name, extra=largs)
         return HttpResponseNoContent()

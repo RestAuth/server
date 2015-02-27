@@ -417,6 +417,24 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def set_users_for_group(self, group, service, users):
+        """Set all members of a group.
+
+        This method replaces the current list of members with the one passed by ``users``. If a
+        user is member of a meta-group, this method must not remove that membership if the user is
+        not in the new list of members.
+
+        :param group: A group to set the users for.
+        :type  group: str
+        :param service: The service of the given group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param users: A list of usernames.
+        :type  users: list
+        :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
+        :raise: :py:class:`~common.errors.UserNotFound` if any of the users do not exist.
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -539,20 +557,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def set_users_for_group(self, group, users):
-        """Set all members of a group.
-
-        This method replaces the current list of members with the one passed by ``users``. If a
-        user is member of a meta-group, this method must not remove that membership if the user is
-        not in the new list of members.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
-        :param users: A list of users as returned by :py:meth:`.UserBackend.get`.
-        :type  users: list
         """
         raise NotImplementedError
 
