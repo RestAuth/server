@@ -2,6 +2,7 @@ RestAuth 0.7.0 (XX XXXX 2014)
 
   General:
   * Update requirements.
+  * RestAuth no longer supports separate backends, instead there is a common backend for all data.
 
   Documentation:
   * Remove last traces of old git host.
