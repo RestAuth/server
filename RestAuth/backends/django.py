@@ -166,6 +166,23 @@ class DjangoBackend(BackendBase):
             except IntegrityError:
                 raise PropertyExists()
 
+    def get_property(self, username, key):
+        try:
+            user = User.objects.only('id').get(username=username)
+            return user.property_set.only('value').get(key=key).value
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+        except Property.DoesNotExist:
+            raise PropertyNotFound(key)
+
+    def set_property(self, username, key, value, dry=False):
+        try:
+            user = User.objects.only('id').get(username=username)
+            prop, old_value = user.set_property(key, value)
+            return old_value
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -214,23 +231,6 @@ class DjangoPropertyBackend(DjangoTransactionMixin, PropertyBackend):
     All settings used by this backend are documented in the :doc:`settings reference
     </config/all-config-values>`.
     """
-
-    def get(self, user, key):
-        try:
-            qs = Property.objects.filter(user_id=user.id).only('value')
-            return qs.get(key=key).value
-        except Property.DoesNotExist:
-            raise PropertyNotFound(key)
-
-    def set(self, user, key, value, dry=False, transaction=True):
-        # we do not need the dry parameter if its not set by set_multiple.
-        if transaction:
-            with dj_transaction.atomic():
-                prop, old_value = user.set_property(key, value)
-                return prop.key, old_value
-        else:  # pragma: no cover
-            prop, old_value = user.set_property(key, value)
-            return prop.key, old_value
 
     def set_multiple(self, user, props, dry=False, transaction=True):
         if dry:

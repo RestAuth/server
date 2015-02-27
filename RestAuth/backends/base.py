@@ -238,6 +238,7 @@ class BackendBase(object):
         :type  username: str
         :return: A dictionary of key/value pairs, each describing a property.
         :rtype: dict
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
         """
         raise NotImplementedError
 
@@ -262,6 +263,41 @@ class BackendBase(object):
         :type  dry: boolean
         :rtype: tuple
         :raise: :py:class:`~common.errors.PropertyExists` if the property already exists.
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
+        """
+        raise NotImplementedError
+
+    def get(self, username, key):
+        """Get a specific property of the user.
+
+        :param username: The username.
+        :type  username: str
+        :param key: The key identifying the property.
+        :type  key: str
+        :return: The value of the property.
+        :rtype: str
+        :raise: :py:class:`common.errors.PropertyNotFound` if the property doesn't exist.
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
+        """
+        raise NotImplementedError
+
+    def set(self, username, key, value, dry=False):
+        """Set a property for the given user.
+
+        Unlike :py:meth:`~.PropertyBackend.create` this method overwrites an existing property.
+
+        The ``dry`` parameter is never passed by RestAuth itself. You may pass the parameter when
+        calling this method using :py:meth:`.set_multiple`.
+
+        :param username: The username.
+        :type  username: str
+        :param key: The key identifying the property.
+        :type  key: str
+        :param value: The value of the property.
+        :type  value: str
+        :return: ``None`` if the property didn't exist previously or the old value, if it did.
+        :rtype: str or None
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
         """
         raise NotImplementedError
 
@@ -375,45 +411,6 @@ class RestAuthBackend(object):  # pragma: no cover
 
 class PropertyBackend(RestAuthBackend):  # pragma: no cover
     """Provide user properties."""
-
-    def get(self, user, key):
-        """Get a specific property of the user.
-
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`~.UserInstance`
-        :param  key: The key identifying the property.
-        :type   key: str
-        :return: The value of the property.
-        :rtype: str
-        :raise: :py:class:`common.errors.PropertyNotFound` if the property doesn't exist.
-        """
-        raise NotImplementedError
-
-    def set(self, user, key, value, dry=False, transaction=True):
-        """Set a property for the given user.
-
-        Unlike :py:meth:`~.PropertyBackend.create` this method overwrites an existing property.
-
-        The ``dry`` parameter is never passed by RestAuth itself. You may pass the parameter when
-        calling this method using :py:meth:`.set_multiple`.
-
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`~.UserInstance`
-        :param key: The key identifying the property.
-        :type  key: str
-        :param value: The value of the property.
-        :type  value: str
-        :param transaction: If False, the statement is executed in a larger transactional context,
-            meaning that transactions are already handled by
-            :py:meth:`~RestAuthBackend.init_transaction`,
-            :py:meth:`~RestAuthBackend.commit_transaction` and
-            :py:meth:`~RestAuthBackend.rollback_transaction`.
-        :type  transaction: boolean
-        :return: A tuple of key/value as they are stored in the database. The value should be
-            ``None`` if the property didn't exist previously or the old value, if it did.
-        :rtype: tuple
-        """
-        raise NotImplementedError
 
     def set_multiple(self, user, props, dry=False, transaction=True):
         """Set multiple properties at once.

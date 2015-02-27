@@ -180,8 +180,8 @@ class ValidatorTests(RestAuthTest):
 
     def test_mediawiki_check(self):
         load_username_validators(('Users.validators.MediaWikiValidator', ))
-        with self.settings(MAX_USERNAME_LENGTH=500):
-            self.assertRaises(UsernameInvalid, validate_username, 'x' * 256)
+        with self.settings(MAX_USERNAME_LENGTH=500), self.assertRaises(UsernameInvalid):
+            validate_username('x' * 256)
         validate_username('foobar')
 
     def test_linux_check(self):
@@ -460,9 +460,9 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         self.test_users(overwrite=True)
 
     def test_skip_existing_users(self):
-        user = backend.create_user(username2)
-        property_backend.set(user, propkey1, propval3)
-        property_backend.set(user, "date joined", propval3)
+        backend.create_user(username2)
+        backend.set_property(username2, propkey1, propval3)
+        backend.set_property(username2, "date joined", propval3)
 
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):

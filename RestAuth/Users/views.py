@@ -242,9 +242,7 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        user = backend.get(username=name)
-
-        value = property_backend.get(user=user, key=subname)
+        value = backend.get_property(username=name, key=subname)
 
         if request.version < (0, 7):
             return HttpRestAuthResponse(request, value)
@@ -261,9 +259,7 @@ class UserPropHandler(RestAuthSubResourceView):
         value = self._parse_put(request)
 
         # If UserNotFound: 404 Not Found
-        user = backend.get(username=name)
-
-        key, old_value = property_backend.set(user=user, key=subname, value=value)
+        old_value = backend.set_property(username=name, key=subname, value=value)
 
         if old_value is None:  # new property
             self.log.info('Set to "%s"', value, extra=largs)
