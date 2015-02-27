@@ -197,8 +197,8 @@ def save_groups(groups, args, parser):
             if service:
                 service = Service.objects.get(username=service)
 
-            subgroup = group_backend.get(name=name, service=service)
-            group_backend.add_subgroup(group=group, subgroup=subgroup)
+            backend.add_subgroup(group=group.name, service=group.service, subgroup=name,
+                                 subservice=service)
 
 class ServiceTransactionManager(object):
     def __enter__(self):

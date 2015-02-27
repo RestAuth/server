@@ -99,10 +99,8 @@ def _main(args):
     elif args.action == 'add-user':
         backend.add_user(group=args.group, service=args.service, user=args.user.username)
     elif args.action == 'add-group':
-        group = get_group(parser, args.group, args.service)
-        subgroup = get_group(parser, args.subgroup, args.sub_service)
-
-        group_backend.add_subgroup(group, subgroup)
+        backend.add_subgroup(group=args.group, service=args.service, subgroup=args.subgroup,
+                             subservice=args.sub_service)
     elif args.action in ['delete', 'del', 'rm']:
         group = get_group(parser, args.group, args.service)
         group_backend.remove(group)

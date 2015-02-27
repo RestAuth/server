@@ -310,6 +310,18 @@ class DjangoBackend(BackendBase):
         else:
             raise UserNotFound(user.username)  # 404 Not Found
 
+    def add_subgroup(self, group, service, subgroup, subservice):
+        try:
+            group = Group.objects.only('id').get(name=group, service=service)
+        except Group.DoesNotExist:
+            raise GroupNotFound(group)
+        try:
+            subgroup = Group.objects.only('id').get(name=subgroup, service=subservice)
+        except Group.DoesNotExist:
+            raise GroupNotFound(subgroup)
+
+        group.groups.add(subgroup)
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -364,9 +376,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
             raise GroupNotFound(name)
-
-    def add_subgroup(self, group, subgroup):
-        group.groups.add(subgroup)
 
     def set_subgroups(self, group, subgroups):
         pks = group.groups.filter(service=group.service).values_list('pk', flat=True)

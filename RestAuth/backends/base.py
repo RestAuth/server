@@ -495,6 +495,21 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def add_subgroup(self, group, service, subgroup, subservice):
+        """Make a group a subgroup of another group.
+
+        :param group: The future parent group.
+        :type  group: str
+        :param service: The service of the given group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param subgroup: The future subgroup.
+        :type  subgroup: str
+        :param subservice: The service of the given group.
+        :type  subservice: :py:class:`~Services.models.Service` or None
+        :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -617,16 +632,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def add_subgroup(self, group, subgroup):
-        """Make a group a subgroup of another group.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
-        :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  subgroup: :py:class:`.GroupInstance`
         """
         raise NotImplementedError
 
