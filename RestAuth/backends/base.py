@@ -392,6 +392,18 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def group_exists(self, name, service=None):
+        """Determine if a group exists for the given service.
+
+        :param    name: The name of the group.
+        :type     name: str
+        :param service: The service of the group to query.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :return: True if the group exists, False otherwise.
+        :rtype: boolean
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -514,18 +526,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def exists(self, name, service=None):
-        """Determine if a group exists for the given service.
-
-        :param    name: The name of the group.
-        :type     name: str
-        :param service: The service of the group to query.
-        :type  service: :py:class:`~Services.models.Service` or None
-        :return: True if the group exists, False otherwise.
-        :rtype: boolean
         """
         raise NotImplementedError
 

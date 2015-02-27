@@ -246,6 +246,9 @@ class DjangoBackend(BackendBase):
         except IntegrityError:
             raise GroupExists(name)
 
+    def group_exists(self, name, service=None):
+        return Group.objects.filter(name=name, service=service).exists()
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -303,12 +306,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
             raise GroupNotFound(name)
-
-    def exists(self, name, service=None):
-        assert isinstance(service, BaseUser) or service is None
-        assert isinstance(name, six.string_types)
-
-        return Group.objects.filter(name=name, service=service).exists()
 
     def set_groups_for_user(self, service, user, groupnames, transaction=True, dry=False):
         user.group_set.filter(service=service).delete()  # clear existing groups

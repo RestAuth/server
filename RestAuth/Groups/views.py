@@ -115,7 +115,7 @@ class GroupHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_exists'):
             return HttpResponseForbidden()
 
-        if group_backend.exists(service=request.user, name=name):
+        if backend.group_exists(service=request.user, name=name):
             return HttpResponseNoContent()
         else:
             raise GroupNotFound(name)
