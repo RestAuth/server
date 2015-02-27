@@ -152,7 +152,7 @@ def save_users(users, args, parser):
 def save_properties(properties, args, parser):
     for user, props in six.iteritems(properties):
         if args.overwrite_properties:
-            property_backend.set_multiple(user, props, transaction=False)
+            backend.set_multiple_properties(username=user.username, properties=props)
         else:
             for key, value in six.iteritems(props):
                 try:

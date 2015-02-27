@@ -30,7 +30,6 @@ from RestAuthCommon.strprep import stringcheck
 from Users.validators import validate_username
 from backends import backend
 from backends import group_backend
-from backends import property_backend
 from common.errors import PasswordInvalid
 from common.errors import UserNotFound
 from common.responses import HttpResponseCreated
@@ -220,11 +219,10 @@ class UserPropsIndex(RestAuthResourceView):
         if not request.user.has_perm('Users.prop_create'):
             return HttpResponseForbidden()
 
-        # If UserNotFound: 404 Not Found
-        user = backend.get(username=name)
         properties = {stringcheck(k): v for k, v in six.iteritems(parse_dict(request))}
 
-        property_backend.set_multiple(user=user, props=properties)
+        # If UserNotFound: 404 Not Found
+        backend.set_multiple_properties(username=name, properties=properties)
         return HttpResponseNoContent()
 
 
@@ -279,7 +277,5 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        user = backend.get(username=name)
-
-        property_backend.remove(user=user, key=subname)
+        backend.remove_property(username=name, key=subname)
         return HttpResponseNoContent()

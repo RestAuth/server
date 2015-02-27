@@ -281,13 +281,10 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
-    def set_property(self, username, key, value, dry=False):
+    def set_property(self, username, key, value):
         """Set a property for the given user.
 
         Unlike :py:meth:`~.PropertyBackend.create` this method overwrites an existing property.
-
-        The ``dry`` parameter is never passed by RestAuth itself. You may pass the parameter when
-        calling this method using :py:meth:`.set_multiple`.
 
         :param username: The username.
         :type  username: str
@@ -300,6 +297,34 @@ class BackendBase(object):
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
         """
         raise NotImplementedError
+
+    def set_multiple_properties(self, username, properties):
+        """Set multiple properties at once.
+
+        This method may just call :py:meth:`~.PropertyBackend.set` multiple times. Some backends
+        have faster methods for setting multiple values at once, though.
+
+        :param username: The username.
+        :type  username: str
+        :param properties: A dictionary of properties.
+        :type  properties: dict
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
+        """
+        raise NotImplementedError
+
+    def remove_property(self, username, key):
+        """Remove a property.
+
+        :param username: The username.
+        :type  username: str
+        :param key: The key identifying the property.
+        :type  key: str
+        :raise: :py:class:`common.errors.PropertyNotFound` if the property doesn't exist.
+        :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
+        """
+        raise NotImplementedError
+
+
 
 
 class RestAuthBackend(object):  # pragma: no cover
@@ -411,41 +436,7 @@ class RestAuthBackend(object):  # pragma: no cover
 
 class PropertyBackend(RestAuthBackend):  # pragma: no cover
     """Provide user properties."""
-
-    def set_multiple(self, user, props, dry=False, transaction=True):
-        """Set multiple properties at once.
-
-        This method may just call :py:meth:`~.PropertyBackend.set` multiple times. Some backends
-        have faster methods for setting multiple values at once, though.
-
-        The ``dry`` parameter tells you if you should actually create the properties. The parameter
-        will be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the properties.
-
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`~.UserInstance`
-        :param dry: Wether or not to actually create the properties.
-        :type  dry: boolean
-        :param transaction: If False, the statement is executed in a larger transactional context,
-            meaning that transactions are already handled by
-            :py:meth:`~RestAuthBackend.init_transaction`,
-            :py:meth:`~RestAuthBackend.commit_transaction` and
-            :py:meth:`~RestAuthBackend.rollback_transaction`.
-        :type  transaction: boolean
-        """
-        raise NotImplementedError
-
-    def remove(self, user, key):
-        """Remove a property.
-
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`~.UserInstance`
-        :param key: The key identifying the property.
-        :type  key: str
-        :raise: :py:class:`common.errors.PropertyNotFound` if the property doesn't exist.
-        """
-        raise NotImplementedError
+    pass
 
 
 class GroupBackend(RestAuthBackend):  # pragma: no cover

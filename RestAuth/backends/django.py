@@ -183,6 +183,23 @@ class DjangoBackend(BackendBase):
         except User.DoesNotExist:
             raise UserNotFound(username)
 
+    def set_multiple_properties(self, username, properties):
+        try:
+            user = User.objects.only('id').get(username=username)
+            for key, value in six.iteritems(properties):
+                user.set_property(key, value)
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+
+    def remove_property(self, username, key):
+        try:
+            user = User.objects.only('id').get(username=username)
+            user.del_property(key)
+        except User.DoesNotExist:
+            raise UserNotFound(username)
+        except Property.DoesNotExist:
+            raise PropertyNotFound(key)
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -231,30 +248,7 @@ class DjangoPropertyBackend(DjangoTransactionMixin, PropertyBackend):
     All settings used by this backend are documented in the :doc:`settings reference
     </config/all-config-values>`.
     """
-
-    def set_multiple(self, user, props, dry=False, transaction=True):
-        if dry:
-            dj_transaction.set_autocommit(False)
-
-            try:
-                for key, value in six.iteritems(props):
-                    user.set_property(key, value)
-            finally:
-                dj_transaction.rollback()
-                dj_transaction.set_autocommit(True)
-        elif transaction:
-            with dj_transaction.atomic():
-                for key, value in six.iteritems(props):
-                    user.set_property(key, value)
-        else:  # pragma: no cover
-            for key, value in six.iteritems(props):
-                user.set_property(key, value)
-
-    def remove(self, user, key):
-        try:
-            user.del_property(key)
-        except Property.DoesNotExist:
-            raise PropertyNotFound(key)
+    pass
 
 
 class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):

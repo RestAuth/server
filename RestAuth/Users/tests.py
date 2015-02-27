@@ -1030,7 +1030,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertHasLine(stdout, '^No groups.$')
             self.assertEqual(stderr.getvalue(), '')
 
-        property_backend.remove(user, 'date joined')
+        backend.remove_property(username=username1, key='date joined')
         with capture() as (stdout, stderr):
             restauth_user(['view', frm])
             self.assertHasNoLine(stdout, '^Joined: ')
