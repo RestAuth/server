@@ -156,6 +156,16 @@ class DjangoBackend(BackendBase):
             raise UserNotFound(username)
         return properties
 
+    def create_property(self, username, key, value, dry=False):
+        with self.atomic(dry=dry):
+            try:
+                user = User.objects.only('id').get(username=username)
+                user.property_set.create(key=key, value=value)
+            except User.DoesNotExist:
+                raise UserNotFound(username)
+            except IntegrityError:
+                raise PropertyExists()
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -204,32 +214,6 @@ class DjangoPropertyBackend(DjangoTransactionMixin, PropertyBackend):
     All settings used by this backend are documented in the :doc:`settings reference
     </config/all-config-values>`.
     """
-
-    def create(self, user, key, value, dry=False, transaction=True):
-        if dry:
-            dj_transaction.set_autocommit(False)
-
-            try:
-                prop = user.property_set.create(key=key, value=value)
-                return prop.key, prop.value
-            except IntegrityError:
-                raise PropertyExists()
-            finally:
-                dj_transaction.rollback()
-                dj_transaction.set_autocommit(True)
-        elif transaction:
-            with dj_transaction.atomic():
-                try:
-                    prop = user.property_set.create(key=key, value=value)
-                    return prop.key, prop.value
-                except IntegrityError:
-                    raise PropertyExists()
-        else:  # pragma: no cover
-            try:
-                prop = user.property_set.create(key=key, value=value)
-                return prop.key, prop.value
-            except IntegrityError:
-                raise PropertyExists()
 
     def get(self, user, key):
         try:

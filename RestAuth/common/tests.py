@@ -477,9 +477,9 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 stdout, '^\* %s: Hash of type "unknown" is not supported, skipping\.$' % username1)
 
     def test_existing_properties(self):
-        user = backend.create_user(username2)
-        property_backend.create(user, propkey1, propval3)  # propval1 is in json file
-        property_backend.create(user, "date joined", propval3)
+        backend.create_user(username2)
+        backend.create_property(username=username2, key=propkey1, value=propval3)  # propval1 is in json file
+        backend.create_property(username=username2, key="date joined", value=propval3)
 
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):

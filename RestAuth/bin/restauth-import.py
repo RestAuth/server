@@ -156,7 +156,7 @@ def save_properties(properties, args, parser):
         else:
             for key, value in six.iteritems(props):
                 try:
-                    property_backend.create(user=user, key=key, value=value, transaction=False)
+                    backend.create_property(username=user.username, key=key, value=value)
                 except PropertyExists:
                     print('%s: Property "%s" already exists.' % (user.username, key))
                     continue

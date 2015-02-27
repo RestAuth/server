@@ -234,10 +234,34 @@ class BackendBase(object):
     def list_properties(self, username):
         """Get a full list of all user properties.
 
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`~.UserInstance`
+        :param username: The username.
+        :type  username: str
         :return: A dictionary of key/value pairs, each describing a property.
         :rtype: dict
+        """
+        raise NotImplementedError
+
+    def create_property(self, user, key, value, dry=False):
+        """Create a new user property.
+
+        This method should return :py:class:`~common.errors.PropertyExists` if a property with the
+        given key already exists.
+
+        The ``dry`` parameter tells you if you should actually create the property. The parameter
+        will be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
+        dry-run, the method should behave as closely as possible to a normal invocation but
+        shouldn't actually create the property.
+
+        :param username: The username.
+        :type  username: str
+        :param key: The key identifying the property.
+        :type  key: str
+        :param value: The value of the property.
+        :type  value: str
+        :param dry: Wether or not to actually create the property.
+        :type  dry: boolean
+        :rtype: tuple
+        :raise: :py:class:`~common.errors.PropertyExists` if the property already exists.
         """
         raise NotImplementedError
 
@@ -351,37 +375,6 @@ class RestAuthBackend(object):  # pragma: no cover
 
 class PropertyBackend(RestAuthBackend):  # pragma: no cover
     """Provide user properties."""
-
-    def create(self, user, key, value, dry=False, transaction=True):
-        """Create a new user property.
-
-        This method should return :py:class:`~common.errors.PropertyExists` if a property with the
-        given key already exists.
-
-        The ``dry`` parameter tells you if you should actually create the property. The parameter
-        will be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the property.
-
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`~.UserInstance`
-        :param key: The key identifying the property.
-        :type  key: str
-        :param value: The value of the property.
-        :type  value: str
-        :param dry: Wether or not to actually create the property.
-        :type  dry: boolean
-        :param transaction: If False, the statement is executed in a larger transactional context,
-            meaning that transactions are already handled by
-            :py:meth:`~RestAuthBackend.init_transaction`,
-            :py:meth:`~RestAuthBackend.commit_transaction` and
-            :py:meth:`~RestAuthBackend.rollback_transaction`.
-        :type  transaction: boolean
-        :return: A tuple of key/value as they are stored in the database.
-        :rtype: tuple
-        :raise: :py:class:`~common.errors.PropertyExists` if the property already exists.
-        """
-        raise NotImplementedError
 
     def get(self, user, key):
         """Get a specific property of the user.

@@ -452,7 +452,7 @@ class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
         self.assertDictEqual(self.parse(resp, 'dict'), {})
 
     def test_get_single_property(self):
-        property_backend.create(user=self.user1, key=propkey1, value=propval1)
+        backend.create_property(username=username1, key=propkey1, value=propval1)
 
         resp = self.get('/users/%s/props/' % username1)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -463,8 +463,8 @@ class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
         self.assertDictEqual(self.parse(resp, 'dict'), {})
 
     def test_get_two_properties(self):
-        property_backend.create(user=self.user1, key=propkey1, value=propval1)
-        property_backend.create(user=self.user1, key=propkey2, value=propval2)
+        backend.create_property(username=username1, key=propkey1, value=propval1)
+        backend.create_property(username=username1, key=propkey2, value=propval2)
 
         resp = self.get('/users/%s/props/' % username1)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -475,9 +475,9 @@ class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
         self.assertDictEqual(self.parse(resp, 'dict'), {})
 
     def test_get_multiple_properties(self):
-        property_backend.create(user=self.user1, key=propkey1, value=propval1)
-        property_backend.create(user=self.user1, key=propkey2, value=propval2)
-        property_backend.create(user=self.user2, key=propkey3, value=propval3)
+        backend.create_property(username=username1, key=propkey1, value=propval1)
+        backend.create_property(username=username1, key=propkey2, value=propval2)
+        backend.create_property(username=username2, key=propkey3, value=propval3)
 
         resp = self.get('/users/%s/props/' % username1)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -636,7 +636,7 @@ class GetPropertyTests(PropertyTests):  # GET /users/<user>/props/<prop>/
         self.assertEqual(resp['Resource-Type'], 'property')
 
     def test_get_property(self):
-        property_backend.create(user=self.user1, key=propkey1, value=propval1)
+        backend.create_property(username=username1, key=propkey1, value=propval1)
 
         resp = self.get('/users/%s/props/%s/' % (username1, propkey1))
         self.assertEqual(resp.status_code, http_client.OK)
@@ -667,7 +667,7 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
         self.assertRaises(PropertyNotFound, property_backend.get, self.user2, propkey1)
 
     def test_set_existing_property(self):
-        property_backend.create(user=self.user1, key=propkey1, value=propval1)
+        backend.create_property(username=username1, key=propkey1, value=propval1)
 
         # set a property again and assert that it returns the old value:
         resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval2, })
@@ -712,8 +712,8 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
         self.assertEqual(resp['Resource-Type'], 'property')
 
     def test_delete_property(self):
-        property_backend.create(user=self.user1, key=propkey1, value=propval1)
-        property_backend.create(user=self.user1, key=propkey2, value=propval2)
+        backend.create_property(username=username1, key=propkey1, value=propval1)
+        backend.create_property(username=username1, key=propkey2, value=propval2)
 
         resp = self.delete('/users/%s/props/%s/' % (username1, propkey1),)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
@@ -722,8 +722,8 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
     def test_cross_user(self):
         # two users have properties with the same key, we verify that deleting
         # one doesn't delete the other:
-        property_backend.create(user=self.user1, key=propkey1, value=propval1)
-        property_backend.create(user=self.user2, key=propkey1, value=propval1)
+        backend.create_property(username=username1, key=propkey1, value=propval1)
+        backend.create_property(username=username2, key=propkey1, value=propval1)
 
         resp = self.delete('/users/%s/props/%s/' % (username1, propkey1),)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)

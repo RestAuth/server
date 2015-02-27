@@ -92,7 +92,7 @@ class CreatePropertyTest(RestAuthTransactionTest):
         self.assertProperties(username1, {})
 
     def test_create_existing_property(self):
-        property_backend.create(self.user, propkey1, propval1)
+        backend.create_property(username1, propkey1, propval1)
 
         url = '/test/users/%s/props/' % username1
         resp = self.post(url, {'prop': propkey1, 'value': propval2})
