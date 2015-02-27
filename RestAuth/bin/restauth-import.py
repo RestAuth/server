@@ -172,7 +172,7 @@ def save_groups(groups, args, parser):
             service = Service.objects.get(username=service)
 
         try:
-            group = group_backend.create(service=service, name=name, transaction=False)
+            group = backend.create_group(service=service, name=name)
             print("* %s: created." % name)
         except GroupExists:
             if args.skip_existing_groups:

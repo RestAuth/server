@@ -62,7 +62,7 @@ def main(args=None):
     # Actions that do not act on an existing group:
     if args.action == 'add':
         try:
-            group_backend.create(name=args.group, service=args.service)
+            backend.create_group(name=args.group, service=args.service)
         except GroupExists:
             parser.error('Group already exists.')
     elif args.action in ['list', 'ls']:

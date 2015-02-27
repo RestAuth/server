@@ -64,24 +64,24 @@ class GetGroupsTests(GroupTests):  # GET /groups/
         self.assertEqual(self.parse(resp, 'list'), [])
 
     def test_get_one_group(self):
-        self.create_group(self.service, groupname1)
+        backend.create_group(service=self.service, name=groupname1)
 
         resp = self.get('/groups/')
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertEqual(self.parse(resp, 'list'), [groupname1])
 
     def test_get_two_groups(self):
-        self.create_group(self.service, groupname1)
-        self.create_group(self.service, groupname2)
+        backend.create_group(service=self.service, name=groupname1)
+        backend.create_group(service=self.service, name=groupname2)
 
         resp = self.get('/groups/')
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [groupname1, groupname2])
 
     def test_service_isolation(self):
-        self.create_group(self.service, groupname1)
-        self.create_group(self.service2, groupname4)
-        self.create_group(None, groupname5)
+        backend.create_group(service=self.service, name=groupname1)
+        backend.create_group(service=self.service2, name=groupname4)
+        backend.create_group(service=None, name=groupname5)
 
         resp = self.get('/groups/')
         self.assertEqual(resp.status_code, http_client.OK)
@@ -97,14 +97,14 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
 
     def test_no_memberships(self):
         # we add a group where user1 is NOT a member:
-        self.create_group(self.service, groupname1)
+        backend.create_group(service=self.service, name=groupname1)
 
         resp = self.get('/groups/', {'user': username1})
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertEqual(self.parse(resp, 'list'), [])
 
     def test_one_membership(self):
-        group1 = self.create_group(self.service, groupname1)
+        group1 = backend.create_group(service=self.service, name=groupname1)
         group_backend.add_user(group1, self.user1)
 
         resp = self.get('/groups/', {'user': username1})
@@ -117,7 +117,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEqual(self.parse(resp, 'list'), [])
 
     def test_two_memberships(self):
-        group1 = self.create_group(self.service, groupname1)
+        group1 = backend.create_group(service=self.service, name=groupname1)
         group_backend.add_user(group1, self.user1)
 
         resp = self.get('/groups/', {'user': username1})
@@ -130,8 +130,8 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEqual(self.parse(resp, 'list'), [])
 
     def test_simple_inheritance(self):
-        group1 = self.create_group(self.service, groupname1)
-        group2 = self.create_group(self.service, groupname2)
+        group1 = backend.create_group(service=self.service, name=groupname1)
+        group2 = backend.create_group(service=self.service, name=groupname2)
         group_backend.add_user(group1, self.user1)
         group_backend.add_subgroup(group1, group2)
 
@@ -140,9 +140,9 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertCountEqual(self.parse(resp, 'list'), [groupname1, groupname2])
 
     def test_multilevel_inheritance(self):
-        group1 = self.create_group(self.service, groupname1)
-        group2 = self.create_group(self.service, groupname2)
-        group3 = self.create_group(self.service, groupname3)
+        group1 = backend.create_group(service=self.service, name=groupname1)
+        group2 = backend.create_group(service=self.service, name=groupname2)
+        group3 = backend.create_group(service=self.service, name=groupname3)
         group_backend.add_user(group1, self.user1)
         group_backend.add_subgroup(group1, group2)
         group_backend.add_subgroup(group2, group3)
@@ -152,9 +152,9 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertCountEqual(self.parse(resp, 'list'), [groupname1, groupname2, groupname3])
 
     def test_interservice_inheritance(self):
-        group1 = self.create_group(None, groupname1)
-        group2 = self.create_group(self.service2, groupname2)
-        group3 = self.create_group(self.service, groupname3)
+        group1 = backend.create_group(service=None, name=groupname1)
+        group2 = backend.create_group(service=self.service2, name=groupname2)
+        group3 = backend.create_group(service=self.service, name=groupname3)
         group_backend.add_user(group1, self.user1)
         group_backend.add_subgroup(group1, group2)
         group_backend.add_subgroup(group2, group3)
@@ -168,9 +168,9 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         This test checks if the call may return groups several times.
         This may occur if a user is member in several groups.
         """
-        group1 = self.create_group(self.service, groupname1)
-        group2 = self.create_group(self.service, groupname2)
-        group3 = self.create_group(self.service, groupname3)
+        group1 = backend.create_group(service=self.service, name=groupname1)
+        group2 = backend.create_group(service=self.service, name=groupname2)
+        group3 = backend.create_group(service=self.service, name=groupname3)
 
         group_backend.add_user(group1, self.user1)
         group_backend.add_user(group2, self.user1)
@@ -186,9 +186,9 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
     def test_hidden_intermediate_dependencies(self):
         # membership to group2 is invisible, because it belongs to a different
         # service.
-        group1 = self.create_group(self.service, groupname1)
-        group2 = self.create_group(self.service2, groupname2)
-        group3 = self.create_group(self.service, groupname3)
+        group1 = backend.create_group(service=self.service, name=groupname1)
+        group2 = backend.create_group(service=self.service2, name=groupname2)
+        group3 = backend.create_group(service=self.service, name=groupname3)
         group_backend.add_user(group1, self.user1)
         group_backend.add_subgroup(group1, group2)
         group_backend.add_subgroup(group2, group3)
@@ -205,7 +205,7 @@ class CreateGroupTests(GroupTests):  # POST /groups/
         self.assertCountEqual(backend.list_groups(service=self.service), [groupname1])
 
     def test_create_existing_group(self):
-        self.create_group(self.service, groupname1)
+        backend.create_group(service=self.service, name=groupname1)
 
         resp = self.post('/groups/', {'group': groupname1})
         self.assertEqual(resp.status_code, http_client.CONFLICT)
@@ -221,7 +221,7 @@ class CreateGroupTests(GroupTests):  # POST /groups/
         self.assertCountEqual(group_backend.members(group), users)
 
     def test_service_isolation(self):
-        self.create_group(self.service2, groupname1)
+        backend.create_group(service=self.service2, name=groupname1)
 
         resp = self.post('/groups/', {'group': groupname1})
         self.assertEqual(resp.status_code, http_client.CREATED)
@@ -237,8 +237,8 @@ class CreateGroupTests(GroupTests):  # POST /groups/
 class SetGroupsTests(GroupTests):  # PUT /groups/
     def setUp(self):
         super(SetGroupsTests, self).setUp()
-        self.group1 = group_backend.create(service=self.service, name=groupname1)
-        self.group2 = group_backend.create(service=self.service, name=groupname2)
+        self.group1 = backend.create_group(service=self.service, name=groupname1)
+        self.group2 = backend.create_group(service=self.service, name=groupname2)
 
     def test_set_groups_for_user(self):
         group_lists = (
@@ -263,7 +263,7 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
 
     def test_visibility(self):
         self.assertFalse(group_backend.is_member(self.group2, self.user1))
-        group3 = group_backend.create(service=self.service2, name=groupname3)  # different service!
+        group3 = backend.create_group(service=self.service2, name=groupname3)  # different service!
         group_backend.add_subgroup(group3, self.group2)  # make group3 a meta-group of group2
         group_backend.add_user(group3, self.user1)
         self.assertTrue(group_backend.is_member(group3, self.user1))
@@ -282,20 +282,20 @@ class VerifyGroupExistanceTests(GroupTests):  # GET /groups/<group>/
         self.assertEqual(resp['Resource-Type'], 'group')
 
     def test_exists(self):
-        self.create_group(self.service, groupname1)
+        backend.create_group(service=self.service, name=groupname1)
 
         resp = self.get('/groups/%s/' % groupname1)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_for_leaking_services(self):
-        self.create_group(self.service2, groupname1)
+        backend.create_group(service=self.service2, name=groupname1)
 
         resp = self.get('/groups/%s/' % groupname1)
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
     def test_for_groups_with_no_service(self):
-        self.create_group(None, groupname1)
+        backend.create_group(service=None, name=groupname1)
 
         resp = self.get('/groups/%s/' % groupname1)
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
@@ -309,7 +309,7 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
         self.assertEqual(resp['Resource-Type'], 'group')
 
     def test_delete(self):
-        self.create_group(self.service, groupname1)
+        backend.create_group(service=self.service, name=groupname1)
 
         resp = self.delete('/groups/%s/' % groupname1)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
@@ -317,8 +317,8 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
         self.assertEqual(backend.list_groups(service=self.service), [])
 
     def test_service_isolation(self):
-        self.create_group(self.service2, groupname1)
-        self.create_group(None, groupname2)
+        backend.create_group(service=self.service2, name=groupname1)
+        backend.create_group(service=None, name=groupname2)
 
         resp = self.delete('/groups/%s/' % groupname1)
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
@@ -337,11 +337,11 @@ class GroupUserTests(GroupTests):
     def setUp(self):
         GroupTests.setUp(self)
 
-        self.group1 = self.create_group(self.service, groupname1)
-        self.group2 = self.create_group(self.service, groupname2)
-        self.group3 = self.create_group(self.service, groupname3)
-        self.group4 = self.create_group(self.service2, groupname4)
-        self.group5 = self.create_group(self.service2, groupname5)
+        self.group1 = backend.create_group(service=self.service, name=groupname1)
+        self.group2 = backend.create_group(service=self.service, name=groupname2)
+        self.group3 = backend.create_group(service=self.service, name=groupname3)
+        self.group4 = backend.create_group(service=self.service2, name=groupname4)
+        self.group5 = backend.create_group(service=self.service2, name=groupname5)
 
 
 class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
@@ -544,7 +544,7 @@ class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
 
     def test_service_isolation(self):
         # user1 membership in group2 is inherited
-        metagroup = group_backend.create(groupname4, service=self.service)
+        metagroup = backend.create_group(name=groupname4, service=self.service)
         group_backend.add_user(group=metagroup, user=self.user1)
         group_backend.add_subgroup(group=metagroup, subgroup=self.group2)
         self.assertCountEqual(group_backend.members(metagroup), [self.user1.username])
@@ -1027,8 +1027,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertTrue(group_backend.exists(groupname2, service=self.service))
 
     def test_add_exists(self):
-        group_backend.create(groupname1)
-        group_backend.create(groupname2, service=self.service)
+        backend.create_group(name=groupname1)
+        backend.create_group(name=groupname2, service=self.service)
 
         with capture() as (stdout, stderr):
             try:
@@ -1049,10 +1049,10 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertHasLine(stderr, 'Group already exists\.')
 
     def test_ls(self):
-        group_backend.create(groupname1)
-        group_backend.create(groupname2)
-        group_backend.create(groupname3, service=self.service)
-        group_backend.create(groupname4, service=self.service)
+        backend.create_group(name=groupname1)
+        backend.create_group(name=groupname2)
+        backend.create_group(name=groupname3, service=self.service)
+        backend.create_group(name=groupname4, service=self.service)
 
         with capture() as (stdout, stderr):
             cli(['ls'])
@@ -1068,11 +1068,11 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         user1 = backend.create_user(username1)
         user2 = backend.create_user(username2)
         user3 = backend.create_user(username3)
-        group1 = group_backend.create(groupname1)
-        group2 = group_backend.create(groupname2)
-        group_backend.create(groupname3)
-        group4 = group_backend.create(groupname4, service=self.service)
-        group5 = group_backend.create(groupname5, service=self.service)
+        group1 = backend.create_group(name=groupname1)
+        group2 = backend.create_group(name=groupname2)
+        backend.create_group(name=groupname3)
+        group4 = backend.create_group(groupname4, service=self.service)
+        group5 = backend.create_group(groupname5, service=self.service)
 
         with capture() as (stdout, stderr):
             cli(['view', groupname1 if six.PY3 else groupname1.encode('utf-8')])
@@ -1120,7 +1120,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
 """ % (explicit, effective, groupname1, self.service.username, groupname5))
 
     def test_set_service(self):
-        group_backend.create(groupname1)
+        backend.create_group(name=groupname1)
 
         with capture() as (stdout, stderr):
             cli(['set-service', groupname1 if six.PY3 else groupname1.encode('utf-8'),
@@ -1150,8 +1150,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
     def test_add_user(self):
         backend.create_user(username1)
         backend.create_user(username2)
-        group1 = group_backend.create(groupname1)
-        group2 = group_backend.create(groupname2, service=self.service)
+        group1 = backend.create_group(name=groupname1)
+        group2 = backend.create_group(name=groupname2, service=self.service)
 
         with capture() as (stdout, stderr):
             cli(['add-user',
@@ -1172,8 +1172,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(group_backend.members(group2), [username2])
 
     def test_add_group_neither(self):  # neither group is in any service
-        group1 = group_backend.create(groupname1)
-        group_backend.create(groupname2)
+        group1 = backend.create_group(name=groupname1)
+        backend.create_group(name=groupname2)
 
         with capture() as (stdout, stderr):
             cli(['add-group',
@@ -1185,8 +1185,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(group_backend.subgroups(group1), [groupname2])
 
     def test_add_group_both(self):  # bout groups are in service
-        group1 = group_backend.create(groupname1, service=self.service)
-        group_backend.create(groupname2, service=self.service)
+        group1 = backend.create_group(name=groupname1, service=self.service)
+        backend.create_group(name=groupname2, service=self.service)
 
         with capture() as (stdout, stderr):
             cli(['add-group', '--service=%s' % self.service.username,
@@ -1196,9 +1196,9 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(group_backend.subgroups(group1), [groupname2])
 
     def test_rename(self):
-        group_backend.create(groupname1)
-        group_backend.create(groupname3)
-        group_backend.create(groupname1, service=self.service)
+        backend.create_group(name=groupname1)
+        backend.create_group(name=groupname3)
+        backend.create_group(name=groupname1, service=self.service)
 
         with capture() as (stdout, stderr):
             cli(['rename', _e(groupname1), _e(groupname2)])
@@ -1224,7 +1224,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(backend.list_groups(service=None), [groupname2, groupname3])
 
     def test_rm(self):
-        group_backend.create(groupname1)
+        backend.create_group(name=groupname1)
         with capture() as (stdout, stderr):
             cli(['rm', _e(groupname1)])
             self.assertEqual(stdout.getvalue(), '')
@@ -1232,7 +1232,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(backend.list_groups(service=None), [])
 
     def test_rm_user(self):
-        group = group_backend.create(groupname1)
+        group = backend.create_group(name=groupname1)
         user = backend.create_user(username1)
         group_backend.add_user(group, user)
         self.assertEqual(group_backend.members(group), [username1])
@@ -1255,8 +1255,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(group_backend.members(group), [])
 
     def test_rm_group(self):
-        group1 = group_backend.create(groupname1)
-        group2 = group_backend.create(groupname2)
+        group1 = backend.create_group(name=groupname1)
+        group2 = backend.create_group(name=groupname2)
         group_backend.add_subgroup(group1, group2)
         self.assertEqual(group_backend.subgroups(group1), [groupname2])
 

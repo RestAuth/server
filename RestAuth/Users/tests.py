@@ -302,7 +302,7 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
         # create a group membership
-        group = group_backend.create(groupname1, service=self.service)
+        group = backend.create_group(name=groupname1, service=self.service)
         group_backend.add_user(group, user=self.user1)
 
         resp = self.post('/users/%s/' % username1, data)
@@ -1036,7 +1036,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
         # add group to service:
-        group = group_backend.create(groupname1, self.service)
+        group = backend.create_group(name=groupname1, service=self.service)
         group_backend.add_user(group, user)
 
         with capture() as (stdout, stderr):
@@ -1063,7 +1063,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
         # add "global" group with no service
-        group2 = group_backend.create(groupname2, None)
+        group2 = backend.create_group(name=groupname2, service=None)
         group_backend.add_user(group2, user)
 
         with capture() as (stdout, stderr):

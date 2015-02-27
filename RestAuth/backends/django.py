@@ -210,6 +210,20 @@ class DjangoBackend(BackendBase):
                 raise UserNotFound(username)
         return list(groups.only('name').values_list('name', flat=True))
 
+    def create_group(self, name, service=None, users=None, dry=False):
+        with self.atomic(dry=dry):
+            try:
+                group = Group.objects.create(name=name, service=service)
+                if users:
+                    user_objs = User.objects.only('id').filter(username__in=users)
+                    if len(users) != len(user_objs):
+                        raise UserNotFound()
+                    group.users.add(*user_objs)
+            except IntegrityError:
+                raise GroupExists(name)
+
+            return group
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -267,41 +281,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
             raise GroupNotFound(name)
-
-    def create(self, name, service=None, users=None, dry=False, transaction=True):
-        assert isinstance(service, BaseUser) or service is None
-        assert isinstance(name, six.string_types)
-
-        if dry:
-            dj_transaction.set_autocommit(False)
-
-            try:
-                group = Group.objects.create(name=name, service=service)
-                if users:
-                    group.users.add(*users)
-                return group
-            except IntegrityError:
-                raise GroupExists('Group "%s" already exists' % name)
-            finally:
-                dj_transaction.rollback()
-                dj_transaction.set_autocommit(True)
-        elif transaction:
-            with dj_transaction.atomic():
-                try:
-                    group = Group.objects.create(name=name, service=service)
-                    if users:
-                        group.users.add(*users)
-                    return group
-                except IntegrityError:
-                    raise GroupExists('Group "%s" already exists' % name)
-        else:  # pragma: no cover
-            try:
-                group = Group.objects.create(name=name, service=service)
-                if users:
-                    group.users.add(*users)
-                return group
-            except IntegrityError:
-                raise GroupExists('Group "%s" already exists' % name)
 
     def rename(self, group, name):
         assert isinstance(group, Group)

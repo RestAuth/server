@@ -149,9 +149,6 @@ class RestAuthTestBase(object):
             'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         })
 
-    def create_group(self, service, groupname):
-        return group_backend.create(name=groupname, service=service)
-
     def assertProperties(self, username, expected):
         actual = backend.list_properties(username)
         self.assertTrue('date joined' in actual)

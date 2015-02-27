@@ -336,6 +336,30 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def create_group(self, name, service=None, users=None, dry=False):
+        """Create a new group for the given service.
+
+        The ``dry`` parameter tells you if you should actually create the group. The parameter will
+        be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
+        dry-run, the method should behave as closely as possible to a normal invocation but
+        shouldn't actually create the group.
+
+        :param    name: The name of the group.
+        :type     name: str
+        :param service: The service of the named group. If None, the group should not belong to any
+            service.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param users: A list of usernames.
+        :type  users: list
+        :param     dry: Wether or not to actually create the group.
+        :type      dry: boolean
+        :return: A group object providing at least the properties of the GroupInstance class.
+        :rtype: :py:class:`.GroupInstance`
+        :raises: :py:class:`common.errors.GroupExists` if the group already exists.
+        :raise: :py:class:`~common.errors.UserNotFound` if any of the given users don't exist.
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -458,35 +482,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raises: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def create(self, name, service=None, users=None, dry=False, transaction=True):
-        """Create a new group for the given service.
-
-        The ``dry`` parameter tells you if you should actually create the group. The parameter will
-        be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the group.
-
-        :param    name: The name of the group.
-        :type     name: str
-        :param service: The service of the named group. If None, the group should not belong to any
-            service.
-        :type  service: :py:class:`~Services.models.Service` or None
-        :param users: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  users: list
-        :param     dry: Wether or not to actually create the group.
-        :type      dry: boolean
-        :param transaction: If False, the statement is executed in a larger transactional context,
-            meaning that transactions are already handled by
-            :py:meth:`~RestAuthBackend.init_transaction`,
-            :py:meth:`~RestAuthBackend.commit_transaction` and
-            :py:meth:`~RestAuthBackend.rollback_transaction`.
-        :type  transaction: boolean
-        :return: A group object providing at least the properties of the GroupInstance class.
-        :rtype: :py:class:`.GroupInstance`
-        :raises: :py:class:`common.errors.GroupExists` if the group already exists.
         """
         raise NotImplementedError
 

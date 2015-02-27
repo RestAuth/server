@@ -552,7 +552,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         user4 = backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
-        group2 = group_backend.create(groupname2, service=self.service)
+        group2 = backend.create_group(name=groupname2, service=self.service)
         group_backend.add_user(group2, user1)
         group_backend.add_user(group2, user4)
 
@@ -585,7 +585,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         user4 = backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
-        group2 = group_backend.create(groupname2, service=self.service)
+        group2 = backend.create_group(name=groupname2, service=self.service)
         group_backend.add_user(group2, user1)
         group_backend.add_user(group2, user4)
 
