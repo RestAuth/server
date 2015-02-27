@@ -1,10 +1,8 @@
-0.6.5:
+0.7.0:
 
-* Cache groups if SECURE_CACHE is True.
-
-0.6.4:
-
-* The transaction=False parameter in the backend interface seems to be unused.
+* Consistently use assertRaises as context manager.
+* Add our own in-memory cache in settings that we can use as secure cache.
+* Remove SECURE_CACHE setting.
 
 Future:
 
