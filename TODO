@@ -9,6 +9,7 @@
 * backend.get() should be removed
 * Document DATA_BACKEND setting, update backend documentation.
 * GroupNotFound/GroupExist should require two params: name and service.
+* Make kwargs consinstent, e.g. group_exists gets "name", set_users_for_group gets "group"
 
 Future:
 
