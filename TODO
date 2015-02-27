@@ -3,6 +3,9 @@
 * Consistently use assertRaises as context manager.
 * Add our own in-memory cache in settings that we can use as secure cache.
 * Remove SECURE_CACHE setting.
+* backend.create_user still returns a user because of many tests still using it
+  in later backend methods - should be removed.
+* backend.get() should be removed
 
 Future:
 
