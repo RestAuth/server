@@ -404,6 +404,19 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def set_groups_for_user(self, user, service, groups):
+        """Set groups for a user.
+
+        :param user: A user as returned by :py:meth:`.UserBackend.get`.
+        :type  user: :py:class:`.UserInstance`
+        :param service: The service of all groups to add to.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param groups: A list of groupnames. Groups that don't exist have to be created.
+        :type  groups: list of str
+        :raise: :py:class:`~common.errors.UserNotFound` if the user does not exist.
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -526,24 +539,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def set_groups_for_user(self, service, user, groupnames, transaction=True, dry=False):
-        """Set groups for a user.
-
-        :param   user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type    user: :py:class:`.UserInstance`
-        :param groups: A list of groupnames. Groups that don't exist have to be created.
-        :type  groups: list of str
-        :param    dry: Wether or not to actually create the group.
-        :type     dry: boolean
-        :param transaction: If False, the statement is executed in a larger transactional context,
-            meaning that transactions are already handled by
-            :py:meth:`~RestAuthBackend.init_transaction`,
-            :py:meth:`~RestAuthBackend.commit_transaction` and
-            :py:meth:`~RestAuthBackend.rollback_transaction`.
-        :type  transaction: boolean
         """
         raise NotImplementedError
 
