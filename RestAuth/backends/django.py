@@ -353,24 +353,13 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
         except Group.DoesNotExist:
             raise GroupNotFound(name)
 
-    def is_member(self, group, user):
-        if group.is_member(user):
-            return True
-        return False
-
     def rm_user(self, group, user):
-        assert isinstance(group, Group)
-        assert isinstance(user, User)
-
         if group.is_member(user):
             group.users.remove(user)
         else:
             raise UserNotFound(user)  # 404 Not Found
 
     def add_subgroup(self, group, subgroup):
-        assert isinstance(group, Group)
-        assert isinstance(subgroup, Group)
-
         group.groups.add(subgroup)
 
     def set_subgroups(self, group, subgroups):
@@ -379,8 +368,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
         group.groups.add(*subgroups)
 
     def subgroups(self, group, filter=True):
-        assert isinstance(group, Group)
-
         if filter:
             qs = group.groups.filter(service=group.service)
             return list(qs.values_list('name', flat=True))
@@ -391,9 +378,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
         return group.groups.filter(pk=subgroup.pk).exists()
 
     def rm_subgroup(self, group, subgroup):
-        assert isinstance(group, Group)
-        assert isinstance(subgroup, Group)
-
         qs = group.groups.filter(name=subgroup.name, service=subgroup.service)
         if not qs.exists():
             raise GroupNotFound(subgroup.name)
@@ -401,9 +385,7 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
         group.groups.remove(subgroup)
 
     def remove(self, group):
-        assert isinstance(group, Group)
         group.delete()
 
     def parents(self, group):
-        assert isinstance(group, Group)
         return group.parent_groups.all()
