@@ -70,8 +70,8 @@ def _main(args):
     elif args.action == 'view':
         group = get_group(parser, args.group, args.service)
 
-        explicit_users = sorted(group_backend.members(group, depth=0))
-        effective_users = sorted(group_backend.members(group))
+        explicit_users = sorted(backend.members(group=args.group, service=args.service, depth=0))
+        effective_users = sorted(backend.members(group=args.group, service=args.service))
         parent_groups = sorted(group_backend.parents(group))
         sub_groups = sorted(group_backend.subgroups(group, filter=False))
 

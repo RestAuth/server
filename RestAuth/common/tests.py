@@ -35,7 +35,6 @@ from Users.validators import get_validators
 from Users.validators import load_username_validators
 from Users.validators import validate_username
 from backends import backend
-from backends import group_backend
 from backends.base import GroupInstance
 from backends.base import UserInstance
 from common.content_handlers import get_handler
@@ -533,17 +532,14 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
 
-        # get groups from backend
-        group1 = group_backend.get(groupname1)
-        group2 = group_backend.get(groupname2, service=self.service)
-        group3 = group_backend.get(groupname3, service=self.service)
-        group4 = group_backend.get(groupname4)
-
         # test memberships
-        self.assertCountEqual(group_backend.members(group1), [])
-        self.assertCountEqual(group_backend.members(group2), [username1, username2])
-        self.assertCountEqual(group_backend.members(group3), [username1, username2, username3])
-        self.assertCountEqual(group_backend.members(group4), [username1, username2])
+        self.assertCountEqual(backend.members(group=groupname1,  service=None), [])
+        self.assertCountEqual(backend.members(group=groupname2,  service=self.service),
+                              [username1, username2])
+        self.assertCountEqual(backend.members(group=groupname3,  service=self.service),
+                              [username1, username2, username3])
+        self.assertCountEqual(backend.members(group=groupname4,  service=None),
+                              [username1, username2])
 
     def test_existing_groups(self):
         backend.create_user(username1)
@@ -552,7 +548,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
-        group2 = backend.create_group(name=groupname2, service=self.service)
+        backend.create_group(name=groupname2, service=self.service)
         backend.add_user(group=groupname2, service=self.service, user=username1)
         backend.add_user(group=groupname2, service=self.service, user=username4)
 
@@ -566,16 +562,15 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
 
         # get groups from backend
-        group1 = group_backend.get(groupname1)
-        group3 = group_backend.get(groupname3, service=self.service)
-        group4 = group_backend.get(groupname4)
 
         # test memberships
-        self.assertCountEqual(group_backend.members(group1), [])
-        self.assertCountEqual(group_backend.members(group2), [username1, username2, username4])
-        self.assertCountEqual(group_backend.members(group3), [username1, username2, username3,
-                                                              username4])
-        self.assertCountEqual(group_backend.members(group4), [username1, username2, username4])
+        self.assertCountEqual(backend.members(group=groupname1, service=None), [])
+        self.assertCountEqual(backend.members(group=groupname2, service=self.service),
+                              [username1, username2, username4])
+        self.assertCountEqual(backend.members(group=groupname3, service=self.service),
+                              [username1, username2, username3, username4])
+        self.assertCountEqual(backend.members(group=groupname4, service=None),
+                              [username1, username2, username4])
 
     def test_skip_existing_groups(self):
         # same test-setup as above, only we skip existing groups
@@ -585,7 +580,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
-        group2 = backend.create_group(name=groupname2, service=self.service)
+        backend.create_group(name=groupname2, service=self.service)
         backend.add_user(group=groupname2, service=self.service, user=username1)
         backend.add_user(group=groupname2, service=self.service, user=username4)
 
@@ -601,14 +596,10 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
 
-        # get groups from backend
-        group1 = group_backend.get(groupname1)
-        group3 = group_backend.get(groupname3, service=self.service)
-        group4 = group_backend.get(groupname4)
-
         # test memberships
-        self.assertCountEqual(group_backend.members(group1), [])
-        self.assertCountEqual(group_backend.members(group2), [username1, username4])
+        self.assertCountEqual(backend.members(group=groupname1, service=None), [])
+        self.assertCountEqual(backend.members(group=groupname2, service=self.service),
+                              [username1, username4])
         # group3 now is not a subgroup, because group2 already existed and we skipped its data
-        self.assertEqual(group_backend.members(group3), [username3])
-        self.assertEqual(group_backend.members(group4), [])
+        self.assertEqual(backend.members(group=groupname3, service=self.service), [username3])
+        self.assertEqual(backend.members(group=groupname4, service=None), [])

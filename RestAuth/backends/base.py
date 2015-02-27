@@ -449,6 +449,21 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def members(self, group, service=None, depth=None):
+        """Get a list of all members of this group.
+
+        :param group: The group to get the members for.
+        :type  group: str
+        :param service: The service of the given group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param depth: Override the recursion depth to use for meta-groups.  Normally, the backend
+            should use :setting:`GROUP_RECURSION_DEPTH`.
+        :type  depth: int
+        :return: list of strings, each representing a username
+        :rtype: list
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -571,19 +586,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def members(self, group, depth=None):
-        """Get a list of all members of this group.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
-        :param depth: Override the recursion depth to use for meta-groups.  Normally, the backend
-            should use :setting:`GROUP_RECURSION_DEPTH`.
-        :type  depth: int
-        :return: list of strings, each representing a username
-        :rtype: list
         """
         raise NotImplementedError
 

@@ -281,6 +281,13 @@ class DjangoBackend(BackendBase):
         except User.DoesNotExist:
             raise UserNotFound()
 
+    def members(self, group, service=None, depth=None):
+        try:
+            group = Group.objects.only('id').get(name=group, service=service)
+        except Group.DoesNotExist:
+            raise GroupNotFound(group)
+        return list(group.get_members(depth=depth).values_list('username', flat=True))
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -338,12 +345,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
             raise GroupNotFound(name)
-
-    def members(self, group, depth=None):
-        assert isinstance(group, Group)
-
-        qs = group.get_members(depth=depth)
-        return list(qs.values_list('username', flat=True))
 
     def is_member(self, group, user):
         assert isinstance(group, Group)
