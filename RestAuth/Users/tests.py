@@ -197,9 +197,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         groups = [groupname1]
         resp = self.post('/users/', {'user': username2, 'groups': groups})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        user = backend.get(username2)
-        group = group_backend.get(service=self.service, name=groupname1)
-        self.assertTrue(group_backend.is_member(group, user))
+        self.assertTrue(backend.is_member(group=groupname1, service=self.service, user=username2))
         self.assertEqual(backend.list_groups(service=self.service, username=username2), groups)
 
         groups = [groupname1, groupname2]

@@ -442,14 +442,14 @@ class BackendBase(object):
         :type  group: :py:class:`.GroupInstance`
         :param service: The service of the given group.
         :type  service: :py:class:`~Services.models.Service` or None
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`.UserInstance`
+        :param user: The user to add.
+        :type  user: str
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
         :raise: :py:class:`~common.errors.UserNotFound` if the named user does not exist.
         """
         raise NotImplementedError
 
-    def members(self, group, service=None, depth=None):
+    def members(self, group, service, depth=None):
         """Get a list of all members of this group.
 
         :param group: The group to get the members for.
@@ -461,6 +461,23 @@ class BackendBase(object):
         :type  depth: int
         :return: list of strings, each representing a username
         :rtype: list
+        :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
+        """
+        raise NotImplementedError
+
+    def is_member(self, group, service, user):
+        """Determine if a user is a member of the given group.
+
+        :param group: The group to test for membersship.
+        :type  group: str
+        :param service: The service of the given group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param user: The user to test for membership.
+        :type  user: str
+        :return: True if the User is a member, False otherwise
+        :rtype: boolean
+        :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
+        :raise: :py:class:`~common.errors.UserNotFound` if the named user does not exist.
         """
         raise NotImplementedError
 
@@ -586,18 +603,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def is_member(self, group, user):
-        """Determine if a user is a member of the given group.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
-        :param  user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type   user: :py:class:`.UserInstance`
-        :return: True if the User is a member, False otherwise
-        :rtype: boolean
         """
         raise NotImplementedError
 

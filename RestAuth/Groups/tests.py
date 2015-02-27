@@ -261,12 +261,12 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
         self.assertTrue(backend.group_exists(name=groupname3, service=self.service))
 
     def test_visibility(self):
-        self.assertFalse(group_backend.is_member(self.group2, self.user1))
+        self.assertFalse(backend.is_member(group=groupname2, service=self.service, user=username1))
         group3 = backend.create_group(service=self.service2, name=groupname3)  # different service!
         group_backend.add_subgroup(group3, self.group2)  # make group3 a meta-group of group2
         backend.add_user(group=groupname3, service=self.service2, user=username1)
-        self.assertTrue(group_backend.is_member(group3, self.user1))
-        self.assertTrue(group_backend.is_member(self.group2, self.user1))
+        self.assertTrue(backend.is_member(group=groupname3, service=self.service2, user=username1))
+        self.assertTrue(backend.is_member(group=groupname2, service=self.service, user=username1))
 
         resp = self.put('/groups/', {'user': username1, 'groups': [groupname1]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
