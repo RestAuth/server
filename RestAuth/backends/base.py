@@ -542,6 +542,22 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def rm_subgroup(self, group, service, subgroup, subservice):
+        """Remove a sub-group from a meta-group.
+
+        :param group: The name of the meta-group.
+        :type  group: str
+        :param service: The service of the meta-group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param subgroup: The name of the sub-group.
+        :type  subgroup: str
+        :param subservice: The service of the sub-group.
+        :type  subservice: :py:class:`~Services.models.Service` or None
+        :raise: :py:class:`common.errors.GroupNotFound` if the meta-group or subgroup are not
+            found.
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -685,18 +701,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
             detailled explanation.
         :type  filter: boolean
         :return: A list of subgroups.
-        """
-        raise NotImplementedError
-
-    def rm_subgroup(self, group, subgroup):
-        """Remove a subgroup from a group.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
-        :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  subgroup: :py:class:`.GroupInstance`
-        :raise: :py:class:`common.errors.GroupNotFound` if the named subgroup is not actually a
-            subgroup of group.
         """
         raise NotImplementedError
 

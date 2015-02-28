@@ -112,13 +112,11 @@ def _main(args):
     elif args.action == 'rename':
         backend.rename_group(args.group, args.name, service=args.service)
     elif args.action in ['remove-group', 'rm-group', 'del-group']:  # pragma: no branch
-        group = get_group(parser, args.group, args.service)
-        subgroup = get_group(parser, args.subgroup, args.sub_service)
-
         try:
-            group_backend.rm_subgroup(group, subgroup)
+            backend.rm_subgroup(group=args.group, service=args.service, subgroup=args.subgroup,
+                                subservice=args.sub_service)
         except GroupNotFound:
-            parser.error('Group "%s" is not a subgroup of "%s".' % (subgroup.name, group.name))
+            parser.error('Group "%s" is not a subgroup of "%s".' % (args.subgroup, args.group))
 
 def main(args=None):
     args = parser.parse_args(args)
