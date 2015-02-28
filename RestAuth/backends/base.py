@@ -20,7 +20,7 @@ from __future__ import unicode_literals, absolute_import
 from django.utils import importlib
 
 
-class BackendBase(object):
+class BackendBase(object):  # pragma: no cover
     _library = None
     library = None
 
