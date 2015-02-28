@@ -179,7 +179,6 @@ def save_groups(groups, args, parser):
                 continue
             else:
                 print("* %s: Already exists, adding memberships." % name)
-                #group = group_backend.get(service=service, name=name)
 
         for username in data.get('users', []):
             backend.add_user(group=name, service=service, user=username)
