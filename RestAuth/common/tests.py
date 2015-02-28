@@ -35,8 +35,6 @@ from Users.validators import get_validators
 from Users.validators import load_username_validators
 from Users.validators import validate_username
 from backends import backend
-from backends.base import GroupInstance
-from backends.base import UserInstance
 from common.content_handlers import get_handler
 from common.content_handlers import load_handlers
 from common.errors import UsernameInvalid
@@ -232,19 +230,6 @@ class ImportTests(RestAuthTest):
     def test_unkown_class(self):
         self.assertRaises(ImproperlyConfigured, import_path,
                           'Users.validators.UnknownValidator')
-
-
-class BaseInstancetests(RestAuthTest):
-    def test_user(self):
-        u = UserInstance(5, 'foobar')
-        self.assertEqual(u.id, 5)
-        self.assertEqual(u.username, 'foobar')
-
-    def test_group(self):
-        g = GroupInstance(5, 'foobar', 'service')
-        self.assertEqual(g.id, 5)
-        self.assertEqual(g.name, 'foobar')
-        self.assertEqual(g.service, 'service')
 
 
 class BasicTests(RestAuthTest):

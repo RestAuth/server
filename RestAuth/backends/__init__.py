@@ -20,16 +20,6 @@ from collections import deque
 from django.conf import settings
 from django.utils.module_loading import import_string
 
-from common.utils import import_path
-
-
-def get_group_backend():
-    return import_path(getattr(
-        settings, 'GROUP_BACKEND',
-        'backends.django.DjangoGroupBackend'
-    ))[0]()
-
-
 def get_backend():
     config = getattr(settings, 'DATA_BACKEND', {
         'BACKEND': 'backends.django.DjangoBackend',
@@ -38,4 +28,3 @@ def get_backend():
     return backend_cls(**config)
 
 backend = get_backend()
-group_backend = get_group_backend()

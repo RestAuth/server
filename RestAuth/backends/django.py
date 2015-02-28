@@ -15,10 +15,9 @@
 
 from __future__ import unicode_literals, absolute_import
 
-#import waarnings
+#import warnings
 
-from django.contrib.auth.models import User as BaseUser
-from django.db import transaction as dj_transaction
+from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils import six
 
@@ -26,7 +25,6 @@ from Groups.models import Group
 from Users.models import Property
 from Users.models import ServiceUser as User
 from backends.base import BackendBase
-from backends.base import GroupBackend
 from common.hashers import import_hash
 from common.errors import GroupExists
 from common.errors import GroupNotFound
@@ -42,24 +40,16 @@ class DjangoTransactionManager(object):
         self.using = using
 
     def __enter__(self):
-        dj_transaction.set_autocommit(False, using=None)
+        transaction.set_autocommit(False, using=None)
 
     def __exit__(self, exc_type, exc_value, traceback):
         try:
             if self.dry or exc_type:
-                dj_transaction.rollback(using=self.using)
+                transaction.rollback(using=self.using)
             else:
-                dj_transaction.commit(using=self.using)
+                transaction.commit(using=self.using)
         finally:
-            dj_transaction.set_autocommit(True, using=self.using)
-
-    #TODO: Can be removed:
-    def __eq__(self, other):
-        return isinstance(other, type(self))
-
-    #TODO: Can be removed:
-    def __hash__(self):
-        return hash(type(self))
+            transaction.set_autocommit(True, using=self.using)
 
 
 class DjangoBackend(BackendBase):
@@ -76,8 +66,6 @@ class DjangoBackend(BackendBase):
         return DjangoTransactionManager(dry=dry, using=self.db)
 
     def get(self, username):
-        #TODO: Remove this function
-        #warnings.warn("Deprecated!")
         try:
             return User.objects.get(username=username)
         except User.DoesNotExist:
@@ -384,59 +372,3 @@ class DjangoBackend(BackendBase):
         except Group.DoesNotExist:
             raise GroupNotFound(group)
         group.delete()
-
-class DjangoTransactionManagerOld(object):
-    def __init__(self, backend, dry):
-        self.backend = backend
-        self.dry = dry
-
-    def __enter__(self):
-        return self.backend.init_transaction()
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if self.dry or exc_type:
-            self.backend.rollback_transaction()
-        else:
-            self.backend.commit_transaction()
-
-    def __eq__(self, other):
-        return isinstance(other, type(self))
-
-    def __hash__(self):
-        return hash(type(self))
-
-
-class DjangoTransactionMixin(object):
-    def init_transaction(self):
-        dj_transaction.set_autocommit(False)
-
-    def commit_transaction(self, transaction_id=None):
-        dj_transaction.commit()
-        dj_transaction.set_autocommit(True)
-
-    def rollback_transaction(self, transaction_id=None):
-        dj_transaction.rollback()
-        dj_transaction.set_autocommit(True)
-
-    def transaction_manager(self, dry=False):
-        return DjangoTransactionManagerOld(self, dry=dry)
-
-
-class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
-    """Use the standard Django ORM to store groups.
-
-    This backend should be ready-to use as soon as you have :doc:`configured your database
-    </config/database>`. This backend requires that you also use the
-    :py:class:`~.DjangoUserBackend`.
-
-    All settings used by this backend are documented in the :doc:`settings reference
-    </config/all-config-values>`.
-    """
-
-    def get(self, name, service=None):
-        try:
-            return Group.objects.get(service=service, name=name)
-        except Group.DoesNotExist:
-            raise GroupNotFound(name)
-
-

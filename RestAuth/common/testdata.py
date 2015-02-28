@@ -38,7 +38,6 @@ from Services.models import service_create
 from Users.models import prop_permissions
 from Users.models import user_permissions
 from backends import backend
-from backends import group_backend
 
 servicename1 = 'auth.example.com'
 servicename2 = 'auth.example.net'
@@ -85,6 +84,7 @@ PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher', )
 
 class RestAuthTestBase(object):
     def setUp(self):
+        backend.testSetUp()
         self.settings(LOGGING_CONFIG=None)
 
         self.handler = handlers.JSONContentHandler()
@@ -167,7 +167,6 @@ class RestAuthTestBase(object):
 
     def tearDown(self):
         backend.testTearDown()
-        group_backend.testTearDown()
 
     if six.PY2:
         assertCountEqual = TestCase.assertItemsEqual

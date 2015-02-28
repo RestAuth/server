@@ -23,7 +23,6 @@ from common.compat import encode_str as _e
 from common.testdata import CliMixin
 from common.testdata import RestAuthTransactionTest
 from common.testdata import capture
-from common.testdata import group_backend
 from common.testdata import groupname1
 from common.testdata import groupname2
 from common.testdata import groupname3
@@ -52,9 +51,6 @@ class GroupTests(RestAuthTransactionTest):
         self.user1 = self.create_user(username1, password1)
         self.user2 = self.create_user(username2, password2)
         self.user3 = self.create_user(username3, password3)
-
-    def get_grp(self, name, service=None):
-        return group_backend.get(service=service, name=name)
 
 
 class GetGroupsTests(GroupTests):  # GET /groups/

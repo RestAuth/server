@@ -18,62 +18,7 @@
 from __future__ import unicode_literals, absolute_import
 
 from django.utils import importlib
-from django.utils.module_loading import import_string
 
-
-class UserInstance(object):
-    """Class representing a user.
-
-    Instances of this class should provide the ``username`` and ``id``
-    property.
-
-    * The ``username`` is the username of the user as used by the protocol.
-    * The ``id`` may be the same as the username or some backend
-      specific id, i.e. one that allows faster access.
-    """
-
-    def __init__(self, id, username):
-        self.id = id
-        self.username = username
-
-    def __lt__(self, other):  # pragma: py3
-        return self.username < other.username
-
-
-class GroupInstance(object):
-    """Class representing a group.
-
-    Instances of this class should provide the ``name``, ``id`` and ``service``
-    properties. For the ``name`` and ``id`` properties, the same semantics as
-    for :py:class:`~backends.base.UserInstance` apply.
-
-    The ``service`` property is a service as configured by
-    |bin-restauth-service|. Its name is (confusingly!) available as its
-    ``username`` property.
-    """
-
-    def __init__(self, id, name, service):
-        self.id = id
-        self.name = name
-        self.service = service
-
-    def __lt__(self, other):  # pragma: py3
-        return self.username < other.username
-
-
-class TransactionContextManager(object):
-    def __init__(self, backend, dry=False):
-        self.backend = backend
-        self.dry = dry
-
-    def __enter__(self):
-        self.init = self.backend.init_transaction()
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type is None and self.dry is False:
-            self.backend.commit_transaction(transaction_id=self.init)
-        else:
-            self.backend.rollback_transaction(transaction_id=self.init)
 
 class BackendBase(object):
     _library = None
@@ -101,7 +46,8 @@ class BackendBase(object):
         """Set up your backend for a test run.
 
         This method is exclusively used in unit tests. It should perform any actions necessary to
-        start a unit test.
+        start a unit test. In general, this should test that there are currently no users or groups
+        present.
         """
         pass
 
@@ -109,8 +55,8 @@ class BackendBase(object):
         """Tear down your backend after a test run.
 
         This method is exclusively used in unit tests. It should perform any actions necessary
-        after a unit test. In general, this should completely wipe all users created during a unit
-        test.
+        after a unit test. In general, this should completely remove all users, their properties
+        and all groups created during a unit test.
         """
         pass
 
@@ -617,129 +563,3 @@ class BackendBase(object):
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
         """
         raise NotImplementedError
-
-
-class RestAuthBackend(object):  # pragma: no cover
-    """Base class for all RestAuth data backends.
-
-    ``RestAuthBackend`` provides the ``_load_library`` method that allows
-    loading python modules upon first use. This is useful if you want to
-    implement a backend that uses third-party libraries and do not want to
-    cause immediate ImportErrors every time the module is loaded.
-
-    To use this featurr, simply set the ``library`` class attribute and use
-    ``self.load_library()`` to load the module into the methods namespace.
-
-    Example::
-
-        from backends.base import UserBackend
-
-        class MyCustomBackend(UserBackend):
-            library = 'redis'
-
-            def get(self, username):
-                redis = self._load_library()
-
-                # use the redis module...
-    """
-
-    _library = None
-    library = None
-
-    _group_backend = None
-
-    @property
-    def group_backend(self):
-        if self._group_backend is None:
-            self._group_backend = import_string('backends.group_backend')
-        return self._group_backend
-
-    def _load_library(self):
-        """Load a library.
-
-        This method is almost a 100% copy from Djangos
-        ``django.contrib.auth.hashers.BasePasswordHasher._load_library()``.
-        """
-        if self._library is not None:
-            return self._library
-        elif self.library is not None:
-            if isinstance(self.library, (tuple, list)):
-                name, mod_path = self.library
-            else:
-                name = mod_path = self.library
-            try:
-                module = importlib.import_module(mod_path)
-            except ImportError:
-                raise ValueError("Couldn't load %s backend library" % name)
-            return module
-        raise ValueError("Hasher '%s' doesn't specify a library attribute" %
-                         self.__class__)
-
-    def transaction(self):
-        """Override if your backend requires its own transaction management.
-
-        The default will call :py:meth:`~.RestAuthBackend.init_transaction` upon entering a
-        transaction, :py:meth:`~.RestAuthBackend.commit_transaction` upon success and
-        :py:meth:`~.RestAuthBackend.rollback_transaction` upon error.
-        """
-        return TransactionContextManager(self)
-
-    def init_transaction(self):
-        """Start a transaction.
-
-        If the transaction handling of your backend provides a transaction id required for
-        commit/rollback, simply return it and commit_transaction/rollback_transaction will receive
-        it as keword argument.
-        """
-        pass
-
-    def commit_transaction(self, transaction_id=None):
-        """Commit a transaction."""
-        pass
-
-    def rollback_transaction(self, transaction_id=None):
-        """Rollback a transaction."""
-        pass
-
-    def testSetUp(self):
-        """Set up your backend for a test run.
-
-        This method is exclusively used in unit tests. It should perform any actions necessary to
-        start a unit test.
-        """
-        pass
-
-    def testTearDown(self):
-        """Tear down your backend after a test run.
-
-        This method is exclusively used in unit tests. It should perform any actions necessary
-        after a unit test. In general, this should completely wipe all users created during a unit
-        test.
-        """
-        pass
-
-
-class GroupBackend(RestAuthBackend):  # pragma: no cover
-    """Provide groups.
-
-    A group may be identified by its name and a service.  The ``service`` parameter passed in many
-    methods is an instance of `django.contrib.auth.models.User
-    <https://docs.djangoproject.com/en/dev/ref/contrib/auth/#django.contrib.auth.models.User>`_.
-    If a :py:class:`.GroupInstance` is passed (or returned), the groups service is/should be
-    available as the ``service`` property.
-    """
-
-    def get(self, name, service=None):
-        """Get a group object representing the given group.
-
-        :param    name: The name of the group.
-        :type     name: str
-        :param service: The service of the named group. If None, the group should not belong to any
-            service.
-        :type  service: :py:class:`~Services.models.Service` or None
-        :return: A group object providing at least the properties of the GroupInstance class.
-        :rtype: :py:class:`.GroupInstance`
-        :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
