@@ -233,9 +233,7 @@ class GroupGroupsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If GroupNotFound: 404 Not Found
-        group = group_backend.get(service=request.user, name=name)
-
-        groups = group_backend.subgroups(group=group)
+        groups = backend.subgroups(group=name, service=request.user, filter=True)
         return HttpRestAuthResponse(request, groups)
 
     def post(self, request, largs, name):

@@ -224,7 +224,6 @@ class DjangoBackend(BackendBase):
 
             return group
 
-    #def rename(self, group, name):
     def rename_group(self, name, new_name, service=None):
         try:
             group = Group.objects.get(name=name, service=service)
@@ -235,7 +234,6 @@ class DjangoBackend(BackendBase):
         except IntegrityError:
             raise GroupExists(new_name)
 
-    #def set_service(self, group, service=None):
     def set_group_service(self, name, service=None, new_service=None):
         try:
             group = Group.objects.get(name=name, service=service)
@@ -358,6 +356,19 @@ class DjangoBackend(BackendBase):
 
         group.groups.remove(subgroup)
 
+    def subgroups(self, group, service, filter=True):
+        try:
+            group = Group.objects.only('id').get(name=group, service=service)
+        except Group.DoesNotExist:
+            raise GroupNotFound(group)
+
+        if filter:
+            qs = group.groups.filter(service=service)
+            return list(qs.values_list('name', flat=True))
+        else:
+            return [(g.name, g.service) for g in group.groups.all()]
+
+
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
         self.backend = backend
@@ -411,13 +422,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             return Group.objects.get(service=service, name=name)
         except Group.DoesNotExist:
             raise GroupNotFound(name)
-
-    def subgroups(self, group, filter=True):
-        if filter:
-            qs = group.groups.filter(service=group.service)
-            return list(qs.values_list('name', flat=True))
-        else:
-            return group.groups.all()
 
 
     def remove(self, group):

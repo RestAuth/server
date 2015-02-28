@@ -73,7 +73,7 @@ def _main(args):
         explicit_users = sorted(backend.members(group=args.group, service=args.service, depth=0))
         effective_users = sorted(backend.members(group=args.group, service=args.service))
         parent_groups = sorted(group_backend.parents(group))
-        sub_groups = sorted(group_backend.subgroups(group, filter=False))
+        sub_groups = backend.subgroups(group=args.group, service=args.service, filter=False)
 
         if explicit_users:
             print('* Explicit members: %s' % ', '.join(explicit_users))
@@ -90,7 +90,7 @@ def _main(args):
             print('* No parent groups')
         if sub_groups:
             print('* Subgroups:')
-            print_by_service(sub_groups, '    ')
+            print_by_service(sorted(sub_groups, key=lambda g: g[1]), '    ')
         else:
             print('* No subgroups')
     elif args.action == 'set-service':

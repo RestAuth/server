@@ -558,6 +558,38 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def subgroups(self, group, service, filter=True):
+        """Get a list of subgroups.
+
+        If ``filter=True``, the method should only return groups that belong to the same service as
+        the given group. The returned list should be a list of strings, each representing a
+        groupname.
+
+        If ``filter=False``, the method should return all groups, regardless of their service. The
+        returned list should contain tuples with the name and service of the group.
+
+        Example::
+
+            >>> service = Service.objects.get(username='example.com')
+            >>> backend.subgroups("groupname", service=service, filter=True)
+            ['subgroup1']
+            >>> backend.subgroups("groupname", service=service, filter=False)
+            [('subgroup1', <Service: example.com>), ('subgroup2', <Service: example.net>)]
+
+        .. NOTE:: The filter argument is only False when called by some command line scripts and in
+           unittests.
+
+        :param group: The name of the meta-group.
+        :type  group: str
+        :param service: The service of the meta-group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param filter: Wether or not to filter for the groups service. See description for a
+            detailled explanation.
+        :type  filter: boolean
+        :return: A list of sub-groups (see above).
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -680,27 +712,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def subgroups(self, group, filter=True):
-        """Get a list of subgroups.
-
-        If ``filter=True``, the method should only return groups that belong to the same service as
-        the given group. The returned list should be a list of strings, each representing a
-        groupname.
-
-        If ``filter=False``, the method should return all groups, regardless of their service. The
-        list should contain :py:class:`.GroupInstance` objects.
-
-        .. NOTE:: The filter argument is only False when called by some command line scripts.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
-        :param filter: Wether or not to filter for the groups service. See description for a
-            detailled explanation.
-        :type  filter: boolean
-        :return: A list of subgroups.
         """
         raise NotImplementedError
 
