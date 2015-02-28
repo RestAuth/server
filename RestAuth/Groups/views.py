@@ -126,7 +126,7 @@ class GroupHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If GroupNotFound: 404 Not Found
-        backend.remove(group=name, service=request.user)
+        backend.remove_group(group=name, service=request.user)
         self.log.info("Deleted group", extra=largs)
         return HttpResponseNoContent()
 

@@ -98,7 +98,7 @@ def _main(args):
         backend.add_subgroup(group=args.group, service=args.service, subgroup=args.subgroup,
                              subservice=args.sub_service)
     elif args.action in ['delete', 'del', 'rm']:
-        backend.remove(group=args.group, service=args.service)
+        backend.remove_group(group=args.group, service=args.service)
     elif args.action in ['remove-user', 'rm-user', 'del-user']:
         try:
             backend.rm_user(group=args.group, service=args.service, user=args.user.username)

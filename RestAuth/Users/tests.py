@@ -48,7 +48,6 @@ from common.testdata import RestAuthTransactionTest
 from common.testdata import capture
 from common.testdata import groupname1
 from common.testdata import groupname2
-from common.testdata import group_backend
 from common.testdata import password1
 from common.testdata import password2
 from common.testdata import password3

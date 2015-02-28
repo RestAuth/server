@@ -53,7 +53,6 @@ try:
     from Services.models import Service
     from Services.models import ServiceAddress
     from backends import backend
-    from backends import group_backend
     from common.cli.parsers import parser
     from common.hashers import import_hash
     from common.errors import GroupExists
@@ -172,7 +171,7 @@ def save_groups(groups, args, parser):
             service = Service.objects.get(username=service)
 
         try:
-            group = backend.create_group(service=service, name=name)
+            backend.create_group(service=service, name=name)
             print("* %s: created." % name)
         except GroupExists:
             if args.skip_existing_groups:
@@ -180,13 +179,13 @@ def save_groups(groups, args, parser):
                 continue
             else:
                 print("* %s: Already exists, adding memberships." % name)
-                group = group_backend.get(service=service, name=name)
+                #group = group_backend.get(service=service, name=name)
 
         for username in data.get('users', []):
             backend.add_user(group=name, service=service, user=username)
 
         if 'subgroups' in data:
-            subgroups[group] = data.pop('subgroups')
+            subgroups[(name, service)] = data.pop('subgroups')
 
     # add group-memberships *after* we created all groups to make sure
     # groups already exist.
@@ -197,7 +196,7 @@ def save_groups(groups, args, parser):
             if service:
                 service = Service.objects.get(username=service)
 
-            backend.add_subgroup(group=group.name, service=group.service, subgroup=name,
+            backend.add_subgroup(group=group[0], service=group[1], subgroup=name,
                                  subservice=service)
 
 class ServiceTransactionManager(object):
@@ -238,7 +237,7 @@ def main(args=None):
     if not isinstance(groups, dict):
         parser.error("'groups' does not appear to be a dictionary.")
 
-    with backend.atomic(), group_backend.transaction(), ServiceTransactionManager():
+    with backend.atomic(), ServiceTransactionManager():
         #######################
         ### Import services ###
         #######################
