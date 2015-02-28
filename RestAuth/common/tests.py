@@ -56,7 +56,6 @@ from common.testdata import username1
 from common.testdata import username2
 from common.testdata import username3
 from common.testdata import username4
-from common.utils import import_path
 
 restauth_import = getattr(__import__('bin.restauth-import'), 'restauth-import').main
 PASSWORD_HASHERS = (
@@ -217,19 +216,6 @@ class ValidatorTests(RestAuthTest):
             'Users.validators.MediaWikiValidator',
             'Users.validators.XMPPValidator',  # no check method!
         ), substract=1)
-
-
-class ImportTests(RestAuthTest):
-    def test_malformed_path(self):
-        self.assertRaises(ImproperlyConfigured, import_path, 'foobar')
-
-    def test_unknown_path(self):
-        self.assertRaises(ImproperlyConfigured, import_path,
-                          'Unknown.Module')
-
-    def test_unkown_class(self):
-        self.assertRaises(ImproperlyConfigured, import_path,
-                          'Users.validators.UnknownValidator')
 
 
 class BasicTests(RestAuthTest):

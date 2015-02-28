@@ -18,10 +18,10 @@ from __future__ import unicode_literals  # unicode literals from python
 import re
 
 from django.conf import settings
+from django.utils import importlib
 from django.utils import six
 
 from common.errors import UsernameInvalid
-from common.utils import import_path
 
 USERNAME_VALIDATORS = None
 USERNAME_ILLEGAL_CHARS = set()
@@ -47,7 +47,9 @@ def load_username_validators(validators=None):
     allow_whitespace = True
 
     for validator_path in validators:
-        validator = import_path(validator_path)[0]
+        module, member = validator_path.rsplit('.', 1)
+        module = importlib.import_module(module)
+        validator = getattr(module, member)
 
         if hasattr(validator, 'check'):
             used_validators.append(validator())
