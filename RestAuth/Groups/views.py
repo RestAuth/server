@@ -281,9 +281,8 @@ class GroupGroupHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If GroupNotFound: 404 Not Found
-        group = group_backend.get(service=request.user, name=name)
-        subgroup = group_backend.get(service=request.user, name=subname)
-        if group_backend.has_subgroup(group, subgroup):
+        if backend.is_subgroup(group=name, service=request.user, subgroup=subname,
+                               subservice=request.user):
             return HttpResponseNoContent()
         else:
             raise GroupNotFound(name)

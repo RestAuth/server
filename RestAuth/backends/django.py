@@ -334,6 +334,18 @@ class DjangoBackend(BackendBase):
         group.groups.remove(*pks)
         group.groups.add(*subgroups)
 
+    def is_subgroup(self, group, service, subgroup, subservice):
+        try:
+            group = Group.objects.only('id').get(name=group, service=service)
+        except Group.DoesNotExist:
+            raise GroupNotFound(group)
+        try:
+            subgroup = Group.objects.only('id').get(name=subgroup, service=subservice)
+        except Group.DoesNotExist:
+            raise GroupNotFound(subgroup)
+
+        return group.groups.filter(pk=subgroup.pk).exists()
+
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):

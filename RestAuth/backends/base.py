@@ -525,6 +525,23 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def is_subgroup(self, group, service, subgroup, subservice):
+        """Verify that a group is a subgroup of another group.
+
+        :param group: The parent group to test for.
+        :type  group: str
+        :param service: The service of the given group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :param subgroup: The subgroup to testfor.
+        :type  subgroup: str
+        :param subservice: The service of the given group.
+        :type  subservice: :py:class:`~Services.models.Service` or None
+        :return: Wether the second given group is a subgroup of the first.
+        :rtype: bool
+        :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
+        """
+        raise NotImplementedError
+
 
 
 class RestAuthBackend(object):  # pragma: no cover
@@ -648,16 +665,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def is_subgroup(self, group, subgroup):
-        """Verify that a group is a subgroup of another group.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
-        :param subgroup: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  subgroup: :py:class:`.GroupInstance`
         """
         raise NotImplementedError
 
