@@ -22,13 +22,13 @@ from common.errors import GroupNotFound
 
 
 def print_by_service(groups, indent=''):
-    keyfunc = lambda g: g.service.username if g.service else ''
+    keyfunc = lambda g: g[1].username if g[1] else ''
 
     sorted_groups = sorted(groups, key=keyfunc)  # sort by service
     by_service = groupby(sorted_groups, key=keyfunc)  # group by service
 
     for service, groups in by_service:
-        names = sorted([group.name for group in groups])
+        names = sorted([g[0] for g in groups])
 
         if not service:
             service = '<no service>'

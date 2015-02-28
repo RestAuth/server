@@ -590,6 +590,20 @@ class BackendBase(object):
         """
         raise NotImplementedError
 
+    def parents(self, group, service):
+        """Get a list of all parent groups of a group.
+
+        This method is only used by some command-line scripts, hence there is no need for a
+        parameter limiting the returned groups to groups of the same service.
+
+        :param group: The name of the sub-group.
+        :type  group: str
+        :param service: The service of the sub-group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :return: List of parent groups, each as tuple of name/service.
+        :rtype: list
+        """
+        raise NotImplementedError
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -723,14 +737,3 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def parents(self, group):
-        """Get a list of all parent groups of a group.
-
-        This method is only used by some command-line scripts.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
-        :return: List of parent groups, each being a GroupInstance object.
-        :rtype: list
-        """
-        raise NotImplementedError

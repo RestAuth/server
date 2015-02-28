@@ -68,11 +68,9 @@ def _main(args):
         for name in sorted(groups):
             print(name)
     elif args.action == 'view':
-        group = get_group(parser, args.group, args.service)
-
         explicit_users = sorted(backend.members(group=args.group, service=args.service, depth=0))
         effective_users = sorted(backend.members(group=args.group, service=args.service))
-        parent_groups = sorted(group_backend.parents(group))
+        parent_groups = backend.parents(group=args.group, service=args.service)
         sub_groups = backend.subgroups(group=args.group, service=args.service, filter=False)
 
         if explicit_users:

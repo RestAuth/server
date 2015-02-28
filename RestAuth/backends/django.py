@@ -366,7 +366,17 @@ class DjangoBackend(BackendBase):
             qs = group.groups.filter(service=service)
             return list(qs.values_list('name', flat=True))
         else:
+            #TODO: select_related might be useful?
             return [(g.name, g.service) for g in group.groups.all()]
+
+    def parents(self, group, service):
+        try:
+            group = Group.objects.only('id').get(name=group, service=service)
+        except Group.DoesNotExist:
+            raise GroupNotFound(group)
+
+        #TODO: select_related might be useful?
+        return [(g.name, g.service) for g in group.parent_groups.all()]
 
 
 class DjangoTransactionManagerOld(object):
@@ -426,6 +436,3 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
 
     def remove(self, group):
         group.delete()
-
-    def parents(self, group):
-        return group.parent_groups.all()
