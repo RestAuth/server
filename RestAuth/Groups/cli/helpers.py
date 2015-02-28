@@ -17,10 +17,6 @@ from __future__ import unicode_literals
 
 from itertools import groupby
 
-from backends import group_backend
-from common.errors import GroupNotFound
-
-
 def print_by_service(groups, indent=''):
     keyfunc = lambda g: g[1].username if g[1] else ''
 
@@ -33,10 +29,3 @@ def print_by_service(groups, indent=''):
         if not service:
             service = '<no service>'
         print("%s%s: %s" % (indent, service, ', '.join(names)))
-
-
-def get_group(parser, name, service):
-    try:
-        return group_backend.get(name=name, service=service)
-    except GroupNotFound:
-        parser.error('%s at service %s: Group does not exist.' % (name, service))

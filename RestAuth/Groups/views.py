@@ -26,7 +26,6 @@ from RestAuthCommon.strprep import stringcheck
 from RestAuthCommon.strprep import stringprep
 
 from backends import backend
-from backends import group_backend
 from common.errors import UserNotFound
 from common.errors import GroupNotFound
 from common.responses import HttpResponseCreated
@@ -118,7 +117,7 @@ class GroupHandlerView(RestAuthResourceView):
         if backend.group_exists(service=request.user, name=name):
             return HttpResponseNoContent()
         else:
-            raise GroupNotFound(name)
+            raise GroupNotFound(name)  # 404 Not Found
 
     def delete(self, request, largs, name):
         """Delete a group."""
@@ -126,8 +125,8 @@ class GroupHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_delete'):
             return HttpResponseForbidden()
 
-        group = group_backend.get(service=request.user, name=name)
-        group_backend.remove(group=group)
+        # If GroupNotFound: 404 Not Found
+        backend.remove(group=name, service=request.user)
         self.log.info("Deleted group", extra=largs)
         return HttpResponseNoContent()
 
@@ -148,7 +147,6 @@ class GroupUsersIndex(RestAuthResourceView):
 
         # If GroupNotFound: 404 Not Found
         users = backend.members(group=name, service=request.user)
-
         return HttpRestAuthResponse(request, users)
 
     def post(self, request, largs, name):

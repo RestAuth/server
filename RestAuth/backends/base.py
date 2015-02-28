@@ -587,6 +587,8 @@ class BackendBase(object):
             detailled explanation.
         :type  filter: boolean
         :return: A list of sub-groups (see above).
+        :raise: :py:class:`common.errors.GroupNotFound` if the meta-group is not found.
+            found.
         """
         raise NotImplementedError
 
@@ -604,6 +606,18 @@ class BackendBase(object):
         :rtype: list
         """
         raise NotImplementedError
+
+    def remove_group(self, group, service):
+        """Remove a group.
+
+        :param group: The name of the group to remove..
+        :type  group: str
+        :param service: The service of the group.
+        :type  service: :py:class:`~Services.models.Service` or None
+        :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
+        """
+        raise NotImplementedError
+
 
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
@@ -726,14 +740,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
         :return: A group object providing at least the properties of the GroupInstance class.
         :rtype: :py:class:`.GroupInstance`
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        """
-        raise NotImplementedError
-
-    def remove(self, group):
-        """Remove a group.
-
-        :param group: A group as provided by :py:meth:`.GroupBackend.get`.
-        :type  group: :py:class:`.GroupInstance`
         """
         raise NotImplementedError
 

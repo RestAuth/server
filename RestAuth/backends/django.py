@@ -378,6 +378,12 @@ class DjangoBackend(BackendBase):
         #TODO: select_related might be useful?
         return [(g.name, g.service) for g in group.parent_groups.all()]
 
+    def remove_group(self, group, service):
+        try:
+            group = Group.objects.only('id').get(name=group, service=service)
+        except Group.DoesNotExist:
+            raise GroupNotFound(group)
+        group.delete()
 
 class DjangoTransactionManagerOld(object):
     def __init__(self, backend, dry):
@@ -434,5 +440,3 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
             raise GroupNotFound(name)
 
 
-    def remove(self, group):
-        group.delete()
