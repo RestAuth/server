@@ -543,7 +543,6 @@ class BackendBase(object):
         raise NotImplementedError
 
 
-
 class RestAuthBackend(object):  # pragma: no cover
     """Base class for all RestAuth data backends.
 
@@ -686,16 +685,6 @@ class GroupBackend(RestAuthBackend):  # pragma: no cover
             detailled explanation.
         :type  filter: boolean
         :return: A list of subgroups.
-        """
-        raise NotImplementedError
-
-    def has_subgroup(self, group, subgroup):
-        """Test if a group is a subgroup of a different group.
-
-        :param    group: The metagroup in question.
-        :type     group: :py:class:`.GroupInstance`
-        :param subgroup: The group that should be tested for a subgroup relationship.
-        :type  subgroup: :py:class:`.GroupInstance`
         """
         raise NotImplementedError
 

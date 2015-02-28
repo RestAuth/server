@@ -408,9 +408,6 @@ class DjangoGroupBackend(DjangoTransactionMixin, GroupBackend):
         else:
             return group.groups.all()
 
-    def has_subgroup(self, group, subgroup):
-        return group.groups.filter(pk=subgroup.pk).exists()
-
     def rm_subgroup(self, group, subgroup):
         qs = group.groups.filter(name=subgroup.name, service=subgroup.service)
         if not qs.exists():
