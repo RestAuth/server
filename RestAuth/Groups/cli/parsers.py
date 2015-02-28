@@ -27,7 +27,7 @@ group_arg_parser.add_argument('group', action=GroupnameAction, help="The name of
 group_arg_parser.set_defaults(create_group=False)
 
 subgroup_parser = ArgumentParser(add_help=False)
-subgroup_parser.add_argument('subgroup', help='The name of the subgroup.')
+subgroup_parser.add_argument('subgroup', action=GroupnameAction, help='The name of the subgroup.')
 subgroup_parser.add_argument(
     '--sub-service', metavar='SUBSERVICE', action=ServiceAction,
     help='Assume that the named subgroup is from SUBSERVICE.'
