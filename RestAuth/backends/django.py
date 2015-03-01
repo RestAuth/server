@@ -88,8 +88,6 @@ class DjangoBackend(BackendBase):
                         _groups.append(Group.objects.create(service=service, name=name))
                 user.group_set.add(*_groups)
 
-        return user  #TODO: We should not need to return anything!
-
     def list_users(self):
         return list(User.objects.values_list('username', flat=True))
 

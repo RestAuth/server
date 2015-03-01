@@ -252,8 +252,8 @@ class UserTests(RestAuthTransactionTest):
         super(UserTests, self).setUp()
 
         # two users, so we can make sure nothing leaks to the other user
-        self.user1 = self.create_user(username1, password1)
-        self.user2 = self.create_user(username2, password2)
+        self.create_user(username1, password1)
+        self.create_user(username2, password2)
 
 
 class UserExistsTests(UserTests):  # GET /users/<user>/
@@ -413,8 +413,8 @@ class PropertyTests(RestAuthTransactionTest):
         super(PropertyTests, self).setUp()
 
         # two users, so we can make sure nothing leaks to the other user
-        self.user1 = self.create_user(username1, password1)
-        self.user2 = self.create_user(username2, password2)
+        self.create_user(username1, password1)
+        self.create_user(username2, password2)
 
 
 class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
@@ -750,7 +750,8 @@ class HashTestMixin(RestAuthTestBase):
     def test_backend(self):
         # test password during creation:
         for password, data in six.iteritems(self.testdata):
-            user = backend.create_user(username=username1, password=password)
+            backend.create_user(username=username1, password=password)
+            user = backend._user(username1, 'password')
             self.assertTrue(user.password.startswith('%s$' % self.algorithm))
             self.assertTrue(backend.check_password(username1, password))
 
@@ -758,7 +759,8 @@ class HashTestMixin(RestAuthTestBase):
 
         # test password for set_password:
         for password, data in six.iteritems(self.testdata):
-            user = backend.create_user(username=username1)
+            backend.create_user(username=username1)
+            user = backend._user(username1, 'password')
             backend.set_password(username=username1, password=password)
             self.assertTrue(backend.check_password(username1, password))
             self.assertTrue(backend.check_password(username1, password))

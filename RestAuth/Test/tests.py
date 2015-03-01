@@ -50,12 +50,12 @@ class CreateUserTest(RestAuthTransactionTest):
         self.assertEqual(list(backend.list_users()), [])
 
     def test_dry_run_create_existing_user(self):
-        user = self.create_user(username=username1)
-        self.assertCountEqual([user.username], list(backend.list_users()))
+        self.create_user(username=username1)
+        self.assertCountEqual([username1], list(backend.list_users()))
 
         resp = self.post('/test/users/', {'user': username1})
         self.assertEqual(resp.status_code, http_client.CONFLICT)
-        self.assertCountEqual([user.username], list(backend.list_users()))
+        self.assertCountEqual([username1], list(backend.list_users()))
 
     def test_dry_run_create_invalid_user(self):
         resp = self.post('/test/users/', {'user': 'foo\nbar'})
@@ -76,7 +76,7 @@ class CreateUserTest(RestAuthTransactionTest):
 class CreatePropertyTest(RestAuthTransactionTest):
     def setUp(self):
         RestAuthTransactionTest.setUp(self)
-        self.user = self.create_user(username=username1)
+        self.create_user(username=username1)
 
     def test_create_property(self):
         url = '/test/users/%s/props/' % username1
