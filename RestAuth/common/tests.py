@@ -430,8 +430,8 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_skip_existing_users(self):
         backend.create_user(username2)
-        backend.set_property(username2, propkey1, propval3)
-        backend.set_property(username2, "date joined", propval3)
+        backend.set_property(user=username2, key=propkey1, value=propval3)
+        backend.set_property(user=username2, key="date joined", value=propval3)
 
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):

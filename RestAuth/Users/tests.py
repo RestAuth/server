@@ -649,9 +649,9 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
     def test_set_new_property(self):  # set a property
         resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval1, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(backend.get_property(username=username1, key=propkey1), propval1)
+        self.assertEqual(backend.get_property(user=username1, key=propkey1), propval1)
         with self.assertRaises(PropertyNotFound):
-            backend.get_property(username=username2, key=propkey1)
+            backend.get_property(user=username2, key=propkey1)
 
     def test_set_existing_property(self):
         backend.create_property(username=username1, key=propkey1, value=propval1)
@@ -660,18 +660,18 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
         resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval2, })
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertEqual(self.parse(resp, 'dict'), {'value': propval1})
-        self.assertEqual(backend.get_property(username=username1, key=propkey1), propval2)
+        self.assertEqual(backend.get_property(user=username1, key=propkey1), propval2)
         with self.assertRaises(PropertyNotFound):
-            backend.get_property(username=username2, key=propkey1)
+            backend.get_property(user=username2, key=propkey1)
 
         # set it again, but this time with RestAuth 0.6
         resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval1, },
                         X_RESTAUTH_VERSION='0.6')
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertEqual(self.parse(resp, 'str'), propval2)
-        self.assertEqual(backend.get_property(username=username1, key=propkey1), propval1)
+        self.assertEqual(backend.get_property(user=username1, key=propkey1), propval1)
         with self.assertRaises(PropertyNotFound):
-            backend.get_property(username=username2, key=propkey1)
+            backend.get_property(user=username2, key=propkey1)
 
     def test_bad_request(self):
         # do some bad request tests:
@@ -1010,7 +1010,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertHasLine(stdout, '^No groups.$')
             self.assertEqual(stderr.getvalue(), '')
 
-        backend.set_property(username=username1, key='last login', value='foobar')
+        backend.set_property(user=username1, key='last login', value='foobar')
         with capture() as (stdout, stderr):
             restauth_user(['view', frm])
             self.assertHasLine(stdout, '^Joined: ')

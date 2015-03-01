@@ -159,37 +159,27 @@ class DjangoBackend(BackendBase):
             except IntegrityError:
                 raise PropertyExists()
 
-    def get_property(self, username, key):
+    def get_property(self, user, key):
         try:
-            user = User.objects.only('id').get(username=username)
+            user = self._user(user, 'id')
             return user.property_set.only('value').get(key=key).value
-        except User.DoesNotExist:
-            raise UserNotFound(username)
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def set_property(self, username, key, value, dry=False):
-        try:
-            user = User.objects.only('id').get(username=username)
-            prop, old_value = user.set_property(key, value)
-            return old_value
-        except User.DoesNotExist:
-            raise UserNotFound(username)
+    def set_property(self, user, key, value, dry=False):
+        user = self._user(user, 'id')
+        prop, old_value = user.set_property(key, value)
+        return old_value
 
     def set_multiple_properties(self, username, properties):
-        try:
-            user = User.objects.only('id').get(username=username)
-            for key, value in six.iteritems(properties):
-                user.set_property(key, value)
-        except User.DoesNotExist:
-            raise UserNotFound(username)
+        user = self._user(username, 'id')
+        for key, value in six.iteritems(properties):
+            user.set_property(key, value)
 
     def remove_property(self, username, key):
         try:
-            user = User.objects.only('id').get(username=username)
+            user = self._user(username, 'id')
             user.del_property(key)
-        except User.DoesNotExist:
-            raise UserNotFound(username)
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
@@ -197,11 +187,8 @@ class DjangoBackend(BackendBase):
         if username is None:
             groups = Group.objects.filter(service=service)
         else:
-            try:
-                user = User.objects.only('id').get(username=username)
-                groups = Group.objects.member(user=user, service=service)
-            except User.DoesNotExist:
-                raise UserNotFound(username)
+            user = self._user(username, 'id')
+            groups = Group.objects.member(user=user, service=service)
         return list(groups.only('name').values_list('name', flat=True))
 
     def create_group(self, name, service=None, users=None, dry=False):

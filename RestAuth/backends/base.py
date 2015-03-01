@@ -214,8 +214,8 @@ class BackendBase(object):  # pragma: no cover
         dry-run, the method should behave as closely as possible to a normal invocation but
         shouldn't actually create the property.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The username.
+        :type  user: str
         :param key: The key identifying the property.
         :type  key: str
         :param value: The value of the property.
@@ -231,8 +231,8 @@ class BackendBase(object):  # pragma: no cover
     def get_property(self, user, key):
         """Get a specific property of the user.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The username.
+        :type  user: str
         :param key: The key identifying the property.
         :type  key: str
         :return: The value of the property.
@@ -247,8 +247,8 @@ class BackendBase(object):  # pragma: no cover
 
         Unlike :py:meth:`~.PropertyBackend.create` this method overwrites an existing property.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The username.
+        :type  user: str
         :param key: The key identifying the property.
         :type  key: str
         :param value: The value of the property.
