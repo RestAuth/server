@@ -520,8 +520,8 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
         # this group already exists and has some memberships
         backend.create_group(group=groupname2, service=self.service)
-        backend.add_user(group=groupname2, service=self.service, user=username1)
-        backend.add_user(group=groupname2, service=self.service, user=username4)
+        backend.add_member(group=groupname2, service=self.service, user=username1)
+        backend.add_member(group=groupname2, service=self.service, user=username4)
 
         path = os.path.join(self.base, 'groups1.json')
         with capture() as (stdout, stderr):
@@ -552,8 +552,8 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
         # this group already exists and has some memberships
         backend.create_group(group=groupname2, service=self.service)
-        backend.add_user(group=groupname2, service=self.service, user=username1)
-        backend.add_user(group=groupname2, service=self.service, user=username4)
+        backend.add_member(group=groupname2, service=self.service, user=username1)
+        backend.add_member(group=groupname2, service=self.service, user=username4)
 
         path = os.path.join(self.base, 'groups1.json')
         with capture() as (stdout, stderr):

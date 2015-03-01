@@ -220,7 +220,7 @@ class DjangoBackend(BackendBase):
     def group_exists(self, group, service=None):
         return Group.objects.filter(name=group, service=service).exists()
 
-    def set_groups_for_user(self, user, service, groups):
+    def set_memberships(self, user, service, groups):
         user = self._user(user, 'id')
 
         user.group_set.through.objects.filter(
@@ -228,13 +228,13 @@ class DjangoBackend(BackendBase):
         groups = [Group.objects.get_or_create(service=service, name=name)[0] for name in groups]
         user.group_set.add(*groups)
 
-    def set_users_for_group(self, group, service, users):
+    def set_members(self, group, service, users):
         group = self._group(group, service, 'id')
         users = [self._user(u, 'id') for u in users]
         group.users.clear()
         group.users.add(*users)
 
-    def add_user(self, group, service, user):
+    def add_member(self, group, service, user):
         group = self._group(group, service, 'id')
         user = self._user(user, 'id')
         group.users.add(user)
@@ -247,7 +247,7 @@ class DjangoBackend(BackendBase):
         group = self._group(group, service, 'id')
         return group.is_member(user)
 
-    def rm_user(self, group, service, user):
+    def remove_member(self, group, service, user):
         group = self._group(group, service, 'id')
         user = self._user(user, 'id')
 
@@ -273,7 +273,7 @@ class DjangoBackend(BackendBase):
         subgroup = self._group(subgroup, subservice, 'id')
         return group.groups.filter(pk=subgroup.id).exists()
 
-    def rm_subgroup(self, group, service, subgroup, subservice):
+    def remove_subgroup(self, group, service, subgroup, subservice):
         group = self._group(group, service, 'id')
         try:
             subgroup = group.groups.get(name=subgroup, service=subservice)

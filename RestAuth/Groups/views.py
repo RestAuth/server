@@ -99,7 +99,7 @@ class GroupsView(RestAuthView):
         user = stringprep(user)
         groups = [stringprep(g) for g in groups]
 
-        backend.set_groups_for_user(user=user, service=request.user, groups=groups)
+        backend.set_memberships(user=user, service=request.user, groups=groups)
         return HttpResponseNoContent()
 
 class GroupHandlerView(RestAuthResourceView):
@@ -160,7 +160,7 @@ class GroupUsersIndex(RestAuthResourceView):
 
         # If GroupNotFound: 404 Not Found
         # If UserNotFound: 404 Not Found
-        backend.add_user(group=name, service=request.user, user=user)
+        backend.add_member(group=name, service=request.user, user=user)
 
         self.log.info('Add user "%s"', user, extra=largs)
         return HttpResponseNoContent()
@@ -176,7 +176,7 @@ class GroupUsersIndex(RestAuthResourceView):
 
         # If GroupNotFound: 404 Not Found
         # If UserNotFound: 404 Not Found
-        backend.set_users_for_group(group=name, service=request.user, users=users)
+        backend.set_members(group=name, service=request.user, users=users)
 
         self.log.info('Set users for group "%s"', name, extra=largs)
         return HttpResponseNoContent()
@@ -209,7 +209,7 @@ class GroupUserHandler(RestAuthSubResourceView):
 
         # If GroupNotFound: 404 Not Found
         # If UserNotFound: 404 Not Found
-        backend.rm_user(group=name, service=request.user, user=subname)
+        backend.remove_member(group=name, service=request.user, user=subname)
         self.log.info('Remove user from group', extra=largs)
         return HttpResponseNoContent()
 
@@ -290,7 +290,7 @@ class GroupGroupHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If GroupNotFound: 404 Not Found
-        backend.rm_subgroup(group=name, service=request.user, subgroup=subname,
-                            subservice=request.user)
+        backend.remove_subgroup(group=name, service=request.user, subgroup=subname,
+                                subservice=request.user)
         self.log.info('Remove subgroup %s', subname, extra=largs)
         return HttpResponseNoContent()

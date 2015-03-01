@@ -365,7 +365,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_groups_for_user(self, user, service, groups):
+    def set_memberships(self, user, service, groups):
         """Set groups for a user.
 
         :param user: The name of the user.
@@ -378,7 +378,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_users_for_group(self, group, service, users):
+    def set_members(self, group, service, users):
         """Set all members of a group.
 
         This method replaces the current list of members with the one passed by ``users``. If a
@@ -396,7 +396,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def add_user(self, group, service, user):
+    def add_member(self, group, service, user):
         """Add a user to the given group.
 
         :param group: A group as provided by :py:meth:`.GroupBackend.get`.
@@ -442,7 +442,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def rm_user(self, group, service, user):
+    def remove_member(self, group, service, user):
         """Remove a user from the group.
 
         :param group: A group from which to remove the user.
@@ -503,7 +503,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def rm_subgroup(self, group, service, subgroup, subservice):
+    def remove_subgroup(self, group, service, subgroup, subservice):
         """Remove a sub-group from a meta-group.
 
         :param group: The name of the meta-group.

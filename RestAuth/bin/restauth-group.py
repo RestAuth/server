@@ -93,7 +93,7 @@ def _main(args):
         backend.set_group_service(group=args.group, service=args.service,
                                   new_service=args.new_service)
     elif args.action == 'add-user':
-        backend.add_user(group=args.group, service=args.service, user=args.user)
+        backend.add_member(group=args.group, service=args.service, user=args.user)
     elif args.action == 'add-group':
         backend.add_subgroup(group=args.group, service=args.service, subgroup=args.subgroup,
                              subservice=args.sub_service)
@@ -101,17 +101,18 @@ def _main(args):
         backend.remove_group(group=args.group, service=args.service)
     elif args.action in ['remove-user', 'rm-user', 'del-user']:
         try:
-            backend.rm_user(group=args.group, service=args.service, user=args.user)
+            backend.remove_member(group=args.group, service=args.service, user=args.user)
         except UserNotFound:
             parser.error('User "%s" not member of group "%s".' % (args.user, args.group))
     elif args.action == 'rename':
         backend.rename_group(args.group, args.name, service=args.service)
     elif args.action in ['remove-group', 'rm-group', 'del-group']:  # pragma: no branch
         try:
-            backend.rm_subgroup(group=args.group, service=args.service, subgroup=args.subgroup,
-                                subservice=args.sub_service)
+            backend.remove_subgroup(group=args.group, service=args.service, subgroup=args.subgroup,
+                                    subservice=args.sub_service)
         except GroupNotFound:
             parser.error('Group "%s" is not a subgroup of "%s".' % (args.subgroup, args.group))
+
 
 def main(args=None):
     args = parser.parse_args(args)
