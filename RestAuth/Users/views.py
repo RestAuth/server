@@ -220,7 +220,7 @@ class UserPropsIndex(RestAuthResourceView):
         properties = {stringcheck(k): v for k, v in six.iteritems(parse_dict(request))}
 
         # If UserNotFound: 404 Not Found
-        backend.set_multiple_properties(user=name, properties=properties)
+        backend.set_properties(user=name, properties=properties)
         return HttpResponseNoContent()
 
 

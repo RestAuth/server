@@ -259,7 +259,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_multiple_properties(self, user, properties):
+    def set_properties(self, user, properties):
         """Set multiple properties at once.
 
         This method may just call :py:meth:`~.PropertyBackend.set` multiple times. Some backends

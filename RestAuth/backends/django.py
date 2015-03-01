@@ -171,7 +171,7 @@ class DjangoBackend(BackendBase):
         prop, old_value = user.set_property(key, value)
         return old_value
 
-    def set_multiple_properties(self, user, properties):
+    def set_properties(self, user, properties):
         user = self._user(user, 'id')
         for key, value in six.iteritems(properties):
             user.set_property(key, value)
