@@ -107,11 +107,11 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def user_exists(self, username):
-        """Determine if the username exists.
+    def user_exists(self, user):
+        """Determine if the user exists.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The name of the user in question.
+        :type  user: str
         :return: True if the user exists, False otherwise.
         :rtype: boolean
         """

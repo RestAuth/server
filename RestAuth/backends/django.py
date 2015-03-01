@@ -97,8 +97,8 @@ class DjangoBackend(BackendBase):
     def list_users(self):
         return list(User.objects.values_list('username', flat=True))
 
-    def user_exists(self, username):
-        return User.objects.filter(username=username).exists()
+    def user_exists(self, user):
+        return User.objects.filter(username=user).exists()
 
     def rename_user(self, username, name):
         user = self._user(username, 'username')
@@ -137,7 +137,7 @@ class DjangoBackend(BackendBase):
     def list_properties(self, username):
         qs = Property.objects.filter(user__username=username)
         properties = dict(qs.values_list('key', 'value'))
-        if not properties and not self.user_exists(username=username):
+        if not properties and not self.user_exists(user=username):
             raise UserNotFound(username)
         return properties
 

@@ -127,7 +127,7 @@ class UserHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Users.user_exists'):
             return HttpResponseForbidden()
 
-        if backend.user_exists(username=name):
+        if backend.user_exists(user=name):
             return HttpResponseNoContent()
         else:
             raise UserNotFound(name)  # 404 Not Found
