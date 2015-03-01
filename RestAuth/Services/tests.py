@@ -315,14 +315,16 @@ class ServiceHasherTests(RestAuthTest):
             self.assertEqual(hasher.algorithm, 'phpass')
 
     def test_wrong_hasher(self):
-        with self.settings(SERVICE_PASSWORD_HASHER='foobar.blahugo'):
-            self.assertRaises(ImproperlyConfigured, load_service_hasher)
+        with self.settings(SERVICE_PASSWORD_HASHER='foobar.blahugo'), \
+                self.assertRaises(ImproperlyConfigured):
+            load_service_hasher()
 
     def test_unknown(self):
         hasher = 'foobar.phpass'
 
-        with self.settings(SERVICE_PASSWORD_HASHER=hasher, PASSWORD_HASHERS=(hasher, )):
-            self.assertRaises(ImproperlyConfigured, load_service_hasher)
+        with self.settings(SERVICE_PASSWORD_HASHER=hasher, PASSWORD_HASHERS=(hasher, )), \
+                self.assertRaises(ImproperlyConfigured):
+            load_service_hasher()
 
     def tearDown(self):
         load_service_hasher()

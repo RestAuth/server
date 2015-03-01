@@ -892,7 +892,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertTrue(stderr.getvalue().startswith('usage: '))
 
         self.assertCountEqual(backend.list_users(), [])
-        self.assertRaises(UserNotFound, backend.check_password, username, password1)
+        with self.assertRaises(UserNotFound):
+            backend.check_password(username, password1)
 
         # load a custom validator:
         load_username_validators(('Users.validators.MediaWikiValidator', ))
@@ -906,7 +907,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertTrue(stderr.getvalue().startswith('usage: '))
         self.assertCountEqual(backend.list_users(), [])
-        self.assertRaises(UserNotFound, backend.check_password, username, password1)
+        with self.assertRaises(UserNotFound):
+            backend.check_password(username, password1)
 
         load_username_validators()
 

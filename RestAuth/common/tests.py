@@ -121,18 +121,20 @@ class ContentTypeTests(RestAuthTest):
 
 class ContentHandlerTests(RestAuthTest):
     def test_load_handlers(self):
-        with self.settings(CONTENT_HANDLERS=('foo.bar', )):
-            self.assertRaises(ImproperlyConfigured, load_handlers)
+        with self.settings(CONTENT_HANDLERS=('foo.bar', )), \
+                self.assertRaises(ImproperlyConfigured):
+            load_handlers()
 
-        with self.settings(CONTENT_HANDLERS=('foobar', )):
-            self.assertRaises(ImproperlyConfigured, load_handlers)
+        with self.settings(CONTENT_HANDLERS=('foobar', )), self.assertRaises(ImproperlyConfigured):
+            load_handlers()
 
     def test_get_handler(self):
         handler = get_handler()
         self.assertTrue(isinstance(handler, handlers.ContentHandler))
 
     def test_get_wrong_handler(self):
-        self.assertRaises(ValueError, get_handler, 'foo/bar')
+        with self.assertRaises(ValueError):
+            get_handler('foo/bar')
 
 
 class BackendInterfaceTest(RestAuthTest):
@@ -165,26 +167,31 @@ class ValidatorTests(RestAuthTest):
         load_username_validators()
 
     def test_illegal_chars(self):
-        self.assertRaises(UsernameInvalid, validate_username, 'foo>bar')
+        with self.assertRaises(UsernameInvalid):
+            validate_username('foo>bar')
 
     def test_reserved_username(self):
-        self.assertRaises(UsernameInvalid, validate_username,
-                          'mediawiki default')
+        with self.assertRaises(UsernameInvalid):
+            validate_username('mediawiki default')
 
     def test_force_ascii(self):
-        self.assertRaises(UsernameInvalid, validate_username, username1)
+        with self.assertRaises(UsernameInvalid):
+            validate_username(username1)
 
     def test_no_whitespace(self):
-        self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
+        with self.assertRaises(UsernameInvalid):
+            validate_username('foo bar')
 
     def test_non_ascii_whitespace(self):
         load_username_validators(('Users.validators.XMPPValidator', ))
-        self.assertRaises(UsernameInvalid, validate_username, 'foo bar')
+        with self.assertRaises(UsernameInvalid):
+            validate_username('foo bar')
         validate_username('foobar')
 
     def test_email_check(self):
         load_username_validators(('Users.validators.EmailValidator', ))
-        self.assertRaises(UsernameInvalid, validate_username, 'x' * 65)  # more then 64 chars
+        with self.assertRaises(UsernameInvalid):
+            validate_username('x' * 65)  # more then 64 chars
         validate_username('foobar')
 
     def test_mediawiki_check(self):
@@ -197,18 +204,24 @@ class ValidatorTests(RestAuthTest):
         load_username_validators(('Users.validators.LinuxValidator', ))
         validate_username('foobar')
 
-        self.assertRaises(UsernameInvalid, validate_username, 'x' * 33)
-        self.assertRaises(UsernameInvalid, validate_username, '-foobar')
+        with self.assertRaises(UsernameInvalid):
+            validate_username('x' * 33)
+        with self.assertRaises(UsernameInvalid):
+            validate_username('-foobar')
 
-        with self.settings(RELAXED_LINUX_CHECKS=False):
-            self.assertRaises(UsernameInvalid, validate_username, 'foo%bar')
+        with self.settings(RELAXED_LINUX_CHECKS=False), self.assertRaises(UsernameInvalid):
+            validate_username('foo%bar')
 
     def test_drupal_check(self):
         load_username_validators(('Users.validators.DrupalValidator', ))
-        self.assertRaises(UsernameInvalid, validate_username, ' foobar')
-        self.assertRaises(UsernameInvalid, validate_username, 'foobar ')
-        self.assertRaises(UsernameInvalid, validate_username, 'foo  bar')
-        self.assertRaises(UsernameInvalid, validate_username, 'foo&bar')
+        with self.assertRaises(UsernameInvalid):
+            validate_username(' foobar')
+        with self.assertRaises(UsernameInvalid):
+            validate_username('foobar ')
+        with self.assertRaises(UsernameInvalid):
+            validate_username('foo  bar')
+        with self.assertRaises(UsernameInvalid):
+            validate_username('foo&bar')
         validate_username('foobar')
 
     def assert_validators(self, validators, substract=0):
