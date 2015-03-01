@@ -117,7 +117,7 @@ def main(args=None):
                 print('No groups.')
     elif args.action == 'rename':
         try:
-            backend.rename_user(args.user, args.name)
+            backend.rename_user(user=args.user, name=args.name)
         except UserExists as e:
             parser.error("%s: %s" % (args.name if six.PY3 else args.name.decode('utf-8'), e))
     elif args.action in ['delete', 'rm', 'remove']:  # pragma: no branch

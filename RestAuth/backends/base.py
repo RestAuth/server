@@ -117,17 +117,17 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def rename_user(self, username, name):
+    def rename_user(self, user, name):
         """Rename a user.
 
-        This operation is only available via |bin-restauth-user-doc|.
+        This operation is only used by |bin-restauth-user-doc|.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The name of the user to rename.
+        :type  user: str
         :param     name: The new username.
         :type      name: str
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
-        :raise: :py:class:`~common.errors.UserExists` if the user already exist.
+        :raise: :py:class:`~common.errors.UserExists` if a user with the new name already exist.
         """
         raise NotImplementedError
 

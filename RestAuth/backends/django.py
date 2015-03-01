@@ -100,8 +100,8 @@ class DjangoBackend(BackendBase):
     def user_exists(self, user):
         return User.objects.filter(username=user).exists()
 
-    def rename_user(self, username, name):
-        user = self._user(username, 'username')
+    def rename_user(self, user, name):
+        user = self._user(user, 'username')
         user.username = name
         try:
             user.save()
