@@ -208,8 +208,6 @@ class DjangoBackend(BackendBase):
             except IntegrityError:
                 raise GroupExists(name)
 
-            return group
-
     def rename_group(self, name, new_name, service=None):
         try:
             group = self._group(name, service, 'id')

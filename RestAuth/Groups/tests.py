@@ -241,8 +241,8 @@ class CreateGroupTests(GroupTests):  # POST /groups/
 class SetGroupsTests(GroupTests):  # PUT /groups/
     def setUp(self):
         super(SetGroupsTests, self).setUp()
-        self.group1 = backend.create_group(service=self.service, name=groupname1)
-        self.group2 = backend.create_group(service=self.service, name=groupname2)
+        backend.create_group(service=self.service, name=groupname1)
+        backend.create_group(service=self.service, name=groupname2)
 
     def test_set_groups_for_user(self):
         group_lists = (
@@ -340,13 +340,13 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
 
 class GroupUserTests(GroupTests):
     def setUp(self):
-        GroupTests.setUp(self)
+        super(GroupUserTests, self).setUp()
 
-        self.group1 = backend.create_group(service=self.service, name=groupname1)
-        self.group2 = backend.create_group(service=self.service, name=groupname2)
-        self.group3 = backend.create_group(service=self.service, name=groupname3)
-        self.group4 = backend.create_group(service=self.service2, name=groupname4)
-        self.group5 = backend.create_group(service=self.service2, name=groupname5)
+        backend.create_group(service=self.service, name=groupname1)
+        backend.create_group(service=self.service, name=groupname2)
+        backend.create_group(service=self.service, name=groupname3)
+        backend.create_group(service=self.service2, name=groupname4)
+        backend.create_group(service=self.service2, name=groupname5)
 
 
 class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
@@ -525,12 +525,12 @@ class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
         )
 
         for names in usernames:
-            resp = self.put('/groups/%s/users/' % self.group1.name, {'users': names})
+            resp = self.put('/groups/%s/users/' % groupname1, {'users': names})
             self.assertEqual(resp.status_code, http_client.NO_CONTENT)
             self.assertCountEqual(backend.members(group=groupname1, service=self.service), names)
 
     def test_non_existing_user(self):
-        resp = self.put('/groups/%s/users/' % self.group1.name, {'users': [username5]})
+        resp = self.put('/groups/%s/users/' % groupname1, {'users': [username5]})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(backend.members(group=groupname1, service=self.service), [])
 
@@ -544,7 +544,7 @@ class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
         self.assertCountEqual(backend.members(group=groupname2, service=self.service), [username1])
 
         # Set user2 to group2, user1 is still member because of inheritance
-        resp = self.put('/groups/%s/users/' % self.group2.name, {'users': [username2]})
+        resp = self.put('/groups/%s/users/' % groupname2, {'users': [username2]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertEqual(backend.members(group=groupname2, service=self.service),
                          [username1, username2])
@@ -871,20 +871,20 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
 
 class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
     def test_basic(self):
-        resp = self.put('/groups/%s/groups/' % self.group1.name, {'groups': [self.group2.name]})
+        resp = self.put('/groups/%s/groups/' % groupname1, {'groups': [groupname2]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(backend.subgroups(group=groupname1, service=self.service),
-                              [self.group2.name])
+                              [groupname2])
         self.assertCountEqual(backend.parents(group=groupname2, service=self.service),
                               [(groupname1, self.service)])
 
-        resp = self.put('/groups/%s/groups/' % self.group1.name, {'groups': []})
+        resp = self.put('/groups/%s/groups/' % groupname1, {'groups': []})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(backend.subgroups(group=groupname1, service=self.service), [])
         self.assertCountEqual(backend.parents(group=groupname2, service=self.service), [])
 
-        resp = self.put('/groups/%s/groups/' % self.group1.name,
-                        {'groups': [self.group2.name, self.group3.name]})
+        resp = self.put('/groups/%s/groups/' % groupname1,
+                        {'groups': [groupname2, groupname3]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(backend.subgroups(group=groupname1, service=self.service),
                               [groupname2, groupname3])
@@ -894,37 +894,37 @@ class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
                               [(groupname1, self.service)])
 
     def test_metagroup_not_found(self):
-        resp = self.put('/groups/%s/groups/' % groupname6, {'groups': [self.group2.name]})
+        resp = self.put('/groups/%s/groups/' % groupname6, {'groups': [groupname2]})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertCountEqual(backend.parents(group=groupname2, service=self.service), [])
 
     def test_subgroup_not_found(self):
-        resp = self.put('/groups/%s/groups/' % self.group1.name, {'groups': [groupname6]})
+        resp = self.put('/groups/%s/groups/' % groupname1, {'groups': [groupname6]})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertCountEqual(backend.subgroups(group=groupname1, service=self.service), [])
 
     def test_service_isolation(self):
         # test adding a subgroup of a different service
-        resp = self.put('/groups/%s/groups/' % self.group1.name, {'groups': [self.group4.name]})
+        resp = self.put('/groups/%s/groups/' % groupname1, {'groups': [groupname4]})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertCountEqual(
             backend.subgroups(group=groupname1, service=self.service, filter=False), [])
 
         # test the other way round
-        resp = self.put('/groups/%s/groups/' % self.group4.name, {'groups': [self.group1.name]})
+        resp = self.put('/groups/%s/groups/' % groupname4, {'groups': [groupname1]})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertCountEqual(
             backend.subgroups(group=groupname1, service=self.service, filter=False), [])
 
         # test adding within a different service (self.put uses self.service)
-        resp = self.put('/groups/%s/groups/' % self.group4.name, {'groups': [self.group5.name]})
+        resp = self.put('/groups/%s/groups/' % groupname4, {'groups': [groupname5]})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertCountEqual(
             backend.subgroups(group=groupname1, service=self.service, filter=False), [])
 
         # establich a cross-service relation, try to overwrite it:
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname4, subservice=self.service2)
-        resp = self.put('/groups/%s/groups/' % self.group1.name, {'groups': [self.group2.name]})
+        resp = self.put('/groups/%s/groups/' % groupname1, {'groups': [groupname2]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(
             backend.subgroups(group=groupname1, service=self.service, filter=False),
@@ -932,30 +932,30 @@ class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
 
     def test_bad_request(self):
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname4, subservice=self.service2)
-        resp = self.put('/groups/%s/groups/' % self.group1.name, {'foo': [self.group2.name]})
+        resp = self.put('/groups/%s/groups/' % groupname1, {'foo': [groupname2]})
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
 
 
 class VerifySubgroupTests(GroupUserTests):  # GET /groups/<group>/groups/<subgroup>/
     def test_basic(self):
-        resp = self.get('/groups/%s/groups/%s/' % (self.group1.name, self.group2.name))
+        resp = self.get('/groups/%s/groups/%s/' % (groupname1, groupname2))
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname2, subservice=self.service)
-        resp = self.get('/groups/%s/groups/%s/' % (self.group1.name, self.group2.name))
+        resp = self.get('/groups/%s/groups/%s/' % (groupname1, groupname2))
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_metagroup_doesnt_exist(self):
-        resp = self.get('/groups/%s/groups/%s/' % (groupname6, self.group2.name))
+        resp = self.get('/groups/%s/groups/%s/' % (groupname6, groupname2))
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
     def test_subgroup_doesnt_exist(self):
-        resp = self.get('/groups/%s/groups/%s/' % (self.group1.name, groupname6))
+        resp = self.get('/groups/%s/groups/%s/' % (groupname1, groupname6))
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
     def test_service_isolation(self):
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname4, subservice=self.service2)
-        resp = self.get('/groups/%s/groups/%s/' % (self.group1.name, self.group4.name))
+        resp = self.get('/groups/%s/groups/%s/' % (groupname1, groupname4))
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
 

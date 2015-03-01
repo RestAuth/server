@@ -81,9 +81,9 @@ class GroupsView(RestAuthView):
 
         # If ResourceExists: 409 Conflict
         # If UserNotFound: 404 Not Found
-        group = backend.create_group(service=request.user, name=name, users=users, dry=dry)
+        backend.create_group(service=request.user, name=name, users=users, dry=dry)
 
-        self.log.info('%s: Created group', group.name, extra=largs)
+        self.log.info('%s: Created group', name, extra=largs)
         return HttpResponseCreated()  # Created
 
     def put(self, request, largs):
