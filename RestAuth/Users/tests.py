@@ -191,18 +191,18 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
     def test_add_user_with_group(self):
         resp = self.post('/users/', {'user': username1, 'groups': []})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(backend.list_groups(service=self.service, username=username1), [])
+        self.assertEqual(backend.list_groups(service=self.service, user=username1), [])
 
         groups = [groupname1]
         resp = self.post('/users/', {'user': username2, 'groups': groups})
         self.assertEqual(resp.status_code, http_client.CREATED)
         self.assertTrue(backend.is_member(group=groupname1, service=self.service, user=username2))
-        self.assertEqual(backend.list_groups(service=self.service, username=username2), groups)
+        self.assertEqual(backend.list_groups(service=self.service, user=username2), groups)
 
         groups = [groupname1, groupname2]
         resp = self.post('/users/', {'user': username3, 'groups': [groupname1, groupname2]})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(backend.list_groups(service=self.service, username=username3), groups)
+        self.assertEqual(backend.list_groups(service=self.service, user=username3), groups)
 
     def test_transactions(self):
         resp = self.post('/users/', {
@@ -1018,7 +1018,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertHasLine(stdout, '^No groups.$')
             self.assertEqual(stderr.getvalue(), '')
 
-        backend.remove_property(username=username1, key='date joined')
+        backend.remove_property(user=username1, key='date joined')
         with capture() as (stdout, stderr):
             restauth_user(['view', frm])
             self.assertHasNoLine(stdout, '^Joined: ')

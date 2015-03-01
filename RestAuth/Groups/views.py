@@ -64,7 +64,7 @@ class GroupsView(RestAuthView):
                 return HttpResponseForbidden()
 
             # Get all groups of a user
-            groups = backend.list_groups(service=request.user, username=username)
+            groups = backend.list_groups(service=request.user, user=username)
 
         groups = [g.lower() for g in groups]
         return HttpRestAuthResponse(request, groups)

@@ -259,25 +259,25 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_multiple_properties(self, username, properties):
+    def set_multiple_properties(self, user, properties):
         """Set multiple properties at once.
 
         This method may just call :py:meth:`~.PropertyBackend.set` multiple times. Some backends
         have faster methods for setting multiple values at once, though.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The username.
+        :type  user: str
         :param properties: A dictionary of properties.
         :type  properties: dict
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
         """
         raise NotImplementedError
 
-    def remove_property(self, username, key):
+    def remove_property(self, user, key):
         """Remove a property.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The username.
+        :type  user: str
         :param key: The key identifying the property.
         :type  key: str
         :raise: :py:class:`common.errors.PropertyNotFound` if the property doesn't exist.
@@ -285,12 +285,12 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def list_groups(self, service, username=None):
+    def list_groups(self, service, user=None):
         """Get a list of group names for the given service.
 
         :param service: The service of the named group.
-        :param username: If given, only return groups that the user is a member of.
-        :type  username: str
+        :param user: If given, only return groups that the user is a member of.
+        :type  user: str
         :return: list of strings, each representing a group name.
         :rtype: list
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.

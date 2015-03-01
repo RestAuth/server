@@ -220,7 +220,7 @@ class UserPropsIndex(RestAuthResourceView):
         properties = {stringcheck(k): v for k, v in six.iteritems(parse_dict(request))}
 
         # If UserNotFound: 404 Not Found
-        backend.set_multiple_properties(username=name, properties=properties)
+        backend.set_multiple_properties(user=name, properties=properties)
         return HttpResponseNoContent()
 
 
@@ -275,5 +275,5 @@ class UserPropHandler(RestAuthSubResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        backend.remove_property(username=name, key=subname)
+        backend.remove_property(user=name, key=subname)
         return HttpResponseNoContent()

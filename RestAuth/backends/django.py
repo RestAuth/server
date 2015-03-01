@@ -171,23 +171,23 @@ class DjangoBackend(BackendBase):
         prop, old_value = user.set_property(key, value)
         return old_value
 
-    def set_multiple_properties(self, username, properties):
-        user = self._user(username, 'id')
+    def set_multiple_properties(self, user, properties):
+        user = self._user(user, 'id')
         for key, value in six.iteritems(properties):
             user.set_property(key, value)
 
-    def remove_property(self, username, key):
+    def remove_property(self, user, key):
         try:
-            user = self._user(username, 'id')
+            user = self._user(user, 'id')
             user.del_property(key)
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def list_groups(self, service=None, username=None):
-        if username is None:
+    def list_groups(self, service=None, user=None):
+        if user is None:
             groups = Group.objects.filter(service=service)
         else:
-            user = self._user(username, 'id')
+            user = self._user(user, 'id')
             groups = Group.objects.member(user=user, service=service)
         return list(groups.only('name').values_list('name', flat=True))
 

@@ -255,18 +255,18 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
             resp = self.put('/groups/', {'user': username1, 'groups': group_list})
             self.assertEqual(resp.status_code, http_client.NO_CONTENT)
             self.assertCountEqual(
-                backend.list_groups(service=self.service, username=username1), group_list)
+                backend.list_groups(service=self.service, user=username1), group_list)
 
     def test_deletion(self):
         resp = self.put('/groups/', {'user': username1, 'groups': [groupname1]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(
-            backend.list_groups(service=self.service, username=username1), [groupname1])
+            backend.list_groups(service=self.service, user=username1), [groupname1])
 
         resp = self.put('/groups/', {'user': username1, 'groups': [groupname2]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(
-            backend.list_groups(service=self.service, username=username1), [groupname2])
+            backend.list_groups(service=self.service, user=username1), [groupname2])
 
         # test that group wasn't deleted
         self.assertTrue(backend.group_exists(groupname1, service=self.service))
@@ -277,7 +277,7 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
         resp = self.put('/groups/', {'user': username1, 'groups': [groupname1, groupname3]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(
-            backend.list_groups(service=self.service, username=username1), [groupname1, groupname3])
+            backend.list_groups(service=self.service, user=username1), [groupname1, groupname3])
         self.assertTrue(backend.group_exists(name=groupname3, service=self.service))
 
     def test_visibility(self):
@@ -292,7 +292,7 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
         resp = self.put('/groups/', {'user': username1, 'groups': [groupname1]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(  # we still have groupname2 because it's inherited
-            backend.list_groups(service=self.service, username=username1), [groupname1, groupname2])
+            backend.list_groups(service=self.service, user=username1), [groupname1, groupname2])
 
 
 class VerifyGroupExistanceTests(GroupTests):  # GET /groups/<group>/

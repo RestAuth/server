@@ -92,17 +92,17 @@ def main(args=None):
             print('Last login: %s' % props['last login'])
 
         if args.service:
-            groups = backend.list_groups(service=args.service, username=args.user)
+            groups = backend.list_groups(service=args.service, user=args.user)
             if groups:
                 print('Groups: %s' % ', '.join(sorted(groups)))
             else:
                 print('No groups.')
         else:
             groups = {}
-            none_groups = backend.list_groups(service=None, username=args.user)
+            none_groups = backend.list_groups(service=None, user=args.user)
 
             for service in Service.objects.all():
-                subgroups = backend.list_groups(service=service, username=args.user)
+                subgroups = backend.list_groups(service=service, user=args.user)
                 if subgroups:
                     groups[service.username] = subgroups
 
