@@ -48,7 +48,7 @@ DATABASES = {
     }
 }
 DATA_BACKEND = {
-    'BACKEND': 'backends.django.DjangoBackend',
+    'BACKEND': os.environ.get('DATA_BACKEND', 'backends.django.DjangoBackend')
 }
 
 ALLOWED_HOSTS = [
