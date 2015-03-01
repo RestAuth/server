@@ -180,7 +180,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         props = {propkey1: propval1, 'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
         resp = self.post('/users/', {'user': username1, 'properties': props, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(backend.list_properties(username=username1), props)
+        self.assertEqual(backend.list_properties(user=username1), props)
 
     def test_add_user_with_invalid_properties(self):
         props = {'foo\nbar': propval1, }
@@ -212,7 +212,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(self.get_usernames(), [])
         with self.assertRaises(UserNotFound):
-            backend.list_properties(username=username1), {}
+            backend.list_properties(user=username1), {}
         self.assertEqual(backend.list_groups(service=self.service), [])
 
     def test_bad_requests(self):
@@ -755,7 +755,7 @@ class HashTestMixin(RestAuthTestBase):
             self.assertTrue(user.password.startswith('%s$' % self.algorithm))
             self.assertTrue(backend.check_password(user=username1, password=password))
 
-            backend.remove_user(username=username1)
+            backend.remove_user(user=username1)
 
         # test password for set_password:
         for password, data in six.iteritems(self.testdata):
@@ -769,7 +769,7 @@ class HashTestMixin(RestAuthTestBase):
             self.assertTrue(user.password.startswith('%s$' % self.algorithm))
             self.assertTrue(check_password(password, user.password))
 
-            backend.remove_user(username=username1)
+            backend.remove_user(user=username1)
 
 
 @override_settings(PASSWORD_HASHERS=('common.hashers.Drupal7Hasher',

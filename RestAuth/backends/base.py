@@ -162,7 +162,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_password_hash(self, algorithm, hash):
+    def set_password_hash(self, user, algorithm, hash):
         """Set a users password hash.
 
         This method is called by |bin-restauth-import| if users with a password hash should be
@@ -174,6 +174,8 @@ class BackendBase(object):  # pragma: no cover
             from common.hashers import import_hash
             django_hash = import_hash(algorithm, hash)
 
+        :param user: The username.
+        :type  user: str
         :param algorithm: The algorithm used for creating the hash.
         :type  algorithm: str
         :param      hash: The hash created by the algorithm.
@@ -181,20 +183,20 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def remove_user(self, username):
+    def remove_user(self, user):
         """Remove a user.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The username.
+        :type  user: str
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
         """
         raise NotImplementedError
 
-    def list_properties(self, username):
+    def list_properties(self, user):
         """Get a full list of all user properties.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The username.
+        :type  user: str
         :return: A dictionary of key/value pairs, each describing a property.
         :rtype: dict
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
@@ -226,7 +228,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def get_property(self, username, key):
+    def get_property(self, user, key):
         """Get a specific property of the user.
 
         :param username: The username.
@@ -240,7 +242,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_property(self, username, key, value):
+    def set_property(self, user, key, value):
         """Set a property for the given user.
 
         Unlike :py:meth:`~.PropertyBackend.create` this method overwrites an existing property.

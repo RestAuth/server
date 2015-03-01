@@ -121,7 +121,7 @@ def save_users(users, args, parser):
                 print('* %s: Set password from input data.' % username)
             elif isinstance(pwd, dict):
                 try:
-                    backend.set_password_hash(username=username, **pwd)
+                    backend.set_password_hash(user=username, **pwd)
                     print('* %s: Set hash from input data.' % username)
                 except ValueError:
                     print('* %s: Hash of type "%s" is not supported, skipping.' %

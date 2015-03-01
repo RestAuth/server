@@ -130,24 +130,23 @@ class DjangoBackend(BackendBase):
 
         user.save()
 
-    def set_password_hash(self, username, algorithm, hash):
-        user = self._user(username, 'password')
-
+    def set_password_hash(self, user, algorithm, hash):
+        user = self._user(user, 'password')
         user.password = import_hash(algorithm=algorithm, hash=hash)
         user.save()
 
-    def remove_user(self, username):
-        qs = User.objects.filter(username=username)
+    def remove_user(self, user):
+        qs = User.objects.filter(username=user)
         if qs.exists():
             qs.delete()
         else:
-            raise UserNotFound(username)
+            raise UserNotFound(user)
 
-    def list_properties(self, username):
-        qs = Property.objects.filter(user__username=username)
+    def list_properties(self, user):
+        qs = Property.objects.filter(user__username=user)
         properties = dict(qs.values_list('key', 'value'))
-        if not properties and not self.user_exists(user=username):
-            raise UserNotFound(username)
+        if not properties and not self.user_exists(user=user):
+            raise UserNotFound(user)
         return properties
 
     def create_property(self, username, key, value, dry=False):

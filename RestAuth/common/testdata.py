@@ -150,7 +150,7 @@ class RestAuthTestBase(object):
         })
 
     def assertProperties(self, username, expected):
-        actual = backend.list_properties(username)
+        actual = backend.list_properties(user=username)
         self.assertTrue('date joined' in actual)
         del actual['date joined']
         self.assertDictEqual(actual, expected)

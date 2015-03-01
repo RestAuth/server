@@ -83,7 +83,7 @@ def main(args=None):
 
         backend.set_password(user=args.user, password=args.pwd)
     elif args.action == 'view':
-        props = backend.list_properties(args.user)
+        props = backend.list_properties(user=args.user)
 
         if 'date joined' in props:
             print('Joined: %s' % props['date joined'])
@@ -121,7 +121,7 @@ def main(args=None):
         except UserExists as e:
             parser.error("%s: %s" % (args.name if six.PY3 else args.name.decode('utf-8'), e))
     elif args.action in ['delete', 'rm', 'remove']:  # pragma: no branch
-        backend.remove_user(args.user)
+        backend.remove_user(user=args.user)
 
 if __name__ == '__main__':  # pragma: no cover
     main()

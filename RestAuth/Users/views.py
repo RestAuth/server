@@ -173,7 +173,7 @@ class UserHandlerView(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        backend.remove_user(username=name)
+        backend.remove_user(user=name)
         return HttpResponseNoContent()
 
 
@@ -191,7 +191,7 @@ class UserPropsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        props = backend.list_properties(username=name)
+        props = backend.list_properties(user=name)
         return HttpRestAuthResponse(request, props)
 
     def post(self, request, largs, name, dry=False):
