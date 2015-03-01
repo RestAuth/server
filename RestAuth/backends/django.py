@@ -229,7 +229,9 @@ class DjangoBackend(BackendBase):
 
     def set_groups_for_user(self, user, service, groups):
         user = self._user(user, 'id')
-        user.group_set.filter(service=service).delete()  # clear existing groups
+
+        user.group_set.through.objects.filter(
+            group__service=service, serviceuser_id=user.id).delete()
         groups = [Group.objects.get_or_create(service=service, name=name)[0] for name in groups]
         user.group_set.add(*groups)
 
@@ -270,7 +272,7 @@ class DjangoBackend(BackendBase):
         group = self._group(group, service, 'id')
         subgroups = [self._group(name, subservice, 'id') for name in subgroups]
 
-        group.groups.filter(service=service).clear()
+        group.groups.through.objects.filter(from_group=group, to_group__service=subservice).delete()
         group.groups.add(*subgroups)
 
     def is_subgroup(self, group, service, subgroup, subservice):
@@ -294,14 +296,11 @@ class DjangoBackend(BackendBase):
             qs = group.groups.filter(service=service)
             return list(qs.values_list('name', flat=True))
         else:
-            #TODO: select_related might be useful?
-            return [(g.name, g.service) for g in group.groups.all()]
+            return [(g.name, g.service) for g in group.groups.select_related('service').all()]
 
     def parents(self, group, service):
         group = self._group(group, service, 'id')
-
-        #TODO: select_related might be useful?
-        return [(g.name, g.service) for g in group.parent_groups.all()]
+        return [(g.name, g.service) for g in group.parent_groups.select_related('service').all()]
 
     def remove_group(self, group, service):
         group = self._group(group, service, 'id')

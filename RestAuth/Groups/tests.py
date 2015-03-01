@@ -257,6 +257,21 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
             self.assertCountEqual(
                 backend.list_groups(service=self.service, username=username1), group_list)
 
+    def test_deletion(self):
+        resp = self.put('/groups/', {'user': username1, 'groups': [groupname1]})
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+        self.assertCountEqual(
+            backend.list_groups(service=self.service, username=username1), [groupname1])
+
+        resp = self.put('/groups/', {'user': username1, 'groups': [groupname2]})
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+        self.assertCountEqual(
+            backend.list_groups(service=self.service, username=username1), [groupname2])
+
+        # test that group wasn't deleted
+        self.assertTrue(backend.group_exists(groupname1, service=self.service))
+
+
     def test_set_groups_with_new(self):
         self.assertFalse(backend.group_exists(name=groupname3, service=self.service))
         resp = self.put('/groups/', {'user': username1, 'groups': [groupname1, groupname3]})
