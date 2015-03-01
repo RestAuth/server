@@ -447,8 +447,8 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_existing_properties(self):
         backend.create_user(username2)
-        backend.create_property(username=username2, key=propkey1, value=propval3)  # propval1 is in json file
-        backend.create_property(username=username2, key="date joined", value=propval3)
+        backend.create_property(user=username2, key=propkey1, value=propval3)  # propval1 is in json file
+        backend.create_property(user=username2, key="date joined", value=propval3)
 
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):
@@ -519,7 +519,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
-        backend.create_group(name=groupname2, service=self.service)
+        backend.create_group(group=groupname2, service=self.service)
         backend.add_user(group=groupname2, service=self.service, user=username1)
         backend.add_user(group=groupname2, service=self.service, user=username4)
 
@@ -551,7 +551,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         backend.create_user(username4)  # new user
 
         # this group already exists and has some memberships
-        backend.create_group(name=groupname2, service=self.service)
+        backend.create_group(group=groupname2, service=self.service)
         backend.add_user(group=groupname2, service=self.service, user=username1)
         backend.add_user(group=groupname2, service=self.service, user=username4)
 

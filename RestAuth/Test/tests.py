@@ -125,7 +125,7 @@ class CreateGroupTest(RestAuthTransactionTest):
         self.assertFalse(backend.list_groups(service=self.service))
 
     def test_dry_run_create_existing_group(self):
-        backend.create_group(service=self.service, name=groupname1)
+        backend.create_group(service=self.service, group=groupname1)
 
         resp = self.post('/test/groups/', {'group': groupname1})
         self.assertEqual(resp.status_code, http_client.CONFLICT)

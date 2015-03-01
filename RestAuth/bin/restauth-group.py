@@ -57,7 +57,7 @@ def _main(args):
     # Actions that do not act on an existing group:
     if args.action == 'add':
         try:
-            backend.create_group(name=args.group, service=args.service)
+            backend.create_group(group=args.group, service=args.service)
         except GroupExists:
             parser.error('Group already exists.')
     elif args.action in ['list', 'ls']:
@@ -90,7 +90,7 @@ def _main(args):
         else:
             print('* No subgroups')
     elif args.action == 'set-service':
-        backend.set_group_service(name=args.group, service=args.service,
+        backend.set_group_service(group=args.group, service=args.service,
                                   new_service=args.new_service)
     elif args.action == 'add-user':
         backend.add_user(group=args.group, service=args.service, user=args.user)

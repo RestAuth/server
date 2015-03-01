@@ -149,13 +149,11 @@ class DjangoBackend(BackendBase):
             raise UserNotFound(user)
         return properties
 
-    def create_property(self, username, key, value, dry=False):
+    def create_property(self, user, key, value, dry=False):
         with self.atomic(dry=dry):
             try:
-                user = User.objects.only('id').get(username=username)
+                user = self._user(user, 'id')
                 user.property_set.create(key=key, value=value)
-            except User.DoesNotExist:
-                raise UserNotFound(username)
             except IntegrityError:
                 raise PropertyExists()
 
@@ -191,36 +189,36 @@ class DjangoBackend(BackendBase):
             groups = Group.objects.member(user=user, service=service)
         return list(groups.only('name').values_list('name', flat=True))
 
-    def create_group(self, name, service=None, users=None, dry=False):
+    def create_group(self, group, service=None, users=None, dry=False):
         with self.atomic(dry=dry):
             try:
-                group = Group.objects.create(name=name, service=service)
+                group = Group.objects.create(name=group, service=service)
                 if users:
                     user_objs = User.objects.only('id').filter(username__in=users)
                     if len(users) != len(user_objs):
                         raise UserNotFound()
                     group.users.add(*user_objs)
             except IntegrityError:
-                raise GroupExists(name)
+                raise GroupExists(group)
 
-    def rename_group(self, name, new_name, service=None):
+    def rename_group(self, group, name, service=None):
         try:
-            group = self._group(name, service, 'id')
-            group.name = new_name
-            group.save()
-        except IntegrityError:
-            raise GroupExists(new_name)
-
-    def set_group_service(self, name, service=None, new_service=None):
-        try:
-            group = self._group(name, service, 'id')
-            group.service = new_service
+            group = self._group(group, service, 'id', 'name')
+            group.name = name
             group.save()
         except IntegrityError:
             raise GroupExists(name)
 
-    def group_exists(self, name, service=None):
-        return Group.objects.filter(name=name, service=service).exists()
+    def set_group_service(self, group, service=None, new_service=None):
+        try:
+            group = self._group(group, service, 'id')
+            group.service = new_service
+            group.save()
+        except IntegrityError:
+            raise GroupExists(group)
+
+    def group_exists(self, group, service=None):
+        return Group.objects.filter(name=group, service=service).exists()
 
     def set_groups_for_user(self, user, service, groups):
         user = self._user(user, 'id')

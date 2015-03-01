@@ -297,7 +297,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def create_group(self, name, service=None, users=None, dry=False):
+    def create_group(self, group, service=None, users=None, dry=False):
         """Create a new group for the given service.
 
         The ``dry`` parameter tells you if you should actually create the group. The parameter will
@@ -305,8 +305,8 @@ class BackendBase(object):  # pragma: no cover
         dry-run, the method should behave as closely as possible to a normal invocation but
         shouldn't actually create the group.
 
-        :param name: The name of the group.
-        :type  name: str
+        :param group: The name of the group.
+        :type  group: str
         :param service: The service of the named group. If None, the group should not belong to any
             service.
         :type  service: :py:class:`~Services.models.Service` or None
@@ -321,15 +321,15 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def rename_group(self, name, new_name, service=None):
+    def rename_group(self, group, name, service=None):
         """Rename a group.
 
         This operation is only available via |bin-restauth-group-doc|.
 
-        :param name: The old name of the group.
+        :param group: The old name of the group.
+        :type  group: str
+        :param name: The new name of the group.
         :type  name: str
-        :param new_name: The new name of the group.
-        :type  new_name: str
         :param service: The service of the group.
         :type  service: :py:class:`~Services.models.Service` or None
         :raise: :py:class:`~common.errors.GroupNotFound` if the old group does not exist.
@@ -337,13 +337,13 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_group_service(self, name, service=None, new_service=None):
+    def set_group_service(self, group, service=None, new_service=None):
         """Set the service of a group.
 
         This operation is only available via |bin-restauth-group-doc|.
 
-        :param name: The name of the group.
-        :type  name: str
+        :param group: The name of the group.
+        :type  group: str
         :param service: The old service of the group.
         :type  service: :py:class:`~Services.models.Service` or None
         :param new_service: The new service of the group.
@@ -353,11 +353,11 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def group_exists(self, name, service=None):
+    def group_exists(self, group, service=None):
         """Determine if a group exists for the given service.
 
-        :param    name: The name of the group.
-        :type     name: str
+        :param   group: The name of the group.
+        :type    group: str
         :param service: The service of the group to query.
         :type  service: :py:class:`~Services.models.Service` or None
         :return: True if the group exists, False otherwise.

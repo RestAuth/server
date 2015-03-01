@@ -81,7 +81,7 @@ class GroupsView(RestAuthView):
 
         # If ResourceExists: 409 Conflict
         # If UserNotFound: 404 Not Found
-        backend.create_group(service=request.user, name=name, users=users, dry=dry)
+        backend.create_group(service=request.user, group=name, users=users, dry=dry)
 
         self.log.info('%s: Created group', name, extra=largs)
         return HttpResponseCreated()  # Created
@@ -114,7 +114,7 @@ class GroupHandlerView(RestAuthResourceView):
         if not request.user.has_perm('Groups.group_exists'):
             return HttpResponseForbidden()
 
-        if backend.group_exists(service=request.user, name=name):
+        if backend.group_exists(service=request.user, group=name):
             return HttpResponseNoContent()
         else:
             raise GroupNotFound(name)  # 404 Not Found

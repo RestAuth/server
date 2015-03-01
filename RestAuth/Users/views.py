@@ -206,7 +206,7 @@ class UserPropsIndex(RestAuthResourceView):
 
         # If UserNotFound: 404 Not Found
         # If PropertyExists: 409 Conflict
-        backend.create_property(username=name, key=key, value=value, dry=dry)
+        backend.create_property(user=name, key=key, value=value, dry=dry)
 
         self.log.info('Created property "%s" as "%s"', key, value, extra=largs)
         return HttpResponseCreated()

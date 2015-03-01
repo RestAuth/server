@@ -153,7 +153,7 @@ def save_properties(properties, args, parser):
         else:
             for key, value in six.iteritems(props):
                 try:
-                    backend.create_property(username=user, key=key, value=value)
+                    backend.create_property(user=user, key=key, value=value)
                 except PropertyExists:
                     print('%s: Property "%s" already exists.' % (user, key))
                     continue
@@ -170,7 +170,7 @@ def save_groups(groups, args, parser):
             service = Service.objects.get(username=service)
 
         try:
-            backend.create_group(service=service, name=name)
+            backend.create_group(service=service, group=name)
             print("* %s: created." % name)
         except GroupExists:
             if args.skip_existing_groups:

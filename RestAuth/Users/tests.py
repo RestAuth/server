@@ -299,7 +299,7 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
         # create a group membership
-        backend.create_group(name=groupname1, service=self.service)
+        backend.create_group(group=groupname1, service=self.service)
         backend.add_user(group=groupname1, service=self.service, user=username1)
 
         resp = self.post('/users/%s/' % username1, data)
@@ -438,7 +438,7 @@ class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
         self.assertDictEqual(self.parse(resp, 'dict'), {})
 
     def test_get_single_property(self):
-        backend.create_property(username=username1, key=propkey1, value=propval1)
+        backend.create_property(user=username1, key=propkey1, value=propval1)
 
         resp = self.get('/users/%s/props/' % username1)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -449,8 +449,8 @@ class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
         self.assertDictEqual(self.parse(resp, 'dict'), {})
 
     def test_get_two_properties(self):
-        backend.create_property(username=username1, key=propkey1, value=propval1)
-        backend.create_property(username=username1, key=propkey2, value=propval2)
+        backend.create_property(user=username1, key=propkey1, value=propval1)
+        backend.create_property(user=username1, key=propkey2, value=propval2)
 
         resp = self.get('/users/%s/props/' % username1)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -461,9 +461,9 @@ class GetAllPropertiesTests(PropertyTests):  # GET /users/<user>/props/
         self.assertDictEqual(self.parse(resp, 'dict'), {})
 
     def test_get_multiple_properties(self):
-        backend.create_property(username=username1, key=propkey1, value=propval1)
-        backend.create_property(username=username1, key=propkey2, value=propval2)
-        backend.create_property(username=username2, key=propkey3, value=propval3)
+        backend.create_property(user=username1, key=propkey1, value=propval1)
+        backend.create_property(user=username1, key=propkey2, value=propval2)
+        backend.create_property(user=username2, key=propkey3, value=propval3)
 
         resp = self.get('/users/%s/props/' % username1)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -622,7 +622,7 @@ class GetPropertyTests(PropertyTests):  # GET /users/<user>/props/<prop>/
         self.assertEqual(resp['Resource-Type'], 'property')
 
     def test_get_property(self):
-        backend.create_property(username=username1, key=propkey1, value=propval1)
+        backend.create_property(user=username1, key=propkey1, value=propval1)
 
         resp = self.get('/users/%s/props/%s/' % (username1, propkey1))
         self.assertEqual(resp.status_code, http_client.OK)
@@ -654,7 +654,7 @@ class SetPropertyTests(PropertyTests):  # PUT /users/<user>/props/<prop>/
             backend.get_property(user=username2, key=propkey1)
 
     def test_set_existing_property(self):
-        backend.create_property(username=username1, key=propkey1, value=propval1)
+        backend.create_property(user=username1, key=propkey1, value=propval1)
 
         # set a property again and assert that it returns the old value:
         resp = self.put('/users/%s/props/%s/' % (username1, propkey1), {'value': propval2, })
@@ -701,8 +701,8 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
         self.assertEqual(resp['Resource-Type'], 'property')
 
     def test_delete_property(self):
-        backend.create_property(username=username1, key=propkey1, value=propval1)
-        backend.create_property(username=username1, key=propkey2, value=propval2)
+        backend.create_property(user=username1, key=propkey1, value=propval1)
+        backend.create_property(user=username1, key=propkey2, value=propval2)
 
         resp = self.delete('/users/%s/props/%s/' % (username1, propkey1),)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
@@ -711,8 +711,8 @@ class DeletePropertyTests(PropertyTests):  # DELETE /users/<user>/props/<prop>/
     def test_cross_user(self):
         # two users have properties with the same key, we verify that deleting
         # one doesn't delete the other:
-        backend.create_property(username=username1, key=propkey1, value=propval1)
-        backend.create_property(username=username2, key=propkey1, value=propval1)
+        backend.create_property(user=username1, key=propkey1, value=propval1)
+        backend.create_property(user=username2, key=propkey1, value=propval1)
 
         resp = self.delete('/users/%s/props/%s/' % (username1, propkey1),)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
@@ -1035,7 +1035,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
         # add group to service:
-        backend.create_group(name=groupname1, service=self.service)
+        backend.create_group(group=groupname1, service=self.service)
         backend.add_user(group=groupname1, service=self.service, user=username1)
 
         with capture() as (stdout, stderr):
@@ -1062,7 +1062,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
         # add "global" group with no service
-        backend.create_group(name=groupname2, service=None)
+        backend.create_group(group=groupname2, service=None)
         backend.add_user(group=groupname2, service=None, user=username1)
 
         with capture() as (stdout, stderr):
