@@ -1,15 +1,13 @@
 0.7.0:
 
-* Consistently use assertRaises as context manager.
+* Update MemoryBackend, RedisBackend.
+* Add ability to set SUPPORTS_VISIBILITY and SUPPORTS_INHERITANCE backend
+  properties.
+* Add LDAP Backend.
 * Add our own in-memory cache in settings that we can use as secure cache.
 * Remove SECURE_CACHE setting.
-* backend.create_user still returns a user because of many tests still using it
-  in later backend methods - should be removed.
-* Same for backend.create_group.
-* backend.get() should be removed
 * Document DATA_BACKEND setting, update backend documentation.
 * GroupNotFound/GroupExist should require two params: name and service.
-* Make kwargs consinstent, e.g. group_exists gets "name", set_users_for_group gets "group"
 
 Future:
 
