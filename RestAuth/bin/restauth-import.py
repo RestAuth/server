@@ -105,10 +105,9 @@ def save_users(users, args, parser):
         username = username.lower()
 
         try:
-            user = backend.create_user(username=username)
+            backend.create_user(username=username)
             created = True
         except UserExists:
-            user = backend.get(username=username)
             created = False
 
         if not created and args.skip_existing_users:
@@ -143,20 +142,20 @@ def save_users(users, args, parser):
                     value = datetime.strptime(value, TIMESTAMP_FORMAT)
                 value = datetime.strftime(value, TIMESTAMP_FORMAT)
 
-            properties[user][key] = value
+            properties[username][key] = value
     return properties
 
 
 def save_properties(properties, args, parser):
     for user, props in six.iteritems(properties):
         if args.overwrite_properties:
-            backend.set_multiple_properties(username=user.username, properties=props)
+            backend.set_multiple_properties(username=user, properties=props)
         else:
             for key, value in six.iteritems(props):
                 try:
-                    backend.create_property(username=user.username, key=key, value=value)
+                    backend.create_property(username=user, key=key, value=value)
                 except PropertyExists:
-                    print('%s: Property "%s" already exists.' % (user.username, key))
+                    print('%s: Property "%s" already exists.' % (user, key))
                     continue
 
 

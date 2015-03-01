@@ -353,8 +353,8 @@ class BackendBase(object):  # pragma: no cover
     def set_groups_for_user(self, user, service, groups):
         """Set groups for a user.
 
-        :param user: A user as returned by :py:meth:`.UserBackend.get`.
-        :type  user: :py:class:`.UserInstance`
+        :param user: The name of the user.
+        :type  user: str
         :param service: The service of all groups to add to.
         :type  service: :py:class:`~Services.models.Service` or None
         :param groups: A list of groupnames. Groups that don't exist have to be created.

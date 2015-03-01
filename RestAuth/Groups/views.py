@@ -93,10 +93,10 @@ class GroupsView(RestAuthView):
             return HttpResponseForbidden()
 
         # If BadRequest: 400 Bad Request
-        groups, username = self._parse_put(request)
+        groups, user = self._parse_put(request)
 
         # If PreconditionFailed: 412 Precondition Failed
-        user = backend.get(username=stringprep(username))
+        user = stringprep(user)
         groups = [stringprep(g) for g in groups]
 
         backend.set_groups_for_user(user=user, service=request.user, groups=groups)

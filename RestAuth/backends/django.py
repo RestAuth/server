@@ -65,12 +65,6 @@ class DjangoBackend(BackendBase):
     def atomic(self, dry=False):
         return DjangoTransactionManager(dry=dry, using=self.db)
 
-    def get(self, username):
-        try:
-            return User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise UserNotFound(username)
-
     def create_user(self, username, password=None, properties=None, groups=None, dry=False):
         with self.atomic(dry=dry):
             try:

@@ -315,7 +315,7 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
             load_hashers()
             resp = self.post('/users/%s/' % username1, {'password': password1, })
             self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-            u = backend.get(username=username1)
+            u = backend._user(username=username1)
             self.assertTrue(u.password.startswith('pbkdf2_sha256$'))
 
     def test_verify_disabled_password(self):

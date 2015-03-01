@@ -34,7 +34,6 @@ from Services.models import check_service_username
 from Users.validators import validate_username
 from backends import backend
 from common.errors import UserExists
-from common.errors import UserNotFound
 
 
 PASSWORD_CHARS = string.digits + string.ascii_letters + string.punctuation
@@ -77,17 +76,14 @@ class UsernameAction(Action):
 
             try:
                 validate_username(username)
-                user = backend.create_user(username=username)
+                backend.create_user(username=username)
             except UserExists:
                 raise ArgumentError(self, 'User already exists.')
             except PreconditionFailed as e:
                 raise ArgumentError(self, e)
-        else:
-            try:
-                user = backend.get(username=username)
-            except UserNotFound:
-                raise ArgumentError(self, 'User does not exist.')
-        setattr(namespace, self.dest, user)
+        elif not backend.user_exists(username=username):
+            raise ArgumentError(self, 'User does not exist.')
+        setattr(namespace, self.dest, username)
 
 
 class PasswordGeneratorAction(Action):

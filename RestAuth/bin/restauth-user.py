@@ -61,7 +61,7 @@ def main(args=None):
         if args.password_generated:
             print(args.pwd)
 
-        backend.set_password(args.user.username, password)
+        backend.set_password(args.user, password)
     elif args.action in ['ls', 'list']:
         for username in sorted(backend.list_users()):
             if six.PY3:  # pragma: py3
@@ -71,7 +71,7 @@ def main(args=None):
     elif args.action == 'verify':
         if not args.pwd:  # pragma: no cover
             args.pwd = getpass.getpass('password: ')
-        if backend.check_password(args.user.username, args.pwd):
+        if backend.check_password(args.user, args.pwd):
             print('Ok.')
         else:
             print('Failed.')
@@ -81,9 +81,9 @@ def main(args=None):
         if args.password_generated:
             print(args.pwd)
 
-        backend.set_password(args.user.username, args.pwd)
+        backend.set_password(args.user, args.pwd)
     elif args.action == 'view':
-        props = backend.list_properties(args.user.username)
+        props = backend.list_properties(args.user)
 
         if 'date joined' in props:
             print('Joined: %s' % props['date joined'])
@@ -92,17 +92,17 @@ def main(args=None):
             print('Last login: %s' % props['last login'])
 
         if args.service:
-            groups = backend.list_groups(service=args.service, username=args.user.username)
+            groups = backend.list_groups(service=args.service, username=args.user)
             if groups:
                 print('Groups: %s' % ', '.join(sorted(groups)))
             else:
                 print('No groups.')
         else:
             groups = {}
-            none_groups = backend.list_groups(service=None, username=args.user.username)
+            none_groups = backend.list_groups(service=None, username=args.user)
 
             for service in Service.objects.all():
-                subgroups = backend.list_groups(service=service, username=args.user.username)
+                subgroups = backend.list_groups(service=service, username=args.user)
                 if subgroups:
                     groups[service.username] = subgroups
 
@@ -117,11 +117,11 @@ def main(args=None):
                 print('No groups.')
     elif args.action == 'rename':
         try:
-            backend.rename_user(args.user.username, args.name)
+            backend.rename_user(args.user, args.name)
         except UserExists as e:
             parser.error("%s: %s" % (args.name if six.PY3 else args.name.decode('utf-8'), e))
     elif args.action in ['delete', 'rm', 'remove']:  # pragma: no branch
-        backend.remove_user(args.user.username)
+        backend.remove_user(args.user)
 
 if __name__ == '__main__':  # pragma: no cover
     main()
