@@ -270,9 +270,7 @@ class DjangoBackend(BackendBase):
         group = self._group(group, service, 'id')
         subgroups = [self._group(name, subservice, 'id') for name in subgroups]
 
-        # TODO: perhaps we can do filter().clear() instead?
-        pks = group.groups.filter(service=service).values_list('pk', flat=True)
-        group.groups.remove(*pks)
+        group.groups.filter(service=service).clear()
         group.groups.add(*subgroups)
 
     def is_subgroup(self, group, service, subgroup, subservice):

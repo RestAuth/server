@@ -923,7 +923,8 @@ class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
             backend.subgroups(group=groupname1, service=self.service, filter=False), [])
 
         # establich a cross-service relation, try to overwrite it:
-        backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname4, subservice=self.service2)
+        backend.add_subgroup(group=groupname1, service=self.service,
+                             subgroup=groupname4, subservice=self.service2)
         resp = self.put('/groups/%s/groups/' % groupname1, {'groups': [groupname2]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(
@@ -931,7 +932,8 @@ class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
             [(groupname2, self.service), (groupname4, self.service2)])
 
     def test_bad_request(self):
-        backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname4, subservice=self.service2)
+        backend.add_subgroup(group=groupname1, service=self.service,
+                             subgroup=groupname4, subservice=self.service2)
         resp = self.put('/groups/%s/groups/' % groupname1, {'foo': [groupname2]})
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
 
