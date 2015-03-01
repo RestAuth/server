@@ -73,7 +73,8 @@ class BackendBase(object):  # pragma: no cover
         shouldn't actually create the user.
 
         The ``groups`` parameter is a list of tuples with the first element being the name of the
-        group and the second element being the service of that group.
+        group and the second element being the service of that group. Groups that do not exist
+        should be automatically created.
 
         Example::
 
@@ -99,10 +100,7 @@ class BackendBase(object):  # pragma: no cover
         raise NotImplementedError
 
     def list_users(self):
-        """Get a list of all usernames.
-
-        Each element of the returned list should be a valid username that can
-        be passed to :py:meth:`~.UserBackend.get`.
+        """Get a list of all users.
 
         :return: A list of usernames.
         :rtype: list
