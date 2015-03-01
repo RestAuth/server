@@ -27,6 +27,7 @@ from django.utils import six
 
 from RestAuthCommon.error import PreconditionFailed
 from RestAuthCommon.strprep import stringcheck
+from RestAuthCommon.strprep import stringprep
 
 from Services.models import Service
 from Services.models import ServiceUsernameNotValid
@@ -64,26 +65,26 @@ class ServiceAction(Action):
 
 class UsernameAction(Action):
     def __call__(self, parser, namespace, value, option_string):
-        username = value.lower()
         if not six.PY3:  # pragma: no branch, pragma: py2
-            username = username.decode('utf-8')
+            value = value.decode('utf-8')
+        user = stringprep(value)
 
         if namespace.create_user:
             try:
-                username = stringcheck(username)
+                user = stringcheck(user)
             except PreconditionFailed:
                 raise ArgumentError(self, "Username contains invalid characters")
 
             try:
-                validate_username(username)
-                backend.create_user(username=username)
+                validate_username(user)
+                backend.create_user(user=user)
             except UserExists:
                 raise ArgumentError(self, 'User already exists.')
             except PreconditionFailed as e:
                 raise ArgumentError(self, e)
-        elif not backend.user_exists(username=username):
+        elif not backend.user_exists(username=user):
             raise ArgumentError(self, 'User does not exist.')
-        setattr(namespace, self.dest, username)
+        setattr(namespace, self.dest, user)
 
 
 class PasswordGeneratorAction(Action):

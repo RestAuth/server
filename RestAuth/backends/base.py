@@ -60,10 +60,10 @@ class BackendBase(object):  # pragma: no cover
         """
         pass
 
-    def create_user(self, username, password=None, properties=None, groups=None, dry=False):
+    def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         """Create a new user.
 
-        The ``username`` is already validated, so you don't need to do any additional validation
+        The ``user`` is already validated, so you don't need to do any additional validation
         here. If your backend has username restrictions, please implement a :ref:`username
         validator <implement-validators>`.
 
@@ -72,8 +72,18 @@ class BackendBase(object):  # pragma: no cover
         dry-run, the method should behave as closely as possible to a normal invocation but
         shouldn't actually create the user.
 
-        :param   username: The username.
-        :type    username: str
+        The ``groups`` parameter is a list of tuples with the first element being the name of the
+        group and the second element being the service of that group.
+
+        Example::
+
+            create_user('username', 'password', {'email': 'user@example.com'},
+                        groups=[('subgroup1', <Service: example.com>),
+                                ('subgroup2', <Service: example.net>)]
+            )
+
+        :param   user: The username.
+        :type    user: str
         :param   password: The password to set. If not given, the user should not have a valid
             password and is unable to log in.
         :type    password: str
@@ -84,7 +94,6 @@ class BackendBase(object):  # pragma: no cover
         :param        dry: Wether or not to actually create the user.
         :type         dry: boolean
         :return: A user object providing at least the properties of the UserInstance class.
-        :rtype: :py:class:`~.UserInstance`
         :raise: :py:class:`~common.errors.UserExists` if the user already exist.
         """
         raise NotImplementedError

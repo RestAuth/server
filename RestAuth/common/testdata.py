@@ -145,7 +145,7 @@ class RestAuthTestBase(object):
         return func(body)
 
     def create_user(self, username, password=None):
-        backend.create_user(username=username, password=password, properties={
+        backend.create_user(user=username, password=password, properties={
             'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         })
 

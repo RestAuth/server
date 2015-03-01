@@ -71,10 +71,10 @@ class DjangoBackend(BackendBase):
     def atomic(self, dry=False):
         return DjangoTransactionManager(dry=dry, using=self.db)
 
-    def create_user(self, username, password=None, properties=None, groups=None, dry=False):
+    def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         with self.atomic(dry=dry):
             try:
-                user = User(username=username)
+                user = User(username=user)
                 user.set_password(password)
                 if password is not None and password != '':
                     user.set_password(password)

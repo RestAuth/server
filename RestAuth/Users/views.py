@@ -103,7 +103,7 @@ class UsersView(RestAuthView):
             groups = [(stringcheck(g), request.user) for g in groups]
 
         # If UserExists: 409 Conflict
-        backend.create_user(username=name, password=password, properties=properties, groups=groups,
+        backend.create_user(user=name, password=password, properties=properties, groups=groups,
                             dry=dry)
         self.log.info('%s: Created user', name, extra=largs)
 
