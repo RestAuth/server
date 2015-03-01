@@ -61,7 +61,7 @@ def main(args=None):
         if args.password_generated:
             print(args.pwd)
 
-        backend.set_password(args.user, password)
+        backend.set_password(user=args.user, password=password)
     elif args.action in ['ls', 'list']:
         for username in sorted(backend.list_users()):
             if six.PY3:  # pragma: py3
@@ -71,7 +71,7 @@ def main(args=None):
     elif args.action == 'verify':
         if not args.pwd:  # pragma: no cover
             args.pwd = getpass.getpass('password: ')
-        if backend.check_password(args.user, args.pwd):
+        if backend.check_password(user=args.user, password=args.pwd):
             print('Ok.')
         else:
             print('Failed.')
@@ -81,7 +81,7 @@ def main(args=None):
         if args.password_generated:
             print(args.pwd)
 
-        backend.set_password(args.user, args.pwd)
+        backend.set_password(user=args.user, password=args.pwd)
     elif args.action == 'view':
         props = backend.list_properties(args.user)
 

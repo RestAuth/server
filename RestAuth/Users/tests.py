@@ -753,7 +753,7 @@ class HashTestMixin(RestAuthTestBase):
             backend.create_user(user=username1, password=password)
             user = backend._user(username1, 'password')
             self.assertTrue(user.password.startswith('%s$' % self.algorithm))
-            self.assertTrue(backend.check_password(username1, password))
+            self.assertTrue(backend.check_password(user=username1, password=password))
 
             backend.remove_user(username=username1)
 
@@ -761,9 +761,9 @@ class HashTestMixin(RestAuthTestBase):
         for password, data in six.iteritems(self.testdata):
             backend.create_user(user=username1)
             user = backend._user(username1, 'password')
-            backend.set_password(username=username1, password=password)
-            self.assertTrue(backend.check_password(username1, password))
-            self.assertTrue(backend.check_password(username1, password))
+            backend.set_password(user=username1, password=password)
+            self.assertTrue(backend.check_password(user=username1, password=password))
+            self.assertTrue(backend.check_password(user=username1, password=password))
 
             user = backend._user(username1, 'password')
             self.assertTrue(user.password.startswith('%s$' % self.algorithm))
@@ -853,8 +853,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
         self.assertCountEqual(backend.list_users(), [username1])
-        self.assertTrue(backend.check_password(username1, password1))
-        self.assertFalse(backend.check_password(username1, password2))
+        self.assertTrue(backend.check_password(user=username1, password=password1))
+        self.assertFalse(backend.check_password(user=username1, password=password2))
 
         # create anotheruser with a generated password:
         gen_password = None
@@ -865,7 +865,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
         self.assertCountEqual(backend.list_users(), [username1, username2])
-        self.assertTrue(backend.check_password(username2, gen_password))
+        self.assertTrue(backend.check_password(user=username2, password=gen_password))
 
     def test_add_exists(self):
         self.create_user(username1, password1)
@@ -980,8 +980,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         frm = username1 if six.PY3 else username1.encode('utf-8')
         with capture() as (stdout, stderr):
             restauth_user(['set-password', '--password', password2, frm])
-            self.assertFalse(backend.check_password(username1, password1))
-            self.assertTrue(backend.check_password(username1, password2))
+            self.assertFalse(backend.check_password(user=username1, password=password1))
+            self.assertTrue(backend.check_password(user=username1, password=password2))
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
 
@@ -989,15 +989,15 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         with capture() as (stdout, stderr):
             restauth_user(['set-password', '--gen-password', frm])
             stdout, stderr = self.decode(stdout, stderr)
-            self.assertFalse(backend.check_password(username1, password1))
-            self.assertFalse(backend.check_password(username1, password2))
-            self.assertTrue(backend.check_password(username1, stdout.strip()))
+            self.assertFalse(backend.check_password(user=username1, password=password1))
+            self.assertFalse(backend.check_password(user=username1, password=password2))
+            self.assertTrue(backend.check_password(user=username1, password=stdout.strip()))
 
         # invalid password
         with capture() as (stdout, stderr):
             restauth_user(['set-password', '--password', 'a', frm])
-            self.assertFalse(backend.check_password(username1, password1))
-            self.assertFalse(backend.check_password(username1, password2))
+            self.assertFalse(backend.check_password(user=username1, password=password1))
+            self.assertFalse(backend.check_password(user=username1, password=password2))
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
 

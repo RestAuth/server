@@ -143,7 +143,7 @@ class UserHandlerView(RestAuthResourceView):
         if groups is not None:
             groups = [(group, request.user) for group in groups]
 
-        if backend.check_password(username=name, password=password, groups=groups):
+        if backend.check_password(user=name, password=password, groups=groups):
             return HttpResponseNoContent()
         else:
             raise UserNotFound(name)
@@ -163,7 +163,7 @@ class UserHandlerView(RestAuthResourceView):
             password = None
 
         # If UserNotFound: 404 Not Found
-        backend.set_password(username=name, password=password)
+        backend.set_password(user=name, password=password)
         return HttpResponseNoContent()
 
     def delete(self, request, largs, name):

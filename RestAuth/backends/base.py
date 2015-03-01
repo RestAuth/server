@@ -131,14 +131,14 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def check_password(self, username, password, groups=None):
+    def check_password(self, user, password, groups=None):
         """Check a users password.
 
         If the ``groups`` parameter is given, the backend should also check if the user is a member
         in at least one of the given groups.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The username.
+        :type  user: str
         :param password: The password to check.
         :type  password: str
         :param groups: A list of groups, the format is the same as in :py:func:`create_user`.
@@ -150,11 +150,11 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_password(self, username, password=None):
+    def set_password(self, user, password=None):
         """Set a new password.
 
-        :param username: The username.
-        :type  username: str
+        :param user: The username.
+        :type  user: str
         :param password: The new password. If None or empty, the user should get an unusable
             password.
         :type  password: str
