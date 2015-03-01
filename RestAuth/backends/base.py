@@ -452,7 +452,8 @@ class BackendBase(object):  # pragma: no cover
         :param  user: The user to remove.
         :type   user: str
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        :raise: :py:class:`~common.errors.UserNotFound` if the named user does not exist.
+        :raise: :py:class:`~common.errors.UserNotFound` if the named user does not exist or is not
+            a member.
         """
         raise NotImplementedError
 
