@@ -108,11 +108,20 @@ class DjangoBackend(BackendBase):
         except IntegrityError:
             raise UserExists("User already exists.")
 
-    def check_password(self, username, password):
-        return self._user(username, 'password').check_password(password)
+    def check_password(self, username, password, groups=None):
+        if not self._user(username, 'password').check_password(password):
+            return False  # return fast if password is incorrect.
+        if groups is None:
+            return True  # if no groups are given, we're ok.
+
+        # TODO: this could be faster.
+        for group, service in groups:
+            if self.is_member(group=group, service=service, user=username):
+                return True
+        return False
 
     def set_password(self, username, password=None):
-        user = self._user(username, 'id')
+        user = self._user(username, 'id', 'password')
 
         if password is not None and password != '':
             user.set_password(password)

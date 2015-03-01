@@ -140,13 +140,10 @@ class UserHandlerView(RestAuthResourceView):
 
         # If BadRequest: 400 Bad Request
         password, groups = self._parse_post(request)
+        if groups is not None:
+            groups = [(group, request.user) for group in groups]
 
-        if backend.check_password(username=name, password=password):
-            if groups:
-                # If GroupNotFound: 404 Not Found
-                memberships = set(backend.list_groups(service=request.user, username=name))
-                if not memberships.intersection(set(groups)):
-                    raise UserNotFound(name)
+        if backend.check_password(username=name, password=password, groups=groups):
             return HttpResponseNoContent()
         else:
             raise UserNotFound(name)
