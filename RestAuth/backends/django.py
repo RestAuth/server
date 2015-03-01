@@ -164,7 +164,7 @@ class DjangoBackend(BackendBase):
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def set_property(self, user, key, value, dry=False):
+    def set_property(self, user, key, value):
         user = self._user(user, 'id')
         prop, old_value = user.set_property(key, value)
         return old_value
@@ -181,7 +181,7 @@ class DjangoBackend(BackendBase):
         except Property.DoesNotExist:
             raise PropertyNotFound(key)
 
-    def list_groups(self, service=None, user=None):
+    def list_groups(self, service, user=None):
         if user is None:
             groups = Group.objects.filter(service=service)
         else:
