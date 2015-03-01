@@ -15,6 +15,7 @@
 
 from __future__ import unicode_literals
 
+import inspect
 import os
 import re
 
@@ -35,6 +36,7 @@ from Users.validators import get_validators
 from Users.validators import load_username_validators
 from Users.validators import validate_username
 from backends import backend
+from backends.base import BackendBase
 from common.content_handlers import get_handler
 from common.content_handlers import load_handlers
 from common.errors import UsernameInvalid
@@ -131,6 +133,18 @@ class ContentHandlerTests(RestAuthTest):
 
     def test_get_wrong_handler(self):
         self.assertRaises(ValueError, get_handler, 'foo/bar')
+
+
+class BackendInterfaceTest(RestAuthTest):
+    def test_interface(self):
+        for name, base_func in inspect.getmembers(BackendBase, callable):
+            if name.startswith('_'):
+                continue
+            self.assertEqual(
+                inspect.getargspec(base_func),
+                inspect.getargspec(getattr(backend, name)),
+                "%s has a different signature" % name
+            )
 
 validators = (
     'Users.validators.EmailValidator',
