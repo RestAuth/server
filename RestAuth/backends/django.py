@@ -62,6 +62,12 @@ class DjangoBackend(BackendBase):
         except User.DoesNotExist:
             raise UserNotFound(username)
 
+    def _group(self, name, service, *fields):
+        try:
+            return Group.objects.only(*fields).get(name=name, service=service)
+        except Group.DoesNotExist:
+            raise GroupNotFound(name)
+
     def atomic(self, dry=False):
         return DjangoTransactionManager(dry=dry, using=self.db)
 
@@ -206,21 +212,17 @@ class DjangoBackend(BackendBase):
 
     def rename_group(self, name, new_name, service=None):
         try:
-            group = Group.objects.get(name=name, service=service)
+            group = self._group(name, service, 'id')
             group.name = new_name
             group.save()
-        except Group.DoesNotExist:
-            raise GroupNotFound(name)
         except IntegrityError:
             raise GroupExists(new_name)
 
     def set_group_service(self, name, service=None, new_service=None):
         try:
-            group = Group.objects.get(name=name, service=service)
+            group = self._group(name, service, 'id')
             group.service = new_service
             group.save()
-        except Group.DoesNotExist:
-            raise GroupNotFound(name)
         except IntegrityError:
             raise GroupExists(name)
 
@@ -228,60 +230,33 @@ class DjangoBackend(BackendBase):
         return Group.objects.filter(name=name, service=service).exists()
 
     def set_groups_for_user(self, user, service, groups):
-        try:
-            user = User.objects.get(username=user)
-        except User.DoesNotExist:
-            raise UserNotFound(user)
-
+        user = self._user(user, 'id')
         user.group_set.filter(service=service).delete()  # clear existing groups
         groups = [Group.objects.get_or_create(service=service, name=name)[0] for name in groups]
         user.group_set.add(*groups)
 
     def set_users_for_group(self, group, service, users):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-            users = [User.objects.only('id').get(username=u) for u in users]
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
-        except User.DoesNotExist:
-            raise UserNotFound()
-
+        group = self._group(group, service, 'id')
+        users = [self._user(u, 'id') for u in users]
         group.users.clear()
         group.users.add(*users)
 
     def add_user(self, group, service, user):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-            user = User.objects.only('id').get(username=user)
-            group.users.add(user)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
-        except User.DoesNotExist:
-            raise UserNotFound()
+        group = self._group(group, service, 'id')
+        user = self._user(user, 'id')
+        group.users.add(user)
 
     def members(self, group, service, depth=None):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
+        group = self._group(group, service, 'id')
         return list(group.get_members(depth=depth).values_list('username', flat=True))
 
     def is_member(self, group, service, user):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
-
+        group = self._group(group, service, 'id')
         return group.is_member(user)
 
     def rm_user(self, group, service, user):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-            user = User.objects.only('id').get(username=user)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
-        except User.DoesNotExist:
-            raise UserNotFound(user)
+        group = self._group(group, service, 'id')
+        user = self._user(user, 'id')
 
         if group.is_member(user):
             group.users.remove(user)
@@ -289,46 +264,26 @@ class DjangoBackend(BackendBase):
             raise UserNotFound(user.username)  # 404 Not Found
 
     def add_subgroup(self, group, service, subgroup, subservice):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
-        try:
-            subgroup = Group.objects.only('id').get(name=subgroup, service=subservice)
-        except Group.DoesNotExist:
-            raise GroupNotFound(subgroup)
-
+        group = self._group(group, service, 'id')
+        subgroup = self._group(subgroup, subservice, 'id')
         group.groups.add(subgroup)
 
     def set_subgroups(self, group, service, subgroups, subservice):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-            subgroups = [Group.objects.only('id').get(name=name, service=service)
-                         for name in subgroups]
-        except Group.DoesNotExist:
-            raise GroupNotFound()
+        group = self._group(group, service, 'id')
+        subgroups = [self._group(name, subservice, 'id') for name in subgroups]
 
+        # TODO: perhaps we can do filter().clear() instead?
         pks = group.groups.filter(service=service).values_list('pk', flat=True)
         group.groups.remove(*pks)
         group.groups.add(*subgroups)
 
     def is_subgroup(self, group, service, subgroup, subservice):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
-        try:
-            subgroup = Group.objects.only('id').get(name=subgroup, service=subservice)
-        except Group.DoesNotExist:
-            raise GroupNotFound(subgroup)
-
-        return group.groups.filter(pk=subgroup.pk).exists()
+        group = self._group(group, service, 'id')
+        subgroup = self._group(subgroup, subservice, 'id')
+        return group.groups.filter(pk=subgroup.id).exists()
 
     def rm_subgroup(self, group, service, subgroup, subservice):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
+        group = self._group(group, service, 'id')
         try:
             subgroup = group.groups.get(name=subgroup, service=subservice)
         except Group.DoesNotExist:
@@ -337,10 +292,7 @@ class DjangoBackend(BackendBase):
         group.groups.remove(subgroup)
 
     def subgroups(self, group, service, filter=True):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
+        group = self._group(group, service, 'id')
 
         if filter:
             qs = group.groups.filter(service=service)
@@ -350,17 +302,11 @@ class DjangoBackend(BackendBase):
             return [(g.name, g.service) for g in group.groups.all()]
 
     def parents(self, group, service):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
+        group = self._group(group, service, 'id')
 
         #TODO: select_related might be useful?
         return [(g.name, g.service) for g in group.parent_groups.all()]
 
     def remove_group(self, group, service):
-        try:
-            group = Group.objects.only('id').get(name=group, service=service)
-        except Group.DoesNotExist:
-            raise GroupNotFound(group)
+        group = self._group(group, service, 'id')
         group.delete()
