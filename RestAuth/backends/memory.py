@@ -16,13 +16,11 @@
 from __future__ import unicode_literals, absolute_import
 
 from collections import defaultdict
-from datetime import datetime
 
 from django.conf import settings
 from django.utils import six
 
-from backends.base import GroupInstance
-from backends.base import UserInstance
+from backends.base import BackendBase
 from common.errors import GroupExists
 from common.errors import GroupNotFound
 from common.errors import PropertyExists
@@ -31,265 +29,320 @@ from common.errors import UserExists
 from common.errors import UserNotFound
 
 
-class MemoryUserInstance(UserInstance):
-    def __init__(self, id, username, password=None):
-        super(MemoryUserInstance, self).__init__(id, username)
-        self.password = password
+class MemoryBackend(BackendBase):
+    def __init__(self):
+        self._users = {}
+        self._groups = defaultdict(dict)
 
+    def testSetUp(self):
+        self._users = {}
+        self._groups = defaultdict(dict)
 
-class MemoryGroupInstance(GroupInstance):
-    def __init__(self, id, name, service):
-        super(MemoryGroupInstance, self).__init__(id, name, service)
-        self._members = set()
-        self.parents = set()
-        self.children = set()
+    def testTearDown(self):
+        self._users = {}
+        self._groups = defaultdict(dict)
 
-    def add_user(self, user):
-        self._members.add(user.username)
+    def create_user(self, user, password=None, properties=None, groups=None, dry=False):
+        if user in self._users:
+            raise UserExists(user)
+        if dry is False:
+            self._users[user] = {
+                'password': password or None,
+                'properties': properties or {},
+            }
+            if groups is not None:
+                for group, service in groups:
+                    # auto-create groups
+                    if self.group_exists(group=group, service=service):
+                        self.add_member(group=group, service=service, user=user)
+                    else:
+                        self.create_group(group=group, service=service, users=[user])
 
-    def rm_user(self, user):
+    def list_users(self):
+        return self._users.keys()
+
+    def user_exists(self, user):
+        return user in self._users
+
+    def rename_user(self, user, name):
+        if name in self._users:
+            raise UserExists(name)
+
         try:
-            self._members.remove(user.username)
+            self._users[name] = self._users.pop(user)
         except KeyError:
-            raise UserNotFound(user.username)
+            raise UserNotFound(user)
 
-    def members(self, depth=None):
-        users = self._members.copy()
-        if depth == 0:
-            return users
+    def check_password(self, user, password, groups=None):
+        try:
+            stored = self._users[user]['password']
+        except KeyError:
+            raise UserNotFound(user)
 
+        if not password or stored != password:
+            return False
+
+        if groups is None:
+            return True
+        for group, service in groups:
+            if self.is_member(group, service, user):
+                return True
+        return False
+
+    def set_password(self, user, password=None):
+        try:
+            self._users[user]['password'] = password or None
+        except KeyError:
+            raise UserNotFound(user)
+
+    def set_password_hash(self, user, algorithm, hash):
+        # TODO
+        raise NotImplementedError
+
+    def remove_user(self, user):
+        try:
+            del self._users[user]
+        except KeyError:
+            raise UserNotFound(user)
+
+    def list_properties(self, user):
+        try:
+            return self._users[user]['properties'].copy()
+        except KeyError:
+            raise UserNotFound(user)
+
+    def create_property(self, user, key, value, dry=False):
+        try:
+            properties = self._users[user]['properties']
+        except KeyError:
+            raise UserNotFound(user)
+
+        if key in properties:
+            raise PropertyExists(key)
+
+        if dry is False:  # TODO: can we use properties variable instead?
+            self._users[user]['properties'][key] = value
+
+    def get_property(self, user, key):
+        try:
+            properties = self._users[user]['properties']
+        except KeyError:
+            raise UserNotFound(user)
+        try:
+            return properties[key]
+        except KeyError:
+            raise PropertyNotFound(key)
+
+    def set_property(self, user, key, value):
+        try:
+            properties = self._users[user]['properties']
+        except KeyError:
+            raise UserNotFound(user)
+
+        old_value = properties.get(key)
+        properties[key] = value
+        return old_value
+
+    def set_properties(self, user, properties):
+        try:
+            existing_properties = self._users[user]['properties']
+        except KeyError:
+            raise UserNotFound(user)
+
+        existing_properties.update(properties)
+
+    def remove_property(self, user, key):
+        try:
+            properties = self._users[user]['properties']
+        except KeyError:
+            raise UserNotFound(user)
+
+        try:
+            del properties[key]
+        except KeyError:
+            raise PropertyNotFound(key)
+
+    def list_groups(self, service, user=None):
+        if user is None:
+            return self._groups[service].keys()
+        elif user not in self._users:
+            raise UserNotFound(user)
+        else:
+            return [k for k, v in six.iteritems(self._groups[service])
+                    if self.is_member(k, service, user)]
+
+    def create_group(self, group, service=None, users=None, dry=False):
+        if group in self._groups[service]:
+            raise GroupExists(group)
+        if users is not None and not set(self._users.keys()) >= set(users):
+            raise UserNotFound()
+
+        if dry is False:
+            self._groups[service][group] = {
+                'users': set(users) if users else set(),
+                'meta-groups': set(),
+                'sub-groups': set(),
+            }
+
+    def rename_group(self, group, name, service=None):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        elif name in self._groups[service]:
+            raise GroupExists(group)
+
+        self._groups[service][name] = self._groups[service].pop(group)
+
+    def set_group_service(self, group, service=None, new_service=None):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        if group not in self._groups[new_service]:
+            raise GroupExists(group)
+
+        self._groups[new_service][group] = self._groups[service].pop(group)
+
+    def group_exists(self, group, service=None):  #TODO: service should not be optional!
+        return group in self._groups[service]
+
+    def set_memberships(self, user, service, groups):
+        if user not in self._users:
+            raise UserNotFound(user)
+
+        # delete existing memberships
+        for group in self._groups[service]:
+            if user in self._groups[service][group]['users']:
+                self._groups[service][group]['users'].remove(user)
+
+        # set new memberships
+        for group in groups:
+            if self.group_exists(group=group, service=service):
+                self.add_member(group=group, service=service, user=user)
+            else:
+                self.create_group(group=group, service=service, users=[user])
+
+    def set_members(self, group, service, users):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        for user in filter(lambda u: u not in self._users, users):
+            raise UserNotFound(user)
+
+        self._groups[service][group]['users'] = set(users)
+
+    def add_member(self, group, service, user):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        if user not in self._users:
+            raise UserNotFound(user)
+        self._groups[service][group]['users'].add(user)
+
+    def _members(self, group, service, depth, max_depth):
+        members = set(self._groups[service][group]['users'])
+        if depth < max_depth:
+            for meta_group, meta_service in self._groups[service][group]['meta-groups']:
+                members |= self._members(meta_group, meta_service,
+                                         depth=depth + 1, max_depth=max_depth)
+
+        return members
+
+    def members(self, group, service, depth=None):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
         if depth is None:
             depth = settings.GROUP_RECURSION_DEPTH
 
-        for parent in self.parents:
-            users |= parent.members(depth=depth - 1)
-        return users
+        members = set(self._groups[service][group]['users'])
 
-    def is_member(self, user):
-        return user.username in self.members()
+        if depth > 0:
+            for meta_group, meta_service in self._groups[service][group]['meta-groups']:
+                members |= self._members(meta_group, meta_service, depth=1, max_depth=depth)
 
-    def subgroups(self, filter=True):
-        if filter:
-            return [g for g in self.children if g.service == self.service]
+        return list(members)
+
+    def _is_member(self, group, service, user, depth=0):
+        if user in self._groups[service][group]['users']:
+            return True
+
+        if depth <= settings.GROUP_RECURSION_DEPTH:
+            for meta_group, meta_service in self._groups[service][group]['meta-groups']:
+                if self._is_member(group=meta_group, service=meta_service, user=user, depth=depth + 1):
+                    return True
+        return False
+
+    def is_member(self, group, service, user):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+
+        return self._is_member(group, service, user)
+
+    def remove_member(self, group, service, user):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        try:
+            self._groups[service][group]['users'].remove(user)
+        except KeyError:
+            raise UserNotFound(user)
+
+    def add_subgroup(self, group, service, subgroup, subservice):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        if subgroup not in self._groups[subservice]:
+            raise GroupNotFound(subgroup)
+
+        self._groups[service][group]['sub-groups'].add((subgroup, subservice))
+        self._groups[subservice][subgroup]['meta-groups'].add((group, service))
+
+    def set_subgroups(self, group, service, subgroups, subservice):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        for subgroup in filter(lambda g: g not in self._groups[subservice], subgroups):
+            raise GroupNotFound(subgroup)
+
+        # clear any existing sub-groups from the same service
+        for current_subgroup, current_subservice in filter(
+                lambda t: t[1] == service, self._groups[service][group]['sub-groups']):
+            self._groups[current_subservice][current_subgroup]['meta-groups'].remove((group, service))
+        cleared = [(g, s) for g, s in self._groups[service][group]['sub-groups'] if s != service]
+        self._groups[service][group]['sub-groups'] = set(cleared)
+
+        # add bi-directional relationship
+        for subgroup in subgroups:
+            self._groups[subservice][subgroup]['meta-groups'].add((group, service))
+
+        # we update s because there might be left-over subgroups from a different service
+        self._groups[service][group]['sub-groups'] |= set([(subgroup, subservice) for subgroup in subgroups])
+
+    def is_subgroup(self, group, service, subgroup, subservice):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+
+        return (subgroup, subservice) in self._groups[service][group]['sub-groups']
+
+    def remove_subgroup(self, group, service, subgroup, subservice):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        if subgroup not in self._groups[subservice]:
+            raise GroupNotFound(subgroup)
+
+        try:
+            self._groups[service][group]['sub-groups'].remove((subgroup, subservice))
+            self._groups[service][subgroup]['meta-groups'].remove((group, service))
+        except KeyError:
+            raise GroupNotFound(subgroup)
+
+    def subgroups(self, group, service, filter=True):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        if filter is True:
+            return [g for g, s in self._groups[service][group]['sub-groups'] if s == service]
         else:
-            return self.children.copy()
+            return list(self._groups[service][group]['sub-groups'])
 
-    def add_subgroup(self, subgroup):
-        subgroup.parents.add(self)
-        self.children.add(subgroup)
+    def parents(self, group, service):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
+        return list(self._groups[service][group]['meta-groups'])
 
-    def rm_subgroup(self, subgroup):
-        try:
-            self.children.remove(subgroup)
-            subgroup.parents.remove(self)
-        except KeyError:
-            raise GroupNotFound(subgroup.name)
+    def remove_group(self, group, service):
+        if group not in self._groups[service]:
+            raise GroupNotFound(group)
 
-    def __eq__(self, other):
-        return self.service == other.service and self.name == other.name
-
-
-class MemoryUserBackend(object):
-    """Dummy backend that stores all users in memory (for debugging purposes).
-
-    Please note the obvious: This backend should *never be used in a production environment*. Any
-    restart of the server software will completely wipe all data.
-    """
-
-    def __init__(self):
-        self._users = {}
-
-    def get(self, username):
-        try:
-            return self._users[username]
-        except KeyError:
-            raise UserNotFound(username)
-
-    def list(self):
-        return six.iterkeys(self._users)
-
-    def create(self, username, password=None, properties=None, dry=False, transaction=True):
-        if username in self._users:
-            raise UserExists(username)
-
-        user_id = id(username)
-        user = MemoryUserInstance(user_id, username, password)
-
-        if properties is None:
-            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            properties = {'date joined': stamp}
-        elif 'date joined' not in properties:
-            stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            properties['date joined'] = stamp
-
-        self.property_backend.set_multiple(user, properties, dry=dry, transaction=transaction)
-
-        if not dry:
-            self._users[username] = user
-        return user
-
-    def exists(self, username):
-        return username in self._users
-
-    def check_password(self, username, password):
-        try:
-            user = self._users[username]
-            if user.password is None or user.password == '':
-                return False
-            return user.password == password
-        except KeyError:
-            raise UserNotFound(username)
-
-    def set_password(self, username, password=None):
-        try:
-            self._users[username].password = password
-        except KeyError:
-            raise UserNotFound(username)
-
-    def remove(self, username):
-        try:
-            del self._users[username]
-        except KeyError:
-            raise UserNotFound(username)
-
-    def testSetUp(self):
-        pass
-
-    def testTearDown(self):
-        self._users = {}
-
-
-class MemoryPropertyBackend(object):
-    """Dummy backend that stores all properties in memory (for debugging).
-
-    Please note the obvious: This backend should *never be used in a production environment*. Any
-    restart of the server software will completely wipe all data.
-    """
-
-    def __init__(self):
-        self._properties = defaultdict(dict)
-
-    def list(self, user):
-        return dict(self._properties[user.username])
-
-    def create(self, user, key, value, dry=False):
-        name = user.username
-        if key in self._properties[name]:
-            raise PropertyExists(name)
-
-        if not dry:
-            self._properties[name][key] = value
-
-        return key, value
-
-    def get(self, user, key):
-        try:
-            return self._properties[user.username][key]
-        except KeyError:
-            raise PropertyNotFound(key)
-
-    def set(self, user, key, value, dry=False, transaction=True):
-        old = self._properties[user.username].get(key, None)
-        if not dry:
-            self._properties[user.username][key] = value
-        return key, old
-
-    def set_multiple(self, user, props, dry=False, transaction=True):
-        if not dry:
-            self._properties[user.username].update(props)
-
-    def remove(self, user, key):
-        try:
-            del self._properties[user.username][key]
-        except KeyError:
-            raise PropertyNotFound(key)
-
-    def testSetUp(self):
-        pass
-
-    def testTearDown(self):
-        self._properties = defaultdict(dict)
-
-
-class MemoryGroupBackend(object):
-    """Dummy backend that stores all groups in memory (for debugging).
-
-    Please note the obvious: This backend should *never be used in a production environment*. Any
-    restart of the server software will completely wipe all data.
-    """
-
-    def __init__(self):
-        self._groups = defaultdict(dict)
-
-    def get(self, name, service=None):
-        try:
-            return self._groups[self._service(service)][name]
-        except KeyError:
-            raise GroupNotFound(name)
-
-    def _service(self, service):
-        if service is None:
-            return service
-        else:
-            return service.id
-
-    def list(self, service, user=None):
-        if user is None:
-            return six.iterkeys(self._groups[self._service(service)])
-        else:
-            groups = self._groups[self._service(service)]
-            return [k for k, v in six.iteritems(groups) if v.is_member(user)]
-
-    def create(self, name, service=None, dry=False, transaction=True):
-        if name in self._groups[self._service(service)]:
-            raise GroupExists(name)
-        group = MemoryGroupInstance(service=service, id=id(name), name=name)
-
-        if not dry:
-            self._groups[self._service(service)][name] = group
-
-        return group
-
-    def exists(self, name, service=None):
-        return name in self._groups[self._service(service)]
-
-    def add_user(self, group, user):
-        self._groups[self._service(group.service)][group.name].add_user(user)
-
-    def members(self, group, depth=None):
-        return list(group.members(depth=depth))
-
-    def is_member(self, group, user):
-        return group.is_member(user)
-
-    def rm_user(self, group, user):
-        return group.rm_user(user)
-
-    def add_subgroup(self, group, subgroup):
-        group.add_subgroup(subgroup)
-
-    def subgroups(self, group, filter=True):
-        subgroups = group.subgroups(filter=filter)
-        if filter:
-            return [g.name for g in subgroups]
-        else:
-            return subgroups
-
-    def rm_subgroup(self, group, subgroup):
-        group.rm_subgroup(subgroup)
-
-    def remove(self, group):
-        service_id = self._service(group.service)
-        if group.name in self._groups[service_id]:
-            del self._groups[service_id][group.name]
-        else:
-            raise GroupNotFound(group.name)
-
-    def parents(self, group):
-        return list(group.parents)
-
-    def testSetUp(self):
-        pass
-
-    def testTearDown(self):
-        self._groups = defaultdict(dict)
+        del self._groups[service][group]
