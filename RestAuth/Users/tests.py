@@ -110,7 +110,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
 
         resp = self.post('/users/', {'user': username2, 'password': password2, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(self.get_usernames(), [username1, username2])
+        self.assertCountEqual(self.get_usernames(), [username1, username2])
         self.assertProperties(username2, {})
 
         self.assertPassword(username1, password1)
@@ -148,7 +148,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
 
         resp = self.post('/users/', {'user': username2, 'password': '', })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(self.get_usernames(), [username1, username2])
+        self.assertCountEqual(self.get_usernames(), [username1, username2])
         self.assertFalsePassword(username2, '')
         self.assertFalsePassword(username2, password1)
         self.assertFalsePassword(username2, password2)
@@ -202,7 +202,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         groups = [groupname1, groupname2]
         resp = self.post('/users/', {'user': username3, 'groups': [groupname1, groupname2]})
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(backend.list_groups(service=self.service, user=username3), groups)
+        self.assertCountEqual(backend.list_groups(service=self.service, user=username3), groups)
 
     def test_transactions(self):
         resp = self.post('/users/', {
