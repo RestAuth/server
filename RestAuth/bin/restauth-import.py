@@ -22,6 +22,7 @@ import json
 
 from collections import defaultdict
 from datetime import datetime
+from backends.django import DjangoTransactionManager
 from pkg_resources import DistributionNotFound
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
@@ -82,7 +83,7 @@ def save_services(services, args, parser):
             elif isinstance(pwd, dict):
                 service.password = import_hash(**pwd)
             else:
-                raise TypeError("'password' is neither string nor dictionary")
+                raise TypeError("'password' is neither string nor dictionary.")
             print('* %s: Set password from input data.' % name)
         elif args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=32)
@@ -127,7 +128,7 @@ def save_users(users, args, parser):
                     print('* %s: Hash of type "%s" is not supported, skipping.' %
                           (username, pwd['algorithm']))
             else:
-                raise TypeError("password is of type %s" % type(pwd).__name__)
+                raise TypeError("password is of type %s." % type(pwd).__name__)
         elif created and args.gen_passwords:
             raw_passwd = Service.objects.make_random_password(length=16)
             backend.set_password(user=username, password=raw_passwd)
@@ -220,22 +221,26 @@ def main(args=None):
     if not isinstance(groups, dict):
         parser.error("'groups' does not appear to be a dictionary.")
 
-    with backend.transaction(), transaction.atomic():
-        #######################
-        ### Import services ###
-        #######################
-        save_services(services, args, parser)
+    try:
+        with backend.transaction(), DjangoTransactionManager():
+            #######################
+            ### Import services ###
+            #######################
+            save_services(services, args, parser)
 
-        ####################
-        ### import users ###
-        ####################
-        props = save_users(users, args, parser)
-        save_properties(props, args, parser)
+            ####################
+            ### import users ###
+            ####################
+            props = save_users(users, args, parser)
+            save_properties(props, args, parser)
 
-        #####################
-        ### import groups ###
-        #####################
-        save_groups(groups, args, parser)  # pragma: no branch
+            #####################
+            ### import groups ###
+            #####################
+            save_groups(groups, args, parser)  # pragma: no branch
+    except Exception as e:
+        print("An error occured, rolling back transaction:", file=sys.stderr)
+        print("%s: %s" % (type(e).__name__, e), file=sys.stderr)
 
 if __name__ == '__main__':  # pragma: no cover
     main()
