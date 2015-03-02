@@ -103,7 +103,7 @@ class MemoryBackend(BackendBase):
             raise UserNotFound(user)
 
         def setter(raw_password):
-            self.set_password(raw_password)
+            self.set_password(user, raw_password)
 
         if not password or not check_password(password, stored, setter):
             return False
