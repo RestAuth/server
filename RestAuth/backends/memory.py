@@ -213,7 +213,7 @@ class MemoryBackend(BackendBase):
     def set_group_service(self, group, service=None, new_service=None):
         if group not in self._groups[service]:
             raise GroupNotFound(group)
-        if group not in self._groups[new_service]:
+        if group in self._groups[new_service]:
             raise GroupExists(group)
 
         self._groups[new_service][group] = self._groups[service].pop(group)
