@@ -82,8 +82,7 @@ class UsernameAction(Action):
                 raise ArgumentError(self, 'User already exists.')
             except PreconditionFailed as e:
                 raise ArgumentError(self, e)
-        elif not backend.user_exists(user=user):
-            raise ArgumentError(self, 'User does not exist.')
+
         setattr(namespace, self.dest, user)
 
 
