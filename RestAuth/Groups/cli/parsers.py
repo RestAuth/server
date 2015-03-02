@@ -79,7 +79,8 @@ group_subparsers.add_parser(
 subparser = group_subparsers.add_parser(
     'rename', help="Rename a group.", parents=[group_arg_parser], description='Rename a group.'
 )
-subparser.add_argument('name', metavar='NAME', help="The new name for the group.")
+subparser.add_argument('name', metavar='NAME', action=GroupnameAction,
+                       help="The new name for the group.")
 group_subparsers.add_parser(
     'add-group', parents=[group_arg_parser, subgroup_parser],
     help="""Make a group a subgroup to another group.""",
