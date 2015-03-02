@@ -235,7 +235,7 @@ def main(args=None):
     if not isinstance(groups, dict):
         parser.error("'groups' does not appear to be a dictionary.")
 
-    with backend.atomic(), ServiceTransactionManager():
+    with backend.transaction(), ServiceTransactionManager():
         #######################
         ### Import services ###
         #######################

@@ -35,7 +35,7 @@ from common.errors import UserNotFound
 
 
 class DjangoTransactionManager(object):
-    def __init__(self, dry, using=None):
+    def __init__(self, dry=False, using=None):
         self.dry = dry
         self.using = using
 
@@ -68,11 +68,11 @@ class DjangoBackend(BackendBase):
         except Group.DoesNotExist:
             raise GroupNotFound(name)
 
-    def atomic(self, dry=False):
+    def transaction(self, dry=False):
         return DjangoTransactionManager(dry=dry, using=self.db)
 
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
-        with self.atomic(dry=dry):
+        with self.transaction(dry=dry):
             try:
                 user = User(username=user)
                 user.set_password(password)
@@ -150,7 +150,7 @@ class DjangoBackend(BackendBase):
         return properties
 
     def create_property(self, user, key, value, dry=False):
-        with self.atomic(dry=dry):
+        with self.transaction(dry=dry):
             try:
                 user = self._user(user, 'id')
                 user.property_set.create(key=key, value=value)
@@ -190,7 +190,7 @@ class DjangoBackend(BackendBase):
         return list(groups.only('name').values_list('name', flat=True))
 
     def create_group(self, group, service=None, users=None, dry=False):
-        with self.atomic(dry=dry):
+        with self.transaction(dry=dry):
             try:
                 group = Group.objects.create(name=group, service=service)
                 if users:
