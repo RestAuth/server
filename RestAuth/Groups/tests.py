@@ -1254,7 +1254,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             cli(['rename', _e(groupname1), _e(groupname2)])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertEqual(backend.list_groups(service=None), [groupname2, groupname3])
+        self.assertCountEqual(backend.list_groups(service=None), [groupname2, groupname3])
 
         with capture() as (stdout, stderr):
             cli(['rename', '--service=%s' % self.service.username, _e(groupname1), _e(groupname2)])
