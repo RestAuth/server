@@ -1,13 +1,13 @@
 0.7.0:
 
-* Update MemoryBackend, RedisBackend.
+* Update RedisBackend.
 * Add ability to set SUPPORTS_VISIBILITY and SUPPORTS_INHERITANCE backend
-  properties.
+  properties, write a MemoryBackend-based example.
 * Add LDAP Backend.
 * Add our own in-memory cache in settings that we can use as secure cache.
 * Remove SECURE_CACHE setting.
 * Document DATA_BACKEND setting, update backend documentation.
-* GroupNotFound/GroupExist should require two params: name and service.
+* UserExists/GroupExist should require two params: name and service.
 
 Future:
 
