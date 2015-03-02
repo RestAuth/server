@@ -197,21 +197,6 @@ def save_groups(groups, args, parser):
             backend.add_subgroup(group=group[0], service=group[1], subgroup=name,
                                  subservice=service)
 
-class ServiceTransactionManager(object):
-    def __enter__(self):
-        transaction.set_autocommit(False)
-        self.sid = transaction.savepoint()
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type is None:
-            transaction.savepoint_commit(self.sid)
-        else:
-            print("An error occured, rolling back transaction:", file=sys.stderr)
-            print("%s: %s." % (exc_type.__name__, exc_value), file=sys.stderr)
-            transaction.savepoint_rollback(self.sid)
-        return True
-
-
 def main(args=None):
     args = parser.parse_args(args=args)
 
@@ -235,7 +220,7 @@ def main(args=None):
     if not isinstance(groups, dict):
         parser.error("'groups' does not appear to be a dictionary.")
 
-    with backend.transaction(), ServiceTransactionManager():
+    with backend.transaction(), transaction.atomic():
         #######################
         ### Import services ###
         #######################
