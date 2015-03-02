@@ -120,8 +120,8 @@ def main(args=None):
         _main(args)
     except GroupNotFound:
         parser.error('%s at service %s: Group does not exist.' % (args.group, args.service))
-    except GroupExists:
-        parser.error("%s: Group already exists." % args.group)
+    except GroupExists as e:
+        parser.error("%s: Group already exists." % e.args[0])
 
 if __name__ == '__main__':  # pragma: no cover
     main()
