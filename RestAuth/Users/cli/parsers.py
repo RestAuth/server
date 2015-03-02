@@ -19,6 +19,7 @@ from __future__ import unicode_literals
 
 from argparse import ArgumentParser
 
+from common.cli.actions import UsernameAction
 from common.cli.parsers import pwd_parser
 from common.cli.parsers import user_parser
 from common.cli.parsers import service_opt_parser
@@ -50,7 +51,7 @@ subparser = subparsers.add_parser(
     description='Rename a user.'
 )
 subparser.add_argument(
-    'name', metavar='NAME',
+    'name', metavar='NAME', action=UsernameAction,
     help="The new name for the user."
 )
 
