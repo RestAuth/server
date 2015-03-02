@@ -114,7 +114,9 @@ class DjangoBackend(BackendBase):
         if groups is None:
             return True  # if no groups are given, we're ok.
 
-        # TODO: this could be faster.
+        # TODO: this could be faster. from list_groups:
+        # groups = Group.objects.member(user=user, service=service)
+        # return list(groups.only('name').values_list('name', flat=True))
         for group, service in groups:
             if self.is_member(group=group, service=service, user=user):
                 return True
@@ -211,9 +213,12 @@ class DjangoBackend(BackendBase):
 
     def set_group_service(self, group, service=None, new_service=None):
         try:
-            group = self._group(group, service, 'id')
-            group.service = new_service
-            group.save()
+            updated = Group.objects.filter(name=group, service=service).update(service=new_service)
+            if updated == 0:
+                raise GroupNotFound(group, service=service)
+#            group = self._group(group, service, 'id')
+#            group.service = new_service
+#            group.save()
         except IntegrityError:
             raise GroupExists(group)
 
