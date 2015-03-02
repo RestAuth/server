@@ -16,6 +16,7 @@
 from __future__ import unicode_literals, absolute_import
 
 from collections import defaultdict
+from copy import deepcopy
 
 from django.conf import settings
 from django.utils import six
@@ -29,7 +30,24 @@ from common.errors import UserExists
 from common.errors import UserNotFound
 
 
+class MemoryTransactionManager(object):
+    def __init__(self, backend, dry=False):
+        self.backend = backend
+        self.dry = dry
+
+    def __enter__(self):
+        self.users = deepcopy(self.backend._users)
+        self.groups = deepcopy(self.backend._groups)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.dry or exc_type:
+            self.backend._users = self.users
+            self.backend._groups = self.groups
+
+
 class MemoryBackend(BackendBase):
+    TRANSACTION_MANAGER = MemoryTransactionManager
+
     def __init__(self):
         self._users = {}
         self._groups = defaultdict(dict)
