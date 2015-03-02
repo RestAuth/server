@@ -19,6 +19,8 @@ from collections import defaultdict
 from copy import deepcopy
 
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import make_password
 from django.utils import six
 
 from backends.base import BackendBase
@@ -28,6 +30,7 @@ from common.errors import PropertyExists
 from common.errors import PropertyNotFound
 from common.errors import UserExists
 from common.errors import UserNotFound
+from common.hashers import import_hash
 
 
 class MemoryTransactionManager(object):
@@ -65,9 +68,11 @@ class MemoryBackend(BackendBase):
             raise UserExists(user)
         if dry is False:
             self._users[user] = {
-                'password': password or None,
+                'password': None,
                 'properties': properties or {},
             }
+            if password:
+                self._users[user]['password'] = make_password(password)
             if groups is not None:
                 for group, service in groups:
                     # auto-create groups
@@ -97,7 +102,10 @@ class MemoryBackend(BackendBase):
         except KeyError:
             raise UserNotFound(user)
 
-        if not password or stored != password:
+        def setter(raw_password):
+            self.set_password(raw_password)
+
+        if not password or not check_password(password, stored, setter):
             return False
 
         if groups is None:
@@ -109,13 +117,16 @@ class MemoryBackend(BackendBase):
 
     def set_password(self, user, password=None):
         try:
-            self._users[user]['password'] = password or None
+            if password:
+                self._users[user]['password'] = make_password(password)
+            else:
+                self._users[user]['password'] = None
         except KeyError:
             raise UserNotFound(user)
 
     def set_password_hash(self, user, algorithm, hash):
-        # TODO
-        raise NotImplementedError
+        django_hash = import_hash(algorithm, hash)
+        self._users[user]['password'] = django_hash
 
     def remove_user(self, user):
         try:
