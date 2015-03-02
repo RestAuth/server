@@ -206,7 +206,7 @@ class MemoryBackend(BackendBase):
         if group not in self._groups[service]:
             raise GroupNotFound(group)
         elif name in self._groups[service]:
-            raise GroupExists(group)
+            raise GroupExists(name)
 
         self._groups[service][name] = self._groups[service].pop(group)
 
