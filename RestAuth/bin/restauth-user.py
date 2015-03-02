@@ -46,6 +46,7 @@ try:
     from Users.cli.parsers import parser
     from backends import backend
     from common.errors import UserExists
+    from common.errors import UserNotFound
 except ImportError as e:  # pragma: no cover
     sys.stderr.write(
         'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
@@ -118,8 +119,10 @@ def main(args=None):
     elif args.action == 'rename':
         try:
             backend.rename_user(user=args.user, name=args.name)
+        except UserNotFound as e:
+            parser.error("%s: %s" % (args.name, e))
         except UserExists as e:
-            parser.error("%s: %s" % (args.name if six.PY3 else args.name.decode('utf-8'), e))
+            parser.error("%s: %s" % (args.name, e))  #(args.name if six.PY3 else args.name.decode('utf-8'), e))
     elif args.action in ['delete', 'rm', 'remove']:  # pragma: no branch
         backend.remove_user(user=args.user)
 
