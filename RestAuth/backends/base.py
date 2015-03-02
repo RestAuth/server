@@ -24,6 +24,8 @@ class BackendBase(object):  # pragma: no cover
     _library = None
     library = None
 
+    TRANSACTION_MANAGER = None
+
     def _load_library(self):
         if self._library is not None:
             return self._library
@@ -59,6 +61,9 @@ class BackendBase(object):  # pragma: no cover
         and all groups created during a unit test.
         """
         pass
+
+    def transaction(self, dry=False):
+        return self.TRANSACTION_MANAGER(backend=self, dry=dry)
 
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         """Create a new user.
