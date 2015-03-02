@@ -479,8 +479,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
         path = os.path.join(self.base, 'users1.json')
         with capture() as (stdout, stderr):
-            cmd = [path]
-            restauth_import(cmd)
+            restauth_import([path])
             self.assertCountEqual(backend.list_users(), [username1, username2, username3])
 
             pattern = '^%s: Property "%s" already exists\.$' % (username2, propkey1)
