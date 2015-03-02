@@ -117,7 +117,7 @@ class GroupHandlerView(RestAuthResourceView):
         if backend.group_exists(service=request.user, group=name):
             return HttpResponseNoContent()
         else:
-            raise GroupNotFound(name)  # 404 Not Found
+            raise GroupNotFound(name, service=request.user)  # 404 Not Found
 
     def delete(self, request, largs, name):
         """Delete a group."""
@@ -281,7 +281,7 @@ class GroupGroupHandler(RestAuthSubResourceView):
                                subservice=request.user):
             return HttpResponseNoContent()
         else:
-            raise GroupNotFound(name)
+            raise GroupNotFound(name, service=request.user)
 
     def delete(self, request, largs, name, subname):
         """Remove a subgroup from a group."""

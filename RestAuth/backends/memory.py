@@ -215,7 +215,7 @@ class MemoryBackend(BackendBase):
 
     def rename_group(self, group, name, service=None):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         elif name in self._groups[service]:
             raise GroupExists(name)
 
@@ -223,7 +223,7 @@ class MemoryBackend(BackendBase):
 
     def set_group_service(self, group, service=None, new_service=None):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         if group in self._groups[new_service]:
             raise GroupExists(group)
 
@@ -250,7 +250,7 @@ class MemoryBackend(BackendBase):
 
     def set_members(self, group, service, users):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         for user in filter(lambda u: u not in self._users, users):
             raise UserNotFound(user)
 
@@ -258,7 +258,7 @@ class MemoryBackend(BackendBase):
 
     def add_member(self, group, service, user):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         if user not in self._users:
             raise UserNotFound(user)
         self._groups[service][group]['users'].add(user)
@@ -274,7 +274,7 @@ class MemoryBackend(BackendBase):
 
     def members(self, group, service, depth=None):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         if depth is None:
             depth = settings.GROUP_RECURSION_DEPTH
 
@@ -298,13 +298,13 @@ class MemoryBackend(BackendBase):
 
     def is_member(self, group, service, user):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
 
         return self._is_member(group, service, user)
 
     def remove_member(self, group, service, user):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         try:
             self._groups[service][group]['users'].remove(user)
         except KeyError:
@@ -312,18 +312,18 @@ class MemoryBackend(BackendBase):
 
     def add_subgroup(self, group, service, subgroup, subservice):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         if subgroup not in self._groups[subservice]:
-            raise GroupNotFound(subgroup)
+            raise GroupNotFound(subgroup, service=service)
 
         self._groups[service][group]['sub-groups'].add((subgroup, subservice))
         self._groups[subservice][subgroup]['meta-groups'].add((group, service))
 
     def set_subgroups(self, group, service, subgroups, subservice):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         for subgroup in filter(lambda g: g not in self._groups[subservice], subgroups):
-            raise GroupNotFound(subgroup)
+            raise GroupNotFound(subgroup, service=subservice)
 
         # clear any existing sub-groups from the same service
         for current_subgroup, current_subservice in filter(
@@ -341,25 +341,25 @@ class MemoryBackend(BackendBase):
 
     def is_subgroup(self, group, service, subgroup, subservice):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
 
         return (subgroup, subservice) in self._groups[service][group]['sub-groups']
 
     def remove_subgroup(self, group, service, subgroup, subservice):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         if subgroup not in self._groups[subservice]:
-            raise GroupNotFound(subgroup)
+            raise GroupNotFound(subgroup, service=subservice)
 
         try:
             self._groups[service][group]['sub-groups'].remove((subgroup, subservice))
             self._groups[service][subgroup]['meta-groups'].remove((group, service))
         except KeyError:
-            raise GroupNotFound(subgroup)
+            raise GroupNotFound(subgroup, service=subservice)
 
     def subgroups(self, group, service, filter=True):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         if filter is True:
             return [g for g, s in self._groups[service][group]['sub-groups'] if s == service]
         else:
@@ -367,11 +367,11 @@ class MemoryBackend(BackendBase):
 
     def parents(self, group, service):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
         return list(self._groups[service][group]['meta-groups'])
 
     def remove_group(self, group, service):
         if group not in self._groups[service]:
-            raise GroupNotFound(group)
+            raise GroupNotFound(group, service=service)
 
         del self._groups[service][group]

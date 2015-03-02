@@ -43,12 +43,20 @@ class GroupExists(ResourceConflict):
 
 
 class UserNotFound(ResourceNotFound):
-    pass
+    def __init__(self, name):
+        self.name = name
 
+    def __str__(self):
+        return self.name
 
 class PropertyNotFound(ResourceNotFound):
     pass
 
 
 class GroupNotFound(ResourceNotFound):
-    pass
+    def __init__(self, name, service):
+        self.name = name
+        self.service = service
+
+    def __str__(self):
+        return '%s/%s' % (self.name, self.service)

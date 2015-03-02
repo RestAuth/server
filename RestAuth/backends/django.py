@@ -66,7 +66,7 @@ class DjangoBackend(BackendBase):
         try:
             return Group.objects.only(*fields).get(name=name, service=service)
         except Group.DoesNotExist:
-            raise GroupNotFound(name)
+            raise GroupNotFound(name, service=service)
 
     def transaction(self, dry=False):
         return DjangoTransactionManager(dry=dry, using=self.db)
@@ -278,7 +278,7 @@ class DjangoBackend(BackendBase):
         try:
             subgroup = group.groups.get(name=subgroup, service=subservice)
         except Group.DoesNotExist:
-            raise GroupNotFound(subgroup)
+            raise GroupNotFound(subgroup, service=subservice)
 
         group.groups.remove(subgroup)
 
