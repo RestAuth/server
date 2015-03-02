@@ -1262,16 +1262,20 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
         self.assertEqual(backend.list_groups(service=self.service), [groupname2])
 
+    def test_rename_target_exists(self):
+        backend.create_group(group=groupname1)
+        backend.create_group(group=groupname2)
+
         # test a failed rename
         with capture() as (stdout, stderr):
             try:
-                cli(['rename', _e(groupname3), _e(groupname2)])  # groupname2 already exists
+                cli(['rename', _e(groupname1), _e(groupname2)])  # groupname2 already exists
                 self.fail("Rename doesn't fail")
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertHasLine(stderr, 'error: %s: Group already exists\.$' % groupname2)
-        self.assertEqual(backend.list_groups(service=None), [groupname2, groupname3])
+        self.assertCountEqual(backend.list_groups(service=None), [groupname1, groupname2])
 
     def test_rm(self):
         backend.create_group(group=groupname1)
