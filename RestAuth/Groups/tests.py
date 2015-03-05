@@ -1065,7 +1065,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             cli(['add', groupname1 if six.PY3 else groupname1.encode('utf-8')])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
-        self.assertTrue(backend.group_exists(groupname1))
+        self.assertTrue(backend.group_exists(groupname1, service=None))
 
         with capture() as (stdout, stderr):
             cli(['add', '--service=%s' % self.service.username, groupname2 if six.PY3 else
@@ -1075,7 +1075,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertTrue(backend.group_exists(groupname2, service=self.service))
 
     def test_add_exists(self):
-        backend.create_group(group=groupname1)
+        backend.create_group(group=groupname1, service=None)
         backend.create_group(group=groupname2, service=self.service)
 
         with capture() as (stdout, stderr):
@@ -1097,8 +1097,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertHasLine(stderr, 'Group already exists\.')
 
     def test_ls(self):
-        backend.create_group(group=groupname1)
-        backend.create_group(group=groupname2)
+        backend.create_group(group=groupname1, service=None)
+        backend.create_group(group=groupname2, service=None)
         backend.create_group(group=groupname3, service=self.service)
         backend.create_group(group=groupname4, service=self.service)
 
@@ -1116,9 +1116,9 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         backend.create_user(username1)
         backend.create_user(username2)
         backend.create_user(username3)
-        backend.create_group(group=groupname1)
-        backend.create_group(group=groupname2)
-        backend.create_group(group=groupname3)
+        backend.create_group(group=groupname1, service=None)
+        backend.create_group(group=groupname2, service=None)
+        backend.create_group(group=groupname3, service=None)
         backend.create_group(groupname4, service=self.service)
         backend.create_group(groupname5, service=self.service)
 
@@ -1170,7 +1170,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
 """ % (explicit, effective, groupname1, self.service.username, groupname5))
 
     def test_set_service(self):
-        backend.create_group(group=groupname1)
+        backend.create_group(group=groupname1, service=None)
 
         with capture() as (stdout, stderr):
             cli(['set-service', groupname1 if six.PY3 else groupname1.encode('utf-8'),
@@ -1200,7 +1200,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
     def test_add_user(self):
         backend.create_user(username1)
         backend.create_user(username2)
-        backend.create_group(group=groupname1)
+        backend.create_group(group=groupname1, service=None)
         backend.create_group(group=groupname2, service=self.service)
 
         with capture() as (stdout, stderr):
@@ -1222,8 +1222,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(backend.members(group=groupname2, service=self.service), [username2])
 
     def test_add_group_neither(self):  # neither group is in any service
-        backend.create_group(group=groupname1)
-        backend.create_group(group=groupname2)
+        backend.create_group(group=groupname1, service=None)
+        backend.create_group(group=groupname2, service=None)
 
         with capture() as (stdout, stderr):
             cli(['add-group',
@@ -1246,8 +1246,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(backend.subgroups(group=groupname1, service=self.service), [groupname2])
 
     def test_rename(self):
-        backend.create_group(group=groupname1)
-        backend.create_group(group=groupname3)
+        backend.create_group(group=groupname1, service=None)
+        backend.create_group(group=groupname3, service=None)
         backend.create_group(group=groupname1, service=self.service)
 
         with capture() as (stdout, stderr):
@@ -1263,8 +1263,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(backend.list_groups(service=self.service), [groupname2])
 
     def test_rename_target_exists(self):
-        backend.create_group(group=groupname1)
-        backend.create_group(group=groupname2)
+        backend.create_group(group=groupname1, service=None)
+        backend.create_group(group=groupname2, service=None)
 
         # test a failed rename
         with capture() as (stdout, stderr):
@@ -1278,7 +1278,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertCountEqual(backend.list_groups(service=None), [groupname1, groupname2])
 
     def test_rm(self):
-        backend.create_group(group=groupname1)
+        backend.create_group(group=groupname1, service=None)
         with capture() as (stdout, stderr):
             cli(['rm', _e(groupname1)])
             self.assertEqual(stdout.getvalue(), '')
@@ -1286,7 +1286,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(backend.list_groups(service=None), [])
 
     def test_rm_user(self):
-        backend.create_group(group=groupname1)
+        backend.create_group(group=groupname1, service=None)
         backend.create_user(username1)
         backend.add_member(group=groupname1, service=None, user=username1)
         self.assertEqual(backend.members(group=groupname1, service=None), [username1])
@@ -1309,8 +1309,8 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.assertEqual(backend.members(group=groupname1, service=None), [])
 
     def test_rm_group(self):
-        backend.create_group(group=groupname1)
-        backend.create_group(group=groupname2)
+        backend.create_group(group=groupname1, service=None)
+        backend.create_group(group=groupname2, service=None)
         backend.add_subgroup(group=groupname1, service=None, subgroup=groupname2, subservice=None)
         self.assertEqual(backend.subgroups(group=groupname1, service=None), [groupname2])
 
