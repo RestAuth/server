@@ -16,13 +16,23 @@
 from __future__ import unicode_literals, absolute_import
 
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
 
-from backends.base import PropertyBackend
+from backends.base import BackendBase
+from backends.base import TransactionManagerBase
 from common.errors import PropertyExists
 from common.errors import PropertyNotFound
+from common.errors import UserExists
+
+class RedisTransactionManager(TransactionManagerBase):
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
 
 
-class RedisPropertyBackend(PropertyBackend):
+class RedisBackend(BackendBase):
     """Store properties in a Redis key/value store.
 
     This backend enables you to store user properties in a key/value store.  Note that the backend
@@ -45,6 +55,36 @@ class RedisPropertyBackend(PropertyBackend):
     library = 'redis'
 
     _conn = None
+
+    def create_user(self, user, password=None, properties=None, groups=None, dry=False):
+        value = {
+            'password': make_password(password) if password else None,
+            'properties': properties or {},
+        }
+        if self.conn.hsetnx('users', user, value) == 0:
+            raise UserExists(user)
+        # TODO: do groups!
+
+    def list_users(self):
+        return self.conn.hkeys('users')
+
+    def user_exists(self, user):
+        return self.conn.hexists('users', user)
+
+    def rename_user(self, user, name):
+        pass
+
+    def check_password(self, user, password, groups=None):
+        pass
+
+    def set_password(self, user, password=None):
+        pass
+
+    def set_password_hash(self, user, algorithm, hash):
+        pass
+
+    def remove_user(self, user):
+        pass
 
     @property
     def conn(self):
