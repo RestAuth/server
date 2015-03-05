@@ -200,8 +200,7 @@ class MemoryBackend(BackendBase):
             return [k for k, v in six.iteritems(self._groups[service])
                     if self.is_member(k, service, user)]
 
-    def create_group(self, group, service=None, users=None, dry=False):
-        #TODO: service should not be optional!
+    def create_group(self, group, service, users=None, dry=False):
         if group in self._groups[service]:
             raise GroupExists(group)
         if users is not None and not set(self._users.keys()) >= set(users):
@@ -214,8 +213,7 @@ class MemoryBackend(BackendBase):
                 'sub-groups': set(),
             }
 
-    def rename_group(self, group, name, service=None):
-        #TODO: service should not be optional!
+    def rename_group(self, group, name, service):
         if group not in self._groups[service]:
             raise GroupNotFound(group, service=service)
         elif name in self._groups[service]:
@@ -223,8 +221,7 @@ class MemoryBackend(BackendBase):
 
         self._groups[service][name] = self._groups[service].pop(group)
 
-    def set_group_service(self, group, service=None, new_service=None):
-        #TODO: service should not be optional!
+    def set_group_service(self, group, service, new_service):
         if group not in self._groups[service]:
             raise GroupNotFound(group, service=service)
         if group in self._groups[new_service]:
@@ -232,8 +229,7 @@ class MemoryBackend(BackendBase):
 
         self._groups[new_service][group] = self._groups[service].pop(group)
 
-    def group_exists(self, group, service=None):
-        #TODO: service should not be optional!
+    def group_exists(self, group, service):
         return group in self._groups[service]
 
     def set_memberships(self, user, service, groups):

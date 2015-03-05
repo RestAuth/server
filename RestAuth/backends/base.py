@@ -304,7 +304,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def create_group(self, group, service=None, users=None, dry=False):
+    def create_group(self, group, service, users=None, dry=False):
         """Create a new group for the given service.
 
         The ``dry`` parameter tells you if you should actually create the group. The parameter will
@@ -328,7 +328,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def rename_group(self, group, name, service=None):
+    def rename_group(self, group, name, service):
         """Rename a group.
 
         This operation is only available via |bin-restauth-group-doc|.
@@ -344,7 +344,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_group_service(self, group, service=None, new_service=None):
+    def set_group_service(self, group, service, new_service):
         """Set the service of a group.
 
         This operation is only available via |bin-restauth-group-doc|.
@@ -360,7 +360,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def group_exists(self, group, service=None):
+    def group_exists(self, group, service):
         """Determine if a group exists for the given service.
 
         :param   group: The name of the group.

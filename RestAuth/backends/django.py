@@ -191,7 +191,7 @@ class DjangoBackend(BackendBase):
             groups = Group.objects.member(user=user, service=service)
         return list(groups.only('name').values_list('name', flat=True))
 
-    def create_group(self, group, service=None, users=None, dry=False):
+    def create_group(self, group, service, users=None, dry=False):
         with self.transaction(dry=dry):
             try:
                 group = Group.objects.create(name=group, service=service)
@@ -203,7 +203,7 @@ class DjangoBackend(BackendBase):
             except IntegrityError:
                 raise GroupExists(group)
 
-    def rename_group(self, group, name, service=None):
+    def rename_group(self, group, name, service):
         try:
             group = self._group(group, service, 'id', 'name')
             group.name = name
@@ -211,18 +211,15 @@ class DjangoBackend(BackendBase):
         except IntegrityError:
             raise GroupExists(name)
 
-    def set_group_service(self, group, service=None, new_service=None):
+    def set_group_service(self, group, service, new_service):
         try:
             updated = Group.objects.filter(name=group, service=service).update(service=new_service)
             if updated == 0:
                 raise GroupNotFound(group, service=service)
-#            group = self._group(group, service, 'id')
-#            group.service = new_service
-#            group.save()
         except IntegrityError:
             raise GroupExists(group)
 
-    def group_exists(self, group, service=None):
+    def group_exists(self, group, service):
         return Group.objects.filter(name=group, service=service).exists()
 
     def set_memberships(self, user, service, groups):
