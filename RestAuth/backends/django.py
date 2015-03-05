@@ -253,7 +253,7 @@ class DjangoBackend(BackendBase):
         group = self._group(group, service, 'id')
         user = self._user(user, 'id')
 
-        if group.is_member(user):
+        if group.is_member(user.username):
             group.users.remove(user)
         else:
             raise UserNotFound(user.username)  # 404 Not Found
