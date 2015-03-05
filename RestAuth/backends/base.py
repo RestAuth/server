@@ -25,6 +25,8 @@ class BackendBase(object):  # pragma: no cover
     library = None
 
     TRANSACTION_MANAGER = None
+    SUPPORTS_GROUP_VISIBILITY = True
+    SUPPORTS_SUBGROUPS = True
 
     def _load_library(self):
         if self._library is not None:
