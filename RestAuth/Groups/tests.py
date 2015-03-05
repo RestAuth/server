@@ -76,6 +76,7 @@ class GetGroupsTests(GroupTests):  # GET /groups/
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [groupname1, groupname2])
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         backend.create_group(service=self.service, group=groupname1)
         backend.create_group(service=self.service2, group=groupname4)
@@ -155,6 +156,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertCountEqual(self.parse(resp, 'list'), [groupname1, groupname2, groupname3])
 
     @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_interservice_inheritance(self):
         backend.create_group(service=None, group=groupname1)
         backend.create_group(service=self.service2, group=groupname2)
@@ -193,6 +195,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertCountEqual(self.parse(resp, 'list'), [groupname1, groupname2, groupname3])
 
     @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_hidden_intermediate_dependencies(self):
         # membership to group2 is invisible, because it belongs to a different
         # service.
@@ -231,6 +234,7 @@ class CreateGroupTests(GroupTests):  # POST /groups/
         self.assertCountEqual(backend.list_groups(service=self.service), [groupname1])
         self.assertCountEqual(backend.members(group=groupname1, service=self.service), users)
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         backend.create_group(service=self.service2, group=groupname1)
 
@@ -288,6 +292,7 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
             backend.list_groups(service=self.service, user=username1), [groupname1, groupname3])
         self.assertTrue(backend.group_exists(group=groupname3, service=self.service))
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_visibility(self):
         self.assertFalse(backend.is_member(group=groupname2, service=self.service, user=username1))
         backend.create_group(service=self.service2, group=groupname3)  # different service!
@@ -315,6 +320,7 @@ class VerifyGroupExistanceTests(GroupTests):  # GET /groups/<group>/
         resp = self.get('/groups/%s/' % groupname1)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_for_leaking_services(self):
         backend.create_group(service=self.service2, group=groupname1)
 
@@ -322,6 +328,7 @@ class VerifyGroupExistanceTests(GroupTests):  # GET /groups/<group>/
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_for_groups_with_no_service(self):
         backend.create_group(service=None, group=groupname1)
 
@@ -344,6 +351,7 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
 
         self.assertEqual(backend.list_groups(service=self.service), [])
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         backend.create_group(service=self.service2, group=groupname1)
         backend.create_group(service=None, group=groupname2)
@@ -378,6 +386,7 @@ class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         resp = self.get('/groups/%s/users/' % groupname4)
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
@@ -520,6 +529,7 @@ class AddUserToGroupTests(GroupUserTests):  # POST /groups/<group>/users/
         self.assertCountEqual(backend.members(group=groupname3, service=self.service), [])
 
     @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         resp = self.post('/groups/%s/users/' % groupname4, {'user': username1})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
@@ -578,6 +588,7 @@ class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
                          [username1, username2])
 
     @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         # user1 membership in group2 is inherited
         backend.create_group(group=groupname4, service=self.service)
@@ -630,6 +641,7 @@ class VerifyUserInGroupTests(GroupUserTests):
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'group')
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         resp = self.get('/groups/%s/users/%s/' % (groupname4, username1))
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
@@ -745,6 +757,7 @@ class DeleteUserFromGroupTests(GroupUserTests):
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(resp['Resource-Type'], 'user')
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         resp = self.delete('/groups/%s/users/%s/' % (groupname4, username1))
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
@@ -793,7 +806,9 @@ class GetSubGroupTests(GroupUserTests):  # GET /groups/<group>/groups/
 
     def test_get_one_subgroup(self):
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname2, subservice=self.service)
-        backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname5, subservice=self.service2)
+        if backend.SUPPORTS_GROUP_VISIBILITY is True:
+            backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname5,
+                                 subservice=self.service2)
 
         resp = self.get('/groups/%s/groups/' % groupname1)
         self.assertEqual(resp.status_code, http_client.OK)
@@ -809,6 +824,7 @@ class GetSubGroupTests(GroupUserTests):  # GET /groups/<group>/groups/
 
         self.assertCountEqual(self.parse(resp, 'list'), [groupname2, groupname3])
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname2, subservice=self.service)
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname4, subservice=self.service2)
@@ -840,33 +856,38 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertCountEqual(backend.subgroups(group=groupname1, service=self.service), [])
 
     def test_add_subgroup(self):
+        service = self.service
+        if backend.SUPPORTS_GROUP_VISIBILITY is False:
+            service = None
+
         resp = self.post('/groups/%s/groups/' % groupname1, {'group': groupname2})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
         self.assertCountEqual(backend.subgroups(
-            group=groupname1, service=self.service, filter=False),
-            [(groupname2, self.service)])
+            group=groupname1, service=self.service, filter=False), [(groupname2, service)])
         self.assertCountEqual(backend.parents(group=groupname2, service=self.service),
-                              [(groupname1, self.service)])
+                              [(groupname1, service)])
 
     def test_add_subgroup_twice(self):
-        resp = self.post('/groups/%s/groups/' % groupname1, {'group': groupname2})
-        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-
-        self.assertCountEqual(backend.subgroups(
-            group=groupname1, service=self.service, filter=False),
-            [(groupname2, self.service)])
-        self.assertCountEqual(backend.parents(group=groupname2, service=self.service),
-                              [(groupname1, self.service)])
+        service = self.service
+        if backend.SUPPORTS_GROUP_VISIBILITY is False:
+            service = None
 
         resp = self.post('/groups/%s/groups/' % groupname1, {'group': groupname2})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
         self.assertCountEqual(backend.subgroups(
-            group=groupname1, service=self.service, filter=False),
-            [(groupname2, self.service)])
+            group=groupname1, service=self.service, filter=False), [(groupname2, service)])
         self.assertCountEqual(backend.parents(group=groupname2, service=self.service),
-                              [(groupname1, self.service)])
+                              [(groupname1, service)])
+
+        resp = self.post('/groups/%s/groups/' % groupname1, {'group': groupname2})
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+
+        self.assertCountEqual(backend.subgroups(
+            group=groupname1, service=self.service, filter=False), [(groupname2, service)])
+        self.assertCountEqual(backend.parents(group=groupname2, service=self.service),
+                              [(groupname1, service)])
 
     def test_bad_requests(self):
         resp = self.post('/groups/%s/groups/' % groupname1, {})
@@ -884,6 +905,7 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertCountEqual(backend.subgroups(
             group=groupname1, service=self.service, filter=False), [])
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         # we shouldn't be able to add a subgroup:
         resp = self.post('/groups/%s/groups/' % groupname1, {'group': groupname4})
@@ -905,12 +927,16 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
 @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
 class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
     def test_basic(self):
+        service = self.service
+        if backend.SUPPORTS_GROUP_VISIBILITY is False:
+            service = None
+
         resp = self.put('/groups/%s/groups/' % groupname1, {'groups': [groupname2]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(backend.subgroups(group=groupname1, service=self.service),
                               [groupname2])
         self.assertCountEqual(backend.parents(group=groupname2, service=self.service),
-                              [(groupname1, self.service)])
+                              [(groupname1, service)])
 
         resp = self.put('/groups/%s/groups/' % groupname1, {'groups': []})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
@@ -923,9 +949,9 @@ class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
         self.assertCountEqual(backend.subgroups(group=groupname1, service=self.service),
                               [groupname2, groupname3])
         self.assertCountEqual(backend.parents(group=groupname2, service=self.service),
-                              [(groupname1, self.service)])
+                              [(groupname1, service)])
         self.assertCountEqual(backend.parents(group=groupname3, service=self.service),
-                              [(groupname1, self.service)])
+                              [(groupname1, service)])
 
     def test_metagroup_not_found(self):
         resp = self.put('/groups/%s/groups/' % groupname6, {'groups': [groupname2]})
@@ -937,6 +963,7 @@ class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertCountEqual(backend.subgroups(group=groupname1, service=self.service), [])
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         # test adding a subgroup of a different service
         resp = self.put('/groups/%s/groups/' % groupname1, {'groups': [groupname4]})
@@ -990,6 +1017,7 @@ class VerifySubgroupTests(GroupUserTests):  # GET /groups/<group>/groups/<subgro
         resp = self.get('/groups/%s/groups/%s/' % (groupname1, groupname6))
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname4, subservice=self.service2)
         resp = self.get('/groups/%s/groups/%s/' % (groupname1, groupname4))
@@ -1018,13 +1046,16 @@ class RemoveSubGroupTests(GroupUserTests):
             group=groupname1, service=self.service, filter=False), [])
 
     def test_remove_subgroup(self):
+        service = self.service
+        if backend.SUPPORTS_GROUP_VISIBILITY is False:
+            service = None
+
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname2,
                              subservice=self.service)
         self.assertCountEqual(backend.subgroups(
-            group=groupname1, service=self.service, filter=False), [(groupname2, self.service)])
+            group=groupname1, service=self.service, filter=False), [(groupname2, service)])
         self.assertCountEqual(
-            backend.parents(group=groupname2, service=self.service),
-            [(groupname1, self.service)])
+            backend.parents(group=groupname2, service=self.service), [(groupname1, service)])
 
         resp = self.delete('/groups/%s/groups/%s/' % (groupname1, groupname2))
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
@@ -1049,6 +1080,7 @@ class RemoveSubGroupTests(GroupUserTests):
         self.assertCountEqual(backend.subgroups(
             group=groupname2, service=self.service, filter=False), [])
 
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         backend.add_subgroup(group=groupname1, service=self.service, subgroup=groupname4,
                              subservice=self.service2)
@@ -1125,12 +1157,23 @@ class CliTests(RestAuthTransactionTest, CliMixin):
 
         with capture() as (stdout, stderr):
             cli(['ls'])
-            self.assertEqual(stdout.getvalue(), '%s\n%s\n' % (groupname1, groupname2))
+            if backend.SUPPORTS_GROUP_VISIBILITY is True:
+                groups = '\n'.join([groupname1, groupname2])
+            else:
+                groups = '\n'.join([groupname1, groupname2, groupname3, groupname4])
+            groups += '\n'
+
+            self.assertEqual(stdout.getvalue(), groups)
             self.assertEqual(stderr.getvalue(), '')
 
         with capture() as (stdout, stderr):
             cli(['ls', '--service=%s' % self.service.username])
-            self.assertEqual(stdout.getvalue(), '%s\n%s\n' % (groupname3, groupname4))
+            if backend.SUPPORTS_GROUP_VISIBILITY is True:
+                groups = '\n'.join([groupname3, groupname4])
+            else:
+                groups = '\n'.join([groupname1, groupname2, groupname3, groupname4])
+            groups += '\n'
+            self.assertEqual(stdout.getvalue(), groups)
             self.assertEqual(stderr.getvalue(), '')
 
     def test_view(self):
@@ -1144,10 +1187,10 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         backend.create_group(groupname5, service=self.service)
 
         expected_stdout = """* No explicit members
-* No effective members
 """
         if backend.SUPPORTS_SUBGROUPS is True:
-            expected_stdout += """* No parent groups
+            expected_stdout += """* No effective members
+* No parent groups
 * No subgroups
 """
 
@@ -1161,20 +1204,21 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         backend.add_member(group=groupname1, service=None, user=username2)
         backend.add_member(group=groupname4, service=self.service, user=username3)
         userlist = ', '.join(sorted([username1, username2]))
-        expected_stdout = """* Explicit members: %s
-* Effective members: %s
-""" % (userlist, userlist)
+        expected_stdout = '* Explicit members: %s\n' % userlist
         if backend.SUPPORTS_SUBGROUPS is True:
+            expected_stdout += '* Effective members: %s\n' % userlist
             backend.add_subgroup(group=groupname1, service=None, subgroup=groupname2, subservice=None)
             backend.add_subgroup(group=groupname1, service=None, subgroup=groupname4,
                                  subservice=self.service)
             backend.add_subgroup(group=groupname5, service=self.service, subgroup=groupname4,
                                  subservice=self.service)
-            expected_stdout += """* No parent groups
-* Subgroups:
+            expected_stdout += '* No parent groups\n'
+            if backend.SUPPORTS_GROUP_VISIBILITY is True:
+                expected_stdout += """* Subgroups:
     <no service>: %s
-    %s: %s
-""" % (groupname2, self.service.name, groupname4)
+    %s: %s\n""" % (groupname2, self.service.name, groupname4)
+            else:
+                expected_stdout += '* Subgroups: %s, %s\n' % (groupname2, groupname4)
 
         # view a top-group:
         with capture() as (stdout, stderr):
@@ -1185,14 +1229,14 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         effective = ', '.join(sorted([username1, username2, username3]))
         expected_stdout = '* Explicit members: %s\n' % username3
         if backend.SUPPORTS_SUBGROUPS is True:
-            expected_stdout += """* Effective members: %s
-* Parent groups:
+            expected_stdout += '* Effective members: %s\n' % effective
+            if backend.SUPPORTS_GROUP_VISIBILITY is True:
+                expected_stdout += '''* Parent groups:
     <no service>: %s
-    %s: %s
-* No subgroups
-""" % (effective, groupname1, self.service.username, groupname5)
-        else:
-            expected_stdout += '* Effective members: %s\n' % username3
+    %s: %s\n''' % (groupname1, self.service.username, groupname5)
+            else:
+                expected_stdout += '* Parent groups: %s, %s\n' % (groupname1, groupname5)
+            expected_stdout += '* No subgroups\n'
 
         # view a sub-group
         with capture() as (stdout, stderr):
@@ -1205,10 +1249,18 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         backend.create_group(group=groupname1, service=None)
 
         with capture() as (stdout, stderr):
-            cli(['set-service', groupname1 if six.PY3 else groupname1.encode('utf-8'),
-                 self.service.username])
-            self.assertEqual(stdout.getvalue(), '')
-            self.assertEqual(stderr.getvalue(), '')
+            try:
+                cli(['set-service', groupname1 if six.PY3 else groupname1.encode('utf-8'),
+                     self.service.username])
+                self.assertTrue(backend.SUPPORTS_GROUP_VISIBILITY)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertEqual(stderr.getvalue(), '')
+            except SystemExit as e:
+                self.assertFalse(backend.SUPPORTS_GROUP_VISIBILITY)
+                self.assertEqual(e.code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertHasLine(stderr, 'error: Backend does not support group visiblity\.$')
+                return  # we're done if we don't support group visibility
         self.assertEqual(backend.list_groups(service=self.service), [groupname1])
 
         with capture() as (stdout, stderr):
@@ -1296,13 +1348,17 @@ class CliTests(RestAuthTransactionTest, CliMixin):
     def test_rename(self):
         backend.create_group(group=groupname1, service=None)
         backend.create_group(group=groupname3, service=None)
-        backend.create_group(group=groupname1, service=self.service)
 
         with capture() as (stdout, stderr):
             cli(['rename', _e(groupname1), _e(groupname2)])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
         self.assertCountEqual(backend.list_groups(service=None), [groupname2, groupname3])
+
+    @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
+    def test_rename_with_visibility(self):
+        backend.create_group(group=groupname1, service=None)
+        backend.create_group(group=groupname1, service=self.service)
 
         with capture() as (stdout, stderr):
             cli(['rename', '--service=%s' % self.service.username, _e(groupname1), _e(groupname2)])

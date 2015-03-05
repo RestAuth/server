@@ -1055,11 +1055,14 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             restauth_user(['view', frm])
             self.assertHasNoLine(stdout, '^Joined: ')
             self.assertHasLine(stdout, '^Last login: foobar')
-            self.assertHasLine(stdout, '^Groups:$')
+            if backend.SUPPORTS_GROUP_VISIBILITY:
+                self.assertHasLine(stdout, '^Groups:$')
 
-            # no %s expansion because of py2 encoding
-            pattern = '^\* %s: %s' % (self.service.username, groupname1)
-            self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+                # no %s expansion because of py2 encoding
+                pattern = '^\* %s: %s' % (self.service.username, groupname1)
+                self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+            else:
+                self.assertHasLine(stdout, '^Groups: %s' % groupname1)
 
             self.assertEqual(stderr.getvalue(), '')
 
@@ -1071,15 +1074,18 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             restauth_user(['view', frm])
             self.assertHasNoLine(stdout, '^Joined: ')
             self.assertHasLine(stdout, '^Last login: foobar')
-            self.assertHasLine(stdout, '^Groups:$')
+            if backend.SUPPORTS_GROUP_VISIBILITY:
+                self.assertHasLine(stdout, '^Groups:$')
 
-            # no %s expansion because of py2 encoding
-            pattern = '^\* no service: %s' % groupname2
-            self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+                # no %s expansion because of py2 encoding
+                pattern = '^\* no service: %s' % groupname2
+                self.assertHasLine(stdout, pattern, flags=re.UNICODE)
 
-            # no %s expansion because of py2 encoding
-            pattern = '^\* %s: %s' % (self.service.username, groupname1)
-            self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+                # no %s expansion because of py2 encoding
+                pattern = '^\* %s: %s' % (self.service.username, groupname1)
+                self.assertHasLine(stdout, pattern, flags=re.UNICODE)
+            else:
+                self.assertHasLine(stdout, '^Groups: %s, %s' % (groupname1, groupname2))
 
             self.assertEqual(stderr.getvalue(), '')
 

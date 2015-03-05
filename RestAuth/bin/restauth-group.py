@@ -72,26 +72,36 @@ def _main(args):
             print('* Explicit members: %s' % ', '.join(explicit_users))
         else:
             print('* No explicit members')
-        if effective_users:
-            print('* Effective members: %s' % ', '.join(effective_users))
-        else:
-            print('* No effective members')
+        if backend.SUPPORTS_SUBGROUPS:
+            if effective_users:
+                print('* Effective members: %s' % ', '.join(effective_users))
+            else:
+                print('* No effective members')
 
         if backend.SUPPORTS_SUBGROUPS is True:
             parent_groups = backend.parents(group=args.group, service=args.service)
             sub_groups = backend.subgroups(group=args.group, service=args.service, filter=False)
 
             if parent_groups:
-                print('* Parent groups:')
-                print_by_service(parent_groups, '    ')
+                if backend.SUPPORTS_GROUP_VISIBILITY:
+                    print('* Parent groups:')
+                    print_by_service(parent_groups, '    ')
+                else:
+                    print('* Parent groups: %s' % ', '.join([g[0] for g in parent_groups]))
             else:
                 print('* No parent groups')
+
             if sub_groups:
-                print('* Subgroups:')
-                print_by_service(sorted(sub_groups, key=lambda g: g[1]), '    ')
+                if backend.SUPPORTS_GROUP_VISIBILITY:
+                    print('* Subgroups:')
+                    print_by_service(sorted(sub_groups, key=lambda g: g[1]), '    ')
+                else:
+                    print('* Subgroups: %s' % ', '.join([g[0] for g in sub_groups]))
             else:
                 print('* No subgroups')
     elif args.action == 'set-service':
+        if backend.SUPPORTS_GROUP_VISIBILITY is False:
+            parser.error('Backend does not support group visiblity.')
         backend.set_group_service(group=args.group, service=args.service,
                                   new_service=args.new_service)
     elif args.action == 'add-user':

@@ -419,17 +419,17 @@ class NoGroupVisibilityBackend(MemoryBackend):
     def list_groups(self, service, user=None):
         return super(NoGroupVisibilityBackend, self).list_groups(None, user=user)
 
-    def create_group(self, group, service=None, users=None, dry=False):
-        return super(NoGroupVisibilityBackend, self).create_group(group, None,
+    def create_group(self, group, service, users=None, dry=False):
+        return super(NoGroupVisibilityBackend, self).create_group(group, service=None,
                                                                   users=users, dry=dry)
 
-    def rename_group(self, group, name, service=None):
-        return super(NoGroupVisibilityBackend, self).rename(group, name, None)
+    def rename_group(self, group, name, service):
+        return super(NoGroupVisibilityBackend, self).rename_group(group, name, None)
 
-    def set_group_service(self, group, service=None, new_service=None):
+    def set_group_service(self, group, service, new_service):
         raise NotImplementedError
 
-    def group_exists(self, group, service=None):
+    def group_exists(self, group, service):
         return super(NoGroupVisibilityBackend, self).group_exists(group, None)
 
     def set_memberships(self, user, service, groups):
@@ -451,7 +451,7 @@ class NoGroupVisibilityBackend(MemoryBackend):
         return super(NoGroupVisibilityBackend, self).remove_member(group, None, user)
 
     def add_subgroup(self, group, service, subgroup, subservice):
-        return super(NoGroupVisibilityBackend, self).add_subgroups(group, None, subgroup, None)
+        return super(NoGroupVisibilityBackend, self).add_subgroup(group, None, subgroup, None)
 
     def set_subgroups(self, group, service, subgroups, subservice):
         return super(NoGroupVisibilityBackend, self).set_subgroups(group, None, subgroups, None)
@@ -463,7 +463,7 @@ class NoGroupVisibilityBackend(MemoryBackend):
         return super(NoGroupVisibilityBackend, self).remove_subgroup(group, None, subgroup, None)
 
     def subgroups(self, group, service, filter=True):
-        return super(NoGroupVisibilityBackend, self).subgroups(group, None, filter=False)
+        return super(NoGroupVisibilityBackend, self).subgroups(group, None, filter=filter)
 
     def parents(self, group, service):
         return super(NoGroupVisibilityBackend, self).parents(group, None)
