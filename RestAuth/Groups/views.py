@@ -31,6 +31,7 @@ from common.errors import GroupNotFound
 from common.responses import HttpResponseCreated
 from common.responses import HttpResponseNoContent
 from common.responses import HttpRestAuthResponse
+from common.responses import HttpResponseNotImplemented
 from common.views import RestAuthView
 from common.views import RestAuthResourceView
 from common.views import RestAuthSubResourceView
@@ -239,6 +240,8 @@ class GroupGroupsIndex(RestAuthResourceView):
 
         if not request.user.has_perm('Groups.group_add_group'):
             return HttpResponseForbidden()
+        if backend.SUPPORTS_SUBGROUPS is False:
+            return HttpResponseNotImplemented()
 
         # If BadRequest: 400 Bad Request
         subname = stringprep(self._parse_post(request))
@@ -255,6 +258,8 @@ class GroupGroupsIndex(RestAuthResourceView):
 
         if not request.user.has_perms(['Groups.group_add_group', 'Groups.group_remove_group']):
             return HttpResponseForbidden()
+        if backend.SUPPORTS_SUBGROUPS is False:
+            return HttpResponseNotImplemented()
 
         subgroups = [stringprep(g) for g in self._parse_put(request)]
 
@@ -275,6 +280,8 @@ class GroupGroupHandler(RestAuthSubResourceView):
     def get(self, request, largs, name, subname):
         if not request.user.has_perm('Groups.group_groups_list'):
             return HttpResponseForbidden()
+        if backend.SUPPORTS_SUBGROUPS is False:
+            return HttpResponseNotImplemented()
 
         # If GroupNotFound: 404 Not Found
         if backend.is_subgroup(group=name, service=request.user, subgroup=subname,
@@ -288,6 +295,8 @@ class GroupGroupHandler(RestAuthSubResourceView):
 
         if not request.user.has_perm('Groups.group_remove_group'):
             return HttpResponseForbidden()
+        if backend.SUPPORTS_SUBGROUPS is False:
+            return HttpResponseNotImplemented()
 
         # If GroupNotFound: 404 Not Found
         backend.remove_subgroup(group=name, service=request.user, subgroup=subname,

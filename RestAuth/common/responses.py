@@ -15,7 +15,7 @@
 
 from __future__ import unicode_literals
 
-from django.http import HttpResponse as HttpResponse
+from django.http import HttpResponse
 
 from common.types import get_response_type
 from common.content_handlers import get_handler
@@ -36,3 +36,7 @@ class HttpResponseNoContent(HttpResponse):
 
 class HttpResponseCreated(HttpResponse):
     status_code = 201
+
+
+class HttpResponseNotImplemented(HttpResponse):
+    status_code = 501
