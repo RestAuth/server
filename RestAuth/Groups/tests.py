@@ -584,8 +584,8 @@ class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
         # Set user2 to group2, user1 is still member because of inheritance
         resp = self.put('/groups/%s/users/' % groupname2, {'users': [username2]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-        self.assertEqual(backend.members(group=groupname2, service=self.service),
-                         [username1, username2])
+        self.assertCountEqual(backend.members(group=groupname2, service=self.service),
+                              [username1, username2])
 
     @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
@@ -602,8 +602,8 @@ class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
         self.assertEqual(backend.members(group=groupname4, service=self.service), [username1])
-        self.assertEqual(backend.members(group=groupname2, service=self.service),
-                         [username1, username2])
+        self.assertCountEqual(backend.members(group=groupname2, service=self.service),
+                              [username1, username2])
 
     def test_bad_request(self):
         resp = self.put('/groups/%s/users/' % groupname1, {})
@@ -747,9 +747,12 @@ class DeleteUserFromGroupTests(GroupUserTests):
         self.assertEqual(resp['Resource-Type'], 'group')
 
     def test_delete_user(self):
+        self.assertFalse(backend.is_member(group=groupname1, service=self.service, user=username1))
         backend.add_member(group=groupname1, service=self.service, user=username1)
+        self.assertTrue(backend.is_member(group=groupname1, service=self.service, user=username1))
 
         resp = self.delete('/groups/%s/users/%s/' % (groupname1, username1))
+        self.assertFalse(backend.is_member(group=groupname1, service=self.service, user=username1))
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
 
     def test_user_not_member(self):

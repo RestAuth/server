@@ -26,6 +26,7 @@ from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.utils.unittest import TestCase
 
+from django.utils import six
 from django.utils.six.moves import http_client
 
 from RestAuthCommon import handlers
@@ -282,9 +283,13 @@ class RestAuthImportTests(RestAuthTransactionTest, CliMixin):
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
+                if six.PY3:
+                    error_msg = 'Expecting value: line 1 column 1 \\(char 0\\)'
+                else:
+                    error_msg = 'No JSON object could be decoded'
                 self.assertHasLine(
                     stderr,
-                    '.*error: %s: No JSON object could be decoded$' % path)
+                    '.*error: %s: %s$' % (path, error_msg))
 
         # top-level not a dict:
         path = os.path.join(self.base, 'faulty2.json')

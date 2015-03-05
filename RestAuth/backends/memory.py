@@ -82,7 +82,7 @@ class MemoryBackend(BackendBase):
                         self.create_group(group=group, service=service, users=[user])
 
     def list_users(self):
-        return self._users.keys()
+        return list(self._users.keys())
 
     def user_exists(self, user):
         return user in self._users
@@ -193,7 +193,7 @@ class MemoryBackend(BackendBase):
 
     def list_groups(self, service, user=None):
         if user is None:
-            return self._groups[service].keys()
+            return list(self._groups[service].keys())
         elif user not in self._users:
             raise UserNotFound(user)
         else:

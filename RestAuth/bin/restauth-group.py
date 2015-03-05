@@ -79,22 +79,24 @@ def _main(args):
                 print('* No effective members')
 
         if backend.SUPPORTS_SUBGROUPS is True:
-            parent_groups = backend.parents(group=args.group, service=args.service)
+            parents = backend.parents(group=args.group, service=args.service)
             sub_groups = backend.subgroups(group=args.group, service=args.service, filter=False)
 
-            if parent_groups:
+            if parents:
                 if backend.SUPPORTS_GROUP_VISIBILITY:
                     print('* Parent groups:')
-                    print_by_service(parent_groups, '    ')
+                    parents = sorted(parents, key=lambda g: g[1].username if g[1] else '')
+                    print_by_service(parents, '    ')
                 else:
-                    print('* Parent groups: %s' % ', '.join([g[0] for g in parent_groups]))
+                    print('* Parent groups: %s' % ', '.join([g[0] for g in parents]))
             else:
                 print('* No parent groups')
 
             if sub_groups:
                 if backend.SUPPORTS_GROUP_VISIBILITY:
                     print('* Subgroups:')
-                    print_by_service(sorted(sub_groups, key=lambda g: g[1]), '    ')
+                    sub_groups = sorted(sub_groups, key=lambda g: g[1].username if g[1] else '')
+                    print_by_service(sub_groups, '    ')
                 else:
                     print('* Subgroups: %s' % ', '.join([g[0] for g in sub_groups]))
             else:
