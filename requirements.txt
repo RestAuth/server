@@ -1,4 +1,4 @@
-Django==1.7.4
+Django==1.7.5
 PyYAML>=3.11
 RestAuthCommon>=0.7.0
 python-mimeparse>=0.1.4
