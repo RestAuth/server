@@ -201,6 +201,7 @@ class MemoryBackend(BackendBase):
                     if self.is_member(k, service, user)]
 
     def create_group(self, group, service=None, users=None, dry=False):
+        #TODO: service should not be optional!
         if group in self._groups[service]:
             raise GroupExists(group)
         if users is not None and not set(self._users.keys()) >= set(users):
@@ -214,6 +215,7 @@ class MemoryBackend(BackendBase):
             }
 
     def rename_group(self, group, name, service=None):
+        #TODO: service should not be optional!
         if group not in self._groups[service]:
             raise GroupNotFound(group, service=service)
         elif name in self._groups[service]:
@@ -222,6 +224,7 @@ class MemoryBackend(BackendBase):
         self._groups[service][name] = self._groups[service].pop(group)
 
     def set_group_service(self, group, service=None, new_service=None):
+        #TODO: service should not be optional!
         if group not in self._groups[service]:
             raise GroupNotFound(group, service=service)
         if group in self._groups[new_service]:
@@ -229,7 +232,8 @@ class MemoryBackend(BackendBase):
 
         self._groups[new_service][group] = self._groups[service].pop(group)
 
-    def group_exists(self, group, service=None):  #TODO: service should not be optional!
+    def group_exists(self, group, service=None):
+        #TODO: service should not be optional!
         return group in self._groups[service]
 
     def set_memberships(self, user, service, groups):
@@ -292,7 +296,8 @@ class MemoryBackend(BackendBase):
 
         if depth <= settings.GROUP_RECURSION_DEPTH:
             for meta_group, meta_service in self._groups[service][group]['meta-groups']:
-                if self._is_member(group=meta_group, service=meta_service, user=user, depth=depth + 1):
+                if self._is_member(group=meta_group, service=meta_service, user=user,
+                                   depth=depth + 1):
                     return True
         return False
 
@@ -328,7 +333,8 @@ class MemoryBackend(BackendBase):
         # clear any existing sub-groups from the same service
         for current_subgroup, current_subservice in filter(
                 lambda t: t[1] == service, self._groups[service][group]['sub-groups']):
-            self._groups[current_subservice][current_subgroup]['meta-groups'].remove((group, service))
+            self._groups[current_subservice][current_subgroup]['meta-groups'].remove(
+                (group, service))
         cleared = [(g, s) for g, s in self._groups[service][group]['sub-groups'] if s != service]
         self._groups[service][group]['sub-groups'] = set(cleared)
 
@@ -337,7 +343,8 @@ class MemoryBackend(BackendBase):
             self._groups[subservice][subgroup]['meta-groups'].add((group, service))
 
         # we update s because there might be left-over subgroups from a different service
-        self._groups[service][group]['sub-groups'] |= set([(subgroup, subservice) for subgroup in subgroups])
+        self._groups[service][group]['sub-groups'] |= set(
+            [(subgroup, subservice) for subgroup in subgroups])
 
     def is_subgroup(self, group, service, subgroup, subservice):
         if group not in self._groups[service]:
@@ -375,3 +382,99 @@ class MemoryBackend(BackendBase):
             raise GroupNotFound(group, service=service)
 
         del self._groups[service][group]
+
+
+class NoSubgroupsBackend(object):
+    SUPPORTS_SUBGROUPS = False
+
+    def add_subgroup(self, group, service, subgroup, subservice):
+        raise NotImplementedError
+
+    def set_subgroups(self, group, service, subgroups, subservice):
+        raise NotImplementedError
+
+    def is_subgroup(self, group, service, subgroup, subservice):
+        raise NotImplementedError
+
+    def subgroups(self, group, service, filter=True):
+        raise NotImplementedError
+
+    def parents(self, group, service):
+        raise NotImplementedError
+
+    def remove_subgroup(self, group, service, subgroup, subservice):
+        raise NotImplementedError
+
+
+class NoGroupVisibilityBackend(MemoryBackend):
+    SUPPORTS_GROUP_VISIBILITY = False
+
+    def create_user(self, user, password=None, properties=None, groups=None, dry=False):
+        if groups is not None:
+            groups = [(g, None) for g, s in groups]
+        return super(NoGroupVisibilityBackend, self).create_user(
+            user, password=password, properties=properties, groups=groups, dry=dry)
+
+    def check_password(self, user, password, groups=None):
+        if groups is not None:
+            groups = [(g, None) for g, s in groups]
+        return super(NoGroupVisibilityBackend, self).check_password(user, password, groups=groups)
+
+    def list_groups(self, service, user=None):
+        return super(NoGroupVisibilityBackend, self).list_groups(None, user=user)
+
+    def create_group(self, group, service=None, users=None, dry=False):
+        return super(NoGroupVisibilityBackend, self).create_group(group, None,
+                                                                  users=users, dry=dry)
+
+    def rename_group(self, group, name, service=None):
+        return super(NoGroupVisibilityBackend, self).rename(group, name, None)
+
+    def set_group_service(self, group, service=None, new_service=None):
+        raise NotImplementedError
+
+    def group_exists(self, group, service=None):
+        return super(NoGroupVisibilityBackend, self).group_exists(group, None)
+
+    def set_memberships(self, user, service, groups):
+        return super(NoGroupVisibilityBackend, self).set_memberships(user, None, groups)
+
+    def set_members(self, group, service, users):
+        return super(NoGroupVisibilityBackend, self).set_members(group, None, users)
+
+    def add_member(self, group, service, user):
+        return super(NoGroupVisibilityBackend, self).add_member(group, None, user)
+
+    def members(self, group, service, depth=None):
+        return super(NoGroupVisibilityBackend, self).members(group, None, depth=depth)
+
+    def is_member(self, group, service, user):
+        return super(NoGroupVisibilityBackend, self).is_member(group, None, user)
+
+    def remove_member(self, group, service, user):
+        return super(NoGroupVisibilityBackend, self).remove_member(group, None, user)
+
+    def add_subgroup(self, group, service, subgroup, subservice):
+        return super(NoGroupVisibilityBackend, self).add_subgroups(group, None, subgroup, None)
+
+    def set_subgroups(self, group, service, subgroups, subservice):
+        return super(NoGroupVisibilityBackend, self).set_subgroups(group, None, subgroups, None)
+
+    def is_subgroup(self, group, service, subgroup, subservice):
+        return super(NoGroupVisibilityBackend, self).is_subgroup(group, None, subgroup, None)
+
+    def remove_subgroup(self, group, service, subgroup, subservice):
+        return super(NoGroupVisibilityBackend, self).remove_subgroup(group, None, subgroup, None)
+
+    def subgroups(self, group, service, filter=True):
+        return super(NoGroupVisibilityBackend, self).subgroups(group, None, filter=False)
+
+    def parents(self, group, service):
+        return super(NoGroupVisibilityBackend, self).parents(group, None)
+
+    def remove_group(self, group, service):
+        return super(NoGroupVisibilityBackend, self).remove_group(group, None)
+
+
+class NoSubgroupsOrVisibilityBackend(NoSubgroupsBackend, NoGroupVisibilityBackend):
+    pass
