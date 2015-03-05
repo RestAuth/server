@@ -48,7 +48,6 @@ try:
     import django
     django.setup()
 
-    from django.db import transaction
     from django.utils import six
 
     from Services.models import Service
@@ -171,7 +170,7 @@ def save_groups(groups, args, parser):
             service = Service.objects.get(username=service)
 
         try:
-            backend.create_group(service=service, group=name)
+            backend.create_group(group=name, service=service)
             print("* %s: created." % name)
         except GroupExists:
             if args.skip_existing_groups:
@@ -188,15 +187,18 @@ def save_groups(groups, args, parser):
 
     # add group-memberships *after* we created all groups to make sure
     # groups already exist.
-    for group, subgroups_data in six.iteritems(subgroups):
-        for subgroup_data in subgroups_data:
-            name = subgroup_data['name']
-            service = subgroup_data.get('service')
-            if service:
-                service = Service.objects.get(username=service)
+    if backend.SUPPORTS_SUBGROUPS:
+        for group, subgroups_data in six.iteritems(subgroups):
+            for subgroup_data in subgroups_data:
+                name = subgroup_data['name']
+                service = subgroup_data.get('service')
+                if service:
+                    service = Service.objects.get(username=service)
 
-            backend.add_subgroup(group=group[0], service=group[1], subgroup=name,
-                                 subservice=service)
+                backend.add_subgroup(group=group[0], service=group[1], subgroup=name,
+                                     subservice=service)
+    else:
+        print('Warning: Backend does not support subgroups, subgroups discarded.')
 
 def main(args=None):
     args = parser.parse_args(args=args)

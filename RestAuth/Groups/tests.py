@@ -15,6 +15,8 @@
 
 from __future__ import unicode_literals
 
+import unittest
+
 from django.utils import six
 from django.utils.six.moves import http_client
 
@@ -125,6 +127,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertEqual(self.parse(resp, 'list'), [])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_simple_inheritance(self):
         backend.create_group(service=self.service, group=groupname1)
         backend.create_group(service=self.service, group=groupname2)
@@ -136,6 +139,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [groupname1, groupname2])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_multilevel_inheritance(self):
         backend.create_group(service=self.service, group=groupname1)
         backend.create_group(service=self.service, group=groupname2)
@@ -150,6 +154,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [groupname1, groupname2, groupname3])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_interservice_inheritance(self):
         backend.create_group(service=None, group=groupname1)
         backend.create_group(service=self.service2, group=groupname2)
@@ -164,6 +169,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [groupname3])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_distinct_inheritance(self):
         """
         This test checks if the call may return groups several times.
@@ -186,6 +192,7 @@ class GetGroupsOfUserTests(GroupTests):  # GET /groups/?user=<user>
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [groupname1, groupname2, groupname3])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_hidden_intermediate_dependencies(self):
         # membership to group2 is invisible, because it belongs to a different
         # service.
@@ -238,6 +245,7 @@ class CreateGroupTests(GroupTests):  # POST /groups/
         self.assertCountEqual(backend.list_groups(service=self.service), [])
 
 
+@unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
 class SetGroupsTests(GroupTests):  # PUT /groups/
     def setUp(self):
         super(SetGroupsTests, self).setUp()
@@ -400,6 +408,7 @@ class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [username1, username2])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_simple_inheritance(self):
         backend.add_member(group=groupname1, service=self.service, user=username1)
         backend.add_member(group=groupname1, service=self.service, user=username2)
@@ -415,6 +424,7 @@ class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [username1, username2, username3])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_multilevel_inheritance(self):
         backend.add_member(group=groupname1, service=self.service, user=username1)
         backend.add_member(group=groupname2, service=self.service, user=username2)
@@ -436,6 +446,7 @@ class GetUsersInGroupTests(GroupUserTests):  # GET /groups/<group>/users/
         self.assertEqual(resp.status_code, http_client.OK)
         self.assertCountEqual(self.parse(resp, 'list'), [username1, username2, username3])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_hidden_inheritance(self):
         """
         Test a complex group-inheritance pattern.
@@ -508,6 +519,7 @@ class AddUserToGroupTests(GroupUserTests):  # POST /groups/<group>/users/
         self.assertCountEqual(backend.members(group=groupname2, service=self.service), [])
         self.assertCountEqual(backend.members(group=groupname3, service=self.service), [])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_service_isolation(self):
         resp = self.post('/groups/%s/users/' % groupname4, {'user': username1})
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
@@ -549,6 +561,7 @@ class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
         self.assertEqual(resp.status_code, http_client.NOT_FOUND)
         self.assertEqual(backend.members(group=groupname1, service=self.service), [])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_service_inheritance(self):
         # user1 membership in group2 is inherited
         backend.add_member(group=groupname1, service=self.service, user=username1)
@@ -564,6 +577,7 @@ class SetUsersInGroupTests(GroupUserTests):  # PUT /groups/<group>/users/
         self.assertEqual(backend.members(group=groupname2, service=self.service),
                          [username1, username2])
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_service_isolation(self):
         # user1 membership in group2 is inherited
         backend.create_group(group=groupname4, service=self.service)
@@ -642,6 +656,7 @@ class VerifyUserInGroupTests(GroupUserTests):
         self.assertTrue(self.is_member(groupname1, username1))
         self.assertFalse(self.is_member(groupname2, username1))
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_simple_inheritance(self):
         backend.add_member(group=groupname1, service=self.service, user=username1)
         backend.add_member(group=groupname2, service=self.service, user=username2)
@@ -655,6 +670,7 @@ class VerifyUserInGroupTests(GroupUserTests):
         self.assertFalse(self.is_member(groupname1, username2))
         self.assertTrue(self.is_member(groupname2, username2))
 
+    @unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
     def test_multilevel_inheritance(self):
         """
         Test a complex group-inheritance pattern.
@@ -760,6 +776,7 @@ class DeleteUserFromGroupTests(GroupUserTests):
                               [username1])
 
 
+@unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
 class GetSubGroupTests(GroupUserTests):  # GET /groups/<group>/groups/
     def test_group_doesnt_exist(self):
         resp = self.get('/groups/%s/groups/' % groupname6)
@@ -803,6 +820,7 @@ class GetSubGroupTests(GroupUserTests):  # GET /groups/<group>/groups/
         self.assertEqual(self.parse(resp, 'list'), [groupname2])
 
 
+@unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
 class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
     def test_group_doesnt_exist(self):
         resp = self.post('/groups/%s/groups/' % groupname6, {'group': groupname1})
@@ -884,6 +902,7 @@ class AddSubGroupTests(GroupUserTests):  # POST /groups/<group>/groups/
         self.assertCountEqual(backend.parents(group=groupname5, service=self.service2), [])
 
 
+@unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
 class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
     def test_basic(self):
         resp = self.put('/groups/%s/groups/' % groupname1, {'groups': [groupname2]})
@@ -953,6 +972,7 @@ class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
 
 
+@unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
 class VerifySubgroupTests(GroupUserTests):  # GET /groups/<group>/groups/<subgroup>/
     def test_basic(self):
         resp = self.get('/groups/%s/groups/%s/' % (groupname1, groupname2))
@@ -977,6 +997,7 @@ class VerifySubgroupTests(GroupUserTests):  # GET /groups/<group>/groups/<subgro
 
 
 # DELETE /groups/<group>/groups/<subgroup>/
+@unittest.skipIf(backend.SUPPORTS_SUBGROUPS is False, 'Backend does not support subgroups.')
 class RemoveSubGroupTests(GroupUserTests):
     def test_group_doesnt_exist(self):
         resp = self.delete('/groups/%s/groups/%s/' % (groupname6, groupname1))
@@ -1122,52 +1143,63 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         backend.create_group(groupname4, service=self.service)
         backend.create_group(groupname5, service=self.service)
 
+        expected_stdout = """* No explicit members
+* No effective members
+"""
+        if backend.SUPPORTS_SUBGROUPS is True:
+            expected_stdout += """* No parent groups
+* No subgroups
+"""
+
         with capture() as (stdout, stderr):
             cli(['view', groupname1 if six.PY3 else groupname1.encode('utf-8')])
             self.assertEqual(stderr.getvalue(), '')
-            self.assertEqual(stdout.getvalue(), """* No explicit members
-* No effective members
-* No parent groups
-* No subgroups
-""")
+            self.assertEqual(stdout.getvalue(), expected_stdout)
 
         # add a few members, and subgroups:
         backend.add_member(group=groupname1, service=None, user=username1)
         backend.add_member(group=groupname1, service=None, user=username2)
         backend.add_member(group=groupname4, service=self.service, user=username3)
-        backend.add_subgroup(group=groupname1, service=None, subgroup=groupname2, subservice=None)
-        backend.add_subgroup(group=groupname1, service=None, subgroup=groupname4,
-                             subservice=self.service)
-        backend.add_subgroup(group=groupname5, service=self.service, subgroup=groupname4,
-                             subservice=self.service)
+        userlist = ', '.join(sorted([username1, username2]))
+        expected_stdout = """* Explicit members: %s
+* Effective members: %s
+""" % (userlist, userlist)
+        if backend.SUPPORTS_SUBGROUPS is True:
+            backend.add_subgroup(group=groupname1, service=None, subgroup=groupname2, subservice=None)
+            backend.add_subgroup(group=groupname1, service=None, subgroup=groupname4,
+                                 subservice=self.service)
+            backend.add_subgroup(group=groupname5, service=self.service, subgroup=groupname4,
+                                 subservice=self.service)
+            expected_stdout += """* No parent groups
+* Subgroups:
+    <no service>: %s
+    %s: %s
+""" % (groupname2, self.service.name, groupname4)
 
         # view a top-group:
         with capture() as (stdout, stderr):
             cli(['view', groupname1 if six.PY3 else groupname1.encode('utf-8')])
             self.assertEqual(stderr.getvalue(), '')
-            userlist = ', '.join(sorted([username1, username2]))
-            self.assertEqual(stdout.getvalue(), """* Explicit members: %s
-* Effective members: %s
-* No parent groups
-* Subgroups:
+            self.assertEqual(stdout.getvalue(), expected_stdout)
+
+        effective = ', '.join(sorted([username1, username2, username3]))
+        expected_stdout = '* Explicit members: %s\n' % username3
+        if backend.SUPPORTS_SUBGROUPS is True:
+            expected_stdout += """* Effective members: %s
+* Parent groups:
     <no service>: %s
     %s: %s
-""" % (userlist, userlist, groupname2, self.service.name, groupname4))
+* No subgroups
+""" % (effective, groupname1, self.service.username, groupname5)
+        else:
+            expected_stdout += '* Effective members: %s\n' % username3
 
         # view a sub-group
         with capture() as (stdout, stderr):
             cli(['view', '--service=%s' % self.service.username,
                  groupname4 if six.PY3 else groupname4.encode('utf-8')])
             self.assertEqual(stderr.getvalue(), '')
-            explicit = ', '.join(sorted([username3, ]))
-            effective = ', '.join(sorted([username1, username2, username3]))
-            self.assertEqual(stdout.getvalue(), """* Explicit members: %s
-* Effective members: %s
-* Parent groups:
-    <no service>: %s
-    %s: %s
-* No subgroups
-""" % (explicit, effective, groupname1, self.service.username, groupname5))
+            self.assertEqual(stdout.getvalue(), expected_stdout)
 
     def test_set_service(self):
         backend.create_group(group=groupname1, service=None)
@@ -1226,23 +1258,39 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         backend.create_group(group=groupname2, service=None)
 
         with capture() as (stdout, stderr):
-            cli(['add-group',
-                 groupname1 if six.PY3 else groupname1.encode('utf-8'),
-                 groupname2 if six.PY3 else groupname2.encode('utf-8'),
-            ])
-            self.assertEqual(stdout.getvalue(), '')
-            self.assertEqual(stderr.getvalue(), '')
+            try:
+                cli(['add-group',
+                     groupname1 if six.PY3 else groupname1.encode('utf-8'),
+                     groupname2 if six.PY3 else groupname2.encode('utf-8'),
+                ])
+                self.assertTrue(backend.SUPPORTS_SUBGROUPS)
+                self.assertEqual(stderr.getvalue(), '')
+            except SystemExit as e:
+                self.assertFalse(backend.SUPPORTS_SUBGROUPS)
+                self.assertEqual(e.code, 2)
+                self.assertHasLine(stderr, 'setup.py: error: Backend does not support subgroups.')
+                return
+            finally:
+                self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(backend.subgroups(group=groupname1, service=None), [groupname2])
 
-    def test_add_group_both(self):  # bout groups are in service
+    def test_add_group_both(self):  # both groups are in service
         backend.create_group(group=groupname1, service=self.service)
         backend.create_group(group=groupname2, service=self.service)
 
         with capture() as (stdout, stderr):
-            cli(['add-group', '--service=%s' % self.service.username,
-                 '--sub-service=%s' % self.service.username, _e(groupname1), _e(groupname2)])
-            self.assertEqual(stdout.getvalue(), '')
-            self.assertEqual(stderr.getvalue(), '')
+            try:
+                cli(['add-group', '--service=%s' % self.service.username,
+                     '--sub-service=%s' % self.service.username, _e(groupname1), _e(groupname2)])
+                self.assertTrue(backend.SUPPORTS_SUBGROUPS)
+                self.assertEqual(stderr.getvalue(), '')
+            except SystemExit as e:
+                self.assertFalse(backend.SUPPORTS_SUBGROUPS)
+                self.assertEqual(e.code, 2)
+                self.assertHasLine(stderr, 'setup.py: error: Backend does not support subgroups.')
+                return
+            finally:
+                self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(backend.subgroups(group=groupname1, service=self.service), [groupname2])
 
     def test_rename(self):
@@ -1311,13 +1359,24 @@ class CliTests(RestAuthTransactionTest, CliMixin):
     def test_rm_group(self):
         backend.create_group(group=groupname1, service=None)
         backend.create_group(group=groupname2, service=None)
-        backend.add_subgroup(group=groupname1, service=None, subgroup=groupname2, subservice=None)
-        self.assertEqual(backend.subgroups(group=groupname1, service=None), [groupname2])
+        if backend.SUPPORTS_SUBGROUPS is True:
+            backend.add_subgroup(group=groupname1, service=None, subgroup=groupname2, subservice=None)
+            self.assertEqual(backend.subgroups(group=groupname1, service=None), [groupname2])
 
         with capture() as (stdout, stderr):
-            cli(['rm-group', _e(groupname1), _e(groupname2)])
-            self.assertEqual(stdout.getvalue(), '')
-            self.assertEqual(stderr.getvalue(), '')
+            try:
+                cli(['rm-group', _e(groupname1), _e(groupname2)])
+                self.assertEqual(stderr.getvalue(), '')
+            except SystemExit as e:
+                self.assertFalse(backend.SUPPORTS_SUBGROUPS)
+                self.assertEqual(e.code, 2)
+                self.assertHasLine(stderr, 'setup.py: error: Backend does not support subgroups.')
+            finally:
+                self.assertEqual(stdout.getvalue(), '')
+
+        if backend.SUPPORTS_SUBGROUPS is False:
+            return
+
         self.assertEqual(backend.subgroups(group=groupname1, service=None), [])
 
         with capture() as (stdout, stderr):
@@ -1326,7 +1385,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
+                self.assertEqual(backend.subgroups(group=groupname1, service=None), [])
                 self.assertHasLine(
                     stderr,
                     'error: Group "%s" is not a subgroup of "%s"\.$' % (groupname2, groupname1))
-        self.assertEqual(backend.subgroups(group=groupname1, service=None), [])

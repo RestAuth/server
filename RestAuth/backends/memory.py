@@ -380,7 +380,7 @@ class MemoryBackend(BackendBase):
         del self._groups[service][group]
 
 
-class NoSubgroupsBackend(object):
+class NoSubgroupsBackend(MemoryBackend):
     SUPPORTS_SUBGROUPS = False
 
     def add_subgroup(self, group, service, subgroup, subservice):

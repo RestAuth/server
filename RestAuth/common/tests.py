@@ -346,7 +346,12 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             path = os.path.join(self.base, 'empty%s.json' % i)
             with capture() as (stdout, stderr):
                 restauth_import([path])
-                self.assertEqual(stdout.getvalue(), '')
+                if backend.SUPPORTS_SUBGROUPS is True:
+                    self.assertEqual(stdout.getvalue(), '')
+                else:
+                    self.assertEqual(
+                        stdout.getvalue(),
+                        'Warning: Backend does not support subgroups, subgroups discarded.\n')
                 self.assertEqual(stderr.getvalue(), '')
 
     def test_services(self):
@@ -533,10 +538,15 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         self.assertCountEqual(backend.members(group=groupname1,  service=None), [])
         self.assertCountEqual(backend.members(group=groupname2,  service=self.service),
                               [username1, username2])
-        self.assertCountEqual(backend.members(group=groupname3,  service=self.service),
-                              [username1, username2, username3])
-        self.assertCountEqual(backend.members(group=groupname4,  service=None),
-                              [username1, username2])
+        if backend.SUPPORTS_SUBGROUPS is True:
+            self.assertCountEqual(backend.members(group=groupname3,  service=self.service),
+                                  [username1, username2, username3])
+            self.assertCountEqual(backend.members(group=groupname4,  service=None),
+                                  [username1, username2])
+        else:
+            self.assertCountEqual(backend.members(group=groupname3,  service=self.service),
+                                  [username3])
+            self.assertCountEqual(backend.members(group=groupname4,  service=None), [])
 
     def test_existing_groups(self):
         backend.create_user(username1)
@@ -552,22 +562,26 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         path = os.path.join(self.base, 'groups1.json')
         with capture() as (stdout, stderr):
             restauth_import([path])
+            self.assertEqual(stderr.getvalue(), '')
             self.assertHasLine(stdout, '^Groups:$')
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname1)
             self.assertHasLine(stdout, '^\* %s: Already exists, adding memberships\.$' % groupname2)
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
 
-        # get groups from backend
-
         # test memberships
         self.assertCountEqual(backend.members(group=groupname1, service=None), [])
         self.assertCountEqual(backend.members(group=groupname2, service=self.service),
                               [username1, username2, username4])
-        self.assertCountEqual(backend.members(group=groupname3, service=self.service),
-                              [username1, username2, username3, username4])
-        self.assertCountEqual(backend.members(group=groupname4, service=None),
-                              [username1, username2, username4])
+        if backend.SUPPORTS_SUBGROUPS is True:
+            self.assertCountEqual(backend.members(group=groupname3, service=self.service),
+                                  [username1, username2, username3, username4])
+            self.assertCountEqual(backend.members(group=groupname4, service=None),
+                                  [username1, username2, username4])
+        else:
+            self.assertCountEqual(backend.members(group=groupname3, service=self.service),
+                                  [username3])
+            self.assertCountEqual(backend.members(group=groupname4, service=None), [])
 
     def test_skip_existing_groups(self):
         # same test-setup as above, only we skip existing groups

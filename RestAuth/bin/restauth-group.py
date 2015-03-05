@@ -43,7 +43,6 @@ try:
     from Groups.cli.helpers import print_by_service
     from Groups.cli.parsers import parser
     from backends import backend
-    from common.compat import decode_str as _d
     from common.errors import GroupExists
     from common.errors import GroupNotFound
     from common.errors import UserNotFound
@@ -68,8 +67,6 @@ def _main(args):
     elif args.action == 'view':
         explicit_users = sorted(backend.members(group=args.group, service=args.service, depth=0))
         effective_users = sorted(backend.members(group=args.group, service=args.service))
-        parent_groups = backend.parents(group=args.group, service=args.service)
-        sub_groups = backend.subgroups(group=args.group, service=args.service, filter=False)
 
         if explicit_users:
             print('* Explicit members: %s' % ', '.join(explicit_users))
@@ -79,22 +76,29 @@ def _main(args):
             print('* Effective members: %s' % ', '.join(effective_users))
         else:
             print('* No effective members')
-        if parent_groups:
-            print('* Parent groups:')
-            print_by_service(parent_groups, '    ')
-        else:
-            print('* No parent groups')
-        if sub_groups:
-            print('* Subgroups:')
-            print_by_service(sorted(sub_groups, key=lambda g: g[1]), '    ')
-        else:
-            print('* No subgroups')
+
+        if backend.SUPPORTS_SUBGROUPS is True:
+            parent_groups = backend.parents(group=args.group, service=args.service)
+            sub_groups = backend.subgroups(group=args.group, service=args.service, filter=False)
+
+            if parent_groups:
+                print('* Parent groups:')
+                print_by_service(parent_groups, '    ')
+            else:
+                print('* No parent groups')
+            if sub_groups:
+                print('* Subgroups:')
+                print_by_service(sorted(sub_groups, key=lambda g: g[1]), '    ')
+            else:
+                print('* No subgroups')
     elif args.action == 'set-service':
         backend.set_group_service(group=args.group, service=args.service,
                                   new_service=args.new_service)
     elif args.action == 'add-user':
         backend.add_member(group=args.group, service=args.service, user=args.user)
     elif args.action == 'add-group':
+        if backend.SUPPORTS_SUBGROUPS is False:
+            parser.error('Backend does not support subgroups.')
         backend.add_subgroup(group=args.group, service=args.service, subgroup=args.subgroup,
                              subservice=args.sub_service)
     elif args.action in ['delete', 'del', 'rm']:
@@ -107,6 +111,8 @@ def _main(args):
     elif args.action == 'rename':
         backend.rename_group(args.group, args.name, service=args.service)
     elif args.action in ['remove-group', 'rm-group', 'del-group']:  # pragma: no branch
+        if backend.SUPPORTS_SUBGROUPS is False:
+            parser.error('Backend does not support subgroups.')
         try:
             backend.remove_subgroup(group=args.group, service=args.service, subgroup=args.subgroup,
                                     subservice=args.sub_service)
