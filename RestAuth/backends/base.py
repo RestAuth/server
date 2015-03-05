@@ -19,6 +19,17 @@ from __future__ import unicode_literals, absolute_import
 
 from django.utils import importlib
 
+class TransactionManagerBase(object):
+    def __init__(self, backend, dry=False):
+        self.backend = backend
+        self.dry = dry
+
+    def __enter__(self):
+        raise NotImplementedError
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        raise NotImplementedError
+
 
 class BackendBase(object):  # pragma: no cover
     _library = None
