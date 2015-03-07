@@ -15,6 +15,7 @@
 
 from __future__ import unicode_literals, absolute_import
 
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 from django.utils import six
@@ -22,6 +23,8 @@ from django.utils import six
 from backends.base import BackendBase
 from backends.base import TransactionManagerBase
 from common.hashers import import_hash
+from common.errors import GroupExists
+from common.errors import GroupNotFound
 from common.errors import PropertyExists
 from common.errors import PropertyNotFound
 from common.errors import UserExists
@@ -103,6 +106,43 @@ end
 redis.call('hdel', KEYS[2], ARGV[2])
 """
 
+#keys = [g_key, sg_key, self._sg_key(group, service),
+#        self._mg_key(subgroup, subservice), ]
+#args = [group, subgroup, self._gu_key(group, service),
+#        self._gu_key(subgroup, subservice), ]
+#self._add_subgroup(keys=keys, args=args)
+_add_subgroup_script = """
+-- check if groups exist
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
+    return {err=KEYS[1]}
+elseif redis.call('sismember', KEYS[2], ARGV[2]) == 0 then
+    return {err=KEYS[2]}
+end
+
+-- add relation
+redis.call('sadd', KEYS[3], ARGV[4])
+redis.call('sadd', KEYS[4], ARGV[3])
+"""
+
+# g_key = self._g_key(service)
+# sg_keys = [self._g_key(subservice) for g in subgroups]  # because thi will be a tuple
+# gu_keys = [self._gu_key(g, subservice) for g in subgroups]
+#
+# keys = [sg_key, g_key, ] + sg_keys
+# args = [group, ] + subgroups + gu_keys
+# self._set_subgroups(keys=keys, args=args)
+_set_subgroups_script = """
+for i=2, #KEYS, 1 do
+    if redis.call('sismember', KEYS[i], ARGV[i - 1]) == 0 then
+        return {err=KEYS[i] .. "_" .. ARGV[i - 1]}
+    end
+end
+
+for i=#KEYS - 1, #ARGS 1 do
+    redis.call('sadd', KEYS[1], ARGV[i])
+end
+"""
+
 
 class RedisBackend(BackendBase):
     """Store properties in a Redis key/value store.
@@ -138,6 +178,7 @@ class RedisBackend(BackendBase):
         self._set_property = self.conn.register_script(_set_property_script)
         self._set_properties = self.conn.register_script(_set_properties_script)
         self._remove_property = self.conn.register_script(_remove_property_script)
+        self._add_subgroup = self.conn.register_script(_add_subgroup_script)
 
 
     def _listify(self, d):
@@ -292,6 +333,143 @@ class RedisBackend(BackendBase):
             if e.message == 'PropertyNotFound':
                 raise PropertyNotFound(key)
             raise
+
+    # groups_<service.id> == set of groups for a service
+    def _g_key(self, service):
+        return 'groups_%s' % service.id if service is not None else 'None'
+
+    # members_<service.id>_<group> == set of users in a group
+    def _gu_key(self, group, service):
+        return 'members_%s_%s' % (service.id if service is not None else 'None', group)
+
+    # index of subgroups:
+    def _sg_key(self, group, service):
+        return 'subgroups_%s_%s' % (service.id if service is not None else 'None', group)
+
+    # index of metagroups:
+    def _mg_key(self, group, service):
+        return 'metagroups_%s_%s' % (service.id if service is not None else 'None', group)
+
+    def _parse_key(self, key):
+        _, sid, name = key.split('_')
+        if sid == 'None':
+            return (name, None)
+        else:
+            return (name, int(sid))
+
+    def list_groups(self, service, user=None):
+        if user is None:
+            return list(self.conn.smembers(self._g_key(service)))
+        else:
+            pass  # TODO
+
+    def create_group(self, group, service, users=None, dry=False):
+        # TODO: rewrite as lua script
+
+        g_key = self._g_key(service)
+        if self.conn.sismember(g_key, group):
+            raise GroupExists(group, service)
+        elif dry is True:
+            return
+
+        self.conn.sadd(g_key, group)
+
+        # add users
+        if users is not None:
+            # multi value insert in lua - use unpack:
+            # http://redis.io/commands/sadd#comment-800126580
+            self.conn.sadd(self.gu_key(group, service), *users)
+
+    def rename_group(self, group, name, service):
+        # TODO: rename self._g_key, self._gu_key
+        pass
+
+    def set_group_service(self, group, service, new_service):
+        # TODO: rename self._g_key, self._gu_key
+        pass
+
+    def group_exists(self, group, service):
+        return self.conn.sismember(self._g_key(service), group)
+
+    def set_memberships(self, user, service, groups):
+        pass  # TODO
+
+    def set_members(self, group, service, users):
+        # TODO: rewrite as lua script
+        if self.conn.sismember(self._g_key(service), group) is False:
+            raise GroupNotFound(group, service)
+
+        gu_key = self._gu_key(group, service)
+
+        self.conn.delete(gu_key)  # clear set
+        self.conn.sadd(gu_key, *users)
+
+    def add_member(self, group, service, user):
+        # TODO: rewrite as lua script
+        if self.conn.sismember(self._g_key(service), group) is False:
+            raise GroupNotFound(group, service)
+
+        self.conn.sadd(self._gu_key(group, service), user)
+
+    def members(self, group, service, depth=None):
+        if depth is None:
+            depth = settings.GROUP_RECURSION_DEPTH
+
+        if depth == 0:  # shortcut for now
+            return list(self.conn.smembers(self._gu_key(group, service)))
+
+    def is_member(self, group, service, user):
+        # 1. get list of meta-groups
+        # 2. do an intersection
+        pass  # TODO
+
+    def remove_member(self, group, service, user):
+        # TODO: rewrite as lua script
+        pass  # TODO
+
+    def add_subgroup(self, group, service, subgroup, subservice):
+        g_key = self._g_key(service)
+        sg_key = self._g_key(subservice)
+
+        keys = [g_key, sg_key, self._sg_key(group, service), self._mg_key(subgroup, subservice)]
+        args = [group, subgroup, self._gu_key(group, service), self._gu_key(subgroup, subservice)]
+        try:
+            self._add_subgroup(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            # TODO: g_key/sg_key not adequate, should include groupname
+            if e.message == g_key:
+                raise GroupNotFound(group, service)
+            elif e.message == sg_key:
+                raise GroupNotFound(subgroup, subservice)
+            raise
+
+    def set_subgroups(self, group, service, subgroups, subservice):
+        # TODO: subgroups should be a list of tuples with service
+        g_key = self._g_key(service)
+        sg_keys = [self._g_key(subservice) for g in subgroups]  # because thi will be a tuple
+        gu_keys = [self._gu_key(g, subservice) for g in subgroups]
+
+        keys = [g_key, ] + sg_keys
+        args = [group, ] + subgroups + gu_keys
+        try:
+            self._set_subgroups(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            raise GroupNotFound(*self._parse_key(e.message))
+
+    def is_subgroup(self, group, service, subgroup, subservice):
+        return self.conn.sismember(self._sg_key(group, service),
+                                   self._gu_key(subgroup, subservice))
+
+    def subgroups(self, group, service, filter=True):
+        return [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, service))]
+
+    def parents(self, group, service):
+        return [self._parse_key(k) for k in self.conn.smembers(self._mg_key(group, service))]
+
+    def remove_subgroup(self, group, service, subgroup, subservice):
+        # TODO: rewrite as lua script
+        # TODO: no checking of group existance yet
+        return self.conn.srem(self._sg_key(group, service), self._gu_key(subgroup, subservice))
 
     def testSetUp(self):
         self.conn.flushdb()
