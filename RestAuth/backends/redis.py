@@ -17,10 +17,11 @@ from __future__ import unicode_literals, absolute_import
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
-from common.hashers import import_hash
+from django.utils import six
 
 from backends.base import BackendBase
 from backends.base import TransactionManagerBase
+from common.hashers import import_hash
 from common.errors import PropertyExists
 from common.errors import PropertyNotFound
 from common.errors import UserExists
@@ -40,15 +41,18 @@ if existed == 0 then
     return {err="UserExists"}
 end
 
-redis.call('hmset', KEYS[2], unpack(ARGV, 3))"""
+if #ARGV >= 3 then
+    redis.call('hmset', KEYS[2], unpack(ARGV, 3))
+end
+"""
 
 _rename_user_script = """
 -- get old user
 local hash = redis.call('hget', KEYS[1], ARGV[1])
-if hash == nil then
+if not hash then
     return {err="UserNotFound"}
 end
-if redis.call('hexists', KEYS[1], ARGV[2]) then
+if redis.call('hexists', KEYS[1], ARGV[2]) == 1 then
     return {err="UserExists"}
 end
 
@@ -64,13 +68,40 @@ redis.call('hdel', KEYS[2], ARGV[1])
 redis.call('hset', KEYS[2], ARGV[2], props)"""
 
 _create_property_script = """
-if not redis.call('hexists', KEYS[1], ARGV[1]) then
+if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
     return {err="UserNotFound"}
 end
-if redis.call('hexists', KEYS[2], ARGV[2]) then
+if redis.call('hexists', KEYS[2], ARGV[2]) == 1 then
     return {err="PropertyExists"}
 end
 redis.call('hset', KEYS[2], ARGV[2], ARGV[3])"""
+
+_set_property_script = """
+if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
+    return {err="UserNotFound"}
+end
+
+local old = redis.call('hget', KEYS[2], ARGV[2])
+redis.call('hset', KEYS[2], ARGV[2], ARGV[3])
+return old
+"""
+
+_set_properties_script = """
+if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
+    return {err="UserNotFound"}
+end
+
+redis.call('hmset', KEYS[2], unpack(ARGV, 2))"""
+
+_remove_property_script = """
+if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
+    return {err="UserNotFound"}
+end
+if redis.call('hexists', KEYS[2], ARGV[2]) == 0 then
+    return {err="PropertyNotFound"}
+end
+redis.call('hdel', KEYS[2], ARGV[2])
+"""
 
 
 class RedisBackend(BackendBase):
@@ -99,9 +130,20 @@ class RedisBackend(BackendBase):
         self.redis = self._load_library()
         kwargs.setdefault('decode_responses', True)
         self.conn = self.redis.StrictRedis(host=HOST, port=PORT, db=DB, **kwargs)
+
+        # register scripts
         self._create_user = self.conn.register_script(_create_user_script)
         self._rename_user = self.conn.register_script(_rename_user_script)
         self._create_property = self.conn.register_script(_create_property_script)
+        self._set_property = self.conn.register_script(_set_property_script)
+        self._set_properties = self.conn.register_script(_set_properties_script)
+        self._remove_property = self.conn.register_script(_remove_property_script)
+
+
+    def _listify(self, d):
+        l = []
+        [l.extend(t) for t in six.iteritems(d)]
+        return l
 
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         password = make_password(password) if password else ''
@@ -113,12 +155,9 @@ class RedisBackend(BackendBase):
             return
 
         try:
-            prop_list = []
-            [prop_list.extend(t) for t in properties.items()]
-
             # TODO: handle groups
             return self._create_user(keys=['users', 'props_%s' % user],
-                                     args=[user, password, ] + prop_list)
+                                     args=[user, password, ] + self._listify(properties))
         except self.redis.ResponseError as e:
             if e.message == 'UserExists':
                 raise UserExists(user)
@@ -148,7 +187,10 @@ class RedisBackend(BackendBase):
         def setter(raw_password):
             self.set_password(user, raw_password)
 
-        matches = check_password(password, self.conn.hget('users', user), setter)
+        stored = self.conn.hget('users', user)
+        if stored is None:
+            raise UserNotFound(user)
+        matches = check_password(password, stored, setter)
 
         # TODO: handle gruops
 
@@ -178,13 +220,21 @@ class RedisBackend(BackendBase):
         # TODO: handle groups
 
     def list_properties(self, user):
-        return self.conn.hgetall('props_%s' % user)
+        # TODO: this method should be called 'get_properties', since we don't return a list.
+
+        pipe = self.conn.pipeline()
+        pipe.hexists('users', user)
+        pipe.hgetall('props_%s' % user)
+        exists, properties = pipe.execute()
+        if exists is False:
+            raise UserNotFound(user)
+        return properties
 
     def create_property(self, user, key, value, dry=False):
         if dry is True:  # shortcut, can be done with simple pipe
             pipe = self.conn.pipeline()
-            self.conn.hexists('users', user)
-            self.conn.hexists('props_%s' % user)
+            pipe.hexists('users', user)
+            pipe.hexists('props_%s' % user)
             user_exists, prop_exists = pipe.execute()
             if user_exists is False:
                 raise UserNotFound(user)
@@ -200,30 +250,48 @@ class RedisBackend(BackendBase):
                 raise PropertyExists(key)
             raise
 
-    def get(self, user, key):
-        value = self.conn.hget(user.id, key)
-        if value is None:
+    def get_property(self, user, key):
+        pipe = self.conn.pipeline()
+        pipe.hexists('users', user)
+        pipe.hget('props_%s' % user, key)
+        exists, value = pipe.execute()
+        if not exists:
+            raise UserNotFound(user)
+        elif value is None:
             raise PropertyNotFound(key)
-        else:
-            return value
+        return value
 
-    def set(self, user, key, value, dry=False, transaction=True):
-        old_value = self.conn.hget(user.id, key)
+    def set_property(self, user, key, value):
+        try:
+            return self._set_property(keys=['users', 'props_%s' % user], args=[user, key, value])
+        except self.redis.ResponseError as e:
+            if e.message == 'UserNotFound':
+                raise UserNotFound(user)
+            raise
 
-        if not dry:
-            self.conn.hset(user.id, key, value)
-        return key, old_value
+    def set_properties(self, user, properties):
+        if not properties:
+            if not self.conn.hexists('users', user):
+                raise UserNotFound(user)
+            return
 
-    def set_multiple(self, user, props, dry=False, transaction=True):
-        if dry or not props:
-            pass  # do nothing
-        else:
-            self.conn.hmset(user.id, props)
+        try:
+            self._set_properties(keys=['users', 'props_%s' % user],
+                                 args=[user, ] + self._listify(properties))
+        except self.redis.ResponseError as e:
+            if e.message == 'UserNotFound':
+                raise UserNotFound(user)
+            raise
 
-    def remove(self, user, key):
-        value = self.conn.hdel(user.id, key)
-        if value == 0:
-            raise PropertyNotFound(key)
+    def remove_property(self, user, key):
+        try:
+            self._remove_property(keys=['users', 'props_%s' % user], args=[user, key])
+        except self.redis.ResponseError as e:
+            if e.message == 'UserNotFound':
+                raise UserNotFound(user)
+            if e.message == 'PropertyNotFound':
+                raise PropertyNotFound(key)
+            raise
 
     def testSetUp(self):
         self.conn.flushdb()
