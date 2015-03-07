@@ -34,6 +34,15 @@ class RedisTransactionManager(TransactionManagerBase):
     def __exit__(self, exc_type, exc_value, traceback):
         pass
 
+_create_user_script = """
+local existed = redis.call('hsetnx', KEYS[1], ARGV[1], ARGV[2])
+if existed == 0 then
+    return {err="UserExists"}
+end
+
+redis.call('hset', KEYS[2], ARGV[1], ARGV[3])
+"""
+
 
 class RedisBackend(BackendBase):
     """Store properties in a Redis key/value store.
@@ -61,6 +70,7 @@ class RedisBackend(BackendBase):
         self.redis = self._load_library()
         kwargs.setdefault('decode_responses', True)
         self.conn = self.redis.StrictRedis(host=HOST, port=PORT, db=DB, **kwargs)
+        self._create_user = self.conn.register_script(_create_user_script)
 
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         password = make_password(password) if password else None
@@ -71,11 +81,8 @@ class RedisBackend(BackendBase):
                 raise UserExists(user)
             return
 
-        if self.conn.hsetnx('users', user, password) == 1:
-            self.conn.hset('props', user, properties)
-            #TODO: handle groups
-        else:
-            raise UserExists(user)
+        #TODO: handle groups
+        self._create_user(keys=['users', 'props'], args=[user, password, properties])
 
     def list_users(self):
         return self.conn.hkeys('users')
