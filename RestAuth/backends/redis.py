@@ -15,7 +15,6 @@
 
 from __future__ import unicode_literals, absolute_import
 
-from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 from common.hashers import import_hash
@@ -58,7 +57,10 @@ class RedisBackend(BackendBase):
 
     library = 'redis'
 
-    _conn = None
+    def __init__(self, HOST='localhost', PORT=6379, DB=0, **kwargs):
+        self.redis = self._load_library()
+        kwargs.setdefault('decode_responses', True)
+        self.conn = self.redis.StrictRedis(host=HOST, port=PORT, db=DB, **kwargs)
 
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         password = make_password(password) if password else None
@@ -125,24 +127,6 @@ class RedisBackend(BackendBase):
         self.conn.hdel('props', user)
 
         #TODO: handle gruops
-
-    @property
-    def conn(self):
-        if self._conn is None:
-            redis = self._load_library()
-            self._conn = redis.StrictRedis(
-                host=getattr(settings, 'REDIS_HOST', 'localhost'),
-                port=getattr(settings, 'REDIS_PORT', 6379),
-                db=getattr(settings, 'REDIS_DB', 0),
-                decode_responses=True
-            )
-        return self._conn
-
-    @property
-    def pipe(self):
-        if not hasattr(self, '_pipe'):
-            self._pipe = self.conn.pipeline()
-        return self._pipe
 
     def list(self, user):
         return self.conn.hgetall(user.id)
