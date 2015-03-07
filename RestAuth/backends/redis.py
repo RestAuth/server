@@ -17,12 +17,16 @@ from __future__ import unicode_literals, absolute_import
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import check_password
+from common.hashers import import_hash
 
 from backends.base import BackendBase
 from backends.base import TransactionManagerBase
 from common.errors import PropertyExists
 from common.errors import PropertyNotFound
 from common.errors import UserExists
+from common.errors import UserNotFound
+
 
 class RedisTransactionManager(TransactionManagerBase):
     def __enter__(self):
@@ -57,13 +61,19 @@ class RedisBackend(BackendBase):
     _conn = None
 
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
-        value = {
-            'password': make_password(password) if password else None,
-            'properties': properties or {},
-        }
-        if self.conn.hsetnx('users', user, value) == 0:
+        password = make_password(password) if password else None
+        properties = properties or {}
+
+        if dry is True:  # handle dry mode
+            if self.conn.hexists('users', user):
+                raise UserExists(user)
+            return
+
+        if self.conn.hsetnx('users', user, password) == 1:
+            self.conn.hset('props', user, properties)
+            #TODO: handle groups
+        else:
             raise UserExists(user)
-        # TODO: do groups!
 
     def list_users(self):
         return self.conn.hkeys('users')
@@ -72,19 +82,49 @@ class RedisBackend(BackendBase):
         return self.conn.hexists('users', user)
 
     def rename_user(self, user, name):
-        pass
+        password = self.conn.hget('users', user)
+        if self.conn.hdel('users', user) == 0:
+            return UserNotFound(user)
+        self.conn.hset('users', name, password)
+
+        properties = self.conn.hget('props', user)
+        self.conn.hdel('props', user)
+        self.conn.hset('props', name, properties)
+
 
     def check_password(self, user, password, groups=None):
-        pass
+        if password is None:
+            return False
+
+        def setter(raw_password):
+            self.set_password(user, raw_password)
+
+        matches = check_password(password, self.conn.hget('users', user), setter)
+
+        #TODO: handle gruops
+
+        return matches
 
     def set_password(self, user, password=None):
-        pass
+        password = make_password(password) if password else None
+        if self.conn.hexists('users', user):
+            self.conn.hset('users', user, password)
+        else:
+            raise UserNotFound(user)
 
     def set_password_hash(self, user, algorithm, hash):
-        pass
+        password = import_hash(algorithm, hash)
+        if self.conn.hexists('users', user):
+            self.conn.hset('users', user, password)
+        else:
+            raise UserNotFound(user)
 
     def remove_user(self, user):
-        pass
+        if self.conn.hdel('users', user) == 0:
+            raise UserNotFound(user)
+        self.conn.hdel('props', user)
+
+        #TODO: handle gruops
 
     @property
     def conn(self):
