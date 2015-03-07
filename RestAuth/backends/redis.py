@@ -171,19 +171,13 @@ class RedisBackend(BackendBase):
         else:
             self.conn.hmset(user.id, props)
 
-    def init_transaction(self):
-        self.conn.execute_command('MULTI')
-
-    def commit_transaction(self):
-        self.conn.execute_command('EXEC')
-
-    def rollback_transaction(self):
-        self.conn.execute_command('DISCARD')
-
     def remove(self, user, key):
         value = self.conn.hdel(user.id, key)
         if value == 0:
             raise PropertyNotFound(key)
+
+    def testSetUp(self):
+        self.conn.flushdb()
 
     def testTearDown(self):
         self.conn.flushdb()
