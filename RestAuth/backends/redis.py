@@ -138,9 +138,7 @@ for i=2, #KEYS, 1 do
     end
 end
 
-for i=#KEYS - 1, #ARGS 1 do
-    redis.call('sadd', KEYS[1], ARGV[i])
-end
+redis.call('sadd', KEYS[1], unpack(ARGV, #KEYS - 1))
 """
 
 
