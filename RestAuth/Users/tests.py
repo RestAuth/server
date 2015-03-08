@@ -403,6 +403,23 @@ class DeleteUserTest(UserTests):  # DELETE /users/<user>/
         self.assertFalse(backend.user_exists(username1))
         self.assertTrue(backend.user_exists(username2))
 
+    def test_leftover_data(self):
+        # make sure user has properties and groups
+        backend.set_properties(username1, {'foo': 'bar'})
+        backend.create_group(groupname1, self.service)
+        backend.add_member(groupname1, self.service, username1)
+
+        # delete the user again
+        resp = self.delete('/users/%s/' % username1)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+        self.assertFalse(backend.user_exists(username1))
+        self.assertTrue(backend.user_exists(username2))
+
+        # create him again with nothing
+        backend.create_user(username1)
+        self.assertEqual(backend.list_properties(username1), {})
+        self.assertEqual(backend.list_groups(self.service, user=username1), [])
+
 
 class PropertyTests(RestAuthTransactionTest):
     """
