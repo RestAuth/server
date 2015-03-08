@@ -194,7 +194,6 @@ class GroupUserHandler(RestAuthSubResourceView):
 
         if not request.user.has_perm('Groups.group_user_in_group'):
             return HttpResponseForbidden()
-        print('get()')
 
         # If GroupNotFound: 404 Not Found
         # If UserNotFound: 404 Not Found
