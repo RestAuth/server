@@ -1207,6 +1207,16 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
             self.assertEqual(stdout.getvalue(), expected_stdout)
 
+    def test_view_inheritance(self):
+        backend.create_user(username1)
+        backend.create_user(username2)
+        backend.create_user(username3)
+        backend.create_group(group=groupname1, service=None)
+        backend.create_group(group=groupname2, service=None)
+        backend.create_group(group=groupname3, service=None)
+        backend.create_group(groupname4, service=self.service)
+        backend.create_group(groupname5, service=self.service)
+
         # add a few members, and subgroups:
         backend.add_member(group=groupname1, service=None, user=username1)
         backend.add_member(group=groupname1, service=None, user=username2)
