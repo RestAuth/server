@@ -45,13 +45,13 @@ if redis.call('hsetnx', KEYS[1], ARGV[1], ARGV[2]) == 0 then
     return {err="UserExists"}
 end
 
-if #ARGV >= 4 then
-    redis.call('hmset', KEYS[2], unpack(ARGV, 4, ARGV[3]))
-else
-    return
+local last_prop = tonumber(ARGV[3])
+
+if #ARGV >= 4 and last_prop > 3 then -- last_prop == 3 -> no properties
+    redis.call('hmset', KEYS[2], unpack(ARGV, 4, last_prop))
 end
 
-for i=1 + ARGV[3], #ARGV, 2 do
+for i=1 + last_prop, #ARGV, 2 do
     redis.call('sadd', "groups_" .. ARGV[i], ARGV[i+1])
     redis.call('sadd', "members_" .. ARGV[i] .. "_" .. ARGV[i+1], ARGV[1])
 end
@@ -279,6 +279,7 @@ class RedisBackend(BackendBase):
             return
 
         try:
+            keys = ['users']
             group_keys = set()
             group_args = []
             for group, service in groups:
@@ -287,8 +288,10 @@ class RedisBackend(BackendBase):
                 group_args += ['None' if service is None else str(service.id), group]
 
             properties = self._listify(properties)
+            if properties:
+                keys.append('props_%s' % user)
 
-            keys = ['users', 'props_%s' % user] + list(group_keys)
+            keys += list(group_keys)
             args = [user, password, len(properties) + 3] + properties + group_args
             self._create_user(keys=keys, args=args)
         except self.redis.ResponseError as e:
