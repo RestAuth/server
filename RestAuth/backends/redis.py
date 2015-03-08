@@ -137,9 +137,40 @@ if redis.call('exists', KEYS[4]) == 1 then
 end
 
 -- rename meta-group keys
-local old_ref = KEYS[3] .. '_' .. KEYS[1]
-local new_ref = KEYS[3] .. '_' .. KEYS[2]
+local old_ref = ARGV[3] .. '_' .. ARGV[1]
+local new_ref = ARGV[3] .. '_' .. ARGV[2]
 for i=6, #KEYS, 1 do
+    redis.call('srem', KEYS[i], old_ref)
+    redis.call('sadd', KEYS[i], new_ref)
+end
+"""
+
+# keys = [old_g_key, new_g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
+# args = [group, old_sid, new_sid]
+_set_service_script = """
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
+    return {err="GroupNotFound"}
+elseif redis.call('sismember', KEYS[2], ARGV[1]) == 1 then
+    return {err="GroupExists"}
+end
+
+-- rename grouop
+redis.call('srem', KEYS[1], ARGV[1])
+redis.call('sadd', KEYS[2], ARGV[1])
+
+-- rename user keys
+if redis.call('exists', KEYS[3]) == 1 then
+    redis.call('rename', KEYS[3], KEYS[4])
+end
+-- rename subgroup key
+if redis.call('exists', KEYS[5]) == 1 then
+    redis.call('rename', KEYS[5], KEYS[6])
+end
+
+-- rename meta-group keys
+local old_ref = ARGV[2] .. '_' .. ARGV[1]
+local new_ref = ARGV[3] .. '_' .. ARGV[1]
+for i=7, #KEYS, 1 do
     redis.call('srem', KEYS[i], old_ref)
     redis.call('sadd', KEYS[i], new_ref)
 end
@@ -306,6 +337,7 @@ class RedisBackend(BackendBase):
         self._set_properties = self.conn.register_script(_set_properties_script)
         self._remove_property = self.conn.register_script(_remove_property_script)
         self._rename_group = self.conn.register_script(_rename_group_script)
+        self._set_service = self.conn.register_script(_set_service_script)
         self._set_memberships = self.conn.register_script(_set_memberships_script)
         self._add_member = self.conn.register_script(_add_member_script)
         self._remove_member = self.conn.register_script(_remove_member_script)
@@ -552,17 +584,18 @@ class RedisBackend(BackendBase):
             self.conn.sadd(self._gu_key(group, service), *users)
 
     def rename_group(self, group, name, service):
-        try:
-            sid = self._sid(service)
-            g_key = self._g_key(service)
-            old_gu_key = self._gu_key(group, service)
-            new_gu_key = self._gu_key(name, service)
-            old_sg_key = self._sg_key(group, service)
-            new_sg_key = self._sg_key(name, service)
-            mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(old_sg_key)]
+        sid = self._sid(service)
+        g_key = self._g_key(service)
+        old_gu_key = self._gu_key(group, service)
+        new_gu_key = self._gu_key(name, service)
+        old_sg_key = self._sg_key(group, service)
+        new_sg_key = self._sg_key(name, service)
+        mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(old_sg_key)]
 
-            keys = [g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
-            args = [group, name, sid]
+        keys = [g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
+        args = [group, name, sid]
+
+        try:
             self._rename_group(keys=keys, args=args)
         except self.redis.ResponseError as e:
             if e.message == 'GroupNotFound':
@@ -572,8 +605,29 @@ class RedisBackend(BackendBase):
             raise
 
     def set_group_service(self, group, service, new_service):
-        # TODO: rename self._g_key, self._gu_key, mg_key, sg_key
-        pass
+        # TODO: This should be named set_service
+        old_sid = self._sid(service)
+        new_sid = self._sid(new_service)
+
+        old_g_key = self._g_key(service)
+        new_g_key = self._g_key(new_service)
+        old_gu_key = self._gu_key(group, service)
+        new_gu_key = self._gu_key(group, new_service)
+        old_sg_key = self._sg_key(group, service)
+        new_sg_key = self._sg_key(group, new_service)
+        mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(old_sg_key)]
+
+        keys = [old_g_key, new_g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
+        args = [group, old_sid, new_sid]
+
+        try:
+            self._set_service(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            if e.message == 'GroupNotFound':
+                raise GroupNotFound(group, service)
+            elif e.message == 'GroupExists':
+                raise GroupExists(group)
+            raise
 
     def group_exists(self, group, service):
         return self.conn.sismember(self._g_key(service), group)
