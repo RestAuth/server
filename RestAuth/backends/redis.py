@@ -99,8 +99,7 @@ redis.call('hmset', KEYS[2], unpack(ARGV, 2))"""
 _remove_property_script = """
 if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
     return {err="UserNotFound"}
-end
-if redis.call('hexists', KEYS[2], ARGV[2]) == 0 then
+elseif redis.call('hexists', KEYS[2], ARGV[2]) == 0 then
     return {err="PropertyNotFound"}
 end
 redis.call('hdel', KEYS[2], ARGV[2])
@@ -124,21 +123,35 @@ redis.call('sadd', KEYS[3], ARGV[4])
 redis.call('sadd', KEYS[4], ARGV[3])
 """
 
-# g_key = self._g_key(service)
-# sg_keys = [self._g_key(subservice) for g in subgroups]  # because thi will be a tuple
-# gu_keys = [self._gu_key(g, subservice) for g in subgroups]
+# sg_key = self._sg_key(group, service)  # stores subgroups
+# g_key = self._g_key(service)  # test for existance here
+# gu_key = self._gu_key(group, service)  # used for reference
+# g_keys = [self._g_key(subservice) for g in subgroups]  # test for existance here
+# gu_keys = [self._gu_key(g, subservice) for g in subgroups]  # used for reference
+# mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
 #
-# keys = [sg_key, g_key, ] + sg_keys
-# args = [group, ] + subgroups + gu_keys
-# self._set_subgroups(keys=keys, args=args)
+# keys = [sg_key, g_key, ] + g_keys + mg_keys
+# args = [gu_key, group, ] + subgroups + gu_keys
 _set_subgroups_script = """
-for i=2, #KEYS, 1 do
-    if redis.call('sismember', KEYS[i], ARGV[i - 1]) == 0 then
+local no_groups = (#KEYS - 2) / 2
+redis.log(redis.LOG_WARNING, 'Adding ' .. no_groups .. ' groups.')
+
+-- Verify that all groups exist
+for i=2, no_groups + 2, 1 do
+    if redis.call('sismember', KEYS[i], ARGV[i]) == 0 then
         return {err=KEYS[i] .. "_" .. ARGV[i - 1]}
     end
 end
 
-redis.call('sadd', KEYS[1], unpack(ARGV, #KEYS - 1))
+-- add subgroups to metagroup
+redis.call('del', KEYS[1])
+redis.call('sadd', KEYS[1], unpack(ARGV, 3 + no_groups))
+
+-- add metagroup to subgroups
+for i=3 + no_groups, #KEYS, 1 do
+    redis.call('sadd', KEYS[i], ARGV[1])
+end
+-- TODO: Add relation the other way round
 """
 
 
@@ -177,6 +190,7 @@ class RedisBackend(BackendBase):
         self._set_properties = self.conn.register_script(_set_properties_script)
         self._remove_property = self.conn.register_script(_remove_property_script)
         self._add_subgroup = self.conn.register_script(_add_subgroup_script)
+        self._set_subgroups = self.conn.register_script(_set_subgroups_script)
 
 
     def _listify(self, d):
@@ -334,7 +348,7 @@ class RedisBackend(BackendBase):
 
     # groups_<service.id> == set of groups for a service
     def _g_key(self, service):
-        return 'groups_%s' % service.id if service is not None else 'None'
+        return 'groups_%s' % (service.id if service is not None else 'None')
 
     # members_<service.id>_<group> == set of users in a group
     def _gu_key(self, group, service):
@@ -443,12 +457,15 @@ class RedisBackend(BackendBase):
 
     def set_subgroups(self, group, service, subgroups, subservice):
         # TODO: subgroups should be a list of tuples with service
-        g_key = self._g_key(service)
-        sg_keys = [self._g_key(subservice) for g in subgroups]  # because thi will be a tuple
-        gu_keys = [self._gu_key(g, subservice) for g in subgroups]
+        sg_key = self._sg_key(group, service)  # stores subgroups
+        g_key = self._g_key(service)  # test for existance here
+        gu_key = self._gu_key(group, service)  # used for reference
+        g_keys = [self._g_key(subservice) for g in subgroups]  # test for existance here
+        gu_keys = [self._gu_key(g, subservice) for g in subgroups]  # used for reference
+        mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
 
-        keys = [g_key, ] + sg_keys
-        args = [group, ] + subgroups + gu_keys
+        keys = [sg_key, g_key, ] + g_keys + mg_keys
+        args = [gu_key, group, ] + subgroups + gu_keys
         try:
             self._set_subgroups(keys=keys, args=args)
         except self.redis.ResponseError as e:
