@@ -20,6 +20,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 from django.utils import six
 
+from Services.models import Service
 from backends.base import BackendBase
 from backends.base import TransactionManagerBase
 from common.hashers import import_hash
@@ -177,26 +178,42 @@ redis.call('sadd', KEYS[4], ARGV[3])
 # g_keys = [self._g_key(subservice) for g in subgroups]  # test for existance here
 # ref_keys = [self._ref_key(g, subservice) for g in subgroups]  # used for reference
 # mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
+# add_mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(sg_key)]
 #
-# keys = [sg_key, g_key, ] + g_keys + mg_keys
+# keys = [sg_key, g_key, ] + g_keys + mg_keys + [k for k in add_mg_keys if k not in mg_keys]
 # args = [ref_key, group, ] + subgroups + ref_keys
 _set_subgroups_script = """
-local no_groups = (#KEYS - 2) / 2
+local no_groups = (#ARGV - 2) / 2
+redis.log(redis.LOG_WARNING, "Number of groups: " .. no_groups)
 
 -- Verify that all groups exist
 for i=2, no_groups + 2, 1 do
+    redis.log(redis.LOG_WARNING, "Test group at index " .. i)
     if redis.call('sismember', KEYS[i], ARGV[i]) == 0 then
+        redis.log(redis.LOG_WARNING, "Can't find group")
         return {err=ARGV[i]}
     end
 end
+redis.log(redis.LOG_WARNING, "Passed existence checks.")
+
+redis.call('del', KEYS[1])
+redis.log(redis.LOG_WARNING, "Removed subgroups")
+
+for i=3 + no_groups * 2, #KEYS, 1 do
+   redis.log(redis.LOG_WARNING, 'Remove metagroup from ' .. KEYS[i])
+   redis.call('srem', KEYS[i], ARGV[1])
+end
+redis.log(redis.LOG_WARNING, "Removed metagroups")
 
 -- add subgroups to metagroup
-redis.call('del', KEYS[1])
-redis.call('sadd', KEYS[1], unpack(ARGV, 3 + no_groups))
+if no_groups > 0 then
+    redis.call('sadd', KEYS[1], unpack(ARGV, 3 + no_groups))
 
--- add metagroup to subgroups
-for i=3 + no_groups, #KEYS, 1 do
-    redis.call('sadd', KEYS[i], ARGV[1])
+    -- add metagroup to subgroups
+    for i=3 + no_groups, 2 + no_groups * 2, 1 do
+        redis.log(redis.LOG_WARNING, 'Add metagroup to ' .. KEYS[i])
+        redis.call('sadd', KEYS[i], ARGV[1])
+    end
 end
 """
 
@@ -285,6 +302,9 @@ class RedisBackend(BackendBase):
 
     # parse any group key (members, subgroups, metagroups)
     def _parse_key(self, key):
+        if six.PY2 and isinstance(key, str):
+            key = key.decode('utf-8')
+
         sid, name = key.split('_')
         if sid == 'None':
             return (name, None)
@@ -473,7 +493,7 @@ class RedisBackend(BackendBase):
 
         g_key = self._g_key(service)
         if self.conn.sismember(g_key, group):
-            raise GroupExists(group, service)
+            raise GroupExists(group)
         elif dry is True:
             return
 
@@ -483,7 +503,7 @@ class RedisBackend(BackendBase):
         if users is not None:
             # multi value insert in lua - use unpack:
             # http://redis.io/commands/sadd#comment-800126580
-            self.conn.sadd(self.gu_key(group, service), *users)
+            self.conn.sadd(self._gu_key(group, service), *users)
 
     def rename_group(self, group, name, service):
         # TODO: rename self._g_key, self._gu_key, mg_key, sg_key
@@ -549,8 +569,13 @@ class RedisBackend(BackendBase):
 
     def members(self, group, service, depth=None):
         # TODO: rewrite as lua script
+
         if depth is None:
             depth = settings.GROUP_RECURSION_DEPTH
+
+        g_key = self._g_key(service)
+        if not self.conn.sismember(g_key, group):
+            raise GroupNotFound(group, service)
 
         members = self.conn.smembers(self._gu_key(group, service))
         ref_keys = self._parents(self._ref_key(group, service), depth=1, max_depth=depth)
@@ -562,6 +587,10 @@ class RedisBackend(BackendBase):
 
     def is_member(self, group, service, user):
         # TODO: rewrite as lua script
+        g_key = self._g_key(service)
+        if not self.conn.sismember(g_key, group):
+            raise GroupNotFound(group, service)
+
         members = self.conn.smembers(self._gu_key(group, service))
         if user in members:
             return True
@@ -602,22 +631,44 @@ class RedisBackend(BackendBase):
         ref_keys = [self._ref_key(g, subservice) for g in subgroups]  # used for reference
         mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
 
-        keys = [sg_key, g_key, ] + g_keys + mg_keys
+        # get subgroups
+        add_mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(sg_key)]
+
+        keys = [sg_key, g_key, ] + g_keys + mg_keys + [k for k in add_mg_keys if k not in mg_keys]
         args = [ref_key, group, ] + subgroups + ref_keys
+        print('keys', keys)
+        print('args', args)
         try:
             self._set_subgroups(keys=keys, args=args)
         except self.redis.ResponseError as e:
-            raise GroupNotFound(*self._parse_key(e.message))
+            print(e.message)
+            # TODO: we do not yet pass the correct value
+            raise GroupNotFound(group, service=None)
 
     def is_subgroup(self, group, service, subgroup, subservice):
         return self.conn.sismember(self._sg_key(group, service),
                                    self._ref_key(subgroup, subservice))
 
     def subgroups(self, group, service, filter=True):
-        return [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, service))]
+        g_key = self._g_key(service)
+        if not self.conn.sismember(g_key, group):
+            raise GroupNotFound(group, service)
+
+        if filter is True:
+            sid = None if service is None else service.id
+            subgroups = [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, service))]
+            return [g for g, s in subgroups if s == sid]
+        else:
+            subgroups = [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, service))]
+            return [(g, Service.objects.get(id=s)) for g, s in subgroups]
 
     def parents(self, group, service):
-        return [self._parse_key(k) for k in self.conn.smembers(self._mg_key(group, service))]
+        g_key = self._g_key(service)
+        if not self.conn.sismember(g_key, group):
+            raise GroupNotFound(group, service)
+
+        parents = [self._parse_key(k) for k in self.conn.smembers(self._mg_key(group, service))]
+        return [(g, Service.objects.get(id=s)) for g, s in parents]
 
     def remove_subgroup(self, group, service, subgroup, subservice):
         # to test for existence
