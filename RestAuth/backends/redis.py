@@ -33,6 +33,8 @@ from common.errors import UserNotFound
 
 
 class RedisTransactionManager(TransactionManagerBase):
+    # we don't really support transactions ATM
+
     def __enter__(self):
         pass
 
@@ -323,6 +325,8 @@ class RedisBackend(BackendBase):
     """
 
     library = 'redis'
+
+    TRANSACTION_MANAGER = RedisTransactionManager
 
     def __init__(self, HOST='localhost', PORT=6379, DB=0, **kwargs):
         self.redis = self._load_library()
