@@ -60,6 +60,8 @@ for i=1 + last_prop, #ARGV, 2 do
 end
 """
 
+# keys = ['users', 'props_%s' % user, 'props_%s' % name]
+# args = [user, name]
 _rename_user_script = """
 -- get old user
 local hash = redis.call('hget', KEYS[1], ARGV[1])
@@ -77,9 +79,7 @@ redis.call('hdel', KEYS[1], ARGV[1])
 redis.call('hset', KEYS[1], ARGV[2], hash)
 
 -- rename properties
-local props = redis.call('hget', KEYS[2], ARGV[1])
-redis.call('hdel', KEYS[2], ARGV[1])
-redis.call('hset', KEYS[2], ARGV[2], props)"""
+redis.call('rename', KEYS[2], KEYS[3])"""
 
 _create_property_script = """
 if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
@@ -430,8 +430,8 @@ class RedisBackend(BackendBase):
     def rename_user(self, user, name):
         try:
             # TODO: handle groups
-            # TODO: props is the wrong key!
-            self._rename_user(keys=['users', 'props'], args=[user, name])
+            keys = ['users', 'props_%s' % user, 'props_%s' % name]
+            self._rename_user(keys=keys, args=[user, name])
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
                 raise UserNotFound(user)
