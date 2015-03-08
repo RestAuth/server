@@ -38,14 +38,22 @@ class RedisTransactionManager(TransactionManagerBase):
     def __exit__(self, exc_type, exc_value, traceback):
         pass
 
+# keys=['users', 'props_%s' % user] + list(group_keys)
+# args=[user, password, len(properties)] + properties + groups
 _create_user_script = """
-local existed = redis.call('hsetnx', KEYS[1], ARGV[1], ARGV[2])
-if existed == 0 then
+if redis.call('hsetnx', KEYS[1], ARGV[1], ARGV[2]) == 0 then
     return {err="UserExists"}
 end
 
-if #ARGV >= 3 then
-    redis.call('hmset', KEYS[2], unpack(ARGV, 3))
+if #ARGV >= 4 then
+    redis.call('hmset', KEYS[2], unpack(ARGV, 4, ARGV[3]))
+else
+    return
+end
+
+for i=1 + ARGV[3], #ARGV, 2 do
+    redis.call('sadd', "groups_" .. ARGV[i], ARGV[i+1])
+    redis.call('sadd', "members_" .. ARGV[i] .. "_" .. ARGV[i+1], ARGV[1])
 end
 """
 
@@ -152,7 +160,6 @@ redis.call('sadd', KEYS[4], ARGV[3])
 # args = [ref_key, group, ] + subgroups + ref_keys
 _set_subgroups_script = """
 local no_groups = (#KEYS - 2) / 2
-redis.log(redis.LOG_WARNING, 'Adding ' .. no_groups .. ' groups.')
 
 -- Verify that all groups exist
 for i=2, no_groups + 2, 1 do
@@ -264,6 +271,7 @@ class RedisBackend(BackendBase):
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         password = make_password(password) if password else ''
         properties = properties or {}
+        groups = groups or []
 
         if dry is True:  # handle dry mode
             if self.conn.hexists('users', user):  # this is really the only error condition
@@ -271,9 +279,18 @@ class RedisBackend(BackendBase):
             return
 
         try:
-            # TODO: handle groups
-            return self._create_user(keys=['users', 'props_%s' % user],
-                                     args=[user, password, ] + self._listify(properties))
+            group_keys = set()
+            group_args = []
+            for group, service in groups:
+                group_keys.add(self._g_key(service))
+                group_keys.add(self._gu_key(group, service))
+                group_args += ['None' if service is None else str(service.id), group]
+
+            properties = self._listify(properties)
+
+            keys = ['users', 'props_%s' % user] + list(group_keys)
+            args = [user, password, len(properties) + 3] + properties + group_args
+            self._create_user(keys=keys, args=args)
         except self.redis.ResponseError as e:
             if e.message == 'UserExists':
                 raise UserExists(user)
