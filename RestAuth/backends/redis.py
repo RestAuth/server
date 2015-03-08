@@ -493,12 +493,13 @@ class RedisBackend(BackendBase):
         if dry is True:  # shortcut, can be done with simple pipe
             pipe = self.conn.pipeline()
             pipe.hexists('users', user)
-            pipe.hexists('props_%s' % user)
+            pipe.hexists('props_%s' % user, key)
             user_exists, prop_exists = pipe.execute()
             if user_exists is False:
                 raise UserNotFound(user)
             elif prop_exists is True:
                 raise PropertyExists(key)
+            return
 
         try:
             self._create_property(keys=['users', 'props_%s' % user], args=[user, key, value])
