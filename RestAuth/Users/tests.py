@@ -772,6 +772,7 @@ class HashTestMixin(RestAuthTestBase):
             backend.remove_user(user=username1)
 
 
+@skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
 @override_settings(PASSWORD_HASHERS=('common.hashers.Drupal7Hasher',
                                      'django.contrib.auth.hashers.MD5PasswordHasher',))
 class Drupal7Test(HashTestMixin, TransactionTestCase):
@@ -808,6 +809,7 @@ class Drupal7Test(HashTestMixin, TransactionTestCase):
         return '%s$$S$%s%s' % (self.algorithm, data['salt'], data['hash'])
 
 
+@skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
 @override_settings(PASSWORD_HASHERS=('common.hashers.Sha512Hasher',))
 class Sha512Test(HashTestMixin, TransactionTestCase):
     hashers = ('common.hashers.Sha512Hasher',)
@@ -827,6 +829,7 @@ class Sha512Test(HashTestMixin, TransactionTestCase):
     }
 
 
+@skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
 @override_settings(PASSWORD_HASHERS=('common.hashers.MediaWikiHasher',))
 class MediaWikiTest(HashTestMixin, TransactionTestCase):
     hashers = ('common.hashers.MediaWikiHasher',)
