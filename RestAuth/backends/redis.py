@@ -482,6 +482,9 @@ class RedisBackend(BackendBase):
             return list(self.conn.smembers(self._g_key(service)))
         else:
             # TODO: rewrite as lua script
+            if not self.conn.hexists('users', user):
+                raise UserNotFound(user)
+
             groups = set()
             for group in self.conn.smembers(self._g_key(service)):
                 if self.is_member(group=group, service=service, user=user):
