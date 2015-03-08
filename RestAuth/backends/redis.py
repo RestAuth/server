@@ -60,6 +60,14 @@ for i=1 + last_prop, #ARGV, 2 do
 end
 """
 
+# keys=['users'], args=[user, password]
+_set_password_script = """
+if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
+    return {err="UserNotFound"}
+end
+redis.call('hset', KEYS[1], ARGV[1], ARGV[2])
+"""
+
 # keys = ['users', 'props_%s' % user, 'props_%s' % name]
 # args = [user, name]
 _rename_user_script = """
@@ -346,6 +354,7 @@ class RedisBackend(BackendBase):
         # register scripts
         self._create_user = self.conn.register_script(_create_user_script)
         self._rename_user = self.conn.register_script(_rename_user_script)
+        self._set_password = self.conn.register_script(_set_password_script)
         self._remove_user = self.conn.register_script(_remove_user_script)
         self._create_property = self.conn.register_script(_create_property_script)
         self._set_property = self.conn.register_script(_set_property_script)
@@ -472,20 +481,24 @@ class RedisBackend(BackendBase):
         return matches
 
     def set_password(self, user, password=None):
-        # TODO: rewrite as lua script
-        password = make_password(password) if password else None
-        if self.conn.hexists('users', user):
-            self.conn.hset('users', user, password)
-        else:
-            raise UserNotFound(user)
+        password = make_password(password) if password else ''
+
+        try:
+            self._set_password(keys=['users'], args=[user, password])
+        except self.redis.ResponseError as e:
+            if e.message == 'UserNotFound':
+                raise UserNotFound(user)
+            raise
 
     def set_password_hash(self, user, algorithm, hash):
-        # TODO: rewrite as lua script
-        password = import_hash(algorithm, hash)
-        if self.conn.hexists('users', user):
-            self.conn.hset('users', user, password)
-        else:
-            raise UserNotFound(user)
+        hash = import_hash(algorithm, hash)
+
+        try:
+            self._set_password(keys=['users'], args=[user, hash])
+        except self.redis.ResponseError as e:
+            if e.message == 'UserNotFound':
+                raise UserNotFound(user)
+            raise
 
     def remove_user(self, user):
         try:
