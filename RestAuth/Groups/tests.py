@@ -234,6 +234,12 @@ class CreateGroupTests(GroupTests):  # POST /groups/
         self.assertCountEqual(backend.list_groups(service=self.service), [groupname1])
         self.assertCountEqual(backend.members(group=groupname1, service=self.service), users)
 
+    def test_create_group_with_users_not_found(self):
+        users = [username1, username4]
+        resp = self.post('/groups/', {'group': groupname1, 'users': users})
+        self.assertEqual(resp.status_code, http_client.NOT_FOUND)
+        self.assertCountEqual(backend.list_groups(service=self.service), [])
+
     @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
         backend.create_group(service=self.service2, group=groupname1)
