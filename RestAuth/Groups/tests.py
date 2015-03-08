@@ -266,6 +266,8 @@ class SetGroupsTests(GroupTests):  # PUT /groups/
         for group_list in group_lists:
             resp = self.put('/groups/', {'user': username1, 'groups': group_list})
             self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+            for group in group_list:
+                self.assertTrue(backend.is_member(group, self.service, username1))
             self.assertCountEqual(
                 backend.list_groups(service=self.service, user=username1), group_list)
 
@@ -989,6 +991,8 @@ class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
         # establich a cross-service relation, try to overwrite it:
         backend.add_subgroup(group=groupname1, service=self.service,
                              subgroup=groupname4, subservice=self.service2)
+        backend.add_subgroup(group=groupname1, service=self.service,
+                             subgroup=groupname3, subservice=self.service)
         resp = self.put('/groups/%s/groups/' % groupname1, {'groups': [groupname2]})
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertCountEqual(
