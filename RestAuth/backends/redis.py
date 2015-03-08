@@ -89,7 +89,7 @@ redis.call('hset', KEYS[1], ARGV[2], hash)
 -- rename properties
 redis.call('rename', KEYS[2], KEYS[3])"""
 
-# keys = ['users', 'props_%s' % user]
+# keys = ['users', 'props_%s' % user] + [members_*]
 # args = [user]
 _remove_user_script = """
 if redis.call('hdel', KEYS[1], ARGV[1]) == 0 then
@@ -97,6 +97,9 @@ if redis.call('hdel', KEYS[1], ARGV[1]) == 0 then
 end
 
 redis.call('del', KEYS[2])
+for i=3, #KEYS, 1 do
+    p.call('srem', KEY[i], ARGV[1])
+end
 """
 
 _create_property_script = """
@@ -502,8 +505,7 @@ class RedisBackend(BackendBase):
 
     def remove_user(self, user):
         try:
-            # TODO: handle groups
-            keys = ['users', 'props_%s' % user]
+            keys = ['users', 'props_%s' % user] + list(self.conn.scan_iter(match='members_*'))
             self._remove_user(keys=keys, args=[user])
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
