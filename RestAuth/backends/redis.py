@@ -152,9 +152,9 @@ redis.call('sadd', KEYS[3], ARGV[2])
 # keys=[self._g_key(service), self._gu_key(group, service)]
 # args=[group, user])
 _remove_member_script = """
-if redis.call('sismember', KEYS[1], ARGV[1]) == 0 do
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
     return {err="GroupNotFound"}
-elseif redis.call('srem', KEYS[2], ARGV[2]) == 0 do
+elseif redis.call('srem', KEYS[2], ARGV[2]) == 0 then
     return {err="UserNotFound"}
 end
 """
@@ -623,7 +623,9 @@ class RedisBackend(BackendBase):
         except self.redis.ResponseError as e:
             if e.message == 'GroupNotFound':
                 raise GroupNotFound(group, service)
-            raise UserNotFound(user)
+            elif e.message == "UserNotFound":
+                raise UserNotFound(user)
+            raise
 
     def add_subgroup(self, group, service, subgroup, subservice):
         g_key = self._g_key(service)
