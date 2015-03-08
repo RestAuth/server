@@ -19,12 +19,14 @@ import inspect
 import os
 import re
 
+from django.conf import settings
 from django.contrib.auth.hashers import load_hashers
 from django.core.exceptions import ImproperlyConfigured
 from django.test.client import Client
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.utils.unittest import TestCase
+from django.utils.unittest import skipUnless
 
 from django.utils import six
 from django.utils.six.moves import http_client
@@ -69,6 +71,7 @@ PASSWORD_HASHERS = (
 )
 
 
+@skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
 class RestAuthMiddlewareTests(TestCase):
     def setUp(self):
         self.handler = handlers.JSONContentHandler()
@@ -99,6 +102,7 @@ class RestAuthMiddlewareTests(TestCase):
         self.assertEqual(resp.status_code, http_client.UNSUPPORTED_MEDIA_TYPE)
 
 
+@skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
 class ContentTypeTests(RestAuthTest):
     def setUp(self):
         RestAuthTest.setUp(self)
@@ -120,6 +124,8 @@ class ContentTypeTests(RestAuthTest):
         self.assertEqual(resp.status_code, http_client.BAD_REQUEST)
         self.assertCountEqual(backend.list_users(), [])
 
+
+@skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
 class ContentHandlerTests(RestAuthTest):
     def test_load_handlers(self):
         with self.settings(CONTENT_HANDLERS=('foo.bar', )), \
@@ -158,6 +164,7 @@ validators = (
 )
 
 
+@skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
 class ValidatorTests(RestAuthTest):
     def setUp(self):
         super(ValidatorTests, self).setUp()
@@ -246,6 +253,7 @@ class ValidatorTests(RestAuthTest):
         ), substract=1)
 
 
+@skipUnless(settings.DATA_BACKEND['BACKEND'] == 'backends.django.DjangoBackend', '')
 class BasicTests(RestAuthTest):
     def test_index(self):
         c = Client()
@@ -443,7 +451,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 propkey1: propval1,
                 propkey2: propval2,
                 # timestamps of when we wrote this test:
-#                u'date joined': u'2013-12-01 19:27:50',
+                # u'date joined': u'2013-12-01 19:27:50',
                 u'last login': u'2013-12-01 19:27:44',
             }
 
@@ -484,7 +492,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
     def test_existing_properties(self):
         backend.create_user(username2)
-        backend.create_property(user=username2, key=propkey1, value=propval3)  # propval1 is in json file
+        backend.create_property(user=username2, key=propkey1, value=propval3)  # propval1 -> json
         backend.create_property(user=username2, key="date joined", value=propval3)
 
         path = os.path.join(self.base, 'users1.json')
@@ -570,7 +578,8 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertEqual(stderr.getvalue(), '')
             self.assertHasLine(stdout, '^Groups:$')
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname1)
-            self.assertHasLine(stdout, '^\* %s: Already exists, adding memberships\.$' % groupname2)
+            self.assertHasLine(
+                stdout, '^\* %s: Already exists, adding memberships\.$' % groupname2)
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
 
