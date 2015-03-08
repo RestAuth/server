@@ -105,10 +105,21 @@ end
 redis.call('hdel', KEYS[2], ARGV[2])
 """
 
+# keys=[self._g_key(service), 'user', self._gu_key(group, service)]
+# args=[group, user])
+_add_member_script = """
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
+    return {err="GroupNotFound"}
+elseif redis.call('hexists', KEYS[2], ARGV[2]) == 0 then
+    return {err="UserNotFound"}
+end
+redis.call('sadd', KEYS[3], ARGV[2])
+"""
+
 # keys=[self._g_key(service), self._gu_key(group, service)]
 # args=[group, user])
 _remove_member_script = """
-if redis.call('sismember', KEYS[1], ARGV[1]) do
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 do
     return {err="GroupNotFound"}
 elif redis.call('srem', KEYS[2], ARGV[2]) == 0 do
     return {err="UserNotFound"}
@@ -210,6 +221,8 @@ class RedisBackend(BackendBase):
         self._set_property = self.conn.register_script(_set_property_script)
         self._set_properties = self.conn.register_script(_set_properties_script)
         self._remove_property = self.conn.register_script(_remove_property_script)
+        self._add_member = self.conn.register_script(_add_member_script)
+        self._remove_member = self.conn.register_script(_remove_member_script)
         self._add_subgroup = self.conn.register_script(_add_subgroup_script)
         self._set_subgroups = self.conn.register_script(_set_subgroups_script)
         self._remove_subgroup = self.conn.register_script(_remove_subgroup_script)
@@ -444,11 +457,15 @@ class RedisBackend(BackendBase):
         self.conn.sadd(gu_key, *users)
 
     def add_member(self, group, service, user):
-        # TODO: rewrite as lua script
-        if self.conn.sismember(self._g_key(service), group) is False:
-            raise GroupNotFound(group, service)
-
-        self.conn.sadd(self._gu_key(group, service), user)
+        try:
+            self._add_member(keys=[self._g_key(service), 'users', self._gu_key(group, service)],
+                             args=[group, user])
+        except self.redis.ResponseError as e:
+            if e.message == 'GroupNotFound':
+                raise GroupNotFound(group, service)
+            elif e.message == 'UserNotFound':
+                raise UserNotFound(user)
+            raise
 
     def _parents(self, ref_key, depth, max_depth):
         parents = self.conn.smembers('metagroups_%s' % ref_key)
@@ -458,6 +475,7 @@ class RedisBackend(BackendBase):
         return parents
 
     def members(self, group, service, depth=None):
+        # TODO: rewrite as lua script
         if depth is None:
             depth = settings.GROUP_RECURSION_DEPTH
 
