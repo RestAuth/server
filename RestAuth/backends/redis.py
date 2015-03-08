@@ -429,7 +429,8 @@ class RedisBackend(BackendBase):
 
     def rename_user(self, user, name):
         try:
-            # TODO: handle gruops
+            # TODO: handle groups
+            # TODO: props is the wrong key!
             self._rename_user(keys=['users', 'props'], args=[user, name])
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
@@ -479,7 +480,7 @@ class RedisBackend(BackendBase):
         # TODO: rewrite as lua script
         if self.conn.hdel('users', user) == 0:
             raise UserNotFound(user)
-        self.conn.hdel('props', user)
+        self.conn.hdel('props', user)  # TODO: This is the wrong key
         # TODO: handle groups
 
     def list_properties(self, user):
