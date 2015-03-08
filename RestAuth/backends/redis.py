@@ -151,7 +151,24 @@ redis.call('sadd', KEYS[1], unpack(ARGV, 3 + no_groups))
 for i=3 + no_groups, #KEYS, 1 do
     redis.call('sadd', KEYS[i], ARGV[1])
 end
--- TODO: Add relation the other way round
+"""
+
+# keys = [meta_g_key, sub_g_key, meta_sg_key, sub_mg_key]
+# args = [group, subgroup, meta_gu_key, sub_gu_key]
+_remove_subgroup_script = """
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
+    redis.log(redis.LOG_WARNING, 'meta-group not found')
+    return {err=ARGV[3]}
+elseif redis.call('sismember', KEYS[2], ARGV[2]) == 0 then
+    redis.log(redis.LOG_WARNING, 'sub-group not found')
+    return {err=ARGV[4]}
+end
+
+if redis.call('srem', KEYS[3], ARGV[4]) == 0 then
+    redis.log(redis.LOG_WARNING, 'group is not a subgroup')
+    return {err=ARGV[4]}
+end
+redis.call('srem', KEYS[4], ARGV[3])
 """
 
 
@@ -191,7 +208,7 @@ class RedisBackend(BackendBase):
         self._remove_property = self.conn.register_script(_remove_property_script)
         self._add_subgroup = self.conn.register_script(_add_subgroup_script)
         self._set_subgroups = self.conn.register_script(_set_subgroups_script)
-
+        self._remove_subgroup = self.conn.register_script(_remove_subgroup_script)
 
     def _listify(self, d):
         l = []
@@ -458,9 +475,9 @@ class RedisBackend(BackendBase):
     def set_subgroups(self, group, service, subgroups, subservice):
         # TODO: subgroups should be a list of tuples with service
         sg_key = self._sg_key(group, service)  # stores subgroups
-        g_key = self._g_key(service)  # test for existance here
+        g_key = self._g_key(service)  # test for existence here
         gu_key = self._gu_key(group, service)  # used for reference
-        g_keys = [self._g_key(subservice) for g in subgroups]  # test for existance here
+        g_keys = [self._g_key(subservice) for g in subgroups]  # test for existence here
         gu_keys = [self._gu_key(g, subservice) for g in subgroups]  # used for reference
         mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
 
@@ -482,9 +499,21 @@ class RedisBackend(BackendBase):
         return [self._parse_key(k) for k in self.conn.smembers(self._mg_key(group, service))]
 
     def remove_subgroup(self, group, service, subgroup, subservice):
-        # TODO: rewrite as lua script
-        # TODO: no checking of group existance yet
-        return self.conn.srem(self._sg_key(group, service), self._gu_key(subgroup, subservice))
+        # to test for existence
+        meta_g_key = self._g_key(service)
+        sub_g_key = self._g_key(subservice)
+        meta_gu_key = self._gu_key(group, service)
+        sub_gu_key = self._gu_key(subgroup, subservice)
+        meta_sg_key = self._sg_key(group, service)
+        sub_mg_key = self._mg_key(subgroup, subservice)
+
+        keys = [meta_g_key, sub_g_key, meta_sg_key, sub_mg_key]
+        args = [group, subgroup, meta_gu_key, sub_gu_key]
+
+        try:
+            self._remove_subgroup(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            raise GroupNotFound(*self._parse_key(e.message))
 
     def testSetUp(self):
         self.conn.flushdb()
