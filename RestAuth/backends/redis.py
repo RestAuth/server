@@ -280,6 +280,10 @@ class RedisBackend(BackendBase):
         [l.extend(t) for t in six.iteritems(d)]
         return l
 
+    # get the id of a service
+    def _sid(self, service):
+        return service.id if service is not None else 'None'
+
     # The key that lists groups of the given service
     def _g_key(self, service):
         return 'groups_%s' % (service.id if service is not None else 'None')
@@ -634,8 +638,10 @@ class RedisBackend(BackendBase):
         ref_keys = [self._ref_key(g, subservice) for g in subgroups]  # used for reference
         mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
 
-        # get subgroups
-        add_mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(sg_key)]
+        # get metagroup keys with the same service
+        sid = self._sid(service)
+        add_mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(sg_key) if
+                       k.startswith('%s_' % sid)]
 
         keys = [sg_key, g_key, ] + g_keys + mg_keys + [k for k in add_mg_keys if k not in mg_keys]
         args = [ref_key, group, ] + subgroups + ref_keys
