@@ -128,7 +128,9 @@ for i=3, #KEYS, 1 do
 end
 
 -- create any groups that don't exist yet
-redis.call('sadd', KEYS[2], unpack(ARGV, 3))
+if #ARGV > 2 then
+    redis.call('sadd', KEYS[2], unpack(ARGV, 3))
+end
 
 -- add user to groups
 for i=3, #ARGV, 1 do
@@ -152,7 +154,7 @@ redis.call('sadd', KEYS[3], ARGV[2])
 _remove_member_script = """
 if redis.call('sismember', KEYS[1], ARGV[1]) == 0 do
     return {err="GroupNotFound"}
-elif redis.call('srem', KEYS[2], ARGV[2]) == 0 do
+elseif redis.call('srem', KEYS[2], ARGV[2]) == 0 do
     return {err="UserNotFound"}
 end
 """
@@ -174,36 +176,42 @@ redis.call('sadd', KEYS[4], ARGV[3])
 
 # sg_key = self._sg_key(group, service)  # stores subgroups
 # g_key = self._g_key(service)  # test for existance here
-# ref_key = self._ref_key(group, service)  # used for reference
+# sid = self._sid(service)  # used for reference
 # g_keys = [self._g_key(subservice) for g in subgroups]  # test for existance here
 # ref_keys = [self._ref_key(g, subservice) for g in subgroups]  # used for reference
 # mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
 # add_mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(sg_key)]
 #
 # keys = [sg_key, g_key, ] + g_keys + mg_keys + [k for k in add_mg_keys if k not in mg_keys]
-# args = [ref_key, group, ] + subgroups + ref_keys
+# args = [sid, group, ] + subgroups + ref_keys
 _set_subgroups_script = """
 local no_groups = (#ARGV - 2) / 2
-redis.log(redis.LOG_WARNING, "Number of groups: " .. no_groups)
+local group_ref = ARGV[1] .. '_' .. ARGV[2]
 
 -- Verify that all groups exist
 for i=2, no_groups + 2, 1 do
-    redis.log(redis.LOG_WARNING, "Test group at index " .. i)
     if redis.call('sismember', KEYS[i], ARGV[i]) == 0 then
-        redis.log(redis.LOG_WARNING, "Can't find group")
         return {err=ARGV[i]}
     end
 end
-redis.log(redis.LOG_WARNING, "Passed existence checks.")
 
-redis.call('del', KEYS[1])
-redis.log(redis.LOG_WARNING, "Removed subgroups")
-
-for i=3 + no_groups * 2, #KEYS, 1 do
-   redis.log(redis.LOG_WARNING, 'Remove metagroup from ' .. KEYS[i])
-   redis.call('srem', KEYS[i], ARGV[1])
+-- Remove subgroup relations.
+-- This is a poor-(wo)mans sscan, because it is not allowed in LUA scripts
+local subgroups = redis.call('smembers', KEYS[1])
+local to_remove = {}
+for i=1, #subgroups, 1 do
+    if string.match(subgroups[i], ARGV[1] .. '_') ~= nil then
+        to_remove[#to_remove+1] = subgroups[i]
+    end
 end
-redis.log(redis.LOG_WARNING, "Removed metagroups")
+if #to_remove > 0 then
+    redis.call('srem', KEYS[1], unpack(to_remove))
+end
+
+-- remove metagroups
+for i=3 + no_groups * 2, #KEYS, 1 do
+   redis.call('srem', KEYS[i], group_ref)
+end
 
 -- add subgroups to metagroup
 if no_groups > 0 then
@@ -211,8 +219,7 @@ if no_groups > 0 then
 
     -- add metagroup to subgroups
     for i=3 + no_groups, 2 + no_groups * 2, 1 do
-        redis.log(redis.LOG_WARNING, 'Add metagroup to ' .. KEYS[i])
-        redis.call('sadd', KEYS[i], ARGV[1])
+        redis.call('sadd', KEYS[i], group_ref)
     end
 end
 """
@@ -530,7 +537,7 @@ class RedisBackend(BackendBase):
             # All existing and created groups may be modified
             clear_groups = self.conn.smembers(g_key) | set(groups)
             keys = ['users', g_key] + [self._gu_key(g, service) for g in clear_groups]
-            args = [user, service] + groups
+            args = [user, self._sid(service)] + groups
 
             self._set_memberships(keys=keys, args=args)
         except self.redis.ResponseError as e:
@@ -633,7 +640,6 @@ class RedisBackend(BackendBase):
         # TODO: subgroups should be a list of tuples with service
         sg_key = self._sg_key(group, service)  # stores subgroups
         g_key = self._g_key(service)  # test for existence here
-        ref_key = self._ref_key(group, service)  # used for reference
         g_keys = [self._g_key(subservice) for g in subgroups]  # test for existence here
         ref_keys = [self._ref_key(g, subservice) for g in subgroups]  # used for reference
         mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
@@ -644,13 +650,10 @@ class RedisBackend(BackendBase):
                        k.startswith('%s_' % sid)]
 
         keys = [sg_key, g_key, ] + g_keys + mg_keys + [k for k in add_mg_keys if k not in mg_keys]
-        args = [ref_key, group, ] + subgroups + ref_keys
-        print('keys', keys)
-        print('args', args)
+        args = [sid, group, ] + subgroups + ref_keys
         try:
             self._set_subgroups(keys=keys, args=args)
-        except self.redis.ResponseError as e:
-            print(e.message)
+        except self.redis.ResponseError:
             # TODO: we do not yet pass the correct value
             raise GroupNotFound(group, service=None)
 
