@@ -981,6 +981,42 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertTrue(stderr.getvalue().startswith('usage: '))
 
+    def test_rename_with_leftovers(self):
+        # make sure that no old data stays behind and may leak to another user
+        properties = {propkey1: propval1, propkey2: propval2}
+        backend.create_user(username1, password=password1, properties=properties,
+                         groups=[(groupname1, self.service), (groupname2, self.service)])
+        self.assertEquals(backend.members(groupname1, self.service), [username1])
+        self.assertEquals(backend.members(groupname2, self.service), [username1])
+
+        frm = username1 if six.PY3 else username1.encode('utf-8')
+        to = username2 if six.PY3 else username2.encode('utf-8')
+        with capture() as (stdout, stderr):
+            restauth_user(['rename', frm, to])
+            self.assertEqual(stdout.getvalue(), '')
+            self.assertEqual(stderr.getvalue(), '')
+
+        # properties moved?
+        self.assertEqual(backend.list_properties(username2), properties)
+        with self.assertRaises(UserNotFound):
+            backend.list_properties(username1)
+
+        # see if members call still works
+        self.assertEquals(backend.members(groupname1, self.service), [username2])
+        self.assertEquals(backend.members(groupname2, self.service), [username2])
+
+        # maybe list_groups has something?
+        self.assertCountEqual(backend.list_groups(service=self.service, user=username2),
+                              [groupname1, groupname2])
+        with self.assertRaises(UserNotFound):
+            backend.list_groups(service=self.service, user=username1)
+
+        # create a new user with old name and no data, see if old data magically appears again
+        backend.create_user(username1)
+        self.assertFalse(backend.check_password(username1, password1))
+        self.assertEquals(backend.list_properties(username1), {})
+        self.assertEquals(backend.list_groups(service=self.service, user=username1), [])
+
     def test_verify(self):
         self.create_user(username1, password1)
         frm = username1 if six.PY3 else username1.encode('utf-8')
