@@ -210,10 +210,35 @@ class RedisBackend(BackendBase):
         self._set_subgroups = self.conn.register_script(_set_subgroups_script)
         self._remove_subgroup = self.conn.register_script(_remove_subgroup_script)
 
+    # serialize a dictionary into a flat list including keys and values
     def _listify(self, d):
         l = []
         [l.extend(t) for t in six.iteritems(d)]
         return l
+
+    # The key that lists groups of the given service
+    def _g_key(self, service):
+        return 'groups_%s' % (service.id if service is not None else 'None')
+
+    # The key that lists members of the given group
+    def _gu_key(self, group, service):
+        return 'members_%s_%s' % (service.id if service is not None else 'None', group)
+
+    # The key that lists sub-groups of the given group
+    def _sg_key(self, group, service):
+        return 'subgroups_%s_%s' % (service.id if service is not None else 'None', group)
+
+    # The key that lists meta-groups of the given group
+    def _mg_key(self, group, service):
+        return 'metagroups_%s_%s' % (service.id if service is not None else 'None', group)
+
+    # parse any group key (members, subgroups, metagroups)
+    def _parse_key(self, key):
+        _, sid, name = key.split('_')
+        if sid == 'None':
+            return (name, None)
+        else:
+            return (name, int(sid))
 
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         password = make_password(password) if password else ''
@@ -362,29 +387,6 @@ class RedisBackend(BackendBase):
             if e.message == 'PropertyNotFound':
                 raise PropertyNotFound(key)
             raise
-
-    # groups_<service.id> == set of groups for a service
-    def _g_key(self, service):
-        return 'groups_%s' % (service.id if service is not None else 'None')
-
-    # members_<service.id>_<group> == set of users in a group
-    def _gu_key(self, group, service):
-        return 'members_%s_%s' % (service.id if service is not None else 'None', group)
-
-    # index of subgroups:
-    def _sg_key(self, group, service):
-        return 'subgroups_%s_%s' % (service.id if service is not None else 'None', group)
-
-    # index of metagroups:
-    def _mg_key(self, group, service):
-        return 'metagroups_%s_%s' % (service.id if service is not None else 'None', group)
-
-    def _parse_key(self, key):
-        _, sid, name = key.split('_')
-        if sid == 'None':
-            return (name, None)
-        else:
-            return (name, int(sid))
 
     def list_groups(self, service, user=None):
         if user is None:
