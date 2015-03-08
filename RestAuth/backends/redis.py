@@ -143,6 +143,31 @@ end
 redis.call('hdel', KEYS[2], ARGV[2])
 """
 
+# keys = [g_key(service)]
+# args = [group, self._sid(service)]
+# if users:
+#     keys += [self._gu_key(group, service), 'users']
+#     args += users
+_create_group_script_dry = """
+if redis.call('sismember', KEYS[1], ARGV[1]) == 1 then
+    return {err="GroupExists"}
+elseif #KEYS > 1 then
+    for i=3, #ARGV, 1 do
+        redis.log(redis.LOG_WARNING, 'check user ' .. ARGV[i])
+        if redis.call('hexists', KEYS[3], ARGV[i]) == 0 then
+            redis.log(redis.LOG_WARNING, 'not found in ' .. KEYS[3] .. ': ' .. ARGV[i])
+            return {err=ARGV[i]}
+        end
+    end
+end"""
+
+_create_group_script = _create_group_script_dry + """
+redis.call('sadd', KEYS[1], ARGV[1])
+if #KEYS > 1 then
+    redis.call('sadd', KEYS[2], unpack(ARGV, 3))
+end
+"""
+
 # keys = [g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
 # args = [group, name, sid]
 _rename_group_script = """
@@ -226,6 +251,27 @@ end
 -- add user to groups
 for i=3, #ARGV, 1 do
     redis.call('sadd', 'members_' .. ARGV[2] .. '_' .. ARGV[i], ARGV[1])
+end
+"""
+
+# keys = [self._g_key(service), self._gu_key(group, service)]
+# args = [group, ]
+# if users:
+#     keys.append('users')
+#     args += users
+_set_members_script = """
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
+    return {err="GroupNotFound"}
+end
+for i=2, #ARGV, 1 do
+    if redis.call('hexists', KEYS[3], ARGV[i]) == 0 then
+        return {err=ARGV[i]}
+    end
+end
+
+redis.call('del', KEYS[2])
+if #ARGV > 1 then
+    redis.call('sadd', KEYS[2], unpack(ARGV, 2))
 end
 """
 
@@ -369,9 +415,12 @@ class RedisBackend(BackendBase):
         self._set_property = self.conn.register_script(_set_property_script)
         self._set_properties = self.conn.register_script(_set_properties_script)
         self._remove_property = self.conn.register_script(_remove_property_script)
+        self._create_group = self.conn.register_script(_create_group_script)
+        self._create_group_dry = self.conn.register_script(_create_group_script_dry)
         self._rename_group = self.conn.register_script(_rename_group_script)
         self._set_service = self.conn.register_script(_set_service_script)
         self._set_memberships = self.conn.register_script(_set_memberships_script)
+        self._set_members = self.conn.register_script(_set_members_script)
         self._add_member = self.conn.register_script(_add_member_script)
         self._remove_member = self.conn.register_script(_remove_member_script)
         self._add_subgroup = self.conn.register_script(_add_subgroup_script)
@@ -608,21 +657,39 @@ class RedisBackend(BackendBase):
             return list(groups)
 
     def create_group(self, group, service, users=None, dry=False):
-        # TODO: rewrite as lua script
-
         g_key = self._g_key(service)
-        if self.conn.sismember(g_key, group):
-            raise GroupExists(group)
-        elif dry is True:
+        keys = [g_key]
+        args = [group, self._sid(service)]
+        if users:
+            keys += [self._gu_key(group, service), 'users']
+            args += users
+
+        if dry is True:
+            if users:
+                try:
+                    self._create_group_dry(keys=keys, args=args)
+                except self.redis.ResponseError as e:
+                    if e.message == 'GroupExists':
+                        raise GroupExists(group)
+                    if six.PY2 and isinstance(e.message, str):
+                        message = e.message.decode('utf-8')
+                    if users and message in users:
+                        raise UserNotFound(e.message)
+                    raise
+            elif self.conn.sismember(g_key, group):
+                raise GroupExists(group)
             return
 
-        self.conn.sadd(g_key, group)
-
-        # add users
-        if users is not None:
-            # multi value insert in lua - use unpack:
-            # http://redis.io/commands/sadd#comment-800126580
-            self.conn.sadd(self._gu_key(group, service), *users)
+        try:
+            self._create_group(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            if e.message == 'GroupExists':
+                raise GroupExists(group)
+            if six.PY2 and isinstance(e.message, str):
+                message = e.message.decode('utf-8')
+            if users and message in users:
+                raise UserNotFound(e.message)
+            raise
 
     def rename_group(self, group, name, service):
         sid = self._sid(service)
@@ -689,22 +756,22 @@ class RedisBackend(BackendBase):
             raise
 
     def set_members(self, group, service, users):
-        # TODO: rewrite as lua script
+        keys = [self._g_key(service), self._gu_key(group, service)]
+        args = [group, ]
+        if users:
+            keys.append('users')
+            args += users
 
-        # test that all users exist
-        all_users = set(self.conn.hkeys('users'))
-        for user in users:
-            if user not in all_users:
-                raise UserNotFound(user)
-
-        if self.conn.sismember(self._g_key(service), group) is False:
-            raise GroupNotFound(group, service)
-
-        gu_key = self._gu_key(group, service)
-
-        self.conn.delete(gu_key)  # clear set
-        if users:  # only add if users is not empty
-            self.conn.sadd(gu_key, *users)
+        try:
+            self._set_members(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            if e.message == 'GroupNotFound':
+                raise GroupNotFound(group, service)
+            if six.PY2 and isinstance(e.message, str):
+                message = e.message.decode('utf-8')
+            if users and message in users:
+                raise UserNotFound(message)
+            raise
 
     def add_member(self, group, service, user):
         try:
