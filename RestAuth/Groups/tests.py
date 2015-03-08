@@ -994,6 +994,7 @@ class SetSubgroupsTests(GroupUserTests):  # PUT /groups/<group>/groups/
         self.assertCountEqual(
             backend.subgroups(group=groupname1, service=self.service, filter=False),
             [(groupname2, self.service), (groupname4, self.service2)])
+        # TODO: check parent relationship as well!
 
     def test_bad_request(self):
         backend.add_subgroup(group=groupname1, service=self.service,
