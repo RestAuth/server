@@ -113,6 +113,28 @@ end
 redis.call('hdel', KEYS[2], ARGV[2])
 """
 
+# keys = ['users', g_key] + [self._gu_key(g, service) for g in self.conn.smembers(g_key)]
+# args = [user, service] + groups
+_set_memberships_script = """
+if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
+    return {err="UserNotFound"}
+end
+
+-- remove existing memberships
+for i=3, #KEYS, 1 do
+    -- TODO: Skip keys present in ARGV[3:]?
+    redis.call('srem', KEYS[i], ARGV[1])
+end
+
+-- create any groups that don't exist yet
+redis.call('sadd', KEYS[2], unpack(ARGV, 3))
+
+-- add user to groups
+for i=3, #ARGV, 1 do
+    redis.call('sadd', 'members_' .. ARGV[2] .. '_' .. ARGV[i], ARGV[1])
+end
+"""
+
 # keys=[self._g_key(service), 'user', self._gu_key(group, service)]
 # args=[group, user])
 _add_member_script = """
@@ -228,6 +250,7 @@ class RedisBackend(BackendBase):
         self._set_property = self.conn.register_script(_set_property_script)
         self._set_properties = self.conn.register_script(_set_properties_script)
         self._remove_property = self.conn.register_script(_remove_property_script)
+        self._set_memberships = self.conn.register_script(_set_memberships_script)
         self._add_member = self.conn.register_script(_add_member_script)
         self._remove_member = self.conn.register_script(_remove_member_script)
         self._add_subgroup = self.conn.register_script(_add_subgroup_script)
@@ -317,6 +340,7 @@ class RedisBackend(BackendBase):
             raise
 
     def check_password(self, user, password, groups=None):
+        # TODO: rewrite as lua script
         if password is None:
             return False
 
@@ -328,7 +352,11 @@ class RedisBackend(BackendBase):
             raise UserNotFound(user)
         matches = check_password(password, stored, setter)
 
-        # TODO: handle gruops
+        if groups is not None:
+            for group, service in groups:
+                if self.is_member(group, service, user):
+                    return True
+            return False
 
         return matches
 
@@ -433,7 +461,12 @@ class RedisBackend(BackendBase):
         if user is None:
             return list(self.conn.smembers(self._g_key(service)))
         else:
-            pass  # TODO
+            # TODO: rewrite as lua script
+            groups = set()
+            for group in self.conn.smembers(self._g_key(service)):
+                if self.is_member(group=group, service=service, user=user):
+                    groups.add(group)
+            return list(groups)
 
     def create_group(self, group, service, users=None, dry=False):
         # TODO: rewrite as lua script
@@ -464,17 +497,37 @@ class RedisBackend(BackendBase):
         return self.conn.sismember(self._g_key(service), group)
 
     def set_memberships(self, user, service, groups):
-        pass  # TODO
+        try:
+            g_key = self._g_key(service)
+
+            # All existing and created groups may be modified
+            clear_groups = self.conn.smembers(g_key) | set(groups)
+            keys = ['users', g_key] + [self._gu_key(g, service) for g in clear_groups]
+            args = [user, service] + groups
+
+            self._set_memberships(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            if e.message == 'UserNotFound':
+                raise UserNotFound(user)
+            raise
 
     def set_members(self, group, service, users):
         # TODO: rewrite as lua script
+
+        # test that all users exist
+        all_users = set(self.conn.hkeys('users'))
+        for user in users:
+            if user not in all_users:
+                raise UserNotFound(user)
+
         if self.conn.sismember(self._g_key(service), group) is False:
             raise GroupNotFound(group, service)
 
         gu_key = self._gu_key(group, service)
 
         self.conn.delete(gu_key)  # clear set
-        self.conn.sadd(gu_key, *users)
+        if users:  # only add if users is not empty
+            self.conn.sadd(gu_key, *users)
 
     def add_member(self, group, service, user):
         try:
@@ -582,6 +635,25 @@ class RedisBackend(BackendBase):
             self._remove_subgroup(keys=keys, args=args)
         except self.redis.ResponseError as e:
             raise GroupNotFound(*self._parse_key(e.message))
+
+    def remove_group(self, group, service):
+        if self.conn.srem(self._g_key(service), group) == 0:
+            raise GroupNotFound(group, service)
+
+        ref_key = self._ref_key(group, service)
+        mg_key = self._mg_key(group, service)
+        sg_key = self._sg_key(group, service)
+
+        # get list of metagroups/subgroups
+        metagroups = self.conn.smembers(mg_key)
+        subgroups = self.conn.smembers(sg_key)
+
+        for mg in ['subgroups_%s' % g for g in metagroups]:
+            self.conn.srem(mg, ref_key)
+        for sg in ['metagroups_%s' % g for g in subgroups]:
+            self.conn.srem(sg, ref_key)
+
+        self.conn.delete(mg_key, sg_key)
 
     def testSetUp(self):
         self.conn.flushdb()
