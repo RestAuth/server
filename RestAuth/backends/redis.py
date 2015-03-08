@@ -114,6 +114,37 @@ end
 redis.call('hdel', KEYS[2], ARGV[2])
 """
 
+# keys = [g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
+# args = [group, name, sid]
+_rename_group_script = """
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
+    return {err="GroupNotFound"}
+elseif redis.call('sismember', KEYS[1], ARGV[2]) == 1 then
+    return {err="GroupExists"}
+end
+
+-- rename grouop
+redis.call('srem', KEYS[1], ARGV[1])
+redis.call('sadd', KEYS[1], ARGV[2])
+
+-- rename user keys
+if redis.call('exists', KEYS[2]) == 1 then
+    redis.call('rename', KEYS[2], KEYS[3])
+end
+-- rename subgroup key
+if redis.call('exists', KEYS[4]) == 1 then
+    redis.call('rename', KEYS[4], KEYS[5])
+end
+
+-- rename meta-group keys
+local old_ref = KEYS[3] .. '_' .. KEYS[1]
+local new_ref = KEYS[3] .. '_' .. KEYS[2]
+for i=6, #KEYS, 1 do
+    redis.call('srem', KEYS[i], old_ref)
+    redis.call('sadd', KEYS[i], new_ref)
+end
+"""
+
 # keys = ['users', g_key] + [self._gu_key(g, service) for g in self.conn.smembers(g_key)]
 # args = [user, service] + groups
 _set_memberships_script = """
@@ -274,6 +305,7 @@ class RedisBackend(BackendBase):
         self._set_property = self.conn.register_script(_set_property_script)
         self._set_properties = self.conn.register_script(_set_properties_script)
         self._remove_property = self.conn.register_script(_remove_property_script)
+        self._rename_group = self.conn.register_script(_rename_group_script)
         self._set_memberships = self.conn.register_script(_set_memberships_script)
         self._add_member = self.conn.register_script(_add_member_script)
         self._remove_member = self.conn.register_script(_remove_member_script)
@@ -520,8 +552,24 @@ class RedisBackend(BackendBase):
             self.conn.sadd(self._gu_key(group, service), *users)
 
     def rename_group(self, group, name, service):
-        # TODO: rename self._g_key, self._gu_key, mg_key, sg_key
-        pass
+        try:
+            sid = self._sid(service)
+            g_key = self._g_key(service)
+            old_gu_key = self._gu_key(group, service)
+            new_gu_key = self._gu_key(name, service)
+            old_sg_key = self._sg_key(group, service)
+            new_sg_key = self._sg_key(name, service)
+            mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(old_sg_key)]
+
+            keys = [g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
+            args = [group, name, sid]
+            self._rename_group(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            if e.message == 'GroupNotFound':
+                raise GroupNotFound(group, service)
+            elif e.message == 'GroupExists':
+                raise GroupExists(name)
+            raise
 
     def set_group_service(self, group, service, new_service):
         # TODO: rename self._g_key, self._gu_key, mg_key, sg_key
@@ -592,6 +640,8 @@ class RedisBackend(BackendBase):
             raise GroupNotFound(group, service)
 
         members = self.conn.smembers(self._gu_key(group, service))
+        if depth == 0:
+            return list(members)
         ref_keys = self._parents(self._ref_key(group, service), depth=1, max_depth=depth)
         ref_keys = ['members_%s' % k for k in ref_keys]
         if ref_keys:
@@ -674,7 +724,7 @@ class RedisBackend(BackendBase):
             return [g for g, s in subgroups if s == sid]
         else:
             subgroups = [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, service))]
-            return [(g, Service.objects.get(id=s)) for g, s in subgroups]
+            return [(g, (Service.objects.get(id=s) if s is not None else None)) for g, s in subgroups]
 
     def parents(self, group, service):
         g_key = self._g_key(service)
@@ -682,7 +732,7 @@ class RedisBackend(BackendBase):
             raise GroupNotFound(group, service)
 
         parents = [self._parse_key(k) for k in self.conn.smembers(self._mg_key(group, service))]
-        return [(g, Service.objects.get(id=s)) for g, s in parents]
+        return [(g, Service.objects.get(id=s) if s is not None else None) for g, s in parents]
 
     def remove_subgroup(self, group, service, subgroup, subservice):
         # to test for existence
