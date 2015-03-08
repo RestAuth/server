@@ -81,6 +81,16 @@ redis.call('hset', KEYS[1], ARGV[2], hash)
 -- rename properties
 redis.call('rename', KEYS[2], KEYS[3])"""
 
+# keys = ['users', 'props_%s' % user]
+# args = [user]
+_remove_user_script = """
+if redis.call('hdel', KEYS[1], ARGV[1]) == 0 then
+    return {err="UserNotFound"}
+end
+
+redis.call('del', KEYS[2])
+"""
+
 _create_property_script = """
 if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
     return {err="UserNotFound"}
@@ -336,6 +346,7 @@ class RedisBackend(BackendBase):
         # register scripts
         self._create_user = self.conn.register_script(_create_user_script)
         self._rename_user = self.conn.register_script(_rename_user_script)
+        self._remove_user = self.conn.register_script(_remove_user_script)
         self._create_property = self.conn.register_script(_create_property_script)
         self._set_property = self.conn.register_script(_set_property_script)
         self._set_properties = self.conn.register_script(_set_properties_script)
@@ -477,11 +488,14 @@ class RedisBackend(BackendBase):
             raise UserNotFound(user)
 
     def remove_user(self, user):
-        # TODO: rewrite as lua script
-        if self.conn.hdel('users', user) == 0:
-            raise UserNotFound(user)
-        self.conn.hdel('props', user)  # TODO: This is the wrong key
-        # TODO: handle groups
+        try:
+            # TODO: handle groups
+            keys = ['users', 'props_%s' % user]
+            self._remove_user(keys=keys, args=[user])
+        except self.redis.ResponseError as e:
+            if e.message == 'UserNotFound':
+                raise UserNotFound(user)
+            raise
 
     def list_properties(self, user):
         # TODO: this method should be called 'get_properties', since we don't return a list.
