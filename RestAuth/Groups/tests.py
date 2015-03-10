@@ -360,10 +360,14 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
 
     def test_leakage(self):
         backend.create_group(service=self.service, group=groupname1, users=[username1, username2])
+        backend.create_group(service=None, group=groupname2, users=[username3])
+        backend.add_subgroup(
+            group=groupname2, service=None, subgroup=groupname1, subservice=self.service)
+        self.assertEquals(backend.subgroups(group=groupname2, service=None, filter=False),
+                          [(groupname1, self.service)])
         resp = self.delete('/groups/%s/' % groupname1)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
         self.assertEqual(backend.list_groups(service=self.service), [])
-
         self.assertEquals(backend.list_groups(service=self.service, user=username1), [])
         self.assertEquals(backend.list_groups(service=self.service, user=username2), [])
 
@@ -372,8 +376,9 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
         self.assertEquals(backend.list_groups(service=self.service), [groupname1])
         self.assertEquals(backend.list_groups(service=self.service, user=username1), [])
         self.assertEquals(backend.list_groups(service=self.service, user=username2), [])
-
-        # TODO: We should also test for meta/subgroups
+        self.assertEquals(backend.list_groups(service=self.service, user=username3), [])
+        self.assertEquals(backend.subgroups(group=groupname2, service=None, filter=False), [])
+        self.assertEquals(backend.parents(group=groupname1, service=self.service), [])
 
     @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
