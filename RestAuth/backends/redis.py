@@ -442,8 +442,8 @@ class RedisBackend(BackendBase):
         return '%s_%s' % (sid, group)
 
     # The key that lists groups of the given service
-    def _g_key(self, service):
-        return 'groups_%s' % (service.id if service is not None else 'None')
+    def _g_key(self, sid):
+        return 'groups_%s' % sid
 
     # The key that lists members of the given group
     def _gu_key(self, group, service):
@@ -483,7 +483,8 @@ class RedisBackend(BackendBase):
             group_keys = set()
             group_args = []
             for group, service in groups:
-                group_keys.add(self._g_key(service))
+                sid = self._sid(service)
+                group_keys.add(self._g_key(sid))
                 group_keys.add(self._gu_key(group, service))
                 group_args += ['None' if service is None else str(service.id), group]
 
@@ -644,20 +645,21 @@ class RedisBackend(BackendBase):
 
     def list_groups(self, service, user=None):
         if user is None:
-            return list(self.conn.smembers(self._g_key(service)))
+            return list(self.conn.smembers(self._g_key(self._sid(service))))
         else:
             # TODO: rewrite as lua script
             if not self.conn.hexists('users', user):
                 raise UserNotFound(user)
 
             groups = set()
-            for group in self.conn.smembers(self._g_key(service)):
+            for group in self.conn.smembers(self._g_key(self._sid(service))):
                 if self.is_member(group=group, service=service, user=user):
                     groups.add(group)
             return list(groups)
 
     def create_group(self, group, service, users=None, dry=False):
-        g_key = self._g_key(service)
+        sid = self._sid(service)
+        g_key = self._g_key(sid)
         keys = [g_key]
         args = [group, self._sid(service)]
         if users:
@@ -693,7 +695,7 @@ class RedisBackend(BackendBase):
 
     def rename_group(self, group, name, service):
         sid = self._sid(service)
-        g_key = self._g_key(service)
+        g_key = self._g_key(sid)
         old_gu_key = self._gu_key(group, service)
         new_gu_key = self._gu_key(name, service)
         old_sg_key = self._sg_key(group, service)
@@ -717,8 +719,8 @@ class RedisBackend(BackendBase):
         old_sid = self._sid(service)
         new_sid = self._sid(new_service)
 
-        old_g_key = self._g_key(service)
-        new_g_key = self._g_key(new_service)
+        old_g_key = self._g_key(old_sid)
+        new_g_key = self._g_key(new_sid)
         old_gu_key = self._gu_key(group, service)
         new_gu_key = self._gu_key(group, new_service)
         old_sg_key = self._sg_key(group, service)
@@ -738,11 +740,12 @@ class RedisBackend(BackendBase):
             raise
 
     def group_exists(self, group, service):
-        return self.conn.sismember(self._g_key(service), group)
+        return self.conn.sismember(self._g_key(self._sid(service)), group)
 
     def set_memberships(self, user, service, groups):
+        sid = self._sid(service)
         try:
-            g_key = self._g_key(service)
+            g_key = self._g_key(sid)
 
             # All existing and created groups may be modified
             clear_groups = self.conn.smembers(g_key) | set(groups)
@@ -756,7 +759,8 @@ class RedisBackend(BackendBase):
             raise
 
     def set_members(self, group, service, users):
-        keys = [self._g_key(service), self._gu_key(group, service)]
+        sid = self._sid(service)
+        keys = [self._g_key(sid), self._gu_key(group, service)]
         args = [group, ]
         if users:
             keys.append('users')
@@ -774,8 +778,9 @@ class RedisBackend(BackendBase):
             raise
 
     def add_member(self, group, service, user):
+        sid = self._sid(service)
         try:
-            self._add_member(keys=[self._g_key(service), 'users', self._gu_key(group, service)],
+            self._add_member(keys=[self._g_key(sid), 'users', self._gu_key(group, service)],
                              args=[group, user])
         except self.redis.ResponseError as e:
             if e.message == 'GroupNotFound':
@@ -797,7 +802,8 @@ class RedisBackend(BackendBase):
         if depth is None:
             depth = settings.GROUP_RECURSION_DEPTH
 
-        g_key = self._g_key(service)
+        sid = self._sid(service)
+        g_key = self._g_key(sid)
         if not self.conn.sismember(g_key, group):
             raise GroupNotFound(group, service)
 
@@ -815,7 +821,8 @@ class RedisBackend(BackendBase):
 
     def is_member(self, group, service, user):
         # TODO: rewrite as lua script
-        g_key = self._g_key(service)
+        sid = self._sid(service)
+        g_key = self._g_key(sid)
         if not self.conn.sismember(g_key, group):
             raise GroupNotFound(group, service)
 
@@ -823,7 +830,6 @@ class RedisBackend(BackendBase):
         if user in members:
             return True
 
-        sid = self._sid(service)
         ref_keys = self._parents(self._ref_key(group, sid), depth=1,
                                  max_depth=settings.GROUP_RECURSION_DEPTH)
         ref_keys = ['members_%s' % k for k in ref_keys]
@@ -832,8 +838,9 @@ class RedisBackend(BackendBase):
         return False
 
     def remove_member(self, group, service, user):
+        sid = self._sid(service)
         try:
-            self._remove_member(keys=[self._g_key(service), self._gu_key(group, service)],
+            self._remove_member(keys=[self._g_key(sid), self._gu_key(group, service)],
                                 args=[group, user])
         except self.redis.ResponseError as e:
             if e.message == 'GroupNotFound':
@@ -845,8 +852,8 @@ class RedisBackend(BackendBase):
     def add_subgroup(self, group, service, subgroup, subservice):
         sid = self._sid(service)
         sub_sid = self._sid(subservice)
-        g_key = self._g_key(service)
-        sg_key = self._g_key(subservice)
+        g_key = self._g_key(sid)
+        sg_key = self._g_key(sub_sid)
 
         keys = [g_key, sg_key, self._sg_key(group, service), self._mg_key(subgroup, subservice)]
         args = [group, subgroup, self._ref_key(group, sid), self._ref_key(subgroup, sub_sid)]
@@ -860,8 +867,8 @@ class RedisBackend(BackendBase):
         sid = self._sid(service)
         sub_sid = self._sid(subservice)
         sg_key = self._sg_key(group, service)  # stores subgroups
-        g_key = self._g_key(service)  # test for existence here
-        g_keys = [self._g_key(subservice) for g in subgroups]  # test for existence here
+        g_key = self._g_key(sid)  # test for existence here
+        g_keys = [self._g_key(sub_sid) for g in subgroups]  # test for existence here
         ref_keys = [self._ref_key(g, sub_sid) for g in subgroups]  # used for reference
         mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
 
@@ -883,7 +890,8 @@ class RedisBackend(BackendBase):
                                    self._ref_key(subgroup, self._sid(subservice)))
 
     def subgroups(self, group, service, filter=True):
-        g_key = self._g_key(service)
+        sid = self._sid(service)
+        g_key = self._g_key(sid)
         if not self.conn.sismember(g_key, group):
             raise GroupNotFound(group, service)
 
@@ -896,7 +904,8 @@ class RedisBackend(BackendBase):
             return [(g, (Service.objects.get(id=s) if s is not None else None)) for g, s in subgroups]
 
     def parents(self, group, service):
-        g_key = self._g_key(service)
+        sid = self._sid(service)
+        g_key = self._g_key(sid)
         if not self.conn.sismember(g_key, group):
             raise GroupNotFound(group, service)
 
@@ -907,8 +916,8 @@ class RedisBackend(BackendBase):
         # to test for existence
         sid = self._sid(service)
         sub_sid = self._sid(subservice)
-        meta_g_key = self._g_key(service)
-        sub_g_key = self._g_key(subservice)
+        meta_g_key = self._g_key(sid)
+        sub_g_key = self._g_key(sub_sid)
         meta_ref_key = self._ref_key(group, sid)
         sub_ref_key = self._ref_key(subgroup, sub_sid)
         meta_sg_key = self._sg_key(group, service)
@@ -923,10 +932,11 @@ class RedisBackend(BackendBase):
             raise GroupNotFound(*self._parse_key(e.message))
 
     def remove_group(self, group, service):
-        if self.conn.srem(self._g_key(service), group) == 0:
+        sid = self._sid(service)
+
+        if self.conn.srem(self._g_key(sid), group) == 0:
             raise GroupNotFound(group, service)
 
-        sid = self._sid(service)
         ref_key = self._ref_key(group, sid)
         mg_key = self._mg_key(group, service)
         sg_key = self._sg_key(group, service)
