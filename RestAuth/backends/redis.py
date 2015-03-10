@@ -356,6 +356,15 @@ if no_groups > 0 then
 end
 """
 
+# keys = [g_key, mg_key]
+# args = [ref_key]
+_parents_script = """
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
+    return {err="GroupNotFound"}
+end
+return redis.call('smembers', KEYS[2])
+"""
+
 # keys = [meta_g_key, sub_g_key, meta_sg_key, sub_mg_key]
 # args = [meta_ref_key, sub_ref_key]
 _remove_subgroup_script = """
@@ -435,6 +444,7 @@ class RedisBackend(BackendBase):
         self._remove_member = self.conn.register_script(_remove_member_script)
         self._add_subgroup = self.conn.register_script(_add_subgroup_script)
         self._set_subgroups = self.conn.register_script(_set_subgroups_script)
+        self._parents = self.conn.register_script(_parents_script)
         self._remove_subgroup = self.conn.register_script(_remove_subgroup_script)
         self._remove_group = self.conn.register_script(_remove_group_script)
 
@@ -810,11 +820,11 @@ class RedisBackend(BackendBase):
                 raise UserNotFound(user)
             raise
 
-    def _parents(self, ref_key, depth, max_depth):
+    def _parent_keys(self, ref_key, depth, max_depth):
         parents = self.conn.smembers('metagroups_%s' % ref_key)
         if depth < max_depth:
             for parent in set(parents):
-                parents |= self._parents(parent, depth + 1, max_depth)
+                parents |= self._parent_keys(parent, depth + 1, max_depth)
         return parents
 
     def members(self, group, service, depth=None):
@@ -833,7 +843,7 @@ class RedisBackend(BackendBase):
             return list(members)
 
         sid = self._sid(service)
-        ref_keys = self._parents(self._ref_key(group, sid), depth=1, max_depth=depth)
+        ref_keys = self._parent_keys(self._ref_key(group, sid), depth=1, max_depth=depth)
         ref_keys = ['members_%s' % k for k in ref_keys]
         if ref_keys:
             return list(members | self.conn.sunion(*ref_keys))
@@ -852,7 +862,7 @@ class RedisBackend(BackendBase):
         if user in members:
             return True
 
-        ref_keys = self._parents(self._ref_key(group, sid), depth=1,
+        ref_keys = self._parent_keys(self._ref_key(group, sid), depth=1,
                                  max_depth=settings.GROUP_RECURSION_DEPTH)
         ref_keys = ['members_%s' % k for k in ref_keys]
         if ref_keys:  # we might have no parents
@@ -930,13 +940,17 @@ class RedisBackend(BackendBase):
             return [(g, (Service.objects.get(id=s) if s is not None else None)) for g, s in subgroups]
 
     def parents(self, group, service):
-        # TODO: rewrite as lua script
         sid = self._sid(service)
-        g_key = self._g_key(sid)
-        if not self.conn.sismember(g_key, self._ref_key(group, sid)):
-            raise GroupNotFound(group, service)
+        keys = [self._g_key(sid), self._mg_key(group, sid)]
+        args = [self._ref_key(group, sid)]
+        try:
+            ref_keys = self._parents(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            if e.message == 'GroupNotFound':
+                raise GroupNotFound(group, service)
+            raise
 
-        parents = [self._parse_key(k) for k in self.conn.smembers(self._mg_key(group, sid))]
+        parents = [self._parse_key(k) for k in ref_keys]
         return [(g, Service.objects.get(id=s) if s is not None else None) for g, s in parents]
 
     def remove_subgroup(self, group, service, subgroup, subservice):
