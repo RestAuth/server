@@ -715,8 +715,7 @@ class RedisBackend(BackendBase):
                 raise GroupExists(name)
             raise
 
-    def set_group_service(self, group, service, new_service):
-        # TODO: This should be named set_service
+    def set_service(self, group, service, new_service):
         old_sid = self._sid(service)
         new_sid = self._sid(new_service)
 

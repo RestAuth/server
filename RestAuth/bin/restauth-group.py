@@ -104,7 +104,7 @@ def _main(args):
     elif args.action == 'set-service':
         if backend.SUPPORTS_GROUP_VISIBILITY is False:
             parser.error('Backend does not support group visiblity.')
-        backend.set_group_service(group=args.group, service=args.service,
+        backend.set_service(group=args.group, service=args.service,
                                   new_service=args.new_service)
     elif args.action == 'add-user':
         backend.add_member(group=args.group, service=args.service, user=args.user)

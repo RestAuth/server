@@ -221,7 +221,7 @@ class MemoryBackend(BackendBase):
 
         self._groups[service][name] = self._groups[service].pop(group)
 
-    def set_group_service(self, group, service, new_service):
+    def set_service(self, group, service, new_service):
         if group not in self._groups[service]:
             raise GroupNotFound(group, service=service)
         if group in self._groups[new_service]:
@@ -426,7 +426,7 @@ class NoGroupVisibilityBackend(MemoryBackend):
     def rename_group(self, group, name, service):
         return super(NoGroupVisibilityBackend, self).rename_group(group, name, None)
 
-    def set_group_service(self, group, service, new_service):
+    def set_service(self, group, service, new_service):
         raise NotImplementedError
 
     def group_exists(self, group, service):

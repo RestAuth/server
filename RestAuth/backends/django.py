@@ -211,7 +211,7 @@ class DjangoBackend(BackendBase):
         except IntegrityError:
             raise GroupExists(name)
 
-    def set_group_service(self, group, service, new_service):
+    def set_service(self, group, service, new_service):
         try:
             updated = Group.objects.filter(name=group, service=service).update(service=new_service)
             if updated == 0:

@@ -355,7 +355,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def set_group_service(self, group, service, new_service):
+    def set_service(self, group, service, new_service):
         """Set the service of a group.
 
         This operation is only available via |bin-restauth-group-doc|.
