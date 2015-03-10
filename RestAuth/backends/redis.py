@@ -914,6 +914,7 @@ class RedisBackend(BackendBase):
                                    self._ref_key(subgroup, self._sid(subservice)))
 
     def subgroups(self, group, service, filter=True):
+        # TODO: rewrite as lua script
         sid = self._sid(service)
         g_key = self._g_key(sid)
         sg_key = self._sg_key(group, sid)
@@ -922,12 +923,14 @@ class RedisBackend(BackendBase):
 
         if filter is True:
             subgroups = [self._parse_key(k) for k in self.conn.smembers(sg_key)]
+            sid = None if sid == 'None' else sid
             return [g for g, s in subgroups if s == sid]
         else:
             subgroups = [self._parse_key(k) for k in self.conn.smembers(sg_key)]
             return [(g, (Service.objects.get(id=s) if s is not None else None)) for g, s in subgroups]
 
     def parents(self, group, service):
+        # TODO: rewrite as lua script
         sid = self._sid(service)
         g_key = self._g_key(sid)
         if not self.conn.sismember(g_key, self._ref_key(group, sid)):
