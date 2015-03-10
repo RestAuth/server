@@ -438,8 +438,8 @@ class RedisBackend(BackendBase):
         return 'None' if service is None else service.id
 
     # The key that is used to reference a group
-    def _ref_key(self, group, service):
-        return '%s_%s' % (service.id if service is not None else 'None', group)
+    def _ref_key(self, group, sid):
+        return '%s_%s' % (sid, group)
 
     # The key that lists groups of the given service
     def _g_key(self, service):
@@ -804,7 +804,9 @@ class RedisBackend(BackendBase):
         members = self.conn.smembers(self._gu_key(group, service))
         if depth == 0:
             return list(members)
-        ref_keys = self._parents(self._ref_key(group, service), depth=1, max_depth=depth)
+
+        sid = self._sid(service)
+        ref_keys = self._parents(self._ref_key(group, sid), depth=1, max_depth=depth)
         ref_keys = ['members_%s' % k for k in ref_keys]
         if ref_keys:
             return list(members | self.conn.sunion(*ref_keys))
@@ -821,7 +823,8 @@ class RedisBackend(BackendBase):
         if user in members:
             return True
 
-        ref_keys = self._parents(self._ref_key(group, service), depth=1,
+        sid = self._sid(service)
+        ref_keys = self._parents(self._ref_key(group, sid), depth=1,
                                  max_depth=settings.GROUP_RECURSION_DEPTH)
         ref_keys = ['members_%s' % k for k in ref_keys]
         if ref_keys:  # we might have no parents
@@ -840,11 +843,13 @@ class RedisBackend(BackendBase):
             raise
 
     def add_subgroup(self, group, service, subgroup, subservice):
+        sid = self._sid(service)
+        sub_sid = self._sid(subservice)
         g_key = self._g_key(service)
         sg_key = self._g_key(subservice)
 
         keys = [g_key, sg_key, self._sg_key(group, service), self._mg_key(subgroup, subservice)]
-        args = [group, subgroup, self._ref_key(group, service), self._ref_key(subgroup, subservice)]
+        args = [group, subgroup, self._ref_key(group, sid), self._ref_key(subgroup, sub_sid)]
         try:
             self._add_subgroup(keys=keys, args=args)
         except self.redis.ResponseError as e:
@@ -852,10 +857,12 @@ class RedisBackend(BackendBase):
 
     def set_subgroups(self, group, service, subgroups, subservice):
         # TODO: subgroups should be a list of tuples with service
+        sid = self._sid(service)
+        sub_sid = self._sid(subservice)
         sg_key = self._sg_key(group, service)  # stores subgroups
         g_key = self._g_key(service)  # test for existence here
         g_keys = [self._g_key(subservice) for g in subgroups]  # test for existence here
-        ref_keys = [self._ref_key(g, subservice) for g in subgroups]  # used for reference
+        ref_keys = [self._ref_key(g, sub_sid) for g in subgroups]  # used for reference
         mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
 
         # get metagroup keys with the same service
@@ -873,7 +880,7 @@ class RedisBackend(BackendBase):
 
     def is_subgroup(self, group, service, subgroup, subservice):
         return self.conn.sismember(self._sg_key(group, service),
-                                   self._ref_key(subgroup, subservice))
+                                   self._ref_key(subgroup, self._sid(subservice)))
 
     def subgroups(self, group, service, filter=True):
         g_key = self._g_key(service)
@@ -898,10 +905,12 @@ class RedisBackend(BackendBase):
 
     def remove_subgroup(self, group, service, subgroup, subservice):
         # to test for existence
+        sid = self._sid(service)
+        sub_sid = self._sid(subservice)
         meta_g_key = self._g_key(service)
         sub_g_key = self._g_key(subservice)
-        meta_ref_key = self._ref_key(group, service)
-        sub_ref_key = self._ref_key(subgroup, subservice)
+        meta_ref_key = self._ref_key(group, sid)
+        sub_ref_key = self._ref_key(subgroup, sub_sid)
         meta_sg_key = self._sg_key(group, service)
         sub_mg_key = self._mg_key(subgroup, subservice)
 
@@ -917,7 +926,8 @@ class RedisBackend(BackendBase):
         if self.conn.srem(self._g_key(service), group) == 0:
             raise GroupNotFound(group, service)
 
-        ref_key = self._ref_key(group, service)
+        sid = self._sid(service)
+        ref_key = self._ref_key(group, sid)
         mg_key = self._mg_key(group, service)
         sg_key = self._sg_key(group, service)
 
