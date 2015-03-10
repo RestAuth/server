@@ -450,12 +450,12 @@ class RedisBackend(BackendBase):
         return 'members_%s_%s' % (sid, group)
 
     # The key that lists sub-groups of the given group
-    def _sg_key(self, group, service):
-        return 'subgroups_%s_%s' % (service.id if service is not None else 'None', group)
+    def _sg_key(self, group, sid):
+        return 'subgroups_%s_%s' % (sid, group)
 
     # The key that lists meta-groups of the given group
-    def _mg_key(self, group, service):
-        return 'metagroups_%s_%s' % (service.id if service is not None else 'None', group)
+    def _mg_key(self, group, sid):
+        return 'metagroups_%s_%s' % (sid, group)
 
     # parse any group key (members, subgroups, metagroups)
     def _parse_key(self, key):
@@ -698,8 +698,8 @@ class RedisBackend(BackendBase):
         g_key = self._g_key(sid)
         old_gu_key = self._gu_key(group, sid)
         new_gu_key = self._gu_key(name, sid)
-        old_sg_key = self._sg_key(group, service)
-        new_sg_key = self._sg_key(name, service)
+        old_sg_key = self._sg_key(group, sid)
+        new_sg_key = self._sg_key(name, sid)
         mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(old_sg_key)]
 
         keys = [g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
@@ -723,8 +723,8 @@ class RedisBackend(BackendBase):
         new_g_key = self._g_key(new_sid)
         old_gu_key = self._gu_key(group, old_sid)
         new_gu_key = self._gu_key(group, new_sid)
-        old_sg_key = self._sg_key(group, service)
-        new_sg_key = self._sg_key(group, new_service)
+        old_sg_key = self._sg_key(group, old_sid)
+        new_sg_key = self._sg_key(group, new_sid)
         mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(old_sg_key)]
 
         keys = [old_g_key, new_g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
@@ -855,7 +855,7 @@ class RedisBackend(BackendBase):
         g_key = self._g_key(sid)
         sg_key = self._g_key(sub_sid)
 
-        keys = [g_key, sg_key, self._sg_key(group, service), self._mg_key(subgroup, subservice)]
+        keys = [g_key, sg_key, self._sg_key(group, sid), self._mg_key(subgroup, sub_sid)]
         args = [group, subgroup, self._ref_key(group, sid), self._ref_key(subgroup, sub_sid)]
         try:
             self._add_subgroup(keys=keys, args=args)
@@ -866,11 +866,11 @@ class RedisBackend(BackendBase):
         # TODO: subgroups should be a list of tuples with service
         sid = self._sid(service)
         sub_sid = self._sid(subservice)
-        sg_key = self._sg_key(group, service)  # stores subgroups
+        sg_key = self._sg_key(group, sid)  # stores subgroups
         g_key = self._g_key(sid)  # test for existence here
         g_keys = [self._g_key(sub_sid) for g in subgroups]  # test for existence here
         ref_keys = [self._ref_key(g, sub_sid) for g in subgroups]  # used for reference
-        mg_keys = [self._mg_key(g, subservice) for g in subgroups]  # stores metagroup
+        mg_keys = [self._mg_key(g, sub_sid) for g in subgroups]  # stores metagroup
 
         # get metagroup keys with the same service
         sid = self._sid(service)
@@ -886,7 +886,7 @@ class RedisBackend(BackendBase):
             raise GroupNotFound(group, service=None)
 
     def is_subgroup(self, group, service, subgroup, subservice):
-        return self.conn.sismember(self._sg_key(group, service),
+        return self.conn.sismember(self._sg_key(group, self._sid(service)),
                                    self._ref_key(subgroup, self._sid(subservice)))
 
     def subgroups(self, group, service, filter=True):
@@ -897,10 +897,10 @@ class RedisBackend(BackendBase):
 
         if filter is True:
             sid = None if service is None else service.id
-            subgroups = [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, service))]
+            subgroups = [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, sid))]
             return [g for g, s in subgroups if s == sid]
         else:
-            subgroups = [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, service))]
+            subgroups = [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, sid))]
             return [(g, (Service.objects.get(id=s) if s is not None else None)) for g, s in subgroups]
 
     def parents(self, group, service):
@@ -909,7 +909,7 @@ class RedisBackend(BackendBase):
         if not self.conn.sismember(g_key, group):
             raise GroupNotFound(group, service)
 
-        parents = [self._parse_key(k) for k in self.conn.smembers(self._mg_key(group, service))]
+        parents = [self._parse_key(k) for k in self.conn.smembers(self._mg_key(group, sid))]
         return [(g, Service.objects.get(id=s) if s is not None else None) for g, s in parents]
 
     def remove_subgroup(self, group, service, subgroup, subservice):
@@ -920,8 +920,8 @@ class RedisBackend(BackendBase):
         sub_g_key = self._g_key(sub_sid)
         meta_ref_key = self._ref_key(group, sid)
         sub_ref_key = self._ref_key(subgroup, sub_sid)
-        meta_sg_key = self._sg_key(group, service)
-        sub_mg_key = self._mg_key(subgroup, subservice)
+        meta_sg_key = self._sg_key(group, sid)
+        sub_mg_key = self._mg_key(subgroup, sub_sid)
 
         keys = [meta_g_key, sub_g_key, meta_sg_key, sub_mg_key]
         args = [group, subgroup, meta_ref_key, sub_ref_key]
@@ -938,8 +938,8 @@ class RedisBackend(BackendBase):
             raise GroupNotFound(group, service)
 
         ref_key = self._ref_key(group, sid)
-        mg_key = self._mg_key(group, service)
-        sg_key = self._sg_key(group, service)
+        mg_key = self._mg_key(group, sid)
+        sg_key = self._sg_key(group, sid)
 
         # get list of metagroups/subgroups
         metagroups = self.conn.smembers(mg_key)
