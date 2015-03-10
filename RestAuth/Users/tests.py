@@ -180,7 +180,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         props = {propkey1: propval1, 'date joined': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
         resp = self.post('/users/', {'user': username1, 'properties': props, })
         self.assertEqual(resp.status_code, http_client.CREATED)
-        self.assertEqual(backend.list_properties(user=username1), props)
+        self.assertEqual(backend.get_properties(user=username1), props)
 
     def test_add_user_with_invalid_properties(self):
         props = {'foo\nbar': propval1, }
@@ -212,7 +212,7 @@ class AddUserTests(RestAuthTransactionTest):  # POST /users/
         self.assertEqual(resp.status_code, http_client.PRECONDITION_FAILED)
         self.assertEqual(self.get_usernames(), [])
         with self.assertRaises(UserNotFound):
-            backend.list_properties(user=username1), {}
+            backend.get_properties(user=username1), {}
         self.assertEqual(backend.list_groups(service=self.service), [])
 
     def test_bad_requests(self):
@@ -417,7 +417,7 @@ class DeleteUserTest(UserTests):  # DELETE /users/<user>/
 
         # create him again with nothing
         backend.create_user(username1)
-        self.assertEqual(backend.list_properties(username1), {})
+        self.assertEqual(backend.get_properties(username1), {})
         self.assertEqual(backend.list_groups(self.service, user=username1), [])
 
 
@@ -997,9 +997,9 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             self.assertEqual(stderr.getvalue(), '')
 
         # properties moved?
-        self.assertEqual(backend.list_properties(username2), properties)
+        self.assertEqual(backend.get_properties(username2), properties)
         with self.assertRaises(UserNotFound):
-            backend.list_properties(username1)
+            backend.get_properties(username1)
 
         # see if members call still works
         self.assertEquals(backend.members(groupname1, self.service), [username2])
@@ -1014,7 +1014,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         # create a new user with old name and no data, see if old data magically appears again
         backend.create_user(username1)
         self.assertFalse(backend.check_password(username1, password1))
-        self.assertEquals(backend.list_properties(username1), {})
+        self.assertEquals(backend.get_properties(username1), {})
         self.assertEquals(backend.list_groups(service=self.service, user=username1), [])
 
     def test_verify(self):

@@ -210,7 +210,7 @@ class BackendBase(object):  # pragma: no cover
         """
         raise NotImplementedError
 
-    def list_properties(self, user):
+    def get_properties(self, user):
         """Get a full list of all user properties.
 
         :param user: The username.

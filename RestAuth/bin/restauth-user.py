@@ -84,7 +84,7 @@ def main(args=None):
 
         backend.set_password(user=args.user, password=args.pwd)
     elif args.action == 'view':
-        props = backend.list_properties(user=args.user)
+        props = backend.get_properties(user=args.user)
 
         if 'date joined' in props:
             print('Joined: %s' % props['date joined'])

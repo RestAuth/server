@@ -134,7 +134,7 @@ class MemoryBackend(BackendBase):
         except KeyError:
             raise UserNotFound(user)
 
-    def list_properties(self, user):
+    def get_properties(self, user):
         try:
             return self._users[user]['properties'].copy()
         except KeyError:

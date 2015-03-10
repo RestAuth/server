@@ -144,7 +144,7 @@ class DjangoBackend(BackendBase):
         else:
             raise UserNotFound(user)
 
-    def list_properties(self, user):
+    def get_properties(self, user):
         qs = Property.objects.filter(user__username=user)
         properties = dict(qs.values_list('key', 'value'))
         if not properties and not self.user_exists(user=user):

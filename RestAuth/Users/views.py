@@ -191,7 +191,7 @@ class UserPropsIndex(RestAuthResourceView):
             return HttpResponseForbidden()
 
         # If UserNotFound: 404 Not Found
-        props = backend.list_properties(user=name)
+        props = backend.get_properties(user=name)
         return HttpRestAuthResponse(request, props)
 
     def post(self, request, largs, name, dry=False):

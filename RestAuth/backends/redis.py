@@ -565,8 +565,7 @@ class RedisBackend(BackendBase):
                 raise UserNotFound(user)
             raise
 
-    def list_properties(self, user):
-        # TODO: this method should be called 'get_properties', since we don't return a list.
+    def get_properties(self, user):
 
         pipe = self.conn.pipeline()
         pipe.hexists('users', user)

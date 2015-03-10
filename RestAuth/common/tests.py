@@ -510,7 +510,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 u'last login': u'2013-12-01 19:27:44',  # date from json file
             }
 
-            props = backend.list_properties(user=username2)
+            props = backend.get_properties(user=username2)
             # delete 'date joined' prop because it was created by the backend and
             # restauth-import doesn't overwrite in this invocation:
             del props['date joined']
