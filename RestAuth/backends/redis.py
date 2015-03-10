@@ -152,7 +152,7 @@ _create_group_script_dry = """
 if redis.call('sismember', KEYS[1], ARGV[1]) == 1 then
     return {err="GroupExists"}
 elseif #KEYS > 1 then
-    for i=3, #ARGV, 1 do
+    for i=2, #ARGV, 1 do
         redis.log(redis.LOG_WARNING, 'check user ' .. ARGV[i])
         if redis.call('hexists', KEYS[3], ARGV[i]) == 0 then
             redis.log(redis.LOG_WARNING, 'not found in ' .. KEYS[3] .. ': ' .. ARGV[i])
@@ -164,7 +164,7 @@ end"""
 _create_group_script = _create_group_script_dry + """
 redis.call('sadd', KEYS[1], ARGV[1])
 if #KEYS > 1 then
-    redis.call('sadd', KEYS[2], unpack(ARGV, 3))
+    redis.call('sadd', KEYS[2], unpack(ARGV, 2))
 end
 """
 
@@ -661,7 +661,7 @@ class RedisBackend(BackendBase):
         sid = self._sid(service)
         g_key = self._g_key(sid)
         keys = [g_key]
-        args = [group, self._sid(service)]
+        args = [group] #self._ref_key(group, service)]
         if users:
             keys += [self._gu_key(group, sid), 'users']
             args += users
