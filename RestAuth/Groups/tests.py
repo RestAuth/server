@@ -1287,12 +1287,18 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 return  # we're done if we don't support group visibility
         self.assertEqual(backend.list_groups(service=self.service), [groupname1])
 
+        self.assertFalse(backend.group_exists(groupname1, None))
+        self.assertTrue(backend.group_exists(groupname1, self.service))
+
         with capture() as (stdout, stderr):
             cli(['set-service', '--service=%s' % self.service.username,
                  groupname1 if six.PY3 else groupname1.encode('utf-8')])
             self.assertEqual(stdout.getvalue(), '')
             self.assertEqual(stderr.getvalue(), '')
         self.assertEqual(backend.list_groups(service=None), [groupname1])
+
+        self.assertTrue(backend.group_exists(groupname1, None))
+        self.assertFalse(backend.group_exists(groupname1, self.service))
 
         with capture() as (stdout, stderr):  # test a non-existing group
             try:
