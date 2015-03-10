@@ -435,15 +435,15 @@ class RedisBackend(BackendBase):
 
     # get the id of a service
     def _sid(self, service):
-        return service.id if service is not None else 'None'
+        return 'None' if service is None else service.id
+
+    # The key that is used to reference a group
+    def _ref_key(self, group, service):
+        return '%s_%s' % (service.id if service is not None else 'None', group)
 
     # The key that lists groups of the given service
     def _g_key(self, service):
         return 'groups_%s' % (service.id if service is not None else 'None')
-
-    # The key that is used to reference sub/meta-groups
-    def _ref_key(self, group, service):
-        return '%s_%s' % (service.id if service is not None else 'None', group)
 
     # The key that lists members of the given group
     def _gu_key(self, group, service):
