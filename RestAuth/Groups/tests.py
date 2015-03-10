@@ -1376,6 +1376,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             finally:
                 self.assertEqual(stdout.getvalue(), '')
         self.assertEqual(backend.subgroups(group=groupname1, service=None), [groupname2])
+        self.assertEqual(backend.parents(group=groupname2, service=None), [(groupname1, None)])
 
     def test_add_group_both(self):  # both groups are in service
         backend.create_group(group=groupname1, service=self.service)
