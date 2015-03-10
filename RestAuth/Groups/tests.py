@@ -356,8 +356,23 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
 
         resp = self.delete('/groups/%s/' % groupname1)
         self.assertEqual(resp.status_code, http_client.NO_CONTENT)
-
         self.assertEqual(backend.list_groups(service=self.service), [])
+
+    def test_leakage(self):
+        backend.create_group(service=self.service, group=groupname1, users=[username1, username2])
+        resp = self.delete('/groups/%s/' % groupname1)
+        self.assertEqual(resp.status_code, http_client.NO_CONTENT)
+        self.assertEqual(backend.list_groups(service=self.service), [])
+
+        self.assertEquals(backend.list_groups(service=self.service, user=username1), [])
+        self.assertEquals(backend.list_groups(service=self.service, user=username2), [])
+
+        # create the group again, see if data leaks
+        backend.create_group(service=self.service, group=groupname1, users=[username1, username2])
+        self.assertEquals(backend.list_groups(service=self.service, user=username1), [])
+        self.assertEquals(backend.list_groups(service=self.service, user=username2), [])
+
+        # TODO: We should also test for meta/subgroups
 
     @unittest.skipIf(backend.SUPPORTS_GROUP_VISIBILITY is False, 'Backend has no group visibility')
     def test_service_isolation(self):
