@@ -446,8 +446,8 @@ class RedisBackend(BackendBase):
         return 'groups_%s' % sid
 
     # The key that lists members of the given group
-    def _gu_key(self, group, service):
-        return 'members_%s_%s' % (service.id if service is not None else 'None', group)
+    def _gu_key(self, group, sid):
+        return 'members_%s_%s' % (sid, group)
 
     # The key that lists sub-groups of the given group
     def _sg_key(self, group, service):
@@ -485,7 +485,7 @@ class RedisBackend(BackendBase):
             for group, service in groups:
                 sid = self._sid(service)
                 group_keys.add(self._g_key(sid))
-                group_keys.add(self._gu_key(group, service))
+                group_keys.add(self._gu_key(group, sid))
                 group_args += ['None' if service is None else str(service.id), group]
 
             properties = self._listify(properties)
@@ -663,7 +663,7 @@ class RedisBackend(BackendBase):
         keys = [g_key]
         args = [group, self._sid(service)]
         if users:
-            keys += [self._gu_key(group, service), 'users']
+            keys += [self._gu_key(group, sid), 'users']
             args += users
 
         if dry is True:
@@ -696,8 +696,8 @@ class RedisBackend(BackendBase):
     def rename_group(self, group, name, service):
         sid = self._sid(service)
         g_key = self._g_key(sid)
-        old_gu_key = self._gu_key(group, service)
-        new_gu_key = self._gu_key(name, service)
+        old_gu_key = self._gu_key(group, sid)
+        new_gu_key = self._gu_key(name, sid)
         old_sg_key = self._sg_key(group, service)
         new_sg_key = self._sg_key(name, service)
         mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(old_sg_key)]
@@ -721,8 +721,8 @@ class RedisBackend(BackendBase):
 
         old_g_key = self._g_key(old_sid)
         new_g_key = self._g_key(new_sid)
-        old_gu_key = self._gu_key(group, service)
-        new_gu_key = self._gu_key(group, new_service)
+        old_gu_key = self._gu_key(group, old_sid)
+        new_gu_key = self._gu_key(group, new_sid)
         old_sg_key = self._sg_key(group, service)
         new_sg_key = self._sg_key(group, new_service)
         mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(old_sg_key)]
@@ -749,7 +749,7 @@ class RedisBackend(BackendBase):
 
             # All existing and created groups may be modified
             clear_groups = self.conn.smembers(g_key) | set(groups)
-            keys = ['users', g_key] + [self._gu_key(g, service) for g in clear_groups]
+            keys = ['users', g_key] + [self._gu_key(g, sid) for g in clear_groups]
             args = [user, self._sid(service)] + groups
 
             self._set_memberships(keys=keys, args=args)
@@ -760,7 +760,7 @@ class RedisBackend(BackendBase):
 
     def set_members(self, group, service, users):
         sid = self._sid(service)
-        keys = [self._g_key(sid), self._gu_key(group, service)]
+        keys = [self._g_key(sid), self._gu_key(group, sid)]
         args = [group, ]
         if users:
             keys.append('users')
@@ -780,7 +780,7 @@ class RedisBackend(BackendBase):
     def add_member(self, group, service, user):
         sid = self._sid(service)
         try:
-            self._add_member(keys=[self._g_key(sid), 'users', self._gu_key(group, service)],
+            self._add_member(keys=[self._g_key(sid), 'users', self._gu_key(group, sid)],
                              args=[group, user])
         except self.redis.ResponseError as e:
             if e.message == 'GroupNotFound':
@@ -807,7 +807,7 @@ class RedisBackend(BackendBase):
         if not self.conn.sismember(g_key, group):
             raise GroupNotFound(group, service)
 
-        members = self.conn.smembers(self._gu_key(group, service))
+        members = self.conn.smembers(self._gu_key(group, sid))
         if depth == 0:
             return list(members)
 
@@ -826,7 +826,7 @@ class RedisBackend(BackendBase):
         if not self.conn.sismember(g_key, group):
             raise GroupNotFound(group, service)
 
-        members = self.conn.smembers(self._gu_key(group, service))
+        members = self.conn.smembers(self._gu_key(group, sid))
         if user in members:
             return True
 
@@ -840,7 +840,7 @@ class RedisBackend(BackendBase):
     def remove_member(self, group, service, user):
         sid = self._sid(service)
         try:
-            self._remove_member(keys=[self._g_key(sid), self._gu_key(group, service)],
+            self._remove_member(keys=[self._g_key(sid), self._gu_key(group, sid)],
                                 args=[group, user])
         except self.redis.ResponseError as e:
             if e.message == 'GroupNotFound':
