@@ -368,7 +368,8 @@ class DeleteGroupTests(GroupTests):  # DELETE /groups/<group>/
         self.assertEquals(backend.list_groups(service=self.service, user=username2), [])
 
         # create the group again, see if data leaks
-        backend.create_group(service=self.service, group=groupname1, users=[username1, username2])
+        backend.create_group(service=self.service, group=groupname1)
+        self.assertEquals(backend.list_groups(service=self.service), [groupname1])
         self.assertEquals(backend.list_groups(service=self.service, user=username1), [])
         self.assertEquals(backend.list_groups(service=self.service, user=username2), [])
 
