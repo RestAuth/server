@@ -372,7 +372,7 @@ redis.call('srem', KEYS[4], ARGV[1])
 """
 
 # keys = [g_key, gu_key, sg_key, mg_key] + mg_keys + sg_keys
-# args = [ref_key, len(mg_keys) - 4]
+# args = [ref_key]
 _remove_group_script = """
 if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
     return {err="GroupNotFound"}
@@ -380,15 +380,9 @@ end
 
 redis.call('srem', KEYS[1], ARGV[1])
 redis.call('del', KEYS[2], KEYS[3], KEYS[4])
-local mg_end = tonumber(ARGV[2])
 
-if mg_end > 4 then
-    for i=5, mg_end, 1 do
-        redis.call('srem', KEYS[i], ARGV[1])
-    end
-    for i=1 + mg_end, #KEYS, 1 do
-        redis.call('srem', KEYS[i], ARGV[1])
-    end
+for i=5, #KEYS, 1 do
+    redis.call('srem', KEYS[i], ARGV[1])
 end
 """
 
@@ -922,15 +916,15 @@ class RedisBackend(BackendBase):
     def subgroups(self, group, service, filter=True):
         sid = self._sid(service)
         g_key = self._g_key(sid)
+        sg_key = self._sg_key(group, sid)
         if not self.conn.sismember(g_key, self._ref_key(group, sid)):
             raise GroupNotFound(group, service)
 
         if filter is True:
-            sid = None if service is None else service.id
-            subgroups = [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, sid))]
+            subgroups = [self._parse_key(k) for k in self.conn.smembers(sg_key)]
             return [g for g, s in subgroups if s == sid]
         else:
-            subgroups = [self._parse_key(k) for k in self.conn.smembers(self._sg_key(group, sid))]
+            subgroups = [self._parse_key(k) for k in self.conn.smembers(sg_key)]
             return [(g, (Service.objects.get(id=s) if s is not None else None)) for g, s in subgroups]
 
     def parents(self, group, service):
@@ -962,8 +956,6 @@ class RedisBackend(BackendBase):
             raise GroupNotFound(*self._parse_key(e.message))
 
     def remove_group(self, group, service):
-        # TODO: rewrite as lua script
-
         sid = self._sid(service)
         g_key = self._g_key(sid)
         gu_key = self._gu_key(group, sid)
@@ -975,10 +967,10 @@ class RedisBackend(BackendBase):
         metagroups = self.conn.smembers(mg_key)
         subgroups = self.conn.smembers(sg_key)
 
-        mg_keys = ['metagroups_%s' % g for g in metagroups]
-        sg_keys = ['subgroups_%s' % g for g in subgroups]
+        mg_keys = ['subgroups_%s' % g for g in metagroups]
+        sg_keys = ['metagroups_%s' % g for g in subgroups]
         keys = [g_key, gu_key, sg_key, mg_key] + mg_keys + sg_keys
-        args = [ref_key, len(mg_keys) + 4]
+        args = [ref_key]
         try:
             self._remove_group(keys=keys, args=args)
         except self.redis.ResponseError as e:
