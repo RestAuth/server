@@ -371,6 +371,27 @@ end
 redis.call('srem', KEYS[4], ARGV[1])
 """
 
+# keys = [g_key, gu_key, sg_key, mg_key] + mg_keys + sg_keys
+# args = [ref_key, len(mg_keys) - 4]
+_remove_group_script = """
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
+    return {err="GroupNotFound"}
+end
+
+redis.call('srem', KEYS[1], ARGV[1])
+redis.call('del', KEYS[2], KEYS[3], KEYS[4])
+local mg_end = tonumber(ARGV[2])
+
+if mg_end > 4 then
+    for i=5, mg_end, 1 do
+        redis.call('srem', KEYS[i], ARGV[1])
+    end
+    for i=1 + mg_end, #KEYS, 1 do
+        redis.call('srem', KEYS[i], ARGV[1])
+    end
+end
+"""
+
 
 class RedisBackend(BackendBase):
     """Store properties in a Redis key/value store.
@@ -421,6 +442,7 @@ class RedisBackend(BackendBase):
         self._add_subgroup = self.conn.register_script(_add_subgroup_script)
         self._set_subgroups = self.conn.register_script(_set_subgroups_script)
         self._remove_subgroup = self.conn.register_script(_remove_subgroup_script)
+        self._remove_group = self.conn.register_script(_remove_group_script)
 
     # serialize a dictionary into a flat list including keys and values
     def _listify(self, d):
@@ -943,11 +965,9 @@ class RedisBackend(BackendBase):
         # TODO: rewrite as lua script
 
         sid = self._sid(service)
+        g_key = self._g_key(sid)
+        gu_key = self._gu_key(group, sid)
         ref_key = self._ref_key(group, sid)
-
-        if self.conn.srem(self._g_key(sid), ref_key) == 0:
-            raise GroupNotFound(group, service)
-
         mg_key = self._mg_key(group, sid)
         sg_key = self._sg_key(group, sid)
 
@@ -955,12 +975,16 @@ class RedisBackend(BackendBase):
         metagroups = self.conn.smembers(mg_key)
         subgroups = self.conn.smembers(sg_key)
 
-        for mg in ['subgroups_%s' % g for g in metagroups]:
-            self.conn.srem(mg, ref_key)
-        for sg in ['metagroups_%s' % g for g in subgroups]:
-            self.conn.srem(sg, ref_key)
-
-        self.conn.delete(mg_key, sg_key)
+        mg_keys = ['metagroups_%s' % g for g in metagroups]
+        sg_keys = ['subgroups_%s' % g for g in subgroups]
+        keys = [g_key, gu_key, sg_key, mg_key] + mg_keys + sg_keys
+        args = [ref_key, len(mg_keys) + 4]
+        try:
+            self._remove_group(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            if e.message == 'GroupNotFound':
+                raise GroupNotFound(group, service)
+            raise
 
     def testSetUp(self):
         self.conn.flushdb()
