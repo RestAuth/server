@@ -361,7 +361,17 @@ if no_groups > 0 then
 end
 """
 
-# keys = [g_key, mg_key]
+# keys = [_GROUPS, sg_key]
+# args = [ref_key]
+_subgroups_script = """
+if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
+    return {err="GroupNotFound"}
+end
+return redis.call('smembers', KEYS[2])
+"""
+
+
+# keys = [_GROUPS, mg_key]
 # args = [ref_key]
 _parents_script = """
 if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
@@ -453,6 +463,7 @@ class RedisBackend(BackendBase):
         self._remove_member = self.conn.register_script(_remove_member_script)
         self._add_subgroup = self.conn.register_script(_add_subgroup_script)
         self._set_subgroups = self.conn.register_script(_set_subgroups_script)
+        self._subgroups = self.conn.register_script(_subgroups_script)
         self._parents = self.conn.register_script(_parents_script)
         self._remove_subgroup = self.conn.register_script(_remove_subgroup_script)
         self._remove_group = self.conn.register_script(_remove_group_script)
@@ -921,19 +932,26 @@ class RedisBackend(BackendBase):
                                    self._ref_key(subgroup, self._sid(subservice)))
 
     def subgroups(self, group, service, filter=True):
-        # TODO: rewrite as lua script
         sid = self._sid(service)
         sg_key = self._sg_key(group, sid)
-        if not self.conn.sismember(_GROUPS, self._ref_key(group, sid)):
-            raise GroupNotFound(group, service)
+        ref_key = self._ref_key(group, sid)
 
+        keys = [_GROUPS, sg_key]
+        args = [ref_key]
+
+        try:
+            ref_keys = self._subgroups(keys=keys, args=args)
+        except self.redis.ResponseError as e:
+            if e.message == 'GroupNotFound':
+                raise GroupNotFound(group, service)
+
+        ref_keys = [self._parse_key(k) for k in ref_keys]
         if filter is True:
-            subgroups = [self._parse_key(k) for k in self.conn.smembers(sg_key)]
             sid = None if sid == 'None' else sid
-            return [g for g, s in subgroups if s == sid]
+            return [g for g, s in ref_keys if s == sid]
         else:
-            subgroups = [self._parse_key(k) for k in self.conn.smembers(sg_key)]
-            return [(g, (Service.objects.get(id=s) if s is not None else None)) for g, s in subgroups]
+            return [(g, (Service.objects.get(id=s) if s is not None else None))
+                    for g, s in ref_keys]
 
     def parents(self, group, service):
         sid = self._sid(service)
