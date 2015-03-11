@@ -53,7 +53,6 @@ end
 
 local last_prop = tonumber(ARGV[3]) -- TOOD: tonumber() needed?
 
--- TODO: last_prop > 3 should no longer happen - check ARGV[3] > 0 instead
 if last_prop > 0 then
     redis.call('hmset', KEYS[2], unpack(ARGV, 4, 3 + last_prop))
 end
@@ -848,7 +847,8 @@ class RedisBackend(BackendBase):
             depth = settings.GROUP_RECURSION_DEPTH
 
         sid = self._sid(service)
-        if not self.conn.sismember(_GROUPS, self._ref_key(group, sid)):
+        ref_key = self._ref_key(group, sid)
+        if not self.conn.sismember(_GROUPS, ref_key):
             raise GroupNotFound(group, service)
 
         members = self.conn.smembers(self._gu_key(group, sid))
@@ -856,7 +856,7 @@ class RedisBackend(BackendBase):
             return list(members)
 
         sid = self._sid(service)
-        ref_keys = self._parent_keys(self._ref_key(group, sid), depth=1, max_depth=depth)
+        ref_keys = self._parent_keys(ref_key, depth=1, max_depth=depth)
         ref_keys = ['members_%s' % k for k in ref_keys]
         if ref_keys:
             return list(members | self.conn.sunion(*ref_keys))
