@@ -167,7 +167,6 @@ end
 """
 
 # keys = [g_key, old_gu_key, new_gu_key, old_sg_key, new_sg_key] + mg_keys
-# args = [group, name, sid]
 # args = [old_ref, new_ref]
 _rename_group_script = """
 if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
@@ -315,7 +314,6 @@ redis.call('sadd', KEYS[4], ARGV[1])
 # add_mg_keys = ['metagroups_%s' % k for k in self.conn.smembers(sg_key)]
 #
 # keys = [sg_key, g_key, ] + g_keys + mg_keys + [k for k in add_mg_keys if k not in mg_keys]
-# args = [sid, ref_key, ] + subgroups + ref_keys
 # args = [sid, ref_key, ] + ref_keys
 _set_subgroups_script = """
 local no_groups = #ARGV - 2
