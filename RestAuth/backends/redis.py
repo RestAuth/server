@@ -41,7 +41,7 @@ class RedisTransactionManager(TransactionManagerBase):
     def __exit__(self, exc_type, exc_value, traceback):
         pass
 
-# keys=['users', 'props_%s' % user] + list(group_keys)
+# keys=[_USERS, 'props_%s' % user] + list(group_keys)
 # args=[user, password, len(properties)] + properties + groups
 _create_user_script = """
 if redis.call('hsetnx', KEYS[1], ARGV[1], ARGV[2]) == 0 then
@@ -60,7 +60,7 @@ for i=1 + last_prop, #ARGV, 2 do
 end
 """
 
-# keys=['users'], args=[user, password]
+# keys=[_USERS], args=[user, password]
 _set_password_script = """
 if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
     return {err="UserNotFound"}
@@ -68,7 +68,7 @@ end
 redis.call('hset', KEYS[1], ARGV[1], ARGV[2])
 """
 
-# keys = ['users', 'props_%s' % user, 'props_%s' % name] + [members_*]
+# keys = [_USERS, 'props_%s' % user, 'props_%s' % name] + [members_*]
 # args = [user, name]
 _rename_user_script = """
 -- get old user
@@ -95,7 +95,7 @@ for i=4, #KEYS, 1 do
 end
 """
 
-# keys = ['users', 'props_%s' % user] + [members_*]
+# keys = [_USERS, 'props_%s' % user] + [members_*]
 # args = [user]
 _remove_user_script = """
 if redis.call('hdel', KEYS[1], ARGV[1]) == 0 then
@@ -146,7 +146,7 @@ redis.call('hdel', KEYS[2], ARGV[2])
 # keys = [g_key(service)]
 # args = [group, self._sid(service)]
 # if users:
-#     keys += [self._gu_key(group, service), 'users']
+#     keys += [self._gu_key(group, service), _USERS]
 #     args += users
 _create_group_script_dry = """
 if redis.call('sismember', KEYS[1], ARGV[1]) == 1 then
@@ -224,7 +224,7 @@ for i=7, #KEYS, 1 do
 end
 """
 
-# keys = ['users', g_key] + [self._gu_key(g, service) for g in self.conn.smembers(g_key)]
+# keys = [_USERS, g_key] + [self._gu_key(g, service) for g in self.conn.smembers(g_key)]
 # args = [user] + groups
 _set_memberships_script = """
 if redis.call('hexists', KEYS[1], ARGV[1]) == 0 then
@@ -251,7 +251,7 @@ end
 # keys = [self._g_key(service), self._gu_key(group, service)]
 # args = [ref_key, ]
 # if users:
-#     keys.append('users')
+#     keys.append(_USERS)
 #     args += users
 _set_members_script = """
 if redis.call('sismember', KEYS[1], ARGV[1]) == 0 then
@@ -393,6 +393,8 @@ for i=5, #KEYS, 1 do
 end
 """
 
+_USERS = 'users'
+
 
 class RedisBackend(BackendBase):
     """Store properties in a Redis key/value store.
@@ -493,11 +495,11 @@ class RedisBackend(BackendBase):
         groups = groups or []
 
         if dry is True:  # handle dry mode
-            if self.conn.hexists('users', user):  # this is really the only error condition
+            if self.conn.hexists(_USERS, user):  # this is really the only error condition
                 raise UserExists(user)
             return
 
-        keys = ['users']
+        keys = [_USERS]
         group_keys = set()
         group_args = []
         for group, service in groups:
@@ -522,14 +524,14 @@ class RedisBackend(BackendBase):
             raise
 
     def list_users(self):
-        return self.conn.hkeys('users')
+        return self.conn.hkeys(_USERS)
 
     def user_exists(self, user):
-        return self.conn.hexists('users', user)
+        return self.conn.hexists(_USERS, user)
 
     def rename_user(self, user, name):
         try:
-            keys = ['users', 'props_%s' % user, 'props_%s' % name]
+            keys = [_USERS, 'props_%s' % user, 'props_%s' % name]
             keys += list(self.conn.scan_iter(match='members_*'))
             self._rename_user(keys=keys, args=[user, name])
         except self.redis.ResponseError as e:
@@ -547,7 +549,7 @@ class RedisBackend(BackendBase):
         def setter(raw_password):
             self.set_password(user, raw_password)
 
-        stored = self.conn.hget('users', user)
+        stored = self.conn.hget(_USERS, user)
         if stored is None:
             raise UserNotFound(user)
         matches = check_password(password, stored, setter)
@@ -564,7 +566,7 @@ class RedisBackend(BackendBase):
         password = make_password(password) if password else ''
 
         try:
-            self._set_password(keys=['users'], args=[user, password])
+            self._set_password(keys=[_USERS], args=[user, password])
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
                 raise UserNotFound(user)
@@ -574,7 +576,7 @@ class RedisBackend(BackendBase):
         hash = import_hash(algorithm, hash)
 
         try:
-            self._set_password(keys=['users'], args=[user, hash])
+            self._set_password(keys=[_USERS], args=[user, hash])
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
                 raise UserNotFound(user)
@@ -582,7 +584,7 @@ class RedisBackend(BackendBase):
 
     def remove_user(self, user):
         try:
-            keys = ['users', 'props_%s' % user] + list(self.conn.scan_iter(match='members_*'))
+            keys = [_USERS, 'props_%s' % user] + list(self.conn.scan_iter(match='members_*'))
             self._remove_user(keys=keys, args=[user])
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
@@ -592,7 +594,7 @@ class RedisBackend(BackendBase):
     def get_properties(self, user):
 
         pipe = self.conn.pipeline()
-        pipe.hexists('users', user)
+        pipe.hexists(_USERS, user)
         pipe.hgetall('props_%s' % user)
         exists, properties = pipe.execute()
         if exists is False:
@@ -602,7 +604,7 @@ class RedisBackend(BackendBase):
     def create_property(self, user, key, value, dry=False):
         if dry is True:  # shortcut, can be done with simple pipe
             pipe = self.conn.pipeline()
-            pipe.hexists('users', user)
+            pipe.hexists(_USERS, user)
             pipe.hexists('props_%s' % user, key)
             user_exists, prop_exists = pipe.execute()
             if user_exists is False:
@@ -612,7 +614,7 @@ class RedisBackend(BackendBase):
             return
 
         try:
-            self._create_property(keys=['users', 'props_%s' % user], args=[user, key, value])
+            self._create_property(keys=[_USERS, 'props_%s' % user], args=[user, key, value])
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
                 raise UserNotFound(user)
@@ -622,7 +624,7 @@ class RedisBackend(BackendBase):
 
     def get_property(self, user, key):
         pipe = self.conn.pipeline()
-        pipe.hexists('users', user)
+        pipe.hexists(_USERS, user)
         pipe.hget('props_%s' % user, key)
         exists, value = pipe.execute()
         if not exists:
@@ -633,7 +635,7 @@ class RedisBackend(BackendBase):
 
     def set_property(self, user, key, value):
         try:
-            return self._set_property(keys=['users', 'props_%s' % user], args=[user, key, value])
+            return self._set_property(keys=[_USERS, 'props_%s' % user], args=[user, key, value])
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
                 raise UserNotFound(user)
@@ -641,12 +643,12 @@ class RedisBackend(BackendBase):
 
     def set_properties(self, user, properties):
         if not properties:
-            if not self.conn.hexists('users', user):
+            if not self.conn.hexists(_USERS, user):
                 raise UserNotFound(user)
             return
 
         try:
-            self._set_properties(keys=['users', 'props_%s' % user],
+            self._set_properties(keys=[_USERS, 'props_%s' % user],
                                  args=[user, ] + self._listify(properties))
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
@@ -655,7 +657,7 @@ class RedisBackend(BackendBase):
 
     def remove_property(self, user, key):
         try:
-            self._remove_property(keys=['users', 'props_%s' % user], args=[user, key])
+            self._remove_property(keys=[_USERS, 'props_%s' % user], args=[user, key])
         except self.redis.ResponseError as e:
             if e.message == 'UserNotFound':
                 raise UserNotFound(user)
@@ -669,7 +671,7 @@ class RedisBackend(BackendBase):
             return [self._parse_key(g)[0] for g in self.conn.smembers(g_key)]
         else:
             # TODO: rewrite as lua script
-            if not self.conn.hexists('users', user):
+            if not self.conn.hexists(_USERS, user):
                 raise UserNotFound(user)
 
             groups = set()
@@ -686,7 +688,7 @@ class RedisBackend(BackendBase):
         keys = [g_key]
         args = [ref_key]
         if users:
-            keys += [self._gu_key(group, sid), 'users']
+            keys += [self._gu_key(group, sid), _USERS]
             args += users
 
         if dry is True:
@@ -776,7 +778,7 @@ class RedisBackend(BackendBase):
 
         # All existing and created groups may be modified
         clear_groups = self.conn.smembers(g_key) | set(groups)
-        keys = ['users', g_key] + ['members_%s' % g for g in clear_groups]
+        keys = [_USERS, g_key] + ['members_%s' % g for g in clear_groups]
         args = [user, ] + groups
 
         try:
@@ -791,7 +793,7 @@ class RedisBackend(BackendBase):
         keys = [self._g_key(sid), self._gu_key(group, sid)]
         args = [self._ref_key(group, sid), ]
         if users:
-            keys.append('users')
+            keys.append(_USERS)
             args += users
 
         try:
@@ -807,7 +809,7 @@ class RedisBackend(BackendBase):
 
     def add_member(self, group, service, user):
         sid = self._sid(service)
-        keys = [self._g_key(sid), 'users', self._gu_key(group, sid)]
+        keys = [self._g_key(sid), _USERS, self._gu_key(group, sid)]
         args = [self._ref_key(group, sid), user]
         try:
             self._add_member(keys=keys, args=args)
