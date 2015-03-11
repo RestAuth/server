@@ -395,6 +395,7 @@ end
 
 _USERS = 'users'
 _PROPS = 'props_%s'
+_GROUPS = 'groups'
 
 
 class RedisBackend(BackendBase):
@@ -507,7 +508,6 @@ class RedisBackend(BackendBase):
             sid = self._sid(service)
             group_keys.add(self._g_key(sid))
             group_keys.add(self._gu_key(group, sid))
-            sid = self._sid(service)
             group_args += [sid, self._ref_key(group, sid)]
 
         properties = self._listify(properties)
