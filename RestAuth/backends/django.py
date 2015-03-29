@@ -196,9 +196,12 @@ class DjangoBackend(BackendBase):
             try:
                 group = Group.objects.create(name=group, service=service)
                 if users:
-                    user_objs = User.objects.only('id').filter(username__in=users)
+                    user_objs = User.objects.only('id', 'username').filter(username__in=users)
                     if len(users) != len(user_objs):
-                        raise UserNotFound()
+                        found = [u.username for u in user_objs]
+                        for user in users:
+                            if user not in found:
+                                raise UserNotFound(user)
                     group.users.add(*user_objs)
             except IntegrityError:
                 raise GroupExists(group)
