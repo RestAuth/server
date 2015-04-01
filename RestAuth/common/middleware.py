@@ -33,7 +33,7 @@ from common.errors import PropertyNotFound
 from common.errors import UserNotFound
 
 log = logging.getLogger(__name__)
-CONTENT_TYPE_METHODS = set(['POST', 'PUT'])
+CONTENT_TYPE_METHODS = {'POST', 'PUT'}
 
 
 class RestAuthMiddleware:
