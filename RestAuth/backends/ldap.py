@@ -23,28 +23,68 @@ from backends.base import BackendBase
 
 
 class LDAPBackend(BackendBase):
-    # TODO
+    """
+    :param LDAP_HOST: The ldap host to connect to, e.g. "ldap://localhost".
+    :param LDAP_USER: The user used for binding, e.g. "cn=admin,dc=example,dc=com".
+    :param LDAP_PASS: The password used for binding.
+    :param USER_RDN: RDN for your user collection, e.g. "ou=people,dc=example,dc=com".
+    :param GROUP_RDN: RDN for your group collection, e.g. "ou=people,dc=example,dc=com".
+    :param USER_CLASSES: Object classes used for user objects. The first named object is assumed to
+        be the primary object class.
+    :param USER_ATTR: The attribute identifying a user.
+    :param USER_SCOPE: Search scope used when searching for users, any of ldap.SCOPE_*. The default
+        is ldap.SCOPE_BASE.
+    :param GROUP_CLASSES: Object classes used for group objects. The first named object is assumed
+        to be the primary object class.
+    :param GROUP_ATTR: The attribute identifying a group.
+    :param GROUP_SCOPE: Search scope used when searching for group, any of ldap.SCOPE_*. The
+        default is ldap.SCOPE_BASE.
+    """
     library = 'ldap'
 
-    def __init__(self, LDAP_HOST, LDAP_BIND, LDAP_PASS, USER_DN, USER_FILTER, GROUP_DN,
-                 GROUP_FILTER):
+    def __init__(self, LDAP_HOST, LDAP_USER, LDAP_PASS, USER_RDN, GROUP_RDN,
+                 USER_CLASSES=None, USER_ATTR='uid', USER_SCOPE=None,
+                 GROUP_CLASSES=None, GROUP_ATTR='cn', GROUP_SCOPE=None):
         """
-        LDAPBackend(
-            'ldap://localhost', 'cn=admin,dc=nodomain', 'nopass',
-            'ou=People,dc=nodomain', '(objectclass=posixAccount)',
-            'ou=Groups,dc=nodomain', '(objectclass=posixGroup)'
-        )
+        Currently used for testing::
+
+            LDAPBackend('ldap://localhost', 'cn=admin,dc=nodomain', 'nopass',
+                        'ou=People,dc=nodomain', 'ou=Groups,dc=nodomain')
         """
-        self.user_dn = USER_DN
-        self.user_filter = USER_FILTER
-        self.group_dn = GROUP_DN
-        self.group_filter = GROUP_FILTER
+        self.ldap = self._load_library()
+
+        # set defaults for some kwargs
+        if USER_CLASSES is None:
+            USER_CLASSES = ['posixAccount', 'inetOrgPerson', 'shadowAccount']
+        if GROUP_CLASSES is None:
+            GROUP_CLASSES = ['posixGroup']
+        if USER_SCOPE is None:
+            USER_SCOPE = self.ldap.SCOPE_BASE
+        if GROUP_SCOPE is None:
+            GROUP_SCOPE = self.ldap.SCOPE_BASE
+
+        # initiate connection
         self.conn = ldap.initialize(LDAP_HOST)
-        self.conn.bind_s(LDAP_BIND, LDAP_PASS, ldap.AUTH_SIMPLE)
+        self.conn.bind_s(LDAP_USER, LDAP_PASS, ldap.AUTH_SIMPLE)
+
+        # set local attributes
+        self.user_rdn = USER_RDN
+        self.group_rdn = GROUP_RDN
+        self.user_classes = [str(c) for c in USER_CLASSES]
+        self.user_attr = USER_ATTR
+        self.user_scope = USER_SCOPE
+        self.group_classes = [str(c) for c in GROUP_CLASSES]
+        self.group_attr = GROUP_ATTR
+        self.group_scope = GROUP_SCOPE
+
+        self.user_dn_tmpl = '%s=%%s,%s' % (USER_ATTR, USER_RDN)
+        self.user_filter = '(objectclass=%s)' % USER_CLASSES[0]
+        self.group_filter = '(object_class=%s)' % GROUP_CLASSES[0]
+        self.group_dn_tmpl = '%s=%%s,%s' % (GROUP_ATTR, GROUP_RDN)
 
     TRANSACTION_MANAGER = None
-    SUPPORTS_GROUP_VISIBILITY = True
-    SUPPORTS_SUBGROUPS = True
+    SUPPORTS_GROUP_VISIBILITY = False
+    SUPPORTS_SUBGROUPS = False
 
     def testSetUp(self):
         """Set up your backend for a test run.
@@ -104,7 +144,27 @@ class LDAPBackend(BackendBase):
         :return: A user object providing at least the properties of the UserInstance class.
         :raise: :py:class:`~common.errors.UserExists` if the user already exist.
         """
-        raise NotImplementedError
+        cn = str('Firstname Lastname')
+        sn = str('Lastname')
+        if properties is not None:
+            if 'full name' in properties:
+                cn = properties['full name']
+            elif 'first_name' in properties and 'last_name' in properties:
+                cn = '%s %s' % (properties['first name'], properties['last name'])
+
+        record = (
+            ('objectclass', self.user_classes),
+            (self.user_attr, user),
+            ('cn', cn),
+            ('uidNumber', str('123')),
+            ('gidNumber', str('5000')),
+            ('homeDirectory', str('/home/%s/' % user)),
+            ('sn', sn),
+        )
+        try:
+            return self.conn.add_s(self.user_dn_tmpl % user, record)
+        except self.ldap.OBJECT_CLASS_VIOLATION:
+            raise  # e.g. object does not have the right properties
 
     def list_users(self):
         """Get a list of all users.
@@ -112,7 +172,9 @@ class LDAPBackend(BackendBase):
         :return: A list of usernames.
         :rtype: list
         """
-        raise NotImplementedError
+        results = self.conn.search_s(self.user_rdn, self.ldap.SCOPE_SUBTREE, self.user_filter,
+                                     [str(self.user_attr)])
+        return [v[self.user_attr][0] for k, v in results]
 
     def user_exists(self, user):
         """Determine if the user exists.
@@ -122,9 +184,9 @@ class LDAPBackend(BackendBase):
         :return: True if the user exists, False otherwise.
         :rtype: boolean
         """
-        dn = 'uid=%s,%s' % (user, self.user_dn)
+        dn = '%s=%s,%s' % (self.user_attr, user, self.user_rdn)
         try:
-            self.conn.search_s(dn, ldap.SCOPE_SUBTREE, self.user_filter, [str()])
+            self.conn.search_s(dn, self.user_scope, str(self.user_filter), [str()])
             return True
         except ldap.NO_SUCH_OBJECT:
             return False
