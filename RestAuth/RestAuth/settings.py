@@ -43,10 +43,10 @@ LOG_HANDLER = 'logging.StreamHandler'
 LOG_HANDLER_KWARGS = {}
 LOG_LEVEL = 'ERROR'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'common.middleware.RestAuthMiddleware',
-)
+]
 DATA_BACKEND = {
     'BACKEND': 'backends.django.DjangoBackend',
 }
