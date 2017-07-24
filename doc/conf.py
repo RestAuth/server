@@ -11,10 +11,12 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
-sys.path.insert( 0, '..' )
-sys.path.insert( 0, '../RestAuth' )
-sys.path.insert( 0, 'RestAuth' )
+import os
+import sys
+
+sys.path.insert(0, '..')
+sys.path.insert(0, '../RestAuth')
+sys.path.insert(0, 'RestAuth')
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -28,9 +30,11 @@ sys.path.insert( 0, 'RestAuth' )
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath',
-              'sphinx.ext.ifconfig', 'sphinx.ext.viewcode', 'extensions.example', 'sphinx.ext.extlinks',
-             ]
+extensions = [
+    'sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.coverage',
+    'sphinx.ext.ifconfig', 'sphinx.ext.viewcode', 'extensions.example',
+    'sphinx.ext.extlinks',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -69,7 +73,7 @@ release = '0.6.4'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build', 'includes', 'gen' ]
+exclude_patterns = ['_build', 'includes', 'gen', ]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -183,8 +187,7 @@ htmlhelp_basename = 'RestAuthdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'RestAuth.tex', u'RestAuth Documentation',
-   u'Mathias Ertl', 'manual'),
+    ('index', 'RestAuth.tex', u'RestAuth Documentation', u'Mathias Ertl', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -225,7 +228,7 @@ man_pages = [
     ('restauth-import', 'restauth-import', u'import data into RestAuth',
      [u'Mathias Ertl'], 1),
     ('bin/restauth-manage', 'restauth-manage', u'advanced RestAuth management',
-     [u'Mathias Ertl'], 1)
+     [u'Mathias Ertl'], 1),
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
@@ -239,8 +242,8 @@ defaults = {
     'bin-restauth-group': 'restauth-group.py',
     'bin-restauth-import': 'restauth-import.py',
 
-    'file-settings': 'RestAuth/localsettings.py',#
-    'file-wsgi': 'RestAuth/RestAuth/wsgi.py',#
+    'file-settings': 'RestAuth/localsettings.py',
+    'file-wsgi': 'RestAuth/RestAuth/wsgi.py',
 }
 
 settings = {
@@ -251,8 +254,8 @@ settings = {
         'bin-restauth-group': 'restauth-group',
         'bin-restauth-import': 'restauth-import',
 
-        'file-settings': 'localsettings.py',#
-        'file-wsgi': '/path/to/your/wsgi.py',#
+        'file-settings': 'localsettings.py',
+        'file-wsgi': '/path/to/your/wsgi.py',
     },
     'debian': {
         'bin-restauth-manage': 'restauth-manage',
@@ -261,22 +264,22 @@ settings = {
         'bin-restauth-group': 'restauth-group',
         'bin-restauth-import': 'restauth-import',
 
-        'file-settings': '/etc/restauth/settings.py',#
-        'file-wsgi': '/usr/share/pyshared/RestAuth/RestAuth/wsgi.py',#
+        'file-settings': '/etc/restauth/settings.py',
+        'file-wsgi': '/usr/share/pyshared/RestAuth/RestAuth/wsgi.py',
     },
     'man': {
     },
     'fedora': {
     },
     'arch': {
-        'file-wsgi': '/usr/share/restauth/wsgi.py',#
+        'file-wsgi': '/usr/share/restauth/wsgi.py',
     },
 }
 
 substitutions = defaults
 
 # set the -default suffix:
-for key, value in defaults.items():
+for key, value in list(defaults.items()):
     substitutions['%s-default' % key] = value
 
 # apply tags (should be only one, really):
@@ -307,11 +310,11 @@ if tags.has('homepage'):
 .. |bin-restauth-user-link| replace:: :ref:`%s <dist-specific-bin-restauth-user>`
 .. |file-settings-link| replace:: :ref:`%s <dist-specific-file-settings>`
 """ % (
-    settings['homepage']['bin-restauth-manage'],
-    settings['homepage']['bin-restauth-service'],
-    settings['homepage']['bin-restauth-user'],
-    settings['homepage']['file-settings'],
-)
+        settings['homepage']['bin-restauth-manage'],
+        settings['homepage']['bin-restauth-service'],
+        settings['homepage']['bin-restauth-user'],
+        settings['homepage']['file-settings'],
+    )
 else:
     rst_epilog += """
 .. |bin-restauth-manage-link| replace:: :doc:`%s </bin/restauth-manage>`
@@ -319,11 +322,11 @@ else:
 .. |bin-restauth-user-link| replace:: :doc:`%s </restauth-user>`
 .. |file-settings-link| replace:: :doc:`%s </config/all-config-values>`
 """ % (
-    substitutions['bin-restauth-manage'],
-    substitutions['bin-restauth-service'],
-    substitutions['bin-restauth-user'],
-    substitutions['file-settings'],
-)
+        substitutions['bin-restauth-manage'],
+        substitutions['bin-restauth-service'],
+        substitutions['bin-restauth-user'],
+        substitutions['file-settings'],
+    )
 
 for key, value in substitutions.items():
     rst_epilog += ".. |%s| replace:: %s\n" % (key, value)
