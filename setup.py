@@ -360,6 +360,7 @@ class QualityCommand(Command):
             sys.exit(status)
 
         work_dir = os.path.join(_rootdir, 'RestAuth')
+        print('### Changing to %s', work_dir)
 
         os.chdir(work_dir)
         print('python -Wd manage.py check')
