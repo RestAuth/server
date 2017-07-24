@@ -18,14 +18,14 @@ from __future__ import unicode_literals
 import inspect
 import os
 import re
+from unittest import skipUnless
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test.client import Client
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-from django.utils.unittest import TestCase
-from django.utils.unittest import skipUnless
+from django.test import TestCase
 
 from django.utils import six
 from django.utils.six.moves import http_client

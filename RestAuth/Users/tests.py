@@ -18,7 +18,7 @@ from __future__ import unicode_literals
 import re
 
 from datetime import datetime
-
+from unittest import skipUnless
 
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
@@ -27,7 +27,6 @@ from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.utils import six
 from django.utils.six import StringIO
-from django.utils.unittest import skipUnless
 
 # py2/py3 compat imports:
 from django.utils.six.moves import http_client
