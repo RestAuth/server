@@ -2,16 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
-# General Public License as published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
-# see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
@@ -291,7 +291,7 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         self.assertEqual(resp['Resource-Type'], 'user')
 
     def test_password_groups(self):
-        data = {'password': password1, 'groups': [groupname1] }
+        data = {'password': password1, 'groups': [groupname1], }
 
         # we're not in the group
         resp = self.post('/users/%s/' % username1, data)
@@ -789,29 +789,19 @@ class Drupal7Test(HashTestMixin, TransactionTestCase):
     algorithm = 'drupal7'
 
     testdata = {
-        '1': {'salt': 'DtfbJVKBh', 'hash': 'lHmYDIMN7WChUUvEhATGnflurtH7c46/4I9Mocpi.0O'},
-        '12': {'salt': 'D/Ke05Og0', 'hash': 'fQ0NFG7OzsgIoxuZ2bjHvLr4MjoLq3nHVkleR/qTDd5'},
-        '123': {'salt': 'Dl0ruon0i', 'hash': 'SMu2oThzN.pbFPdtD5Sh67WHN92WU/tx9rJgZyel/LT'},
-        '1234': {'salt': 'DvL6XrqV1', 'hash': '6VBeRqFZlu0kdVlCXaF4LbSfTbQkpQ5QY1bc3wDNiZq'},
-        '12345': {'salt': 'DDcFBLTez', 'hash': 'B1zxDDL5TK5v7iVqlP0H4H8gv1CbGTbAAtwyO//e1Rg'},
-        '123456': {'salt': 'DoxC.Busk', 'hash': 'MRu2HSdCh29u0ZTJhETlEaxyH/JUIvtQ7oD2Rkxnl3c'},
-        '1234567': {'salt': 'DE/joQlAl', 'hash': 'd8eZk/MB65Wb7Mzihm2M/WEfAYthl2aPTjSSBLJ/wX5'},
-        '12345678': {'salt': 'D/YGN6xK5', 'hash': '0wPvroaZq4QLT.vLCbt0JGMAPSCYxcN6BO4uSxjRrux'},
-        's8zm3mPH88mY': {'salt': 'DzGBWhU4E',
-                         'hash': 'QifJeFvwTPvJvc03yvOrI1PebgOj9GCAZvoKMtRVmuZ',
-        },
-        'dfi31ps18XaR': {'salt': 'DHFKOWOc.',
-                         'hash': '2pgOGy5s59k1WzhTiMUcHrdPlIzFnbuEK7m54j2zrkT',
-        },
-        'izfqISu3hVrx': {'salt': 'Dnspf7cF3',
-                         'hash': '.Pk793BzmyMtonIlWJp3Vh8Zix0wMCV.j.KCAGamoz0',
-        },
-        'rGUo7cpMTv1f': {'salt': 'Dcm.rOynf',
-                         'hash': 'SWVgqarUIk9Vemk/txNQbaPaWJqTPR4gcSrHMor4o8K',
-        },
-        'qJreivhrj04Y': {'salt': 'DorDKO73p',
-                         'hash': 'PICBMd2BgWbowvDk3y7L159JaYmjvSV/hyQJnHGmgak',
-        },
+        '1': {'salt': 'DtfbJVKBh', 'hash': 'lHmYDIMN7WChUUvEhATGnflurtH7c46/4I9Mocpi.0O', },
+        '12': {'salt': 'D/Ke05Og0', 'hash': 'fQ0NFG7OzsgIoxuZ2bjHvLr4MjoLq3nHVkleR/qTDd5', },
+        '123': {'salt': 'Dl0ruon0i', 'hash': 'SMu2oThzN.pbFPdtD5Sh67WHN92WU/tx9rJgZyel/LT', },
+        '1234': {'salt': 'DvL6XrqV1', 'hash': '6VBeRqFZlu0kdVlCXaF4LbSfTbQkpQ5QY1bc3wDNiZq', },
+        '12345': {'salt': 'DDcFBLTez', 'hash': 'B1zxDDL5TK5v7iVqlP0H4H8gv1CbGTbAAtwyO//e1Rg', },
+        '123456': {'salt': 'DoxC.Busk', 'hash': 'MRu2HSdCh29u0ZTJhETlEaxyH/JUIvtQ7oD2Rkxnl3c', },
+        '1234567': {'salt': 'DE/joQlAl', 'hash': 'd8eZk/MB65Wb7Mzihm2M/WEfAYthl2aPTjSSBLJ/wX5', },
+        '12345678': {'salt': 'D/YGN6xK5', 'hash': '0wPvroaZq4QLT.vLCbt0JGMAPSCYxcN6BO4uSxjRrux', },
+        's8zm3mPH88mY': {'salt': 'DzGBWhU4E', 'hash': 'QifJeFvwTPvJvc03yvOrI1PebgOj9GCAZvoKMtRVmuZ', },
+        'dfi31ps18XaR': {'salt': 'DHFKOWOc.', 'hash': '2pgOGy5s59k1WzhTiMUcHrdPlIzFnbuEK7m54j2zrkT', },
+        'izfqISu3hVrx': {'salt': 'Dnspf7cF3', 'hash': '.Pk793BzmyMtonIlWJp3Vh8Zix0wMCV.j.KCAGamoz0', },
+        'rGUo7cpMTv1f': {'salt': 'Dcm.rOynf', 'hash': 'SWVgqarUIk9Vemk/txNQbaPaWJqTPR4gcSrHMor4o8K', },
+        'qJreivhrj04Y': {'salt': 'DorDKO73p', 'hash': 'PICBMd2BgWbowvDk3y7L159JaYmjvSV/hyQJnHGmgak', },
     }
 
     def generate(self, data):
@@ -825,16 +815,26 @@ class Sha512Test(HashTestMixin, TransactionTestCase):
     algorithm = 'sha512'
 
     testdata = {
-        '0123456': {'salt': 'NDuF22tTDpgEWj0T',
-                    'hash': '2006d00c8168f3a2520c24ffee25cb099dbf9ceea7e5f2286bfb86fb02c1be51d3322a162aee1a4bd5908c4468346f45a98a959128ddd5eb106aaad4d9b2ecdd'},
-        '01234567': {'salt': 'dWOGt5pdhcBabI7T',
-                     'hash': '6c560f8634f83fc127d27cfb3a3394f01045565874da8697aaef2ac599903e63eccf93bbda055bfb8504f1eec5d4388e165d7155418c646a061f4475bdd64154'},
-        '012345678': {'salt': 'tPokxHTJSrKcOehr',
-                     'hash': '5ae80da515729596cf4d4b36092e063bd38c75bd9de0a1372453a38dafdaa16bd0719e632769806c153234e853c4db22a39be0ca54e944efa5ab01b518921211'},
-        '0123456789': {'salt': 'vh5rweyXH150n8vX',
-                      'hash': '7cba9c9fd63e4cccc06c6715f1ccc06947dc00605bba01d636440f3f3e4b967b1de369aa5ad91d57e6a8aac094d9987ffb8d68b8a80b21fef767bcb57537b012'},
-        '01234567890': {'salt': 'ehDkCua04OasAdMY',
-                        'hash': '12cf5d5140f2a98b1caa58e20489ca487872e49831bef25a8523c2f159ed198a56cf2738391cd26ce3e9b3a59470e1d8226ab7724a706e761675884f2078a6a8'},
+        '0123456': {
+            'salt': 'NDuF22tTDpgEWj0T',
+            'hash': '2006d00c8168f3a2520c24ffee25cb099dbf9ceea7e5f2286bfb86fb02c1be51d3322a162aee1a4bd5908c4468346f45a98a959128ddd5eb106aaad4d9b2ecdd',  # NOQA
+        },
+        '01234567': {
+            'salt': 'dWOGt5pdhcBabI7T',
+            'hash': '6c560f8634f83fc127d27cfb3a3394f01045565874da8697aaef2ac599903e63eccf93bbda055bfb8504f1eec5d4388e165d7155418c646a061f4475bdd64154',  # NOQA
+        },
+        '012345678': {
+            'salt': 'tPokxHTJSrKcOehr',
+            'hash': '5ae80da515729596cf4d4b36092e063bd38c75bd9de0a1372453a38dafdaa16bd0719e632769806c153234e853c4db22a39be0ca54e944efa5ab01b518921211',  # NOQA
+        },
+        '0123456789': {
+            'salt': 'vh5rweyXH150n8vX',
+            'hash': '7cba9c9fd63e4cccc06c6715f1ccc06947dc00605bba01d636440f3f3e4b967b1de369aa5ad91d57e6a8aac094d9987ffb8d68b8a80b21fef767bcb57537b012',  # NOQA
+        },
+        '01234567890': {
+            'salt': 'ehDkCua04OasAdMY',
+            'hash': '12cf5d5140f2a98b1caa58e20489ca487872e49831bef25a8523c2f159ed198a56cf2738391cd26ce3e9b3a59470e1d8226ab7724a706e761675884f2078a6a8',  # NOQA
+        },
     }
 
 
@@ -845,15 +845,15 @@ class MediaWikiTest(HashTestMixin, TransactionTestCase):
     algorithm = 'mediawiki'
 
     testdata = {
-        "0": {"salt": "4891a58e", "hash": "222ecf008e098295058d0c9a77e19d16"},
-        "012": {"salt": "7bb9c41a", "hash": "f72fbb4126a0002d88cb4afc62980d49"},
-        "0123": {"salt": "e4121fde", "hash": "2de7c06ecfee2468cc0f6cf345632d29"},
-        "01234": {"salt": "99739c15", "hash": "5c1ddaa0fa981ac651c6bac72f640e44"},
-        "012345": {"salt": "9650ce2d", "hash": "2ad8888099fe7ce36d84c1046638f261"},
-        "0123456": {"salt": "d0027595", "hash": "49a25052a0690e607c1f7d103c2b51b9"},
-        "01234567": {"salt": "eec0c833", "hash": "971a19cefb858a481e7b0e36137774da"},
-        "012345678": {"salt": "fb74cdba", "hash": "9e562f64b90a6445de607f30dc745c7d"},
-        "0123456789": {"salt": "02828b87", "hash": "555f6f62e646afc840b1995d0467ef06"},
+        "0": {"salt": "4891a58e", "hash": "222ecf008e098295058d0c9a77e19d16", },
+        "012": {"salt": "7bb9c41a", "hash": "f72fbb4126a0002d88cb4afc62980d49", },
+        "0123": {"salt": "e4121fde", "hash": "2de7c06ecfee2468cc0f6cf345632d29", },
+        "01234": {"salt": "99739c15", "hash": "5c1ddaa0fa981ac651c6bac72f640e44", },
+        "012345": {"salt": "9650ce2d", "hash": "2ad8888099fe7ce36d84c1046638f261", },
+        "0123456": {"salt": "d0027595", "hash": "49a25052a0690e607c1f7d103c2b51b9", },
+        "01234567": {"salt": "eec0c833", "hash": "971a19cefb858a481e7b0e36137774da", },
+        "012345678": {"salt": "fb74cdba", "hash": "9e562f64b90a6445de607f30dc745c7d", },
+        "0123456789": {"salt": "02828b87", "hash": "555f6f62e646afc840b1995d0467ef06", },
     }
 
 
@@ -977,7 +977,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         # make sure that no old data stays behind and may leak to another user
         properties = {propkey1: propval1, propkey2: propval2}
         backend.create_user(username1, password=password1, properties=properties,
-                         groups=[(groupname1, self.service), (groupname2, self.service)])
+                            groups=[(groupname1, self.service), (groupname2, self.service)])
         self.assertEquals(backend.members(groupname1, self.service), [username1])
         self.assertEquals(backend.members(groupname2, self.service), [username1])
 
@@ -1013,13 +1013,13 @@ class CliTests(RestAuthTransactionTest, CliMixin):
         self.create_user(username1, password1)
         frm = username1 if six.PY3 else username1.encode('utf-8')
         with capture() as (stdout, stderr):
-            restauth_user(['verify', '--password', password1, frm,])
+            restauth_user(['verify', '--password', password1, frm, ])
             self.assertEqual(stdout.getvalue(), 'Ok.\n')
             self.assertEqual(stderr.getvalue(), '')
 
         with capture() as (stdout, stderr):
             try:
-                restauth_user(['verify', '--password', password2, frm,])
+                restauth_user(['verify', '--password', password2, frm, ])
             except SystemExit as e:
                 self.assertEqual(e.code, 1)
                 self.assertEqual(stdout.getvalue(), 'Failed.\n')

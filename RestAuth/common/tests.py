@@ -2,16 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
-# General Public License as published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
-# see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
@@ -153,6 +153,7 @@ class BackendInterfaceTest(RestAuthTest):
                 inspect.getargspec(getattr(backend, name)),
                 "%s has a different signature" % name
             )
+
 
 validators = (
     'Users.validators.EmailValidator',
@@ -545,18 +546,15 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
 
         # test memberships
-        self.assertCountEqual(backend.members(group=groupname1,  service=None), [])
-        self.assertCountEqual(backend.members(group=groupname2,  service=self.service),
-                              [username1, username2])
+        self.assertCountEqual(backend.members(group=groupname1, service=None), [])
+        self.assertCountEqual(backend.members(group=groupname2, service=self.service), [username1, username2])
         if backend.SUPPORTS_SUBGROUPS is True:
-            self.assertCountEqual(backend.members(group=groupname3,  service=self.service),
+            self.assertCountEqual(backend.members(group=groupname3, service=self.service),
                                   [username1, username2, username3])
-            self.assertCountEqual(backend.members(group=groupname4,  service=None),
-                                  [username1, username2])
+            self.assertCountEqual(backend.members(group=groupname4, service=None), [username1, username2])
         else:
-            self.assertCountEqual(backend.members(group=groupname3,  service=self.service),
-                                  [username3])
-            self.assertCountEqual(backend.members(group=groupname4,  service=None), [])
+            self.assertCountEqual(backend.members(group=groupname3, service=self.service), [username3])
+            self.assertCountEqual(backend.members(group=groupname4, service=None), [])
 
     def test_existing_groups(self):
         backend.create_user(username1)
@@ -575,8 +573,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertEqual(stderr.getvalue(), '')
             self.assertHasLine(stdout, '^Groups:$')
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname1)
-            self.assertHasLine(
-                stdout, '^\* %s: Already exists, adding memberships\.$' % groupname2)
+            self.assertHasLine(stdout, '^\* %s: Already exists, adding memberships\.$' % groupname2)
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
             self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
 
@@ -620,8 +617,8 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
         # test memberships
         self.assertCountEqual(backend.members(group=groupname1, service=None), [])
-        self.assertCountEqual(backend.members(group=groupname2, service=self.service),
-                              [username1, username4])
+        self.assertCountEqual(backend.members(group=groupname2, service=self.service), [username1, username4])
+
         # group3 now is not a subgroup, because group2 already existed and we skipped its data
         self.assertEqual(backend.members(group=groupname3, service=self.service), [username3])
         self.assertEqual(backend.members(group=groupname4, service=None), [])
