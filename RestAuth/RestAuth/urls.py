@@ -16,13 +16,12 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import include
-from django.conf.urls import patterns
 from django.conf.urls import url
 
-urlpatterns = patterns(
+urlpatterns = [
     '',
     url(r'^/?$', 'RestAuth.views.index'),
     url(r'^users/',  include('Users.urls')),
     url(r'^groups/', include('Groups.urls')),
     url(r'^test/', include('Test.urls')),
-)
+]
