@@ -16,6 +16,7 @@
 import os
 import shutil
 import sys
+import subprocess
 
 from subprocess import Popen
 
@@ -32,6 +33,7 @@ requires = [
     'python-mimeparse>=1.6.0',
     'django-hashers-passlib>=0.3',
 ]
+_rootdir = os.path.dirname(os.path.realpath(__file__))
 
 # Setup environment
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
@@ -337,6 +339,37 @@ class coverage(Command):
 #        cov.report()
 
 
+class QualityCommand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "RestAuth.testsettings")
+
+        print('isort --check-only --diff -rc ca/ fabfile.py setup.py')
+        status = subprocess.call(['isort', '--check-only', '--diff', '-rc', 'RestAuth', 'setup.py'])
+        if status != 0:
+            sys.exit(status)
+
+        print('flake8 RestAuth/ setup.py')
+        status = subprocess.call(['flake8', 'ca/', 'fabfile.py', 'setup.py'])
+        if status != 0:
+            sys.exit(status)
+
+        work_dir = os.path.join(_rootdir, 'RestAuth')
+
+        os.chdir(work_dir)
+        print('python -Wd manage.py check')
+        status = subprocess.call(['python', '-Wd', 'manage.py', 'check'])
+        if status != 0:
+            sys.exit(status)
+
+
 class testserver(Command):
     description = "Run a testserver on http://[::1]:8000"
     user_options = []
@@ -417,6 +450,7 @@ setup(
         'test': test,
         'testserver': testserver,
         'version': version,
+        'code_quality': QualityCommand,
     },
     classifiers=[
         "Development Status :: 6 - Mature",
