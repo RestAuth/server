@@ -260,8 +260,7 @@ class test(Command):
         if self.app:
             call_command('test', self.app)
         else:
-            call_command('test', 'Users', 'Groups', 'Test', 'Services',
-                         'common',)
+            call_command('test', 'Users', 'Groups', 'Test', 'Services', 'common',)
 
 
 class coverage(Command):
@@ -347,7 +346,7 @@ class QualityCommand(Command):
         pass
 
     def run(self):
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "RestAuth.testsettings")
+        os.environ["DJANGO_SETTINGS_MODULE"] = "RestAuth.testsettings"
 
         print('isort --check-only --diff -rc RestAuth/ setup.py')
         status = subprocess.call(['isort', '--check-only', '--diff', '-rc', 'RestAuth/', 'setup.py'])
