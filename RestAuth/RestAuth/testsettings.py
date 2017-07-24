@@ -38,11 +38,6 @@ CACHE_MIDDLEWARE_KEY_PREFIX = 'restauth'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'testserver.sqlite3',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
     },
 }
 DATA_BACKEND = {
