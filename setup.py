@@ -349,8 +349,8 @@ class QualityCommand(Command):
     def run(self):
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "RestAuth.testsettings")
 
-        print('isort --check-only --diff -rc ca/ fabfile.py setup.py')
-        status = subprocess.call(['isort', '--check-only', '--diff', '-rc', 'RestAuth', 'setup.py'])
+        print('isort --check-only --diff -rc RestAuth/ setup.py')
+        status = subprocess.call(['isort', '--check-only', '--diff', '-rc', 'RestAuth/', 'setup.py'])
         if status != 0:
             sys.exit(status)
 
@@ -363,9 +363,7 @@ class QualityCommand(Command):
 
         os.chdir(work_dir)
         print('python -Wd manage.py check')
-        status = subprocess.call(['python', '-Wd', 'manage.py', 'check'], env={
-            'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-        })
+        status = subprocess.call(['python', '-Wd', 'manage.py', 'check'])
         if status != 0:
             sys.exit(status)
 
