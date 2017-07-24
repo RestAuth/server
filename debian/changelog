@@ -1,0 +1,95 @@
+restauth (0.6.4-2) unstable; urgency=low
+
+  * Correctly install localsettings.py via debian/restauth.pyinstall
+  * Do not install testsettings.py
+  * Fix build on trusty with own debian-no-pyshared branch.
+
+ -- Mathias Ertl <mati@restauth.net>  Sun, 16 Feb 2014 15:36:52 +0100
+
+restauth (0.6.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * Use mati@restauth.net as maintainer address.
+  * This package is now maintained in the debian branch of the new
+    GitHub-based master repository.
+  * Update dependencies to the requirements of the new release.
+  * Remove all patches, none of them were used.
+
+ -- Mathias Ertl <mati@restauth.net>  Sun, 09 Feb 2014 19:36:23 +0100
+
+restauth (0.6.3-1-g9df6b2c-1) unstable; urgency=low
+
+  * Version bump from upstream.
+  * bump dependency information
+  * add python-setuptools and python3-setuptools as build-dependency
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 01 Jun 2013 11:22:38 +0200
+
+restauth (0.6.2-1) unstable; urgency=low
+
+  * Version-bump from upstream
+  * Bump version dependency for RestAuthCommon to 0.6.2
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Mon, 22 Apr 2013 22:09:09 +0200
+
+restauth (0.6.1-2) unstable; urgency=low
+
+  * no longer manually install sphinxdoc links
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Thu, 11 Apr 2013 23:45:03 +0200
+
+restauth (0.6.1-1) unstable; urgency=low
+
+  * Version bump from upstream
+  * Require python-sphinx (>= 1.0.7) and use dh_sphinxdoc substitution
+    variables.
+  * Require python-restauth-common (>= 0.6.1)
+  * Cleanup debian/rules.
+  * Use machine-readable debian/copyright
+  * Remove redundant license file
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 07 Apr 2013 17:30:26 +0200
+
+restauth (0.6.0-471-g3c3cac0-2) unstable; urgency=low
+
+  * Start preperations for 0.6.1 release
+  * Deprecate paths.patch, documentation should be generated with -t debian.
+  * Deprecate wsgi-check-permissions.patch, should not be needed.
+  * No longer build with --upstream-tree=branch
+  * Now depend on >= Django 1.4
+  * Add VCS-* fields to debian/control
+  * Switch debian package to its own git respository
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 23 Mar 2013 13:24:16 +0100
+
+restauth (0.6.0-5-gf4efead-1) unstable; urgency=low
+
+  * Minor improvements from git
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 23 Sep 2012 20:33:45 +0200
+
+restauth (0.6.0-1) unstable; urgency=low
+
+  * Version bump from upstream
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 15 Sep 2012 10:32:56 +0200
+
+restauth (0.5.3-1) unstable; urgency=low
+
+  * bump from upstream
+  * add python-django-south as dependencies
+  * Generate Debian-specific documentation
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Tue, 28 Aug 2012 20:16:14 +0200
+
+restauth (0.5.2-1) unstable; urgency=low
+
+  * bump from upstream
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Tue, 27 Mar 2012 17:20:31 +0200
+
+restauth (0.5.0-1) wheezy; urgency=low
+
+  * Initial version
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Fri, 02 Sep 2011 11:40:45 +0200

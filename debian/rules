@@ -1,0 +1,72 @@
+#!/usr/bin/make -f
+
+PY2VERS=$(shell pyversions -rv)
+
+PY2DIR=${CURDIR}/debian/restauth/
+DOCDIR=${CURDIR}/debian/restauth-doc/
+
+DATAPATH=usr/share/restauth/
+DATADIR=${PY2DIR}${DATAPATH}
+
+DH_ARGS=--with python2,sphinxdoc
+
+PY2PATH=usr/lib/$(shell pyversions -d)/dist-packages/
+PY2MOD=${PY2DIR}${PY2PATH}
+
+%:
+	dh $@ ${DH_ARGS}
+
+build-python%:
+	dh_testdir
+	python$* setup.py build
+
+override_dh_auto_build: ${PY2VERS:%=build-python%}
+	# build documentation
+	python setup.py build_doc -t debian
+	dh_auto_build
+
+install-python2%:
+	dh_testdir
+	python2$* setup.py install --force --root ${PY2DIR} --no-compile -O0 --install-layout=deb --install-data=${DATAPATH}
+#	cp ${DATADIR}RestAuth/config/localsettings.py.example ${PY2DIR}usr/lib/python2$*/dist-packages/RestAuth/RestAuth/localsettings.py
+
+override_dh_auto_install: ${PY2VERS:%=install-python%}
+	# strip .py extensions
+	rename s/.py// ${PY2DIR}usr/bin/*
+	
+	# handle doc files:
+	rm -f ${DATADIR}RestAuth/doc/COPYING
+	mkdir -p ${PY2DIR}usr/share/doc/restauth
+	mv ${DATADIR}RestAuth/doc/AUTHORS ${PY2DIR}usr/share/doc/restauth
+	mv ${DATADIR}RestAuth/doc/COPYRIGHT ${PY2DIR}usr/share/doc/restauth
+
+	# move munin script to standard location:
+	mv ${DATADIR}RestAuth/munin/restauth_accounts ${PY2DIR}usr/share/munin/plugins
+
+	# move uwsgi file to top-level datadir:
+	mkdir ${DATADIR}uwsgi
+	mv ${DATADIR}RestAuth/uwsgi/uwsgi.ini ${DATADIR}uwsgi/
+
+	# remove empty directories:
+	rmdir ${DATADIR}RestAuth/doc
+	rmdir ${DATADIR}RestAuth/munin
+	rmdir ${DATADIR}RestAuth/uwsgi
+	rm -r ${DATADIR}RestAuth/config/
+	rmdir ${DATADIR}RestAuth/
+	
+override_dh_python2:
+	cp RestAuth/RestAuth/localsettings.py.example RestAuth/RestAuth/localsettings.py
+	dh_python2
+
+	# move shared file to /etc, dh_symlink restores source as symlink
+	mv ${PY2DIR}usr/share/pyshared/RestAuth/RestAuth/localsettings.py ${PY2DIR}etc/restauth/settings.py
+
+test-python%:
+	python$* setup.py test
+
+ifeq (,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
+override_dh_auto_test: ${PY2VERS:%=test-python%}
+endif
+
+override_dh_installchangelogs:
+	dh_installchangelogs ChangeLog

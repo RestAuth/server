@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -e
+
+USERNAME=restauth
+SETTINGS=/etc/restauth/settings.py
+HOMEDIR=/usr/share/pyshared/RestAuth
+
+case "$1" in
+	configure)
+
+	# add system user:
+	adduser --quiet --system --group --home $HOMEDIR --no-create-home --disabled-login $USERNAME
+	
+	chown root:$USERNAME $SETTINGS
+	chmod o-rwx $SETTINGS
+	chmod o-wx $SETTINGS
+
+	# replace __SECRET_KEY__ with randomly generated string:
+	[ -e "$SETTINGS" ] || break
+	[ $(grep -c __SECRET_KEY__ $SETTINGS) -gt 0 ] || break
+	
+	key=$(cat /dev/urandom | base64 | head -n 1 | sed 's/\//\\\//g')
+	sed -i "s/__SECRET_KEY__/$key/" $SETTINGS
+
+	# touch wsgi script to cause reloading of webserver:
+	touch /usr/share/pyshared/RestAuth/RestAuth/wsgi.py
+	;;
+esac
+
+#DEBHELPER#
