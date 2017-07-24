@@ -2,26 +2,22 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 import os
-import re
 import shutil
 import sys
 
 from subprocess import Popen
-from subprocess import PIPE
 
 from distutils.command.clean import clean as _clean
 
@@ -54,28 +50,6 @@ LATEST_RELEASE = '0.6.4'
 
 if os.path.exists('RestAuth'):
     sys.path.insert(0, 'RestAuth')
-
-
-def get_version():
-    """
-    Dynamically get the current version.
-    """
-    version = LATEST_RELEASE  # default
-    if os.path.exists('.version'):  # get from file
-        version = open('.version').readlines()[0]
-    elif os.path.exists('.git'):  # get from git
-        cmd = ['git', 'describe', 'master']
-        p = Popen(cmd, stdout=PIPE)
-        version = p.communicate()[0].decode('utf-8')
-    elif os.path.exists('debian/changelog'):  # building .deb
-        f = open('debian/changelog')
-        version = re.search('\((.*)\)', f.readline()).group(1)
-        f.close()
-
-        if ':' in version:  # strip epoch:
-            version = version.split(':', 1)[1]
-        version = version.rsplit('-', 1)[0]  # strip debian revision
-    return version.strip()
 
 
 class install_scripts(_install_scripts):
@@ -125,7 +99,7 @@ class version(Command):
         pass
 
     def run(self):
-        print(get_version())
+        print(LATEST_RELEASE)
 
 
 class build_doc_meta(Command):
@@ -187,9 +161,8 @@ class build_doc_meta(Command):
         if os.path.exists(common_path):
             os.environ['PYTHONPATH'] += ':%s' % common_path
 
-        version = get_version()
         os.environ['SPHINXOPTS'] = '-D release=%s -D version=%s' \
-            % (version, version)
+            % (LATEST_RELEASE, LATEST_RELEASE)
         os.environ['RESTAUTH_LATEST_RELEASE'] = LATEST_RELEASE
 
     def write_perm_table(self, suffix, perms):
@@ -409,7 +382,7 @@ class testserver(Command):
 
 setup(
     name='RestAuth',
-    version=str(get_version()),
+    version=str(LATEST_RELEASE),
     description='RestAuth server',
     author='Mathias Ertl',
     author_email='mati@restauth.net',
