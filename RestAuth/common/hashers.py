@@ -2,22 +2,21 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
 import hashlib
+from collections import OrderedDict
 
 from django.contrib.auth.hashers import BasePasswordHasher
 from django.contrib.auth.hashers import identify_hasher
@@ -25,7 +24,6 @@ from django.contrib.auth.hashers import mask_hash
 from django.utils import six
 from django.utils.crypto import constant_time_compare
 from django.utils.crypto import get_random_string
-from django.utils.datastructures import SortedDict
 
 from hashers_passlib import PasslibHasher
 
@@ -54,8 +52,7 @@ def import_hash(algorithm, hash):
 class Sha512Hasher(BasePasswordHasher):
     """A basic sha512 hasher with salt.
 
-    This hasher hashing algorithm that used to be the default before RestAuth
-    0.6.1.
+    This hasher hashing algorithm that used to be the default before RestAuth 0.6.1.
     """
 
     algorithm = 'sha512'
@@ -77,7 +74,7 @@ class Sha512Hasher(BasePasswordHasher):
     def safe_summary(self, encoded):  # pragma: no cover
         algorithm, salt, hash = encoded.split('$', 3)
         assert algorithm == self.algorithm
-        return SortedDict([
+        return OrderedDict([
             ('algorithm', algorithm),
             ('salt', mask_hash(salt)),
             ('hash', mask_hash(hash)),
@@ -140,7 +137,7 @@ class MediaWikiHasher(BasePasswordHasher):
     def safe_summary(self, encoded):  # pragma: no cover
         algorithm, salt, hash = encoded.split('$', 3)
         assert algorithm == self.algorithm
-        return SortedDict([
+        return OrderedDict([
             ('algorithm', algorithm),
             ('salt', mask_hash(salt)),
             ('hash', mask_hash(hash)),
@@ -153,13 +150,12 @@ class MediaWikiHasher(BasePasswordHasher):
 
 
 class PhpassHasher(PasslibHasher):
-    """Hasher that understands hashes as created by `phpass
-    <http://www.openwall.com/phpass/>`_, the "portable PHP password hashing
-    framework". This system is most prominently used by `WordPress
+    """Hasher that understands hashes as created by `phpass <http://www.openwall.com/phpass/>`_, the "portable
+    PHP password hashing framework". This system is most prominently used by `WordPress
     <http://wordpress.org>`_ and `phpBB3 <https://www.phpbb.com/>`_.
 
-    If you want to import hashes created by phpass, just prefix them
-    with the string ``phpass``. For example, in PHP, do:
+    If you want to import hashes created by phpass, just prefix them with the string ``phpass``. For example,
+    in PHP, do:
 
     .. code-block:: php
 
@@ -176,18 +172,17 @@ class PhpassHasher(PasslibHasher):
 class Drupal7Hasher(PasslibHasher):
     """Hasher that understands hashes as created by Drupal7.
 
-    If you want to import hashes created by Drupal7, just prefix them
-    with the string ``drupal7``. For example, in PHP do:
+    If you want to import hashes created by Drupal7, just prefix them with the string ``drupal7``. For
+    example, in PHP do:
 
     .. code-block:: php
 
        $exported_hash = "drupal7" . $rawhash;
 
-    This class is only a slightly modified version of the
-    :py:class:`~PhpassHasher`. This class uses Sha512 and hashes start with
-    ``$S$`` instead of ``$P$``.
+    This class is only a slightly modified version of the :py:class:`~PhpassHasher`. This class uses Sha512
+    and hashes start with ``$S$`` instead of ``$P$``.
 
-    .. TODO:: Drupal7 supports normal phpass hashes as well, so this module should to.
+    .. TODO:: Drupal7 supports normal phpass hashes as well, so this module should too.
     """
     algorithm = 'drupal7'
 
@@ -215,7 +210,7 @@ class Drupal7Hasher(PasslibHasher):
                 while r < real_rounds:
                     result = hashlib.sha512(result + secret).digest()
                     r += 1
-                return h64.encode_bytes(result)[:55-12].decode('ascii')
+                return h64.encode_bytes(result)[:55 - 12].decode('ascii')
         self._hasher = Drupal7Handler
 
     @property
