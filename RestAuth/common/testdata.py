@@ -20,7 +20,6 @@ import re
 
 from datetime import datetime
 
-from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -160,10 +159,6 @@ class RestAuthTestBase(object):
 
     def assertFalsePassword(self, username, password):
         self.assertFalse(backend.check_password(user=username, password=password))
-
-    @classmethod
-    def setUpClass(cls):
-        load_hashers(('django.contrib.auth.hashers.MD5PasswordHasher', ))
 
     def tearDown(self):
         backend.testTearDown()

@@ -2,18 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth.  If not, see
+# <http://www.gnu.org/licenses/>.
 
 # This file is used for setup.py test and setup.py testserver.
 
@@ -45,10 +43,10 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
-    }
+    },
 }
 DATA_BACKEND = {
-    'BACKEND': os.environ.get('DATA_BACKEND', 'backends.django.DjangoBackend')
+    'BACKEND': os.environ.get('DATA_BACKEND', 'backends.django.DjangoBackend'),
 }
 
 ALLOWED_HOSTS = [
@@ -74,18 +72,19 @@ AUTHENTICATION_BACKENDS = (
 )
 
 PASSWORD_HASHERS = (
-    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    'common.hashers.Sha512Hasher',
-    'common.hashers.MediaWikiHasher',
-    'hashers_passlib.apr_md5_crypt',
-    'common.hashers.Drupal7Hasher',
-    'hashers_passlib.phpass',
-    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-    'django.contrib.auth.hashers.BCryptPasswordHasher',
-    'django.contrib.auth.hashers.SHA1PasswordHasher',
-    'django.contrib.auth.hashers.MD5PasswordHasher',
-    'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
-    'django.contrib.auth.hashers.CryptPasswordHasher',
+    #'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    #'common.hashers.Sha512Hasher',
+    #'common.hashers.MediaWikiHasher',
+    #'hashers_passlib.apr_md5_crypt',
+    #'common.hashers.Drupal7Hasher',
+    #'hashers_passlib.phpass',
+    #'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    #'django.contrib.auth.hashers.BCryptPasswordHasher',
+    #'django.contrib.auth.hashers.SHA1PasswordHasher',
+    #'django.contrib.auth.hashers.MD5PasswordHasher',
+    #'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+    #'django.contrib.auth.hashers.CryptPasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher'
 )
 
 CONTENT_HANDLERS = (
@@ -97,9 +96,9 @@ CONTENT_HANDLERS = (
     'RestAuthCommon.handlers.MessagePackContentHandler',
 )
 
-#############################################
-### Defaults for the standard settings.py ###
-#############################################
+#########################################
+# Defaults for the standard settings.py #
+#########################################
 RELAXED_LINUX_CHECKS = False
 MIN_USERNAME_LENGTH = 3
 MAX_USERNAME_LENGTH = 255
@@ -165,7 +164,7 @@ LOGGING = {
             'formatter': 'subresource',
         },
     },
-'loggers': {
+    'loggers': {
         'RestAuth': {
             'handlers': ['default'],
             'propagate': False,
@@ -224,12 +223,12 @@ LOGGING = {
         'groups.group.groups': {
             'handlers': ['resource'],
             'propagate': False,
-        'level': LOG_LEVEL,
+            'level': LOG_LEVEL,
         },
         'groups.group.groups.subgroup': {
             'handlers': ['subresource'],
             'propagate': False,
             'level': LOG_LEVEL,
-        }
-    }
+        },
+    },
 }
