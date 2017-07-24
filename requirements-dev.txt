@@ -1,10 +1,9 @@
-Sphinx>=1.3b3
-coverage>=4.0a5
-hiredis==0.1.6
-ipython==3.0.0
-jsonschema>=2.4.0
-pip-tools>=0.3.5
-pymongo==2.8
-#requires libsasl2-dev libldap2-dev
-python-ldap==2.4.19
-redis==2.10.3
+Sphinx==1.6.3
+coverage==4.4.1
+hiredis==0.2.0
+ipython==6.1.0
+jsonschema==2.6.0
+pymongo==3.4.0
+python-ldap==2.4.41 ; python_version < '3'
+redis==2.10.5
+sphinx-rtd-theme==0.2.4
