@@ -21,7 +21,7 @@ from common.cli.actions import ServiceAction
 from common.cli.parsers import service_opt_parser
 from common.cli.parsers import user_parser
 
-from .cli.actions import GroupnameAction
+from .actions import GroupnameAction
 
 group_arg_parser = ArgumentParser(add_help=False, parents=[service_opt_parser])
 group_arg_parser.add_argument('group', action=GroupnameAction, help="The name of the group.")
