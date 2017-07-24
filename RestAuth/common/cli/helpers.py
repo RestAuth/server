@@ -2,16 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
-# General Public License as published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License along with RestAuth. If not,
-# see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
@@ -21,7 +21,7 @@ import re
 
 
 def get_password(args):
-    if not args.pwd: # pragma: no cover
+    if not args.pwd:  # pragma: no cover
         # Note: We cannot really test cli-code that reads from stdin.
         password = getpass.getpass('password: ')
         confirm = getpass.getpass('confirm: ')
@@ -33,9 +33,9 @@ def get_password(args):
     return args.pwd
 
 
-###########################################
-### helper functions for doc generation ###
-###########################################
+#######################################
+# helper functions for doc generation #
+#######################################
 def _metavar_formatter(action, default_metavar):
     if action.metavar is not None:
         result = action.metavar

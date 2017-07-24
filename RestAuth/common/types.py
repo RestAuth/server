@@ -2,18 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
@@ -64,15 +62,13 @@ def assert_format(data, required=None, optional=None):
         for key, typ in required:
             field = data.pop(key, None)
             assert field is not None, 'Required field %s missing.' % key
-            assert isinstance(field, typ), \
-                    "Required Field %s has wrong type: %s" % (key, type(field))
+            assert isinstance(field, typ), "Required Field %s has wrong type: %s" % (key, type(field))
             retlist.append(field)
 
     if optional is not None:
         for key, typ in optional:
             field = data.pop(key, None)
-            assert isinstance(field, typ) or field is None, \
-                "%s is of wrong type: %s" % (key, field)
+            assert isinstance(field, typ) or field is None, "%s is of wrong type: %s" % (key, field)
             retlist.append(field)
 
     keylist = ', '.join(data.keys())

@@ -16,9 +16,9 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 
-###############################
-### Default Django settings ###
-###############################
+###########################
+# Default Django settings #
+###########################
 # These settings are set for Django, a sysadmin will rarely need to change
 # these.
 
@@ -92,9 +92,9 @@ CONTENT_HANDLERS = (
     'RestAuthCommon.handlers.YAMLContentHandler',
 )
 
-#############################################
-### Defaults for the standard settings.py ###
-#############################################
+#########################################
+# Defaults for the standard settings.py #
+#########################################
 RELAXED_LINUX_CHECKS = False
 MIN_USERNAME_LENGTH = 3
 MAX_USERNAME_LENGTH = 255
@@ -108,10 +108,10 @@ SERVICE_PASSWORD_HASHER = 'default'
 GROUP_BACKEND = 'backends.django.DjangoGroupBackend'
 
 try:
-    from localsettings import *
+    from localsettings import *  # NOQA
 except ImportError:
     try:
-        from RestAuth.localsettings import *
+        from RestAuth.localsettings import *  # NOQA
     except ImportError:
         pass
 
@@ -205,20 +205,16 @@ if not LOGGING:
             'groups.group.groups': {
                 'handlers': ['resource'],
                 'propagate': False,
-            'level': LOG_LEVEL,
+                'level': LOG_LEVEL,
             },
             'groups.group.groups.subgroup': {
                 'handlers': ['subresource'],
                 'propagate': False,
                 'level': LOG_LEVEL,
-            }
-        }
+            },
+        },
     }
 
     if LOG_HANDLER_KWARGS:
         for handler in LOGGING['handlers'].values():
             handler.update(LOG_HANDLER_KWARGS)
-
-SOUTH_TESTS_MIGRATE = False
-
-SECRET_KEY='foobar'

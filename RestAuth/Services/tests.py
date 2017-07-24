@@ -122,8 +122,7 @@ class BasicAuthTests(RestAuthTest):  # GET /users/
                         resp = getattr(self, method)(path, {}, **headers)
                     else:
                         resp = getattr(self, method)(path, **headers)
-                    self.assertEqual(resp.status_code,
-                                      http_client.METHOD_NOT_ALLOWED)
+                    self.assertEqual(resp.status_code, http_client.METHOD_NOT_ALLOWED)
 
     def test_wrong_user(self):
         service_create('example.com', 'nopass', '127.0.0.1', '::1')
