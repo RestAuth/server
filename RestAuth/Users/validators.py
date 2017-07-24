@@ -15,10 +15,10 @@
 
 from __future__ import unicode_literals  # unicode literals from python
 
+import importlib
 import re
 
 from django.conf import settings
-from django.utils import importlib
 from django.utils import six
 
 from common.errors import UsernameInvalid

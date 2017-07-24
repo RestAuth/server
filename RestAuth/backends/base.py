@@ -2,22 +2,21 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals, absolute_import
 
-from django.utils import importlib
+import importlib
+
 
 class TransactionManagerBase(object):
     def __init__(self, backend, dry=False):
@@ -60,18 +59,17 @@ class BackendBase(object):  # pragma: no cover
     def testSetUp(self):
         """Set up your backend for a test run.
 
-        This method is exclusively used in unit tests. It should perform any actions necessary to
-        start a unit test. In general, this should test that there are currently no users or groups
-        present.
+        This method is exclusively used in unit tests. It should perform any actions necessary to start a unit
+        test. In general, this should test that there are currently no users or groups present.
         """
         pass
 
     def testTearDown(self):
         """Tear down your backend after a test run.
 
-        This method is exclusively used in unit tests. It should perform any actions necessary
-        after a unit test. In general, this should completely remove all users, their properties
-        and all groups created during a unit test.
+        This method is exclusively used in unit tests. It should perform any actions necessary after a unit
+        test. In general, this should completely remove all users, their properties and all groups created
+        during a unit test.
         """
         pass
 
@@ -81,18 +79,17 @@ class BackendBase(object):  # pragma: no cover
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         """Create a new user.
 
-        The ``user`` is already validated, so you don't need to do any additional validation
-        here. If your backend has username restrictions, please implement a :ref:`username
-        validator <implement-validators>`.
+        The ``user`` is already validated, so you don't need to do any additional validation here. If your
+        backend has username restrictions, please implement a :ref:`username validator
+        <implement-validators>`.
 
-        The ``dry`` parameter tells you if you should actually create the user. The parameter will
-        be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the user.
+        The ``dry`` parameter tells you if you should actually create the user. The parameter will be True for
+        `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a dry-run, the method should
+        behave as closely as possible to a normal invocation but shouldn't actually create the user.
 
-        The ``groups`` parameter is a list of tuples with the first element being the name of the
-        group and the second element being the service of that group. Groups that do not exist
-        should be automatically created.
+        The ``groups`` parameter is a list of tuples with the first element being the name of the group and
+        the second element being the service of that group. Groups that do not exist should be automatically
+        created.
 
         Example::
 
@@ -152,8 +149,8 @@ class BackendBase(object):  # pragma: no cover
     def check_password(self, user, password, groups=None):
         """Check a users password.
 
-        If the ``groups`` parameter is given, the backend should also check if the user is a member
-        in at least one of the given groups.
+        If the ``groups`` parameter is given, the backend should also check if the user is a member in at
+        least one of the given groups.
 
         :param user: The username.
         :type  user: str
@@ -173,8 +170,7 @@ class BackendBase(object):  # pragma: no cover
 
         :param user: The username.
         :type  user: str
-        :param password: The new password. If None or empty, the user should get an unusable
-            password.
+        :param password: The new password. If None or empty, the user should get an unusable password.
         :type  password: str
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
         """
@@ -183,11 +179,10 @@ class BackendBase(object):  # pragma: no cover
     def set_password_hash(self, user, algorithm, hash):
         """Set a users password hash.
 
-        This method is called by |bin-restauth-import| if users with a password hash should be
-        imported.
+        This method is called by |bin-restauth-import| if users with a password hash should be imported.
 
-        If you can store password hashes as an arbitrary string and then use Djangos password
-        hashing framework for verifying those hashes, you can import the hash like this::
+        If you can store password hashes as an arbitrary string and then use Djangos password hashing
+        framework for verifying those hashes, you can import the hash like this::
 
             from common.hashers import import_hash
             django_hash = import_hash(algorithm, hash)
@@ -224,13 +219,13 @@ class BackendBase(object):  # pragma: no cover
     def create_property(self, user, key, value, dry=False):
         """Create a new user property.
 
-        This method should return :py:class:`~common.errors.PropertyExists` if a property with the
-        given key already exists.
+        This method should return :py:class:`~common.errors.PropertyExists` if a property with the given key
+        already exists.
 
-        The ``dry`` parameter tells you if you should actually create the property. The parameter
-        will be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the property.
+        The ``dry`` parameter tells you if you should actually create the property. The parameter will be True
+        for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a dry-run, the method
+        should behave as closely as possible to a normal invocation but shouldn't actually create the
+        property.
 
         :param user: The username.
         :type  user: str
@@ -280,8 +275,8 @@ class BackendBase(object):  # pragma: no cover
     def set_properties(self, user, properties):
         """Set multiple properties at once.
 
-        This method may just call :py:meth:`~.PropertyBackend.set` multiple times. Some backends
-        have faster methods for setting multiple values at once, though.
+        This method may just call :py:meth:`~.PropertyBackend.set` multiple times. Some backends have faster
+        methods for setting multiple values at once, though.
 
         :param user: The username.
         :type  user: str
@@ -318,10 +313,9 @@ class BackendBase(object):  # pragma: no cover
     def create_group(self, group, service, users=None, dry=False):
         """Create a new group for the given service.
 
-        The ``dry`` parameter tells you if you should actually create the group. The parameter will
-        be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the group.
+        The ``dry`` parameter tells you if you should actually create the group. The parameter will be True
+        for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a dry-run, the method
+        should behave as closely as possible to a normal invocation but shouldn't actually create the group.
 
         :param group: The name of the group.
         :type  group: str
@@ -399,9 +393,9 @@ class BackendBase(object):  # pragma: no cover
     def set_members(self, group, service, users):
         """Set all members of a group.
 
-        This method replaces the current list of members with the one passed by ``users``. If a
-        user is member of a meta-group, this method must not remove that membership if the user is
-        not in the new list of members.
+        This method replaces the current list of members with the one passed by ``users``. If a user is member
+        of a meta-group, this method must not remove that membership if the user is not in the new list of
+        members.
 
         :param group: A group to set the users for.
         :type  group: str
@@ -541,12 +535,11 @@ class BackendBase(object):  # pragma: no cover
     def subgroups(self, group, service, filter=True):
         """Get a list of subgroups.
 
-        If ``filter=True``, the method should only return groups that belong to the same service as
-        the given group. The returned list should be a list of strings, each representing a
-        groupname.
+        If ``filter=True``, the method should only return groups that belong to the same service as the given
+        group. The returned list should be a list of strings, each representing a groupname.
 
-        If ``filter=False``, the method should return all groups, regardless of their service. The
-        returned list should contain tuples with the name and service of the group.
+        If ``filter=False``, the method should return all groups, regardless of their service. The returned
+        list should contain tuples with the name and service of the group.
 
         Example::
 
@@ -556,8 +549,7 @@ class BackendBase(object):  # pragma: no cover
             >>> backend.subgroups("groupname", service=service, filter=False)
             [('subgroup1', <Service: example.com>), ('subgroup2', <Service: example.net>)]
 
-        .. NOTE:: The filter argument is only False when called by some command line scripts and in
-           unittests.
+        .. NOTE:: The filter argument is only False when called by some command line scripts and in unittests.
 
         :param group: The name of the meta-group.
         :type  group: str
