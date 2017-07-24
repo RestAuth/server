@@ -364,7 +364,7 @@ class QualityCommand(Command):
         os.chdir(work_dir)
         print('python -Wd manage.py check')
         status = subprocess.call(['python', '-Wd', 'manage.py', 'check'], env={
-            'DJANGO_SETTINGS_MODULE': os.environ['RestAuth.testsettings'],
+            'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
         })
         if status != 0:
             sys.exit(status)
