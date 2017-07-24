@@ -27,7 +27,7 @@ from pkg_resources import DistributionNotFound
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 
-from backends.django import DjangoTransactionManager
+from django.db import transaction
 
 # Properties that may also be represented as a UNIX timestamp.
 # Otherwise the format must be "%Y-%m-%d %H:%M:%S"
@@ -226,7 +226,7 @@ def main(args=None):
         parser.error("'groups' does not appear to be a dictionary.")
 
     try:
-        with backend.transaction(), DjangoTransactionManager():
+        with backend.transaction(), transaction.atomic():
             ###################
             # Import services #
             ###################

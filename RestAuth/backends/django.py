@@ -39,6 +39,17 @@ class DryRunException(Exception):
     pass
 
 
+@contextmanager
+def dry_run_manager(dry=False):
+    try:
+        with transaction.atomic():
+            yield
+            if dry:
+                raise DryRunException()
+    except DryRunException:
+        pass
+
+
 class DjangoBackend(BackendBase):
     def __init__(self, USING=None):
         self.db = USING
@@ -55,17 +66,8 @@ class DjangoBackend(BackendBase):
         except Group.DoesNotExist:
             raise GroupNotFound(name, service=service)
 
-    @contextmanager
     def transaction(self, dry=False):
-        try:
-            with transaction.atomic():
-                yield
-                if dry:
-                    raise DryRunException()
-        except DryRunException:
-            pass
-
-        #return DjangoTransactionManager(dry=dry, using=self.db)
+        return dry_run_manager(dry=dry)
 
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         with self.transaction(dry=dry):
