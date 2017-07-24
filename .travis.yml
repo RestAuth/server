@@ -7,8 +7,8 @@ python:
   - "nightly"
 env:
   - DJANGO_VERSION=">=1.11"
-  #- DJANGO_VERSION="<1.11"
-  #- DJANGO_VERSION="<1.9"
+  - DJANGO_VERSION="<1.11"
+  - DJANGO_VERSION="<1.9"
 install:
  - pip install -U pip setuptools
  - pip install -r requirements.txt -r requirements-dev.txt
