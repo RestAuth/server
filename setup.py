@@ -110,6 +110,9 @@ class build_doc_meta(Command):
     def __init__(self, *args, **kwargs):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
 
+        import django
+        django.setup()
+
         Command.__init__(self, *args, **kwargs)
 
         # import here so coverage results are not tainted:
