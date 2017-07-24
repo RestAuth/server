@@ -14,19 +14,20 @@
 # You should have received a copy of the GNU General Public License along with RestAuth. If not,
 # see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
+from __future__ import unicode_literals
 
+import json
 import os
 import sys
-import json
-
 from collections import defaultdict
 from datetime import datetime
-from backends.django import DjangoTransactionManager
+
 from pkg_resources import DistributionNotFound
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 
+from backends.django import DjangoTransactionManager
 
 # Properties that may also be represented as a UNIX timestamp.
 # Otherwise the format must be "%Y-%m-%d %H:%M:%S"
@@ -200,6 +201,7 @@ def save_groups(groups, args, parser):
     else:
         print('Warning: Backend does not support subgroups, subgroups discarded.')
 
+
 def main(args=None):
     args = parser.parse_args(args=args)
 
@@ -225,24 +227,25 @@ def main(args=None):
 
     try:
         with backend.transaction(), DjangoTransactionManager():
-            #######################
-            ### Import services ###
-            #######################
+            ###################
+            # Import services #
+            ###################
             save_services(services, args, parser)
 
-            ####################
-            ### import users ###
-            ####################
+            ################
+            # import users #
+            ################
             props = save_users(users, args, parser)
             save_properties(props, args, parser)
 
-            #####################
-            ### import groups ###
-            #####################
+            #################
+            # import groups #
+            #################
             save_groups(groups, args, parser)  # pragma: no branch
     except Exception as e:
         print("An error occured, rolling back transaction:", file=sys.stderr)
         print("%s: %s" % (type(e).__name__, e), file=sys.stderr)
+
 
 if __name__ == '__main__':  # pragma: no cover
     main()

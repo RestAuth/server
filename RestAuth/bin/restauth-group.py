@@ -23,7 +23,6 @@ from pkg_resources import DistributionNotFound
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 
-
 # Setup environment
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RestAuth.settings')
 sys.path.append(os.getcwd())
@@ -104,8 +103,7 @@ def _main(args):
     elif args.action == 'set-service':
         if backend.SUPPORTS_GROUP_VISIBILITY is False:
             parser.error('Backend does not support group visiblity.')
-        backend.set_service(group=args.group, service=args.service,
-                                  new_service=args.new_service)
+        backend.set_service(group=args.group, service=args.service, new_service=args.new_service)
     elif args.action == 'add-user':
         backend.add_member(group=args.group, service=args.service, user=args.user)
     elif args.action == 'add-group':
@@ -140,6 +138,7 @@ def main(args=None):
         parser.error('%s at service %s: Group does not exist.' % (args.group, args.service))
     except GroupExists as e:
         parser.error("%s: Group already exists." % e.args[0])
+
 
 if __name__ == '__main__':  # pragma: no cover
     main()

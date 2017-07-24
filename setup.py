@@ -15,12 +15,10 @@
 
 import os
 import shutil
-import sys
 import subprocess
-
-from subprocess import Popen
-
+import sys
 from distutils.command.clean import clean as _clean
+from subprocess import Popen
 
 from setuptools import Command
 from setuptools import find_packages

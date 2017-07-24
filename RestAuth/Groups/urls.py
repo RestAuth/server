@@ -17,13 +17,14 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-from Groups.views import GroupGroupHandler
-from Groups.views import GroupGroupsIndex
-from Groups.views import GroupHandlerView
-from Groups.views import GroupUserHandler
-from Groups.views import GroupUsersIndex
-from Groups.views import GroupsView
 from Services.decorator import login_required
+
+from .views import GroupGroupHandler
+from .views import GroupGroupsIndex
+from .views import GroupHandlerView
+from .views import GroupsView
+from .views import GroupUserHandler
+from .views import GroupUsersIndex
 
 urlpatterns = [
     url(r'^$', login_required(realm='/groups/')(GroupsView.as_view()), name='groups'),

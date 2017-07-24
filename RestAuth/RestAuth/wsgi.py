@@ -2,16 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
-# General Public License as published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License along with RestAuth. If not,
-# see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 import os
 import sys
@@ -20,6 +20,7 @@ from pkg_resources import DistributionNotFound
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 
+from django.core.wsgi import get_wsgi_application
 
 # You may need to add directories to the python path if RestAuth (or one of the
 # depending libraries) is not in your path:
@@ -35,9 +36,9 @@ try:
 except DistributionNotFound:
     pass  # we're run in a not-installed environment
 
-from django.core.wsgi import get_wsgi_application
 os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.settings'
 application = get_wsgi_application()
+
 
 def check_password(environ, user, password):
     try:
@@ -48,24 +49,24 @@ def check_password(environ, user, password):
             host = environ['REMOTE_ADDR']
         else:
             import sys
-            sys.stderr.write( "Error: Could not get remote host from environment!" )
+            sys.stderr.write("Error: Could not get remote host from environment!")
             sys.stderr.flush()
             return False
 
         # verify service
         from Services.models import Service
         try:
-            serv = Service.objects.get( username=user )
-            if serv.verify( password, host ):
+            serv = Service.objects.get(username=user)
+            if serv.verify(password, host):
                 return True
             else:
                 return False
         except Service.DoesNotExist:
             return None
-    except Exception, e:
+    except Exception as e:
         import sys
-        sys.stderr.write( "Error: Uncought exception: %s"%(type(e)) )
-        sys.stderr.write( "    %s"%(e) )
+        sys.stderr.write("Error: Uncought exception: %s" % type(e))
+        sys.stderr.write("    %s" % e)
         sys.stderr.flush()
         return None
     finally:

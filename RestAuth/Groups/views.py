@@ -2,16 +2,16 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
-# General Public License as published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License along with RestAuth. If not,
-# see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 """This module implements all HTTP queries to ``/group/*``."""
 
@@ -26,15 +26,15 @@ from RestAuthCommon.strprep import stringcheck
 from RestAuthCommon.strprep import stringprep
 
 from backends import backend
-from common.errors import UserNotFound
 from common.errors import GroupNotFound
+from common.errors import UserNotFound
 from common.responses import HttpResponseCreated
 from common.responses import HttpResponseNoContent
-from common.responses import HttpRestAuthResponse
 from common.responses import HttpResponseNotImplemented
-from common.views import RestAuthView
+from common.responses import HttpRestAuthResponse
 from common.views import RestAuthResourceView
 from common.views import RestAuthSubResourceView
+from common.views import RestAuthView
 
 
 class GroupsView(RestAuthView):
@@ -102,6 +102,7 @@ class GroupsView(RestAuthView):
 
         backend.set_memberships(user=user, service=request.user, groups=groups)
         return HttpResponseNoContent()
+
 
 class GroupHandlerView(RestAuthResourceView):
     """Handle requests to ``/groups/<group>/``."""

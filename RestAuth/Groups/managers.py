@@ -16,7 +16,8 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from Groups.querysets import GroupQuerySet
+
+from .querysets import GroupQuerySet
 
 
 class GroupManager(models.Manager):

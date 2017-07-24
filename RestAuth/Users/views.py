@@ -18,7 +18,6 @@
 from __future__ import unicode_literals
 
 import logging
-
 from datetime import datetime
 
 from django.conf import settings
@@ -27,7 +26,6 @@ from django.utils import six
 
 from RestAuthCommon.strprep import stringcheck
 
-from Users.validators import validate_username
 from backends import backend
 from common.errors import PasswordInvalid
 from common.errors import UserNotFound
@@ -38,6 +36,8 @@ from common.types import parse_dict
 from common.views import RestAuthResourceView
 from common.views import RestAuthSubResourceView
 from common.views import RestAuthView
+
+from .validators import validate_username
 
 
 class UsersView(RestAuthView):

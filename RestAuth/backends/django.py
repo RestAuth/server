@@ -13,7 +13,8 @@
 # You should have received a copy of the GNU General Public License along with RestAuth. If not, see
 # <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals, absolute_import
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from contextlib import contextmanager
 
@@ -21,17 +22,17 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils import six
 
-from Groups.models import Group
-from Users.models import Property
-from Users.models import ServiceUser as User
 from backends.base import BackendBase
-from common.hashers import import_hash
 from common.errors import GroupExists
 from common.errors import GroupNotFound
 from common.errors import PropertyExists
 from common.errors import PropertyNotFound
 from common.errors import UserExists
 from common.errors import UserNotFound
+from common.hashers import import_hash
+from Groups.models import Group
+from Users.models import ServiceUser as User
+from Users.models import Property
 
 
 class DryRunException(Exception):
