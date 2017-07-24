@@ -1,7 +1,8 @@
-RestAuth 0.7.0 (XX XXXX 2014)
+RestAuth 0.7.0 (XX XXXX 2017)
 
   General:
-  * Update requirements.
+  * Update requirements. RestAuth now works with Django 1.8-1.11 and is tested with Python 2.7 and
+  	3.4-3.6.
   * RestAuth no longer supports separate backends, instead there is a common backend for all data.
 
   Documentation:
