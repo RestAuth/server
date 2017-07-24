@@ -15,13 +15,14 @@
 
 from __future__ import unicode_literals
 
+import importlib
+
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.utils import importlib
 
 
 SERVICE_HASHER = None
