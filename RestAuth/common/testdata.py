@@ -17,7 +17,6 @@ from __future__ import unicode_literals
 
 import contextlib
 import re
-
 from datetime import datetime
 
 from django.contrib.auth.models import Permission
@@ -32,11 +31,11 @@ from django.utils.six import StringIO
 
 from RestAuthCommon import handlers
 
+from backends import backend
 from Groups.models import group_permissions
 from Services.models import service_create
 from Users.models import prop_permissions
 from Users.models import user_permissions
-from backends import backend
 
 servicename1 = 'auth.example.com'
 servicename2 = 'auth.example.net'

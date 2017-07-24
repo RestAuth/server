@@ -19,10 +19,10 @@ from __future__ import unicode_literals
 
 import logging
 
-from django.http import HttpResponse
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
-from django.conf import settings
+from django.http import HttpResponse
 
 log = logging.getLogger(__name__)
 

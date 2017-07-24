@@ -20,9 +20,10 @@ from __future__ import unicode_literals
 
 from argparse import ArgumentParser
 
-from common.cli.parsers import pwd_parser
 from common.cli.actions import ServiceAction
-from Services.cli.actions import PermissionParser
+from common.cli.parsers import pwd_parser
+
+from .actions import PermissionParser
 
 # reused positional arguments:
 service_arg_parser = ArgumentParser(add_help=False)

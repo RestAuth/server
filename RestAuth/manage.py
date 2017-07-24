@@ -23,7 +23,6 @@ from pkg_resources import DistributionNotFound
 from pkg_resources import Requirement
 from pkg_resources import resource_filename
 
-
 try:
     req = Requirement.parse("RestAuth")
     path = resource_filename(req, 'RestAuth')

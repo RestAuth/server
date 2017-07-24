@@ -2,23 +2,23 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
-# General Public License as published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License along with RestAuth.  If not,
-# see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
 from base64 import b64encode
 
-from django.contrib.auth.models import Permission
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
@@ -26,18 +26,13 @@ from django.db import transaction
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
-
 from django.utils.six.moves import http_client
 
 import RestAuthCommon
 
-from Services.models import Service
-from Services.models import ServiceUsernameNotValid
-from Services.models import service_create
-from Services.models import get_service_hasher
-from Services.models import load_service_hasher
 from common.testdata import CliMixin
 from common.testdata import RestAuthTest
+from common.testdata import capture
 from common.testdata import password1
 from common.testdata import password2
 from common.testdata import servicename1
@@ -45,7 +40,12 @@ from common.testdata import servicename2
 from common.testdata import servicename3
 from common.testdata import servicename4
 from common.testdata import servicename5
-from common.testdata import capture
+
+from .models import Service
+from .models import ServiceUsernameNotValid
+from .models import get_service_hasher
+from .models import load_service_hasher
+from .models import service_create
 
 PATHS = [
     (['get', 'post'], '/users/'),
@@ -60,6 +60,7 @@ PATHS = [
     (['get', 'delete'], '/groups/group/groups/group/'),
 ]
 cli = getattr(__import__('bin.restauth-service'), 'restauth-service').main
+
 
 @override_settings(LOGGING_CONFIG=None)
 class BasicAuthTests(RestAuthTest):  # GET /users/
@@ -293,7 +294,6 @@ class AuthBackendTests(RestAuthTest):
         encoded = b64encode(raw.encode()).decode() + 'fppbasdf'
         header = '%s %s' % ('Basic', encoded)
         self.assertTrue(authenticate(header=header, host=host) is None)
-
 
     def test_no_cache(self):
         with self.settings(SECURE_CACHE=False):

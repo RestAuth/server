@@ -22,44 +22,44 @@ from unittest import skipUnless
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.test import TestCase
 from django.test.client import Client
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-from django.test import TestCase
-
 from django.utils import six
 from django.utils.six.moves import http_client
 
 from RestAuthCommon import handlers
 
+from backends import backend
+from backends.base import BackendBase
 from Services.models import Service
 from Users.validators import Validator
 from Users.validators import get_validators
 from Users.validators import load_username_validators
 from Users.validators import validate_username
-from backends import backend
-from backends.base import BackendBase
-from common.content_handlers import get_handler
-from common.content_handlers import load_handlers
-from common.errors import UsernameInvalid
-from common.middleware import RestAuthMiddleware
-from common.testdata import RestAuthTest
-from common.testdata import RestAuthTransactionTest
-from common.testdata import CliMixin
-from common.testdata import capture
-from common.testdata import groupname1
-from common.testdata import groupname2
-from common.testdata import groupname3
-from common.testdata import groupname4
-from common.testdata import propkey1
-from common.testdata import propkey2
-from common.testdata import propval1
-from common.testdata import propval2
-from common.testdata import propval3
-from common.testdata import username1
-from common.testdata import username2
-from common.testdata import username3
-from common.testdata import username4
+
+from .content_handlers import get_handler
+from .content_handlers import load_handlers
+from .errors import UsernameInvalid
+from .middleware import RestAuthMiddleware
+from .testdata import CliMixin
+from .testdata import RestAuthTest
+from .testdata import RestAuthTransactionTest
+from .testdata import capture
+from .testdata import groupname1
+from .testdata import groupname2
+from .testdata import groupname3
+from .testdata import groupname4
+from .testdata import propkey1
+from .testdata import propkey2
+from .testdata import propval1
+from .testdata import propval2
+from .testdata import propval3
+from .testdata import username1
+from .testdata import username2
+from .testdata import username3
+from .testdata import username4
 
 restauth_import = getattr(__import__('bin.restauth-import'), 'restauth-import').main
 PASSWORD_HASHERS = (

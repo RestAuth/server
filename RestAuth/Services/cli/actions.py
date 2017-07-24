@@ -18,7 +18,6 @@
 from __future__ import unicode_literals
 
 import fnmatch
-
 from argparse import Action
 
 from django.contrib.auth.models import Permission

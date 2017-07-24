@@ -17,8 +17,8 @@ from __future__ import unicode_literals
 
 from django.http import HttpResponse
 
-from common.types import get_response_type
-from common.content_handlers import get_handler
+from .content_handlers import get_handler
+from .types import get_response_type
 
 
 class HttpRestAuthResponse(HttpResponse):
