@@ -20,7 +20,6 @@ import os
 import re
 
 from django.conf import settings
-from django.contrib.auth.hashers import load_hashers
 from django.core.exceptions import ImproperlyConfigured
 from django.test.client import Client
 from django.test.client import RequestFactory
@@ -400,14 +399,12 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             self.assertHasLine(stdout, '^\* new3.example.com: Set password from input data.$')
 
         with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
-            load_hashers()
             self.assertTrue(Service.objects.get(
                 username='new1.example.com').check_password('12345678'))
             self.assertTrue(Service.objects.get(
                 username='new2.example.com').check_password('foobar'))
             self.assertTrue(Service.objects.get(
                 username='new3.example.com').check_password('foobar'))
-        load_hashers()
 
     def test_generate_service_hashes(self):
         path = os.path.join(self.base, 'services4.json')

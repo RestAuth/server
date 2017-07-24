@@ -22,7 +22,6 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.hashers import load_hashers
 from django.contrib.auth.hashers import make_password
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
@@ -312,7 +311,6 @@ class VerifyPasswordsTest(UserTests):  # POST /users/<user>/
         hashers = ('django.contrib.auth.hashers.PBKDF2PasswordHasher', PASSWORD_HASHERS[0], )
 
         with self.settings(PASSWORD_HASHERS=hashers):
-            load_hashers()
             resp = self.post('/users/%s/' % username1, {'password': password1, })
             self.assertEqual(resp.status_code, http_client.NO_CONTENT)
             u = backend._user(username=username1)
@@ -741,12 +739,6 @@ class HashTestMixin(RestAuthTestBase):
     hashers = None
     algorithm = None
     testdata = None
-
-    def setUp(self):
-        # Required in Django 1.4, not in 1.5
-        super(HashTestMixin, self).setUp()
-        with self.settings(PASSWORD_HASHERS=self.hashers):
-            load_hashers()
 
     def generate(self, data):
         return '%s$%s$%s' % (self.algorithm, data['salt'], data['hash'])
