@@ -15,7 +15,7 @@
 
 from __future__ import unicode_literals, absolute_import
 
-#import warnings
+from contextlib import contextmanager
 
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -34,22 +34,8 @@ from common.errors import UserExists
 from common.errors import UserNotFound
 
 
-class DjangoTransactionManager(object):
-    def __init__(self, dry=False, using=None):
-        self.dry = dry
-        self.using = using
-
-    def __enter__(self):
-        transaction.set_autocommit(False, using=None)
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        try:
-            if self.dry or exc_type:
-                transaction.rollback(using=self.using)
-            else:
-                transaction.commit(using=self.using)
-        finally:
-            transaction.set_autocommit(True, using=self.using)
+class DryRunException(Exception):
+    pass
 
 
 class DjangoBackend(BackendBase):
@@ -68,8 +54,17 @@ class DjangoBackend(BackendBase):
         except Group.DoesNotExist:
             raise GroupNotFound(name, service=service)
 
+    @contextmanager
     def transaction(self, dry=False):
-        return DjangoTransactionManager(dry=dry, using=self.db)
+        try:
+            with transaction.atomic():
+                yield
+                if dry:
+                    raise DryRunException()
+        except DryRunException:
+            pass
+
+        #return DjangoTransactionManager(dry=dry, using=self.db)
 
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         with self.transaction(dry=dry):
