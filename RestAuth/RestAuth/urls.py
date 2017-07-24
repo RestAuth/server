@@ -19,7 +19,7 @@ from django.conf.urls import url
 from .views import index
 
 urlpatterns = [
-    url(r'^/?$', index),
+    url(r'^$', index),
     url(r'^users/', include('Users.urls')),
     url(r'^groups/', include('Groups.urls')),
     url(r'^test/', include('Test.urls')),
