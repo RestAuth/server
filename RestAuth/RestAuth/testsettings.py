@@ -30,6 +30,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'common.middleware.RestAuthMiddleware',
 ]
+MIDDLEWARE_CLASSES = [
+    'django.middleware.common.CommonMiddleware',
+    'common.middleware.RestAuthMiddleware',
+]
 
 CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = 'restauth'

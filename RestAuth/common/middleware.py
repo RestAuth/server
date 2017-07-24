@@ -23,7 +23,6 @@ import logging
 import traceback
 
 from django.http import HttpResponse
-from django.utils.deprecation import MiddlewareMixin
 
 from RestAuthCommon.error import RestAuthException
 
@@ -31,11 +30,17 @@ from common.errors import GroupNotFound
 from common.errors import PropertyNotFound
 from common.errors import UserNotFound
 
+try:
+    from django.utils.deprecation import MiddlewareMixin
+except ImportError:  # Django 1.8
+    MiddlewareMixin = object
+
+
 log = logging.getLogger(__name__)
 CONTENT_TYPE_METHODS = {'POST', 'PUT'}
 
 
-class RestAuthMiddleware(MiddlewareMixin, object):
+class RestAuthMiddleware(MiddlewareMixin):
     def process_request(self, request):
         """Middleware to ensure required headers are present."""
         version = request.META.get('X_RESTAUTH_VERSION', '0.6')
