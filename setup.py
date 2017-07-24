@@ -46,7 +46,7 @@ if os.path.exists(common_path):
     else:
         os.environ['PYTHONPATH'] = common_path
 
-LATEST_RELEASE = '0.6.4'
+LATEST_RELEASE = '0.7.0'
 
 if os.path.exists('RestAuth'):
     sys.path.insert(0, 'RestAuth')
