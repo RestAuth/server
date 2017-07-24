@@ -2,24 +2,23 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals, absolute_import
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import ldap
 
-from backends.base import BackendBase
+from .base import BackendBase
 
 
 class LDAPBackend(BackendBase):
@@ -29,22 +28,21 @@ class LDAPBackend(BackendBase):
     :param LDAP_PASS: The password used for binding.
     :param USER_RDN: RDN for your user collection, e.g. "ou=people,dc=example,dc=com".
     :param GROUP_RDN: RDN for your group collection, e.g. "ou=people,dc=example,dc=com".
-    :param USER_CLASSES: Object classes used for user objects. The first named object is assumed to
-        be the primary object class.
+    :param USER_CLASSES: Object classes used for user objects. The first named object is assumed to be the
+        primary object class.
     :param USER_ATTR: The attribute identifying a user.
-    :param USER_SCOPE: Search scope used when searching for users, any of ldap.SCOPE_*. The default
-        is ldap.SCOPE_BASE.
-    :param GROUP_CLASSES: Object classes used for group objects. The first named object is assumed
-        to be the primary object class.
+    :param USER_SCOPE: Search scope used when searching for users, any of ldap.SCOPE_*. The default is
+        ldap.SCOPE_BASE.
+    :param GROUP_CLASSES: Object classes used for group objects. The first named object is assumed to be the
+        primary object class.
     :param GROUP_ATTR: The attribute identifying a group.
-    :param GROUP_SCOPE: Search scope used when searching for group, any of ldap.SCOPE_*. The
-        default is ldap.SCOPE_BASE.
+    :param GROUP_SCOPE: Search scope used when searching for group, any of ldap.SCOPE_*. The default is
+        ldap.SCOPE_BASE.
     """
     library = 'ldap'
 
-    def __init__(self, LDAP_HOST, LDAP_USER, LDAP_PASS, USER_RDN, GROUP_RDN,
-                 USER_CLASSES=None, USER_ATTR='uid', USER_SCOPE=None,
-                 GROUP_CLASSES=None, GROUP_ATTR='cn', GROUP_SCOPE=None):
+    def __init__(self, LDAP_HOST, LDAP_USER, LDAP_PASS, USER_RDN, GROUP_RDN, USER_CLASSES=None,
+                 USER_ATTR='uid', USER_SCOPE=None, GROUP_CLASSES=None, GROUP_ATTR='cn', GROUP_SCOPE=None):
         """
         Currently used for testing::
 
@@ -89,18 +87,17 @@ class LDAPBackend(BackendBase):
     def testSetUp(self):
         """Set up your backend for a test run.
 
-        This method is exclusively used in unit tests. It should perform any actions necessary to
-        start a unit test. In general, this should test that there are currently no users or groups
-        present.
+        This method is exclusively used in unit tests. It should perform any actions necessary to start a unit
+        test. In general, this should test that there are currently no users or groups present.
         """
         pass
 
     def testTearDown(self):
         """Tear down your backend after a test run.
 
-        This method is exclusively used in unit tests. It should perform any actions necessary
-        after a unit test. In general, this should completely remove all users, their properties
-        and all groups created during a unit test.
+        This method is exclusively used in unit tests. It should perform any actions necessary after a unit
+        test. In general, this should completely remove all users, their properties and all groups created
+        during a unit test.
         """
         pass
 
@@ -110,18 +107,17 @@ class LDAPBackend(BackendBase):
     def create_user(self, user, password=None, properties=None, groups=None, dry=False):
         """Create a new user.
 
-        The ``user`` is already validated, so you don't need to do any additional validation
-        here. If your backend has username restrictions, please implement a :ref:`username
-        validator <implement-validators>`.
+        The ``user`` is already validated, so you don't need to do any additional validation here. If your
+        backend has username restrictions, please implement a :ref:`username validator
+        <implement-validators>`.
 
-        The ``dry`` parameter tells you if you should actually create the user. The parameter will
-        be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the user.
+        The ``dry`` parameter tells you if you should actually create the user. The parameter will be True for
+        `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a dry-run, the method should
+        behave as closely as possible to a normal invocation but shouldn't actually create the user.
 
-        The ``groups`` parameter is a list of tuples with the first element being the name of the
-        group and the second element being the service of that group. Groups that do not exist
-        should be automatically created.
+        The ``groups`` parameter is a list of tuples with the first element being the name of the group and
+        the second element being the service of that group. Groups that do not exist should be automatically
+        created.
 
         Example::
 
@@ -132,8 +128,8 @@ class LDAPBackend(BackendBase):
 
         :param   user: The username.
         :type    user: str
-        :param   password: The password to set. If not given, the user should not have a valid
-            password and is unable to log in.
+        :param   password: The password to set. If not given, the user should not have a valid password and is
+            unable to log in.
         :type    password: str
         :param properties: An initial set of properties.
         :type  properties: dict
@@ -208,8 +204,8 @@ class LDAPBackend(BackendBase):
     def check_password(self, user, password, groups=None):
         """Check a users password.
 
-        If the ``groups`` parameter is given, the backend should also check if the user is a member
-        in at least one of the given groups.
+        If the ``groups`` parameter is given, the backend should also check if the user is a member in at
+        least one of the given groups.
 
         :param user: The username.
         :type  user: str
@@ -217,8 +213,8 @@ class LDAPBackend(BackendBase):
         :type  password: str
         :param groups: A list of groups, the format is the same as in :py:func:`create_user`.
         :type  groups: list
-        :return: ``True`` if the password is correct and, if given, is a member in at least one of
-            the given groups, ``False`` otherwise.
+        :return: ``True`` if the password is correct and, if given, is a member in at least one of the given
+            groups, ``False`` otherwise.
         :rtype: boolean
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
         """
@@ -229,8 +225,7 @@ class LDAPBackend(BackendBase):
 
         :param user: The username.
         :type  user: str
-        :param password: The new password. If None or empty, the user should get an unusable
-            password.
+        :param password: The new password. If None or empty, the user should get an unusable password.
         :type  password: str
         :raise: :py:class:`~common.errors.UserNotFound` if the user doesn't exist.
         """
@@ -239,11 +234,10 @@ class LDAPBackend(BackendBase):
     def set_password_hash(self, user, algorithm, hash):
         """Set a users password hash.
 
-        This method is called by |bin-restauth-import| if users with a password hash should be
-        imported.
+        This method is called by |bin-restauth-import| if users with a password hash should be imported.
 
-        If you can store password hashes as an arbitrary string and then use Djangos password
-        hashing framework for verifying those hashes, you can import the hash like this::
+        If you can store password hashes as an arbitrary string and then use Djangos password hashing
+        framework for verifying those hashes, you can import the hash like this::
 
             from common.hashers import import_hash
             django_hash = import_hash(algorithm, hash)
@@ -280,13 +274,13 @@ class LDAPBackend(BackendBase):
     def create_property(self, user, key, value, dry=False):
         """Create a new user property.
 
-        This method should return :py:class:`~common.errors.PropertyExists` if a property with the
-        given key already exists.
+        This method should return :py:class:`~common.errors.PropertyExists` if a property with the given key
+        already exists.
 
-        The ``dry`` parameter tells you if you should actually create the property. The parameter
-        will be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the property.
+        The ``dry`` parameter tells you if you should actually create the property. The parameter will be True
+        for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a dry-run, the method
+        should behave as closely as possible to a normal invocation but shouldn't actually create the
+        property.
 
         :param user: The username.
         :type  user: str
@@ -336,8 +330,8 @@ class LDAPBackend(BackendBase):
     def set_properties(self, user, properties):
         """Set multiple properties at once.
 
-        This method may just call :py:meth:`~.PropertyBackend.set` multiple times. Some backends
-        have faster methods for setting multiple values at once, though.
+        This method may just call :py:meth:`~.PropertyBackend.set` multiple times. Some backends have faster
+        methods for setting multiple values at once, though.
 
         :param user: The username.
         :type  user: str
@@ -374,10 +368,9 @@ class LDAPBackend(BackendBase):
     def create_group(self, group, service, users=None, dry=False):
         """Create a new group for the given service.
 
-        The ``dry`` parameter tells you if you should actually create the group. The parameter will
-        be True for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a
-        dry-run, the method should behave as closely as possible to a normal invocation but
-        shouldn't actually create the group.
+        The ``dry`` parameter tells you if you should actually create the group. The parameter will be True
+        for `dry-runs <https://restauth.net/wiki/Specification#Doing_dry-runs>`_. In a dry-run, the method
+        should behave as closely as possible to a normal invocation but shouldn't actually create the group.
 
         :param group: The name of the group.
         :type  group: str
@@ -439,9 +432,9 @@ class LDAPBackend(BackendBase):
     def set_members(self, group, service, users):
         """Set all members of a group.
 
-        This method replaces the current list of members with the one passed by ``users``. If a
-        user is member of a meta-group, this method must not remove that membership if the user is
-        not in the new list of members.
+        This method replaces the current list of members with the one passed by ``users``. If a user is member
+        of a meta-group, this method must not remove that membership if the user is not in the new list of
+        members.
 
         :param group: A group to set the users for.
         :type  group: str
@@ -475,8 +468,8 @@ class LDAPBackend(BackendBase):
         :type  group: str
         :param service: The service of the given group.
         :type  service: :py:class:`~Services.models.Service` or None
-        :param depth: Override the recursion depth to use for meta-groups.  Normally, the backend
-            should use :setting:`GROUP_RECURSION_DEPTH`.
+        :param depth: Override the recursion depth to use for meta-groups.  Normally, the backend should use
+            :setting:`GROUP_RECURSION_DEPTH`.
         :type  depth: int
         :return: list of strings, each representing a username
         :rtype: list
@@ -510,8 +503,7 @@ class LDAPBackend(BackendBase):
         :param  user: The user to remove.
         :type   user: str
         :raise: :py:class:`common.errors.GroupNotFound` if the named group does not exist.
-        :raise: :py:class:`~common.errors.UserNotFound` if the named user does not exist or is not
-            a member.
+        :raise: :py:class:`~common.errors.UserNotFound` if the named user does not exist or is not a member.
         """
         raise NotImplementedError
 

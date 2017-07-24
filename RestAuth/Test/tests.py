@@ -18,12 +18,12 @@ from __future__ import unicode_literals
 from django.utils.six.moves import http_client
 
 from backends import backend
+from common.testdata import RestAuthTransactionTest
 from common.testdata import groupname1
 from common.testdata import password1
 from common.testdata import propkey1
 from common.testdata import propval1
 from common.testdata import propval2
-from common.testdata import RestAuthTransactionTest
 from common.testdata import username1
 
 

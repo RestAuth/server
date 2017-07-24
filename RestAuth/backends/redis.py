@@ -2,34 +2,35 @@
 #
 # This file is part of RestAuth (https://restauth.net).
 #
-# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU
-# General Public License as published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# RestAuth is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
 #
-# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
+# RestAuth is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
 #
-# You should have received a copy of the GNU General Public License along with RestAuth. If not,
-# see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with RestAuth. If not, see
+# <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals, absolute_import
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from django.conf import settings
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import make_password
 from django.utils import six
 
-from Services.models import Service
 from backends.base import BackendBase
 from backends.base import TransactionManagerBase
-from common.hashers import import_hash
 from common.errors import GroupExists
 from common.errors import GroupNotFound
 from common.errors import PropertyExists
 from common.errors import PropertyNotFound
 from common.errors import UserExists
 from common.errors import UserNotFound
+from common.hashers import import_hash
+from Services.models import Service
 
 
 class RedisTransactionManager(TransactionManagerBase):
@@ -40,6 +41,7 @@ class RedisTransactionManager(TransactionManagerBase):
 
     def __exit__(self, exc_type, exc_value, traceback):
         pass
+
 
 # keys=[_USERS, _PROPS % user]
 # args=[user, password, len(properties)] + properties + groups
@@ -875,7 +877,7 @@ class RedisBackend(BackendBase):
             return True
 
         ref_keys = self._parent_keys(self._ref_key(group, sid), depth=1,
-                                 max_depth=settings.GROUP_RECURSION_DEPTH)
+                                     max_depth=settings.GROUP_RECURSION_DEPTH)
         ref_keys = ['members_%s' % k for k in ref_keys]
         if ref_keys:  # we might have no parents
             return user in self.conn.sunion(*ref_keys)
