@@ -362,7 +362,6 @@ class QualityCommand(Command):
             sys.exit(status)
 
         work_dir = os.path.join(_rootdir, 'RestAuth')
-        print('### Changing to %s', work_dir)
 
         os.chdir(work_dir)
         print('python -Wd manage.py check')
@@ -385,33 +384,11 @@ class testserver(Command):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'RestAuth.testsettings'
 
         import django
+        django.setup()
         from django.core import management
 
-        # this causes django to use stock syncdb instead of South-version
-        management.get_commands()
-        management._commands['syncdb'] = 'django.core'
-
         fixture = 'RestAuth/fixtures/testserver.json'
-        if django.VERSION[:2] == (1, 4):
-            # see https://github.com/django/django/commit/bb4452f212e211bca7b6b57904d59270ffd7a503
-            from django.db import connection as conn
-
-            # Create a test database.
-            conn.creation.create_test_db()
-
-            # Import the fixture data into the test database.
-            management.call_command('loaddata', fixture)
-
-            use_threading = conn.features.test_db_allows_multiple_connections
-            management.call_command(
-                'runserver',
-                shutdown_message='Testserver stopped.',
-                use_reloader=False,
-                use_ipv6=True,
-                use_threading=use_threading
-            )
-        else:
-            management.call_command('testserver', fixture, use_ipv6=True)
+        management.call_command('testserver', fixture, use_ipv6=True)
 
 
 setup(
