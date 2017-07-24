@@ -355,7 +355,7 @@ class QualityCommand(Command):
             sys.exit(status)
 
         print('flake8 RestAuth/ setup.py')
-        status = subprocess.call(['flake8', 'ca/', 'fabfile.py', 'setup.py'])
+        status = subprocess.call(['flake8', 'RestAuth/', 'setup.py'])
         if status != 0:
             sys.exit(status)
 
