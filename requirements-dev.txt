@@ -1,3 +1,4 @@
+Fabric3==1.13.1.post1
 Sphinx==1.6.3
 coverage==4.4.1
 flake8==3.3.0
