@@ -401,7 +401,8 @@ setup(
     download_url='https://server.restauth.net/download',
     install_requires=requires,
     license="GNU General Public License (GPL) v3",
-    packages=find_packages(exclude=['RestAuth.bin', ]),
+    package_dir={'': 'RestAuth'},
+    packages=find_packages('RestAuth', exclude=['bin', ]),
     scripts=[
         'RestAuth/bin/restauth-service.py', 'RestAuth/bin/restauth-user.py',
         'RestAuth/bin/restauth-group.py', 'RestAuth/bin/restauth-import.py',
