@@ -14,7 +14,8 @@
 # <http://www.gnu.org/licenses/>.
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
+#from docutils.parsers.rst import Directive
+from sphinx.util.compat import Directive
 try:
     from docutils.parsers.rst.directives.admonitions import BaseAdmonition as make_admonition
 except ImportError:  # Sphinx<1.6
@@ -32,10 +33,16 @@ class ExampleDirective(Directive):
         targetid = "example-%d" % env.new_serialno('example')
         targetnode = nodes.target('', '', ids=[targetid])
 
+
+        # 'name', 'arguments', 'options', 'content', 'lineno', 'content_offset', 'block_text', 'state', and
+        # 'state_machine'
         ad = make_admonition(example, self.name, [], self.options, self.content, self.lineno,
                              self.content_offset, self.block_text, self.state, self.state_machine)
 
-        return [targetnode] + ad
+#        ad = make_admonition(UpdateNode,       self.name, [], self.options, self.content, self.lineno,
+#                              self.content_offset, self.block_text, self.state, self.state_machine)
+
+        return [ad]
 
 
 class example(nodes.Admonition, nodes.Element):
