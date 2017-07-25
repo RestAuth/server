@@ -16,7 +16,7 @@
 # along with RestAuth.  If not, see <http://www.gnu.org/licenses/>.
 
 from docutils import nodes
-from sphinx.util.compat import Directive
+from docutils.parsers.rst import Directive
 from sphinx.util.compat import make_admonition
 
 from sphinx.locale import _
@@ -31,7 +31,7 @@ class ExampleDirective(Directive):
 
         targetid = "example-%d" % env.new_serialno('example')
         targetnode = nodes.target('', '', ids=[targetid])
-        
+
         ad = make_admonition(example, self.name, [], self.options,
                              self.content, self.lineno, self.content_offset,
                              self.block_text, self.state, self.state_machine)
@@ -56,17 +56,17 @@ def visit_man_node(self, node):
         self.body.append( node_to_man( self, child ) )
     self.body.append( '\n.INDENT 0.0\n')
     section_name = node.parent.children[0].astext()
-    
+
 #    if section_name == 'Examples':
     self.body.append( '.INDENT 7\n')
 
 def depart_man_node(self, node):
     self.body.append( '.UNINDENT\n')
     section_name = node.parent.children[0].astext()
-    
+
 #    if section_name == 'Examples':
     self.body.append( '.UNINDENT\n')
-    
+
 
 def visit_html_node(self, node):
     self.body.append(self.starttag(node, 'dl'))
@@ -83,7 +83,7 @@ def setup(app):
     app.add_node(example,
                  html=(visit_html_node, depart_html_node),
                  man=(visit_man_node, depart_man_node) )
-    
+
     app.add_crossref_type(
         directivename = "setting",
         rolename      = "setting",
