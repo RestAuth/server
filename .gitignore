@@ -24,4 +24,5 @@ share/
 /py2
 /py3
 /*.egg-info
+/RestAuth/*.egg-info
 /.coverage
