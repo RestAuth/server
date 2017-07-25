@@ -15,7 +15,10 @@
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
-from sphinx.util.compat import make_admonition
+try:
+    from docutils.parsers.rst.directives.admonitions import BaseAdmonition as make_admonition
+except ImportError:  # Sphinx<1.6
+    from sphinx.util.compat import make_admonition
 
 
 class ExampleDirective(Directive):
