@@ -320,7 +320,7 @@ class coverage(Command):
                                 branch=True, omit=omit)
 
         # exclude some patterns:
-        cov.exclude('\t*self.fail\(.*\)')
+        cov.exclude(r'\t*self.fail\(.*\)')
         if not settings.SECURE_CACHE:
             cov.exclude('\t*if settings.SECURE_CACHE:')
 

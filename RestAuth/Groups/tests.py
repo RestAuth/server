@@ -1185,9 +1185,9 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             try:
                 cli(['add', groupname1 if six.PY3 else groupname1.encode('utf-8')])
                 self.fail('Adding an already existing group does not throw an error.')
-            except SystemExit as e:
+            except SystemExit:
                 self.assertEqual(stdout.getvalue(), '')
-                self.assertHasLine(stderr, 'Group already exists\.')
+                self.assertHasLine(stderr, r'Group already exists\.')
 
         with capture() as (stdout, stderr):
             try:
@@ -1197,7 +1197,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
-                self.assertHasLine(stderr, 'Group already exists\.')
+                self.assertHasLine(stderr, r'Group already exists\.')
 
     def test_ls(self):
         backend.create_group(group=groupname1, service=None)
@@ -1319,7 +1319,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertFalse(backend.SUPPORTS_GROUP_VISIBILITY)
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
-                self.assertHasLine(stderr, 'error: Backend does not support group visiblity\.$')
+                self.assertHasLine(stderr, r'error: Backend does not support group visiblity\.$')
                 return  # we're done if we don't support group visibility
         self.assertEqual(backend.list_groups(service=self.service), [groupname1])
 
@@ -1343,7 +1343,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
-                self.assertHasLine(stderr, 'error: %s at service %s: Group does not exist\.$' %
+                self.assertHasLine(stderr, r'error: %s at service %s: Group does not exist\.$' %
                                    (groupname1, self.service.username))
         self.assertEqual(backend.list_groups(service=None), [groupname1])
 
@@ -1448,7 +1448,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
-                self.assertHasLine(stderr, 'error: %s: Group already exists\.$' % groupname2)
+                self.assertHasLine(stderr, r'error: %s: Group already exists\.$' % groupname2)
         self.assertCountEqual(backend.list_groups(service=None), [groupname1, groupname2])
 
     def test_rm(self):
@@ -1479,7 +1479,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertEqual(stdout.getvalue(), '')
                 self.assertHasLine(
                     stderr,
-                    'error: User "%s" not member of group "%s"\.$' % (username1, groupname1))
+                    r'error: User "%s" not member of group "%s"\.$' % (username1, groupname1))
         self.assertEqual(backend.members(group=groupname1, service=None), [])
 
     def test_rm_group(self):
@@ -1514,4 +1514,4 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertEqual(backend.subgroups(group=groupname1, service=None), [])
                 self.assertHasLine(
                     stderr,
-                    'error: Group "%s" is not a subgroup of "%s"\.$' % (groupname2, groupname1))
+                    r'error: Group "%s" is not a subgroup of "%s"\.$' % (groupname2, groupname1))

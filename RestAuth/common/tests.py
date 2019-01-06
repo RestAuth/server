@@ -279,8 +279,6 @@ class RestAuthImportTests(RestAuthTransactionTest, CliMixin):
                 restauth_import([path])
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
-            except IOError as e:  # pragma: python2.6
-                pass  # this throws IOError on python2.6.
 
         # invalid json data
         path = os.path.join(self.base, 'faulty1.json')
@@ -373,7 +371,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         with capture() as (stdout, stderr):
             restauth_import([path])
             self.assertHasLine(stdout, '^Services:$')
-            self.assertHasLine(stdout, '^\* %s: Already exists.$' % self.service.username)
+            self.assertHasLine(stdout, r'^\* %s: Already exists.$' % self.service.username)
             self.assertEqual(stderr.getvalue(), '')
 
         service_name = 'new.example.com'
@@ -382,8 +380,8 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         path = os.path.join(self.base, 'services2.json')
         with capture() as (stdout, stderr):
             restauth_import([path])
-            self.assertHasLine(stdout, '^Services:$')
-            self.assertHasLine(stdout, '^\* %s: Set password from input data.$' % service_name)
+            self.assertHasLine(stdout, r'^Services:$')
+            self.assertHasLine(stdout, r'^\* %s: Set password from input data.$' % service_name)
             self.assertEqual(stderr.getvalue(), '')
             self.assertTrue(Service.objects.get(username=service_name).check_password('foobar'))
 
@@ -394,10 +392,10 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             restauth_import([path])
 
             self.assertEqual(stderr.getvalue(), '')
-            self.assertHasLine(stdout, '^Services:$')
-            self.assertHasLine(stdout, '^\* new1.example.com: Set password from input data.$')
-            self.assertHasLine(stdout, '^\* new2.example.com: Set password from input data.$')
-            self.assertHasLine(stdout, '^\* new3.example.com: Set password from input data.$')
+            self.assertHasLine(stdout, r'^Services:$')
+            self.assertHasLine(stdout, r'^\* new1.example.com: Set password from input data.$')
+            self.assertHasLine(stdout, r'^\* new2.example.com: Set password from input data.$')
+            self.assertHasLine(stdout, r'^\* new3.example.com: Set password from input data.$')
 
         with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
             self.assertTrue(Service.objects.get(
@@ -413,9 +411,9 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             restauth_import(['--gen-passwords', path])
 
             self.assertEqual(stderr.getvalue(), '')
-            self.assertHasLine(stdout, '^Services:$')
-            self.assertHasLine(stdout, '^\* new.example.com: Generated password: .*$')
-            match = re.search('Generated password: (.*)', stdout.getvalue())
+            self.assertHasLine(stdout, r'^Services:$')
+            self.assertHasLine(stdout, r'^\* new.example.com: Generated password: .*$')
+            match = re.search(r'Generated password: (.*)', stdout.getvalue())
             password = match.groups()[0]
             Service.objects.get(username='new.example.com').check_password(password)
 
@@ -425,8 +423,8 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             restauth_import([path])
 
             self.assertEqual(stderr.getvalue(), '')
-            self.assertHasLine(stdout, '^Services:$')
-            self.assertHasLine(stdout, '^\* new.example.com: Added service with no password.$')
+            self.assertHasLine(stdout, r'^Services:$')
+            self.assertHasLine(stdout, r'^\* new.example.com: Added service with no password.$')
             service = Service.objects.get(username='new.example.com')
             hosts = service.hosts.values_list('address', flat=True)
             self.assertCountEqual(hosts, ['127.0.0.1', '::1'])
@@ -441,7 +439,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
             with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
                 restauth_import(cmd)
-                self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
+                self.assertHasLine(stdout, r'^\* %s: Set hash from input data\.$' % username3)
                 self.assertTrue(backend.check_password(user=username3, password='foobar'))
 
             self.assertCountEqual(backend.list_users(), [username1, username2, username3])
@@ -464,7 +462,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
 
             with override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS):
                 restauth_import(cmd)
-                self.assertHasLine(stdout, '^\* %s: Set hash from input data\.$' % username3)
+                self.assertHasLine(stdout, r'^\* %s: Set hash from input data\.$' % username3)
                 self.assertTrue(backend.check_password(user=username3, password='foobar'))
                 self.assertCountEqual(backend.list_users(), [username3])
 
@@ -486,7 +484,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         with capture() as (stdout, stderr):
             restauth_import([path])
             self.assertHasLine(
-                stdout, '^\* %s: Hash of type "unknown" is not supported, skipping\.$' % username1)
+                stdout, r'^\* %s: Hash of type "unknown" is not supported, skipping\.$' % username1)
 
     def test_existing_properties(self):
         backend.create_user(username2)
@@ -498,9 +496,9 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
             restauth_import([path])
             self.assertCountEqual(backend.list_users(), [username1, username2, username3])
 
-            pattern = '^%s: Property "%s" already exists\.$' % (username2, propkey1)
+            pattern = r'^%s: Property "%s" already exists\.$' % (username2, propkey1)
             self.assertHasLine(stdout, pattern)
-            self.assertHasLine(stdout, '^%s: Property "date joined" already exists\.$' % username2)
+            self.assertHasLine(stdout, r'^%s: Property "date joined" already exists\.$' % username2)
 
             expected_props = {
                 propkey1: propval3,  # propva1 is in json-file - we don't overwrite!
@@ -520,7 +518,7 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         with capture() as (stdout, stderr):
             restauth_import(['--gen-passwords', path])
             output = stdout.getvalue()
-            self.assertHasLine(output, '^\* %s: Generated password: .*' % username1)
+            self.assertHasLine(output, r'^\* %s: Generated password: .*' % username1)
             password = re.search('Generated password: (.*)', output).groups()[0]
         self.assertTrue(backend.check_password(user=username1, password=password))
 
@@ -539,11 +537,11 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         path = os.path.join(self.base, 'groups1.json')
         with capture() as (stdout, stderr):
             restauth_import([path])
-            self.assertHasLine(stdout, '^Groups:$')
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname1)
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname2)
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
+            self.assertHasLine(stdout, r'^Groups:$')
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname1)
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname2)
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname3)
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname4)
 
         # test memberships
         self.assertCountEqual(backend.members(group=groupname1, service=None), [])
@@ -571,11 +569,11 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
         with capture() as (stdout, stderr):
             restauth_import([path])
             self.assertEqual(stderr.getvalue(), '')
-            self.assertHasLine(stdout, '^Groups:$')
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname1)
-            self.assertHasLine(stdout, '^\* %s: Already exists, adding memberships\.$' % groupname2)
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
+            self.assertHasLine(stdout, r'^Groups:$')
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname1)
+            self.assertHasLine(stdout, r'^\* %s: Already exists, adding memberships\.$' % groupname2)
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname3)
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname4)
 
         # test memberships
         self.assertCountEqual(backend.members(group=groupname1, service=None), [])
@@ -609,11 +607,11 @@ TypeError: 'password' is neither string nor dictionary.\n""", stderr.getvalue())
                 restauth_import(['--skip-existing-groups', path])
             except SystemExit:
                 self.fail(stderr.getvalue())
-            self.assertHasLine(stdout, '^Groups:$')
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname1)
-            self.assertHasLine(stdout, '^\* %s: Already exists, skipping\.$' % groupname2)
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname3)
-            self.assertHasLine(stdout, '^\* %s: created\.$' % groupname4)
+            self.assertHasLine(stdout, r'^Groups:$')
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname1)
+            self.assertHasLine(stdout, r'^\* %s: Already exists, skipping\.$' % groupname2)
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname3)
+            self.assertHasLine(stdout, r'^\* %s: created\.$' % groupname4)
 
         # test memberships
         self.assertCountEqual(backend.members(group=groupname1, service=None), [])

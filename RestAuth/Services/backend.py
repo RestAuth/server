@@ -60,7 +60,7 @@ class InternalAuthenticationBackend:
             if cache_data is None:
                 try:
                     name, password = self._decode(data)
-                except:
+                except Exception:
                     return None
 
                 try:
@@ -88,7 +88,7 @@ class InternalAuthenticationBackend:
         else:
             try:
                 name, password = self._decode(data)
-            except:
+            except Exception:
                 return None
 
             try:

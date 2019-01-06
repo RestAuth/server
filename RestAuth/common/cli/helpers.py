@@ -275,5 +275,5 @@ def write_commands(f, parser, cmd):
 def write_usage(f, parser, cmd=None):
     usage = parser.format_usage().replace('usage: ', '')
     usage = usage.replace("\n", '')
-    usage = re.sub('\s{2,}', ' ', usage)
+    usage = re.sub(r'\s{2,}', ' ', usage)
     f.write('.. parsed-literal:: %s' % usage)

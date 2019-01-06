@@ -393,7 +393,7 @@ class CliTests(RestAuthTest, CliMixin):
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
-                self.assertHasLine(stderr, 'Service does not exist\.$')
+                self.assertHasLine(stderr, r'Service does not exist\.$')
         self.assertFalse(Service.objects.filter(username=servicename4).exists())
         self.assertFalse(Service.objects.filter(username=servicename5).exists())
 
@@ -408,7 +408,7 @@ class CliTests(RestAuthTest, CliMixin):
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
-                self.assertHasLine(stderr, 'error: %s: Service already exists\.$' % servicename4)
+                self.assertHasLine(stderr, r'error: %s: Service already exists\.$' % servicename4)
         self.assertTrue(Service.objects.filter(username=servicename4).exists())
         self.assertTrue(Service.objects.filter(username=servicename5).exists())
 

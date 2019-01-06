@@ -471,9 +471,9 @@ class RedisBackend(BackendBase):
 
     # serialize a dictionary into a flat list including keys and values
     def _listify(self, d):
-        l = []
-        [l.extend(t) for t in six.iteritems(d)]
-        return l
+        li = []
+        [li.extend(t) for t in six.iteritems(d)]
+        return li
 
     # get the id of a service
     def _sid(self, service):

@@ -59,7 +59,7 @@ try:
     from common.errors import GroupExists
     from common.errors import PropertyExists
     from common.errors import UserExists
-except ImportError as e:  # pragma: no cover
+except ImportError:  # pragma: no cover
     sys.stderr.write(
         'Error: Cannot import RestAuth. Please make sure RestAuth is in your PYTHONPATH.\n')
     sys.exit(1)

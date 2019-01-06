@@ -65,9 +65,9 @@ def load_username_validators(validators=None):
     # use different regular expressions, depending on if we force ASCII
     if not allow_whitespace:
         if force_ascii:
-            USERNAME_NO_WHITESPACE = re.compile('\s')
+            USERNAME_NO_WHITESPACE = re.compile(r'\s')
         else:
-            USERNAME_NO_WHITESPACE = re.compile('\s', re.UNICODE)
+            USERNAME_NO_WHITESPACE = re.compile(r'\s', re.UNICODE)
     else:
         USERNAME_NO_WHITESPACE = False
 

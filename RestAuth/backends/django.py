@@ -31,8 +31,8 @@ from common.errors import UserExists
 from common.errors import UserNotFound
 from common.hashers import import_hash
 from Groups.models import Group
-from Users.models import ServiceUser as User
 from Users.models import Property
+from Users.models import ServiceUser as User
 
 
 class DryRunException(Exception):

@@ -885,7 +885,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
             except SystemExit as e:
                 self.assertEqual(e.code, 2)
                 self.assertEqual(stdout.getvalue(), '')
-                self.assertHasLine(stderr, 'User already exists\.$')
+                self.assertHasLine(stderr, r'User already exists\.$')
 
     def test_add_invalid(self):
         # test an invalid resource (that is, with a slash)
@@ -1103,7 +1103,7 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertHasLine(stdout, '^Groups:$')
 
                 # no %s expansion because of py2 encoding
-                pattern = '^\* %s: %s' % (self.service.username, groupname1)
+                pattern = r'^\* %s: %s' % (self.service.username, groupname1)
                 self.assertHasLine(stdout, pattern, flags=re.UNICODE)
             else:
                 self.assertHasLine(stdout, '^Groups: %s' % groupname1)
@@ -1122,14 +1122,14 @@ class CliTests(RestAuthTransactionTest, CliMixin):
                 self.assertHasLine(stdout, '^Groups:$')
 
                 # no %s expansion because of py2 encoding
-                pattern = '^\* no service: %s' % groupname2
+                pattern = r'^\* no service: %s' % groupname2
                 self.assertHasLine(stdout, pattern, flags=re.UNICODE)
 
                 # no %s expansion because of py2 encoding
-                pattern = '^\* %s: %s' % (self.service.username, groupname1)
+                pattern = r'^\* %s: %s' % (self.service.username, groupname1)
                 self.assertHasLine(stdout, pattern, flags=re.UNICODE)
             else:
-                self.assertHasLine(stdout, '^Groups: %s, %s' % (groupname1, groupname2))
+                self.assertHasLine(stdout, r'^Groups: %s, %s' % (groupname1, groupname2))
 
             self.assertEqual(stderr.getvalue(), '')
 
