@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='property',
             name='user',
-            field=models.ForeignKey(to='Users.ServiceUser'),
+            field=models.ForeignKey(to='Users.ServiceUser', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
