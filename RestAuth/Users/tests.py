@@ -785,19 +785,19 @@ class Drupal7Test(HashTestMixin, TransactionTestCase):
     algorithm = 'drupal7'
 
     testdata = {
-        '1': {'salt': 'DtfbJVKBh', 'hash': 'lHmYDIMN7WChUUvEhATGnflurtH7c46/4I9Mocpi.0O', },
-        '12': {'salt': 'D/Ke05Og0', 'hash': 'fQ0NFG7OzsgIoxuZ2bjHvLr4MjoLq3nHVkleR/qTDd5', },
-        '123': {'salt': 'Dl0ruon0i', 'hash': 'SMu2oThzN.pbFPdtD5Sh67WHN92WU/tx9rJgZyel/LT', },
-        '1234': {'salt': 'DvL6XrqV1', 'hash': '6VBeRqFZlu0kdVlCXaF4LbSfTbQkpQ5QY1bc3wDNiZq', },
-        '12345': {'salt': 'DDcFBLTez', 'hash': 'B1zxDDL5TK5v7iVqlP0H4H8gv1CbGTbAAtwyO//e1Rg', },
-        '123456': {'salt': 'DoxC.Busk', 'hash': 'MRu2HSdCh29u0ZTJhETlEaxyH/JUIvtQ7oD2Rkxnl3c', },
-        '1234567': {'salt': 'DE/joQlAl', 'hash': 'd8eZk/MB65Wb7Mzihm2M/WEfAYthl2aPTjSSBLJ/wX5', },
-        '12345678': {'salt': 'D/YGN6xK5', 'hash': '0wPvroaZq4QLT.vLCbt0JGMAPSCYxcN6BO4uSxjRrux', },
-        's8zm3mPH88mY': {'salt': 'DzGBWhU4E', 'hash': 'QifJeFvwTPvJvc03yvOrI1PebgOj9GCAZvoKMtRVmuZ', },
-        'dfi31ps18XaR': {'salt': 'DHFKOWOc.', 'hash': '2pgOGy5s59k1WzhTiMUcHrdPlIzFnbuEK7m54j2zrkT', },
-        'izfqISu3hVrx': {'salt': 'Dnspf7cF3', 'hash': '.Pk793BzmyMtonIlWJp3Vh8Zix0wMCV.j.KCAGamoz0', },
-        'rGUo7cpMTv1f': {'salt': 'Dcm.rOynf', 'hash': 'SWVgqarUIk9Vemk/txNQbaPaWJqTPR4gcSrHMor4o8K', },
-        'qJreivhrj04Y': {'salt': 'DorDKO73p', 'hash': 'PICBMd2BgWbowvDk3y7L159JaYmjvSV/hyQJnHGmgak', },
+        '1': {'salt': 'DtfbJVKB', 'hash': 'lHmYDIMN7WChUUvEhATGnflurtH7c46/4I9Mocpi.0O', },
+        '12': {'salt': 'D/Ke05Og', 'hash': 'fQ0NFG7OzsgIoxuZ2bjHvLr4MjoLq3nHVkleR/qTDd5', },
+        '123': {'salt': 'Dl0ruon0', 'hash': 'SMu2oThzN.pbFPdtD5Sh67WHN92WU/tx9rJgZyel/LT', },
+        '1234': {'salt': 'DvL6XrqV', 'hash': '6VBeRqFZlu0kdVlCXaF4LbSfTbQkpQ5QY1bc3wDNiZq', },
+        '12345': {'salt': 'DDcFBLTe', 'hash': 'B1zxDDL5TK5v7iVqlP0H4H8gv1CbGTbAAtwyO//e1Rg', },
+        '123456': {'salt': 'DoxC.Bus', 'hash': 'MRu2HSdCh29u0ZTJhETlEaxyH/JUIvtQ7oD2Rkxnl3c', },
+        '1234567': {'salt': 'DE/joQlA', 'hash': 'd8eZk/MB65Wb7Mzihm2M/WEfAYthl2aPTjSSBLJ/wX5', },
+        '12345678': {'salt': 'D/YGN6xK', 'hash': '0wPvroaZq4QLT.vLCbt0JGMAPSCYxcN6BO4uSxjRrux', },
+        's8zm3mPH88mY': {'salt': 'DzGBWhU4', 'hash': 'QifJeFvwTPvJvc03yvOrI1PebgOj9GCAZvoKMtRVmuZ', },
+        'dfi31ps18XaR': {'salt': 'DHFKOWOc', 'hash': '2pgOGy5s59k1WzhTiMUcHrdPlIzFnbuEK7m54j2zrkT', },
+        'izfqISu3hVrx': {'salt': 'Dnspf7cF', 'hash': '.Pk793BzmyMtonIlWJp3Vh8Zix0wMCV.j.KCAGamoz0', },
+        'rGUo7cpMTv1f': {'salt': 'Dcm.rOyn', 'hash': 'SWVgqarUIk9Vemk/txNQbaPaWJqTPR4gcSrHMor4o8K', },
+        'qJreivhrj04Y': {'salt': 'DorDKO73', 'hash': 'PICBMd2BgWbowvDk3y7L159JaYmjvSV/hyQJnHGmgak', },
     }
 
     def generate(self, data):
