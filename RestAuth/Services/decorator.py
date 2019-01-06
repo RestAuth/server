@@ -58,7 +58,7 @@ def login_user(view, request, realm, *args, **kwargs):
         middleware = 'django.contrib.auth.middleware.AuthenticationMiddleware'
 
         # log the user in:
-        if middleware in settings.MIDDLEWARE_CLASSES:  # pragma: no cover
+        if middleware in settings.MIDDLEWARE:  # pragma: no cover
             login(request, user)
         else:
             setattr(request, 'user', user)
