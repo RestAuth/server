@@ -38,7 +38,7 @@ class InternalAuthenticationBackend:
         data = base64.b64decode(data)
         return data.split(':', 1)
 
-    def authenticate(self, header, host):
+    def authenticate(self, request, header, host):
         """
         Authenticate against a header as send by HTTP basic
         authentication and a host. This method takes care of decoding
