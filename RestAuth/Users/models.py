@@ -100,7 +100,7 @@ class ServiceUser(models.Model):
 
 
 class Property(models.Model):
-    user = models.ForeignKey(ServiceUser)
+    user = models.ForeignKey(ServiceUser, on_delete=models.CASCADE)
     key = models.CharField(max_length=128, db_index=True)
     value = models.TextField()
 

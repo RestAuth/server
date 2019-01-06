@@ -41,7 +41,7 @@ group_permissions = (
 
 
 class Group(models.Model):
-    service = models.ForeignKey(Service, null=True)
+    service = models.ForeignKey(Service, null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=30, db_index=True)
     users = models.ManyToManyField(User)
     groups = models.ManyToManyField('self', symmetrical=False, related_name='parent_groups')
