@@ -1,18 +1,20 @@
 language: python
+dist: xenial
 python:
   - "2.7"
   - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
   - "nightly"
 env:
-  - DJANGO_VERSION=">=1.11"
-  - DJANGO_VERSION="<1.11"
-  - DJANGO_VERSION="<1.9"
+  - DJANGO_VERSION="1.11.15"
+  - DJANGO_VERSION="2.0.10"
+  - DJANGO_VERSION="2.1.5"
 install:
  - pip install -U pip setuptools
  - pip install -r requirements.txt -r requirements-dev.txt
- - pip install Django$DJANGO_VERSION
+ - pip install Django==$DJANGO_VERSION
 #before_script:
 script:
   - python setup.py code_quality
