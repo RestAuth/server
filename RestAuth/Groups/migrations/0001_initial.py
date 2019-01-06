@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=30, db_index=True)),
                 ('groups', models.ManyToManyField(related_name='parent_groups', to='Groups.Group')),
-                ('service', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('service', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
                 ('users', models.ManyToManyField(to='Users.ServiceUser')),
             ],
             options={
