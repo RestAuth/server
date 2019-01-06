@@ -1,4 +1,4 @@
-RestAuth 0.7.0 (XX XXXX 2017)
+RestAuth 0.7.0 (24 July 2017)
 
   General:
   * Update requirements. RestAuth now works with Django 1.8-1.11 and is tested with Python 2.7 and
