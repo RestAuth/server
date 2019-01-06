@@ -26,7 +26,7 @@ from setuptools import setup
 from setuptools.command.install_scripts import install_scripts as _install_scripts
 
 requires = [
-    'Django>=1.8',
+    'Django>=1.11',
     'RestAuthCommon>=0.7.0',
     'python-mimeparse>=1.6.0',
     'django-hashers-passlib>=0.3',
