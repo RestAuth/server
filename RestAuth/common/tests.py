@@ -26,8 +26,8 @@ from django.test import TestCase
 from django.test.client import Client
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-from django.utils import six
-from django.utils.six.moves import http_client
+import six
+from six.moves import http_client
 
 from RestAuthCommon import handlers
 

@@ -21,7 +21,7 @@ import base64
 
 from django.conf import settings
 from django.core.cache import cache
-from django.utils import six
+import six
 
 from Services.models import Service
 

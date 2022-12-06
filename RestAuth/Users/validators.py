@@ -19,7 +19,7 @@ import importlib
 import re
 
 from django.conf import settings
-from django.utils import six
+import six
 
 from common.errors import UsernameInvalid
 

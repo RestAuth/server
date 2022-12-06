@@ -23,7 +23,7 @@ from hashers_passlib import PasslibHasher
 from django.contrib.auth.hashers import BasePasswordHasher
 from django.contrib.auth.hashers import identify_hasher
 from django.contrib.auth.hashers import mask_hash
-from django.utils import six
+import six
 from django.utils.crypto import constant_time_compare
 from django.utils.crypto import get_random_string
 

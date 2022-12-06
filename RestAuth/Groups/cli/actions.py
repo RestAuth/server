@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 
 from argparse import Action
 
-from django.utils import six
+import six
 
 
 class GroupnameAction(Action):

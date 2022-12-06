@@ -54,6 +54,8 @@ DATA_BACKEND = {
 CACHE_MIDDLEWARE_SECONDS = 300
 CACHE_MIDDLEWARE_KEY_PREFIX = 'restauth'
 
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+
 INSTALLED_APPS = (
     # from django:
     'django.contrib.auth',

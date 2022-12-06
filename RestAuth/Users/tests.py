@@ -24,9 +24,9 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
-from django.utils import six
-from django.utils.six import StringIO
-from django.utils.six.moves import http_client
+import six
+from six import StringIO
+from six.moves import http_client
 
 from backends import backend
 from common.cli.helpers import write_commands

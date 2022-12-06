@@ -22,7 +22,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.http import HttpResponseForbidden
-from django.utils import six
+import six
 
 from RestAuthCommon.strprep import stringcheck
 

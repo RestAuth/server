@@ -26,8 +26,8 @@ from django.test import TestCase
 from django.test import TransactionTestCase
 from django.test.client import Client
 from django.test.utils import override_settings
-from django.utils import six
-from django.utils.six import StringIO
+import six
+from six import StringIO
 
 from RestAuthCommon import handlers
 

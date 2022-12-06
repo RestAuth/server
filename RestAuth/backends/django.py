@@ -20,7 +20,7 @@ from contextlib import contextmanager
 
 from django.db import transaction
 from django.db.utils import IntegrityError
-from django.utils import six
+import six
 
 from backends.base import BackendBase
 from common.errors import GroupExists

@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 import logging
 
 from django.http import HttpResponseForbidden
-from django.utils import six
+import six
 
 from RestAuthCommon.strprep import stringcheck
 from RestAuthCommon.strprep import stringprep

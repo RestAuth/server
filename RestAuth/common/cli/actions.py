@@ -22,7 +22,7 @@ from argparse import Action
 from argparse import ArgumentError
 
 from django.db.utils import IntegrityError
-from django.utils import six
+import six
 
 from RestAuthCommon.error import PreconditionFailed
 from RestAuthCommon.strprep import stringcheck

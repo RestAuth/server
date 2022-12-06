@@ -39,7 +39,7 @@ try:
     import django
     django.setup()
 
-    from django.utils import six
+    import six
 
     from Services.models import Service
     from Users.cli.parsers import parser

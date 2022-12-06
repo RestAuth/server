@@ -15,7 +15,7 @@
 
 from __future__ import unicode_literals
 
-from django.utils.six.moves import http_client
+from six.moves import http_client
 
 from backends import backend
 from common.testdata import RestAuthTransactionTest

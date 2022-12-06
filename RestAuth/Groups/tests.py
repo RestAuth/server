@@ -17,8 +17,8 @@ from __future__ import unicode_literals
 
 import unittest
 
-from django.utils import six
-from django.utils.six.moves import http_client
+import six
+from six.moves import http_client
 
 from backends import backend
 from common.compat import encode_str as _e
