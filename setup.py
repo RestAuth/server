@@ -26,10 +26,10 @@ from setuptools import setup
 from setuptools.command.install_scripts import install_scripts as _install_scripts
 
 requires = [
-    'Django>=1.11',
-    'RestAuthCommon>=0.7.0',
+    'Django>=3.2.16',
+    'RestAuthCommon>=0.7.1',
     'python-mimeparse>=1.6.0',
-    'django-hashers-passlib>=0.3',
+    'django-hashers-passlib>=0.4',
 ]
 _rootdir = os.path.dirname(os.path.realpath(__file__))
 
@@ -46,7 +46,7 @@ if os.path.exists(common_path):
     else:
         os.environ['PYTHONPATH'] = common_path
 
-LATEST_RELEASE = '0.7.0'
+LATEST_RELEASE = '0.7.1'
 
 if os.path.exists('RestAuth'):
     sys.path.insert(0, 'RestAuth')

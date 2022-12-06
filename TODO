@@ -1,4 +1,4 @@
-0.7.0:
+0.7.1:
 
 * Update RedisBackend.
 * Output a warning if we use --service but backend does not support group visibility.
